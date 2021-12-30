@@ -1,0 +1,525 @@
+import os
+import torch
+import numpy as np
+import torch.nn as nn
+import matplotlib.pyplot as plt
+import torchvision
+from torchvision import transforms
+
+import logging
+from mmcv.runner import load_checkpoint
+from openmixup.utils import print_log
+from .. import builder
+from ..registry import MODELS
+
+
+@MODELS.register_module
+class AutoMixup_V2(nn.Module):
+    """ AutoMix V2
+        v0824 version (based on V1plus v0707)
+        V1219 version (adding freezed backbone_k and mixblock)
+
+    Official implementation of "AutoMix: Unveiling the Power of Mixup
+        (https://arxiv.org/abs/2103.13027)".
+    
+    Args:
+        backbone (dict): Config dict for module of backbone ConvNet (main).
+        backbone_k (dict): Config dict for module of momentum backbone ConvNet. Default: None.
+        mix_block (dict): Config dict for the mixblock. Default: None.
+        head_mix (dict): Config dict for module of mixup classification loss (backbone).
+        head_one (dict): Config dict for module of onehot classification loss (backbone).
+        head_mix (dict): Config dict for mixup classification loss (mixblock). Default: None.
+        head_one (dict): Config dict for onehot classification loss (mixblock). Default: None.
+        head_weights (dict): Dict of the used cls heads names and loss weights,
+            which determines the cls or mixup head in used.
+            Default: dict(head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1)
+        alpha (int): Beta distribution '$\beta(\alpha, \alpha)$'.
+        momentum (float): Momentum coefficient for the momentum-updated encoder.
+            Default: 0.999.
+        mask_layer (int): Number of the feature layer indix in the backbone.
+        mask_loss (float): Loss weight for the mixup mask. Default: 0.
+        mask_adjust (float): Probrobality (in [0, 1]) of adjusting the mask (q) in terms
+            of lambda (q), which only affect the backbone training.
+            Default: False (or 0.).
+        pre_one_loss (float): Loss weight for the pre-MixBlock head as onehot classification.
+            Default: 0. (requires a pre_head in MixBlock)
+        pre_mix_loss (float): Loss weight for the pre-MixBlock head as mixup classification.
+            Default: 0. (requires a pre_head in MixBlock)
+        lam_margin (int): Margin of lambda to stop using AutoMix to train backbone
+            when lam is small. If lam > lam_margin: AutoMix; else: vanilla mixup.
+            Default: -1 (or 0).
+        mix_shuffle_no_repeat (bool): Whether to use 'no_repeat' mode to generate
+            mixup shuffle idx. We can ignore this issue in supervised learning.
+            Default: False.
+        pretrained (str, optional): Path to pre-trained weights. Default: None.
+        pretrained_k (str, optional): Path to pre-trained weights for en_k. Default: None.
+    """
+
+    def __init__(self,
+                 backbone,
+                 backbone_k=None,
+                 mix_block=None,
+                 head_mix=None,
+                 head_one=None,
+                 head_mix_k=None,
+                 head_one_k=None,
+                 head_weights=dict(
+                     head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
+                 alpha=1.0,
+                 momentum=0.999,
+                 mask_layer=2,
+                 mask_loss=0.,
+                 mask_adjust=0.,
+                 pre_one_loss=0.,
+                 pre_mix_loss=0.,
+                 lam_margin=-1,
+                 save=False,
+                 save_name='mixup_samples',
+                 debug=False,
+                 mix_shuffle_no_repeat=False,
+                 pretrained=None,
+                 pretrained_k=None):
+        super(AutoMixup_V2, self).__init__()
+        # basic params
+        self.alpha = float(alpha)
+        self.mask_layer = int(mask_layer)
+        self.momentum = float(momentum)
+        self.base_momentum = float(momentum)
+        self.mask_loss = float(mask_loss) if float(mask_loss) > 0 else 0
+        self.mask_adjust = float(mask_adjust)
+        self.pre_one_loss = float(pre_one_loss) if float(pre_one_loss) > 0 else 0
+        self.pre_mix_loss = float(pre_mix_loss) if float(pre_mix_loss) > 0 else 0
+        self.lam_margin = float(lam_margin) if float(lam_margin) > 0 else 0
+        self.save = bool(save)
+        self.save_name = str(save_name)
+        self.debug = bool(debug)
+        self.mix_shuffle_no_repeat = bool(mix_shuffle_no_repeat)
+        assert 0 <= self.momentum and self.lam_margin < 1 and self.mask_adjust <= 1
+
+        # network
+        assert isinstance(mix_block, dict) and isinstance(backbone, dict)
+        assert backbone_k is None or isinstance(backbone_k, dict)
+        assert head_mix is None or isinstance(head_mix, dict)
+        assert head_one is None or isinstance(head_one, dict)
+        assert head_mix_k is None or isinstance(head_mix_k, dict)
+        assert head_one_k is None or isinstance(head_one_k, dict)
+        head_mix_k = head_mix if head_mix_k is None else head_mix_k
+        head_one_k = head_one if head_one_k is None else head_one_k
+        # mixblock
+        self.mix_block = builder.build_head(mix_block)
+        # backbone
+        self.backbone_q = builder.build_backbone(backbone)
+        if backbone_k is not None:
+            self.backbone_k = builder.build_backbone(backbone_k)
+            assert self.momentum >= 1. and pretrained_k is not None
+        else:
+            self.backbone_k = builder.build_backbone(backbone)
+        self.backbone = self.backbone_k  # for feature extract
+        for param in self.backbone_k.parameters():  # stop grad k
+            param.requires_grad = False
+        # mixup cls head
+        assert "head_mix_q" in head_weights.keys() and "head_mix_k" in head_weights.keys()
+        self.head_mix_q = builder.build_head(head_mix)
+        self.head_mix_k = builder.build_head(head_mix_k)
+        for param in self.head_mix_k.parameters():  # stop grad k
+            param.requires_grad = False
+        # onehot cls head
+        if "head_one_q" in head_weights.keys():
+            self.head_one_q = builder.build_head(head_one)
+        else:
+            self.head_one_q = None
+        if "head_one_k" in head_weights.keys() and "head_one_q" in head_weights.keys():
+            self.head_one_k = builder.build_head(head_one_k)
+            for param in self.head_one_k.parameters():  # stop grad k
+                param.requires_grad = False
+        else:
+            self.head_one_k = None
+        # for feature extract
+        self.fc = self.head_one_k if self.head_one_k is not None else self.head_one_q
+        # onehot and mixup heads for training
+        self.weight_mix_q = head_weights.get("head_mix_q", 1.)
+        self.weight_mix_k = head_weights.get("head_mix_k", 1.)
+        self.weight_one_q = head_weights.get("head_one_q", 1.)
+        assert self.weight_mix_q > 0 and (self.weight_mix_k > 0 or backbone_k is not None)
+        
+        self.init_weights(pretrained=pretrained, pretrained_k=pretrained_k)
+
+    def init_weights(self, pretrained=None, pretrained_k=None):
+        """Initialize the weights of model.
+
+        Args:
+            pretrained (str, optional): Path to pre-trained weights.
+                Default: None.
+            pretrained_k (str, optional): Path to pre-trained weights to initialize the
+                backbone_k and mixblock. Default: None.
+        """
+        # init mixblock
+        if self.mix_block is not None:
+            self.mix_block.init_weights(init_linear='normal')
+        # init pretrained backbone_k and mixblock
+        if pretrained_k is not None:
+            print_log('load pretrained classifier k from: {}'.format(pretrained_k), logger='root')
+            # load full ckpt to backbone and fc
+            logger = logging.getLogger()
+            load_checkpoint(self, pretrained_k, strict=False, logger=logger)
+            # head_mix_k and head_one_k should share the same initalization
+            if self.head_mix_k is not None and self.head_one_k is not None:
+                for param_one_k, param_mix_k in zip(self.head_one_k.parameters(),
+                                                    self.head_mix_k.parameters()):
+                    param_mix_k.data.copy_(param_one_k.data)
+        
+        # init backbone, based on params in q
+        if pretrained is not None:
+            print_log('load encoder_q from: {}'.format(pretrained), logger='root')
+        self.backbone_q.init_weights(pretrained=pretrained)
+        # copy backbone param from q to k
+        if pretrained_k is None and self.momentum < 1:
+            for param_q, param_k in zip(self.backbone_q.parameters(),
+                                        self.backbone_k.parameters()):
+                param_k.data.copy_(param_q.data)
+        
+        # init head
+        if self.head_mix_q is not None:
+            self.head_mix_q.init_weights(init_linear='kaiming')
+        if self.head_one_q is not None:
+            self.head_one_q.init_weights(init_linear='kaiming')
+        
+        # copy head one param from q to k
+        if (self.head_one_q is not None and self.head_one_k is not None) and \
+            (pretrained_k is None and self.momentum < 1):
+            for param_one_q, param_one_k in zip(self.head_one_q.parameters(),
+                                                self.head_one_k.parameters()):
+                param_one_k.data.copy_(param_one_q.data)
+        # copy head mix param from q to k
+        if (self.head_mix_q is not None and self.head_mix_k is not None) and \
+            (pretrained_k is None and self.momentum < 1):
+            for param_mix_q, param_mix_k in zip(self.head_mix_q.parameters(),
+                                                self.head_mix_k.parameters()):
+                param_mix_k.data.copy_(param_mix_q.data)
+
+    @torch.no_grad()
+    def _momentum_update(self):
+        """Momentum update of the k form q, including the backbone and heads """
+        # we don't update q to k when momentum > 1
+        if self.momentum >= 1.:
+            return
+        # update k's backbone and cls head from q
+        for param_q, param_k in zip(self.backbone_q.parameters(),
+                                    self.backbone_k.parameters()):
+            param_k.data = param_k.data * self.momentum + \
+                        param_q.data * (1. - self.momentum)
+        
+        if self.head_one_q is not None and self.head_one_k is not None:
+            for param_one_q, param_one_k in zip(self.head_one_q.parameters(),
+                                                self.head_one_k.parameters()):
+                param_one_k.data = param_one_k.data * self.momentum + \
+                                    param_one_q.data * (1 - self.momentum)
+
+        if self.head_mix_q is not None and self.head_mix_k is not None:
+            for param_mix_q, param_mix_k in zip(self.head_mix_q.parameters(),
+                                                self.head_mix_k.parameters()):
+                param_mix_k.data = param_mix_k.data * self.momentum + \
+                                    param_mix_q.data * (1 - self.momentum)
+
+    def _no_repeat_shuffle_idx(self, batch_size_this, ignore_failure=False):
+        """ generate no repeat shuffle idx within a gpu """
+        idx_shuffle = torch.randperm(batch_size_this).cuda()
+        idx_original = torch.tensor([i for i in range(batch_size_this)]).cuda()
+        idx_repeat = False
+        for i in range(10):  # try 10 times
+            if (idx_original == idx_shuffle).any() == True:
+                idx_repeat = True
+                idx_shuffle = torch.randperm(batch_size_this).cuda()
+            else:
+                idx_repeat = False
+                break
+        # hit: prob < 1.2e-3
+        if idx_repeat == True and ignore_failure == False:
+            # way 2: repeat prob = 0, but too simple!
+            idx_shift = np.random.randint(1, batch_size_this-1)
+            idx_shuffle = torch.tensor(  # shift the original idx
+                [(i+idx_shift) % batch_size_this for i in range(batch_size_this)]).cuda()
+        return idx_shuffle
+
+    def forward_train(self, img, gt_label, **kwargs):
+        """Forward computation during training.
+
+        Args:
+            img (Tensor): Input of a batch of images, (N, C, H, W).
+            gt_label (Tensor): Groundtruth onehot labels.
+
+        Returns:
+            dict[str, Tensor]: A dictionary of loss components.
+        """
+        batch_size = img.size()[0]
+        lam = np.random.beta(self.alpha, self.alpha, 2)  # 0: mb, 1: bb
+        if self.mix_shuffle_no_repeat:
+            index_bb = self._no_repeat_shuffle_idx(batch_size, ignore_failure=True)
+            index_mb = self._no_repeat_shuffle_idx(batch_size, ignore_failure=False)
+        else:
+            index_bb = torch.randperm(batch_size).cuda()
+            index_mb = torch.randperm(batch_size).cuda()
+
+        with torch.no_grad():
+            self._momentum_update()
+
+        # auto Mixup
+        indices = [index_mb, index_bb]
+        feature = self.backbone_k(img)[0]
+        results = self.pixel_mixup(img, gt_label, lam, indices, feature)
+
+        # save img bb, mixed sample visualization
+        if self.save and self.mask_adjust > 0:
+            self.plot_mix(
+                results["img_mix_bb"], img, img[index_bb, :], lam[1], results["debug_plot"], "backbone")
+        # save img mb
+        if self.save and self.mask_adjust <= 0:
+            self.plot_mix(
+                results["img_mix_mb"], img, img[index_mb, :], lam[0], results["debug_plot"], "mixblock")
+        
+        # k (mb): the mix block training
+        loss_mix_k = self.forward_k(results["img_mix_mb"], gt_label, index_mb, lam[0])
+        # q (bb): the encoder training
+        loss_one_q, loss_mix_q = self.forward_q(img, results["img_mix_bb"], gt_label, index_bb, lam[1])
+        
+        # loss summary
+        losses = {
+            'loss': loss_mix_q['loss'] * self.weight_mix_q,
+            'acc_mix_q': loss_mix_q['acc'],
+        }
+        # onehot loss
+        if loss_one_q is not None and self.weight_one_q > 0:
+            losses['loss'] += loss_one_q['loss'] * self.weight_one_q
+            losses['acc_one_q'] = loss_one_q['acc']
+        # mixblock loss
+        if self.weight_mix_k > 0:
+            losses["loss"] += loss_mix_k['loss'] * self.weight_mix_k
+            losses['acc_mix_k'] = loss_mix_k['acc']
+        if results["mask_loss"] is not None and self.mask_loss > 0:
+            losses["loss"] += results["mask_loss"]
+        if results["pre_one_loss"] is not None and self.pre_one_loss > 0:
+            losses["loss"] += results["pre_one_loss"]
+        if loss_mix_k["pre_mix_loss"] is not None and self.pre_mix_loss > 0:
+            losses["loss"] += loss_mix_k["pre_mix_loss"]
+
+        return losses
+
+    @torch.no_grad()
+    def plot_mix(self, im_mixed, im_q, im_k, lam, debug_plot=None, name="k"):
+        """ visualize mixup results, supporting 'debug' mode """
+        invTrans = transforms.Compose([
+            transforms.Normalize(
+                mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
+            transforms.Normalize(
+                mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
+        # plot mixup results
+        imgs = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
+        img_grid = torchvision.utils.make_grid(imgs, nrow=4, pad_value=0)
+        imgs = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
+        fig = plt.figure()
+        plt.imshow(imgs)
+        plt.title('lambda {}={}'.format(name, lam))
+        assert self.save_name.find(".png") != -1
+        if not os.path.exists(self.save_name):
+            plt.savefig(self.save_name)
+        # debug: plot intermediate results
+        if self.debug:
+            assert isinstance(debug_plot, dict)
+            for key,value in debug_plot.items():
+                n, h, w = value.size()
+                imgs = value[:4].view(h, 4 * w).detach().cpu().numpy()
+                fig = plt.figure()
+                plt.imshow(imgs)
+                # plt.title('debug {}, lambda k={}'.format(str(key), lam))
+                _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
+                if not os.path.exists(_debug_path):
+                    plt.savefig(_debug_path, bbox_inches='tight')
+        plt.close()
+    
+    def forward_q(self, x, mixed_x, y, index, lam):
+        """
+        Args:
+            x (Tensor): Input of a batch of images, (N, C, H, W).
+            mixed_x (Tensor): Mixup images of x, (N, C, H, W).
+            y (Tensor): Groundtruth onehot labels, coresponding to x.
+            index (List): Input list of shuffle index (tensor) for mixup.
+            lam (List): Input list of lambda (scalar).
+
+        Returns:
+            dict[str, Tensor]: loss_one_q and loss_mix_q are losses from q.
+        """
+        # onehot q
+        loss_one_q = None
+        if self.head_one_q is not None and self.weight_one_q > 0:
+            out_one_q = self.backbone_q(x)[-1]
+            pred_one_q = self.head_one_q([out_one_q])
+            # loss
+            error_one_q = (pred_one_q, y)
+            loss_one_q = self.head_one_q.loss(*error_one_q)
+        
+        # mixup q
+        loss_mix_q = None
+        if self.weight_mix_q > 0:
+            out_mix_q = self.backbone_q(mixed_x)[-1]
+            pred_mix_q = self.head_mix_q([out_mix_q])
+            # mixup loss
+            y_mix_q = (y, y[index], lam)
+            error_mix_q = (pred_mix_q, y_mix_q)
+            loss_mix_q = self.head_mix_q.loss(*error_mix_q)
+        return loss_one_q, loss_mix_q
+
+    def forward_k(self, mixed_x, y, index, lam):
+        """ forward k with the mixup sample """
+        loss_mix_k = dict()
+        if self.weight_mix_k > 0:
+            # mixed_x forward
+            out_mix_k = self.backbone_k(mixed_x)
+            pred_mix_k = self.head_mix_k([out_mix_k[-1]])
+            # k mixup loss
+            y_mix_k = (y, y[index], lam)
+            error_mix_k = (pred_mix_k, y_mix_k)
+            loss_mix_k = self.head_mix_k.loss(*error_mix_k)
+
+        # mixup loss, short cut of pre-mixblock
+        if self.pre_mix_loss > 0:
+            out_mb = out_mix_k[0]
+            # pre FFN
+            if self.mix_block.pre_attn is not None:
+                out_mb = self.mix_block.pre_attn(out_mb)  # non-local
+            if self.mix_block.pre_conv is not None:
+                out_mb = self.mix_block.pre_conv([out_mb])  # neck
+            # pre mixblock mixup loss
+            pred_mix_mb = self.mix_block.pre_head(out_mb)
+            error_mix_mb = (pred_mix_mb, y_mix_k)
+            loss_mix_k["pre_mix_loss"] = \
+                self.mix_block.pre_head.loss(*error_mix_mb)["loss"] * self.pre_mix_loss
+        else:
+            loss_mix_k["pre_mix_loss"] = None
+        
+        return loss_mix_k
+    
+    def pixel_mixup(self, x, y, lam, index, feature):
+        """ pixel-wise input space mixup, v08.24
+
+        Args:
+            x (Tensor): Input of a batch of images, (N, C, H, W).
+            y (Tensor): A batch of gt_labels, (N, 1).
+            lam (List): Input list of lambda (scalar).
+            index (List): Input list of shuffle index (tensor) for mixup.
+            feature (Tensor): The feature map of x, (N, C, H', W').
+
+        Returns: dict includes following
+            mixed_x_bb, mixed_x_mb: Mixup samples for bb (training the backbone)
+                and mb (training the mixblock).
+            mask_loss (Tensor): Output loss of mixup masks.
+            pre_one_loss (Tensor): Output onehot cls loss of pre-mixblock.
+        """
+        results = dict()
+        # lam info
+        lam_mb = lam[0]  # lam is a scalar
+        lam_bb = lam[1]
+
+        # mask upsampling factor
+        if x.shape[3] > 64:  # normal version of resnet
+            scale_factor = 2**(2 + self.mask_layer)
+        else:  # CIFAR version
+            scale_factor = 2**self.mask_layer
+        
+        # get mixup mask
+        mask_mb = self.mix_block(feature, lam_mb, index[0], scale_factor=scale_factor, debug=self.debug)
+        mask_bb = self.mix_block(feature, lam_bb, index[1], scale_factor=scale_factor, debug=False)
+        if self.debug:
+            results["debug_plot"] = mask_mb["debug_plot"]
+        else:
+            results["debug_plot"] = None
+
+        # pre mixblock loss
+        results["pre_one_loss"] = None
+        if self.pre_one_loss > 0.:
+            pred_one = self.mix_block.pre_head([mask_mb["x_lam"]])
+            y_one = (y, y, 1)
+            error_one = (pred_one, y_one)
+            results["pre_one_loss"] = \
+                self.mix_block.pre_head.loss(*error_one)["loss"] * self.pre_one_loss
+        
+        mask_mb = mask_mb["mask"]
+        mask_bb = mask_bb["mask"].clone().detach()
+
+        # adjust mask_bb with lambd
+        if self.mask_adjust > np.random.rand():  # [0,1)
+            epsilon = 1e-8
+            _mask = mask_bb[:, 0, :, :].squeeze()  # [N, H, W], _mask for lam
+            _mask = _mask.clamp(min=epsilon, max=1-epsilon)
+            _mean = _mask.mean(dim=[1, 2]).squeeze()  # [N, 1, 1] -> [N]
+            idx_larg = _mean[:] > lam[0] + epsilon  # index of mean > lam_bb
+            idx_less = _mean[:] < lam[0] - epsilon  # index of mean < lam_bb
+            # if mean > lam_bb
+            mask_bb[idx_larg==True, 0, :, :] = \
+                _mask[idx_larg==True, :, :] * (lam[0] / _mean[idx_larg==True].view(-1, 1, 1))
+            mask_bb[idx_larg==True, 1, :, :] = 1 - mask_bb[idx_larg==True, 0, :, :]
+            # elif mean < lam_bb
+            mask_bb[idx_less==True, 1, :, :] = \
+                (1 - _mask[idx_less==True, :, :]) * ((1 - lam[0]) / (1 - _mean[idx_less==True].view(-1, 1, 1)))
+            mask_bb[idx_less==True, 0, :, :] = 1 - mask_bb[idx_less==True, 1, :, :]
+        # lam_margin for backbone training
+        if self.lam_margin >= lam_bb or self.lam_margin >= 1-lam_bb:
+            mask_bb[:, 0, :, :] = lam_bb
+            mask_bb[:, 1, :, :] = 1 - lam_bb
+        
+        # loss of mixup mask
+        results["mask_loss"] = None
+        if self.mask_loss > 0.:
+            results["mask_loss"] = self.mix_block.mask_loss(mask_mb, lam_mb)["loss"]
+            if results["mask_loss"] is not None:
+                results["mask_loss"] *= self.mask_loss
+        
+        # mix, apply mask on x and x_
+        # img_mix_mb = x * (1 - mask_mb) + x[index[0], :] * mask_mb
+        assert mask_mb.shape[1] == 2 and mask_bb.shape[1] == 2
+        results["img_mix_mb"] = \
+            x * mask_mb[:, 0, :, :].unsqueeze(1) + x[index[0], :] * mask_mb[:, 1, :, :].unsqueeze(1)
+        
+        # img_mix_bb = x * (1 - mask_bb) + x[index[1], :] * mask_bb
+        results["img_mix_bb"] = \
+            x * mask_bb[:, 0, :, :].unsqueeze(1) + x[index[1], :] * mask_bb[:, 1, :, :].unsqueeze(1)
+        
+        return results
+
+    def forward_test(self, img, **kwargs):
+        """Forward computation during testing.
+
+        Args:
+            img (Tensor): Input of a batch of images, (N, C, H, W).
+
+        Returns:
+            dict[key, Tensor]: A dictionary of head names (key) and predictions.
+        """
+        keys = list()  # 'acc_mix_k', 'acc_one_k', 'acc_mix_q', 'acc_one_q'
+        pred = list()
+        # backbone
+        last_k = self.backbone_k(img)[-1]
+        last_q = self.backbone_q(img)[-1]
+        # head k
+        if self.weight_mix_k > 0:
+            pred.append(self.head_mix_k([last_k]))
+            keys.append('acc_mix_k')
+            if self.head_one_k is not None:
+                pred.append(self.head_one_k([last_k]))
+                keys.append('acc_one_k')
+        # head q
+        pred.append(self.head_mix_q([last_q]))
+        keys.append('acc_mix_q')
+        if self.head_one_q is not None:
+            pred.append(self.head_one_q([last_q]))
+            keys.append('acc_one_q')
+        
+        out_tensors = [p[0].cpu() for p in pred]  # NxC
+        return dict(zip(keys, out_tensors))
+
+    def forward(self, img, mode='train', **kwargs):
+        if mode == 'train':
+            return self.forward_train(img, **kwargs)
+        elif mode == 'test':
+            return self.forward_test(img, **kwargs)
+        else:
+            raise Exception('No such mode: {}'.format(mode))

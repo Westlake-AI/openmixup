@@ -1,0 +1,12 @@
+faiss-gpu==1.6.1
+future
+matplotlib
+mmcv==1.2.7
+numpy
+packaging
+scipy
+six
+terminaltables
+sklearn
+tensorboard
+tqdm
