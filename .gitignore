@@ -129,8 +129,10 @@ replace.sh
 benchmarks/detection/datasets
 benchmarks/detection/output
 
-# add temp ignore path:
-configs/classification
+# temp ignore path during updating:
+configs/classification_IP89
+configs/selfsup_IP89
+# configs/semisup
 configs/selfsup
-configs/semisup
 *.json
+openmixup/models/classifiers/backup

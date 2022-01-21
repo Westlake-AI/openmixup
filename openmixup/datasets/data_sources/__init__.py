@@ -1,10 +1,10 @@
-from .cifar import Cifar10, Cifar100, Cifar_C
+from .cifar import CIFAR10, CIFAR100, CIFAR_C
 from .image_list import ImageList
 from .imagenet import ImageNet
-from .mnist import Mnist, Fmnist, Kmnist, Usps
+from .mnist import MNIST, FMNIST, KMNIST, USPS
 
 __all__ = [
-    'Cifar10', 'Cifar100', 'Cifar_C',
+    'CIFAR10', 'CIFAR100', 'CIFAR_C',
     'ImageList', 'ImageNet',
-    'Mnist', 'Fmnist', 'Kmnist', 'Usps',
+    'MNIST', 'FMNIST', 'KMNIST', 'USPS',
 ]

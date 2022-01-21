@@ -1,4 +1,5 @@
 from mmcv.runner import Hook
+from mmcv.parallel import is_module_wrapper
 from math import cos, pi
 from .registry import HOOKS
 
@@ -8,7 +9,9 @@ class LrAddtionalSchedulerHook(Hook):
 
     Args:
         addtional_indice (list): A list of indice for selected params.
-        by_epoch (bool): LR changes epoch by epoch
+        by_epoch (bool): Attr changes epoch by epoch. If by_epoch is True, the
+            attribute will be updated each epoch when warm_up is none. You can
+            set by_epoch to false (i.e., by iter) for more frequently update.
         warmup (string): Type of warmup used. It can be None(use no warmup),
             'constant', 'linear' or 'exp'
         warmup_iters (int): The number of iterations or epochs that warmup
@@ -27,6 +30,7 @@ class LrAddtionalSchedulerHook(Hook):
                 warmup_iters=0,
                 warmup_ratio=0.1,
                 warmup_by_epoch=False,
+                update_interval=1,
                 **kwargs):
         # validate the "warmup" argument
         if warmup is not None:
@@ -49,6 +53,7 @@ class LrAddtionalSchedulerHook(Hook):
         self.warmup_iters = warmup_iters
         self.warmup_ratio = warmup_ratio
         self.warmup_by_epoch = warmup_by_epoch
+        self.update_interval = update_interval
 
         if self.warmup_by_epoch:
             self.warmup_epochs = self.warmup_iters
@@ -123,12 +128,11 @@ class LrAddtionalSchedulerHook(Hook):
                     self.base_lr.append(group['initial_lr'])
 
     def before_train_epoch(self, runner):
-        if not self.by_epoch:
-            return
         if self.warmup_by_epoch:
             epoch_len = len(runner.data_loader)
             self.warmup_iters = self.warmup_epochs * epoch_len
-
+        if not self.by_epoch:
+            return
         self.regular_lr = self.get_regular_lr(runner)
         self._set_lr(runner, self.regular_lr)
 
@@ -437,7 +441,9 @@ class CustomSchedulerHook(Hook):
     Args:
         attr_name (str): Name of the attribute
         attr_base (float): The initial value of the attribute
-        by_epoch (bool): Attr changes epoch by epoch
+        by_epoch (bool): Attr changes epoch by epoch. If by_epoch is True, the
+            attribute will be updated each epoch when warm_up is none. You can
+            set by_epoch to false (i.e., by iter) for more frequently update.
         warmup (string): Type of warmup used. It can be None(use no warmup),
             'constant', 'linear' or 'exp'
         warmup_iters (int): The number of iterations or epochs that warmup
@@ -457,6 +463,7 @@ class CustomSchedulerHook(Hook):
                 warmup_iters=0,
                 warmup_ratio=0.1,
                 warmup_by_epoch=False,
+                update_interval=1,
                 **kwargs):
         # validate the "warmup" argument
         if warmup is not None:
@@ -481,6 +488,7 @@ class CustomSchedulerHook(Hook):
         self.warmup_iters = warmup_iters
         self.warmup_ratio = warmup_ratio
         self.warmup_by_epoch = warmup_by_epoch
+        self.update_interval = update_interval
 
         if self.warmup_by_epoch:
             self.warmup_epochs = self.warmup_iters
@@ -518,36 +526,36 @@ class CustomSchedulerHook(Hook):
         assert hasattr(runner.model.module, self.attr_name), \
                 "The runner must have attribute:"+self.attr_name
         attr = getattr(runner.model.module, self.attr_name)
-        assert isinstance(attr, float)
+        assert isinstance(attr, float) or isinstance(attr, int)
 
     def before_train_epoch(self, runner):
-        if not self.by_epoch:
-            return
         if self.warmup_by_epoch:
             epoch_len = len(runner.data_loader)
             self.warmup_iters = self.warmup_epochs * epoch_len
-
+        if not self.by_epoch:
+            return
         # self.regular_attr = self.get_regular_attr(runner)
         self._set_attr(runner, self.regular_attr)
 
     def before_train_iter(self, runner):
-        cur_iter = runner.iter
-        if not self.by_epoch:
-            if self.warmup is None or cur_iter > self.warmup_iters:
-                # using get_regular_attr() after finishing the warmup stage
-                self.regular_attr = self.get_regular_attr(runner)
-                self._set_attr(runner, self.regular_attr)
-            else:
-                warmup_attr = self.get_warmup_attr(cur_iter)
-                self._set_attr(runner, warmup_attr)
-        elif self.by_epoch:
-            if self.warmup is None or cur_iter > self.warmup_iters:
-                return
-            elif cur_iter == self.warmup_iters:
-                self._set_attr(runner, self.regular_attr)
-            else:
-                warmup_attr = self.get_warmup_attr(cur_iter)
-                self._set_attr(runner, warmup_attr)
+        if self.every_n_iters(runner, self.update_interval):
+            cur_iter = runner.iter
+            if not self.by_epoch:
+                if self.warmup is None or cur_iter > self.warmup_iters:
+                    # using get_regular_attr() after finishing the warmup stage
+                    self.regular_attr = self.get_regular_attr(runner)
+                    self._set_attr(runner, self.regular_attr)
+                else:
+                    warmup_attr = self.get_warmup_attr(cur_iter)
+                    self._set_attr(runner, warmup_attr)
+            elif self.by_epoch:
+                if self.warmup is None or cur_iter > self.warmup_iters:
+                    return
+                elif cur_iter == self.warmup_iters:
+                    self._set_attr(runner, self.regular_attr)
+                else:
+                    warmup_attr = self.get_warmup_attr(cur_iter)
+                    self._set_attr(runner, warmup_attr)
 
 
 @HOOKS.register_module()

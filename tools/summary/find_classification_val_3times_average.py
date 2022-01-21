@@ -84,3 +84,8 @@ if __name__ == '__main__':
     else:
         args["print_all"] = True
         read_json_max(**args)
+
+# The usage of this tools is similar to find_automix_val_median.py
+#
+# Usage: summary results of a dir of training results (as json files).
+#    python tools/summary/find_classification_val_3times_average.py [full_path to the dir] [total eposh] [last n epoch for max]

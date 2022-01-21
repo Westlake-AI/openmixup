@@ -45,7 +45,6 @@ def read_json_max(path, epoch_num=1200, record_num=20, print_all=True):
     return result
 
 
-
 if __name__ == '__main__':
     """ find the median of val results in latest N epochs """
     args = parse_args()
@@ -89,3 +88,5 @@ if __name__ == '__main__':
     else:
         args["print_all"] = True
         read_json_max(**args)
+
+# The usage of this tools is the same as find_automix_val_median.py

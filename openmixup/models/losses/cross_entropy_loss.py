@@ -87,6 +87,7 @@ def soft_mix_cross_entropy(pred,
                            class_weight=None,
                            avg_factor=None,
                            eta_weight=None,
+                           eps_smooth=1e-3,
                            **kwargs):
     r"""Calculate the Soft Decoupled Mixup CrossEntropy loss using softmax
         The label can be float mixup label (class-wise sum to 1, k-mixup, k>=2).
@@ -105,6 +106,7 @@ def soft_mix_cross_entropy(pred,
             shape (C), C is the number of classes. Default None.
         eta_weight (list): Reweight the global loss in mixup cls loss as,
             loss = loss_local + eta_weight[i] * loss_global[i]. Default to None.
+        eps_smooth (float): If using label smoothing, we assume eps < lam < 1-eps.
 
     Returns:
         torch.Tensor: The calculated loss
@@ -112,7 +114,8 @@ def soft_mix_cross_entropy(pred,
     # *** Assume k-mixup in C classes, k >= 2 and k << C ***
     # step 1: remove labels have less than k-hot (mixed between the
     #    same class will result in the original onehot)
-    mask_one = (label > 0).sum(dim=-1)
+    _eps = max(1e-3, eps_smooth)  # assuming _eps < lam < 1-_eps
+    mask_one = (label > _eps).sum(dim=-1)
     mix_num = max(mask_one)
     mask_one = mask_one >= mix_num
     if mask_one.sum() < label.size(0):
@@ -133,8 +136,8 @@ def soft_mix_cross_entropy(pred,
     bs, cls_num = label.size()  # N, C
     assert isinstance(eta_weight, list)
     # local: between k classes
-    mask_lam_k = label > 0  # [N, N], top k is true
-    lam_k = label[0, label[0, :] > 0]  # [k,] k-mix relevant classes
+    mask_lam_k = label > _eps  # [N, N], top k is true
+    lam_k = label[0, label[0, :] > _eps]  # [k,] k-mix relevant classes
 
     # local: original mixup CE loss between C classes
     loss = -label * F.log_softmax(pred, dim=-1)  # [N, N]

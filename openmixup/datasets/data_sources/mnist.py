@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from PIL import Image
 
-from torchvision.datasets import MNIST, FashionMNIST, KMNIST, USPS
+import torchvision
 
 from ..registry import DATASOURCES
 
@@ -38,7 +38,7 @@ class Mnist_base(metaclass=ABCMeta):
 
 
 @DATASOURCES.register_module
-class Usps(Mnist_base):
+class USPS(Mnist_base):
 
     CLASSES = ['0 - zero', '1 - one', '2 - two', '3 - three', '4 - four',
                '5 - five', '6 - six', '7 - seven', '8 - eight', '9 - nine']
@@ -48,7 +48,7 @@ class Usps(Mnist_base):
     
     def set_mnist(self):
         try:
-            self.mnist = USPS(
+            self.mnist = torchvision.datasets.USPS(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download USPS binary manually, \
@@ -57,7 +57,7 @@ class Usps(Mnist_base):
 
 
 @DATASOURCES.register_module
-class Mnist(Mnist_base):
+class MNIST(Mnist_base):
 
     CLASSES = ['0 - zero', '1 - one', '2 - two', '3 - three', '4 - four',
                '5 - five', '6 - six', '7 - seven', '8 - eight', '9 - nine']
@@ -67,7 +67,7 @@ class Mnist(Mnist_base):
     
     def set_mnist(self):
         try:
-            self.mnist = MNIST(
+            self.mnist = torchvision.datasets.MNIST(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download MNIST manually, \
@@ -76,7 +76,7 @@ class Mnist(Mnist_base):
 
 
 @DATASOURCES.register_module
-class Fmnist(Mnist_base):
+class FMNIST(Mnist_base):
 
     CLASSES = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal',
                'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
@@ -86,7 +86,7 @@ class Fmnist(Mnist_base):
     
     def set_mnist(self):
         try:
-            self.mnist = FashionMNIST(
+            self.mnist = torchvision.datasets.FashionMNIST(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download FashionMNIST manually, \
@@ -95,7 +95,7 @@ class Fmnist(Mnist_base):
 
 
 @DATASOURCES.register_module
-class Kmnist(Mnist_base):
+class KMNIST(Mnist_base):
 
     CLASSES = ['o', 'ki', 'su', 'tsu', 'na', 'ha', 'ma', 'ya', 're', 'wo']
 
@@ -104,7 +104,7 @@ class Kmnist(Mnist_base):
     
     def set_mnist(self):
         try:
-            self.mnist = KMNIST(
+            self.mnist = torchvision.datasets.KMNIST(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download KMNIST manually, \

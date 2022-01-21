@@ -14,13 +14,16 @@ from ..registry import MODELS
 
 
 @MODELS.register_module
-class AutoMixup_V2(nn.Module):
-    """ AutoMix V2
-        v0824 version (based on V1plus v0707)
+class AutoMixup(nn.Module):
+    """ AutoMix and SAMix
+        V0824 version (based on V1plus v0707)
         V1219 version (adding freezed backbone_k and mixblock)
+        V0109 version (adding up_mode override)
 
-    Official implementation of "AutoMix: Unveiling the Power of Mixup
-        (https://arxiv.org/abs/2103.13027)".
+    Official implementation of
+        "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
+        "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
+            Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
     
     Args:
         backbone (dict): Config dict for module of backbone ConvNet (main).
@@ -41,6 +44,9 @@ class AutoMixup_V2(nn.Module):
         mask_adjust (float): Probrobality (in [0, 1]) of adjusting the mask (q) in terms
             of lambda (q), which only affect the backbone training.
             Default: False (or 0.).
+        mask_up_override (str or list, optional): Override up_mode for MixBlock when training
+            the MixBlock. Unsampling mode {'nearest', 'bilinear', etc}. Build a list for various
+            upsampling mode (as in MixBlock). Default: None.
         pre_one_loss (float): Loss weight for the pre-MixBlock head as onehot classification.
             Default: 0. (requires a pre_head in MixBlock)
         pre_mix_loss (float): Loss weight for the pre-MixBlock head as mixup classification.
@@ -70,16 +76,17 @@ class AutoMixup_V2(nn.Module):
                  mask_layer=2,
                  mask_loss=0.,
                  mask_adjust=0.,
+                 mask_up_override=None,
                  pre_one_loss=0.,
                  pre_mix_loss=0.,
                  lam_margin=-1,
                  save=False,
-                 save_name='mixup_samples',
+                 save_name='MixedSamples',
                  debug=False,
                  mix_shuffle_no_repeat=False,
                  pretrained=None,
                  pretrained_k=None):
-        super(AutoMixup_V2, self).__init__()
+        super(AutoMixup, self).__init__()
         # basic params
         self.alpha = float(alpha)
         self.mask_layer = int(mask_layer)
@@ -90,11 +97,18 @@ class AutoMixup_V2(nn.Module):
         self.pre_one_loss = float(pre_one_loss) if float(pre_one_loss) > 0 else 0
         self.pre_mix_loss = float(pre_mix_loss) if float(pre_mix_loss) > 0 else 0
         self.lam_margin = float(lam_margin) if float(lam_margin) > 0 else 0
+        self.mask_up_override = mask_up_override \
+            if isinstance(mask_up_override, (str, list)) else None
         self.save = bool(save)
         self.save_name = str(save_name)
         self.debug = bool(debug)
         self.mix_shuffle_no_repeat = bool(mix_shuffle_no_repeat)
         assert 0 <= self.momentum and self.lam_margin < 1 and self.mask_adjust <= 1
+        if self.mask_up_override is not None:
+            if isinstance(self.mask_up_override, str):
+                self.mask_up_override = [self.mask_up_override]
+            for m in self.mask_up_override:
+                assert m in ['nearest', 'bilinear', 'bicubic',]
 
         # network
         assert isinstance(mix_block, dict) and isinstance(backbone, dict)
@@ -180,9 +194,9 @@ class AutoMixup_V2(nn.Module):
         
         # init head
         if self.head_mix_q is not None:
-            self.head_mix_q.init_weights(init_linear='kaiming')
+            self.head_mix_q.init_weights(init_linear='normal')
         if self.head_one_q is not None:
-            self.head_one_q.init_weights(init_linear='kaiming')
+            self.head_one_q.init_weights(init_linear='normal')
         
         # copy head one param from q to k
         if (self.head_one_q is not None and self.head_one_k is not None) and \
@@ -322,6 +336,7 @@ class AutoMixup_V2(nn.Module):
         assert self.save_name.find(".png") != -1
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
+        plt.close()
         # debug: plot intermediate results
         if self.debug:
             assert isinstance(debug_plot, dict)
@@ -334,7 +349,7 @@ class AutoMixup_V2(nn.Module):
                 _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
                 if not os.path.exists(_debug_path):
                     plt.savefig(_debug_path, bbox_inches='tight')
-        plt.close()
+                plt.close()
     
     def forward_q(self, x, mixed_x, y, index, lam):
         """
@@ -426,8 +441,10 @@ class AutoMixup_V2(nn.Module):
             scale_factor = 2**self.mask_layer
         
         # get mixup mask
-        mask_mb = self.mix_block(feature, lam_mb, index[0], scale_factor=scale_factor, debug=self.debug)
-        mask_bb = self.mix_block(feature, lam_bb, index[1], scale_factor=scale_factor, debug=False)
+        mask_mb = self.mix_block(feature, lam_mb, index[0],
+            scale_factor=scale_factor, debug=self.debug, unsampling_override=self.mask_up_override)
+        mask_bb = self.mix_block(feature, lam_bb, index[1],
+            scale_factor=scale_factor, debug=False, unsampling_override=None)
         if self.debug:
             results["debug_plot"] = mask_mb["debug_plot"]
         else:

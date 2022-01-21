@@ -23,7 +23,7 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
     assert path.find("json") != -1, \
         "bad json path={}".format(path)
     
-    bias = 4
+    bias = 1
     # read each line
     with open(path, "r") as f:
         for line in f.readlines():
@@ -67,7 +67,6 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
     ))
 
 
-
 if __name__ == '__main__':
     """ find the median of val results in latest N epochs """
     args = parse_args()
@@ -103,3 +102,14 @@ if __name__ == '__main__':
     else:
         read_json(**args)
     print("\n *** finished ***")
+
+# Usage 1: summary results of a json file.
+#    python tools/summary/find_automix_val_median.py [full_path to xxx.json] [total eposh] [last n epoch for median]
+# Usage 2: summary results of a dir of training results (as json files).
+#    python tools/summary/find_automix_val_median.py [full_path to the dir] [total eposh] [last n epoch for median]
+#
+# For example: 
+# - work_dirs/classification/cifar100/automix/r18/r18_1_400ep/xxx.json
+# - work_dirs/classification/cifar100/automix/r18/r18_2_400ep/xxx.json
+# Usage 1: [full_path to xxx.json]=work_dirs/classification/cifar100/automix/r18/r18_1_400ep/xxx.json
+# Usage 2: [full_path to the dir]=work_dirs/classification/cifar100/automix/r18/r18_1_400ep

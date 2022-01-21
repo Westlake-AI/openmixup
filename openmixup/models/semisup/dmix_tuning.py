@@ -12,7 +12,7 @@ from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
 
 
 @MODELS.register_module
-class MixTuning(nn.Module):
+class DMixTuning(nn.Module):
     """
     Implementation of DMix-Tuning (using Decoupled Mixup)
         based on Self-Tuning (https://arxiv.org/pdf/2102.12903.pdf) and mixup methods.
@@ -72,7 +72,7 @@ class MixTuning(nn.Module):
                     accent_weight=['weight_mix_lu'],
                     weight_pgc=1, weight_one=1, weight_mix_ll=1, weight_mix_lu=1),
                  pretrained=None):
-        super(MixTuning, self).__init__()
+        super(DMixTuning, self).__init__()
         # network settings
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)

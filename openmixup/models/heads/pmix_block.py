@@ -1,6 +1,8 @@
+import math
 import torch
 import torch.nn as nn
-import math
+import torch.nn.functional as F
+import random
 from ..registry import HEADS
 from mmcv.cnn import NonLocal2d, kaiming_init, normal_init
 from ..necks import ConvNeck
@@ -10,12 +12,15 @@ from openmixup.utils import print_log
 
 
 @HEADS.register_module
-class PixelMixBlock_V2(nn.Module):
-    """Pixel-wise MixBlock V2.
-        version v08.24
-            add pre_attn and pre_conv
-        version v10.09
-            add learnable lam mult
+class PixelMixBlock(nn.Module):
+    """Pixel-wise MixBlock.
+        version v08.24 (pre_conv, etc), v10.09 (lam_mult)
+        version v01.07 (random choices)
+    
+    Official implementation of
+        "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
+        "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
+            Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
     
     Args:
         in_channels (int): Channels of the input feature map.
@@ -27,8 +32,8 @@ class PixelMixBlock_V2(nn.Module):
             Default: False
         attention_mode (str): Options (non-local) are `gaussian`, `concatenation`,
             `embedded_gaussian` and `dot_product`. Default: embedded_gaussian.
-        unsampling_mode (str): Unsampling mode {'nearest', 'bilinear', etc}.
-            Default: 'nearest'.
+        unsampling_mode (str or list): Unsampling mode {'nearest', 'bilinear', etc}. Build a
+            list for various upsampling mode. Default: 'nearest'.
         pre_norm_cfg (dict): Config dict for a norm before q,k,v input of MixBlock.
             e.g., pre_norm_cfg=dict(type='BN', requires_grad=True).
             Default: None.
@@ -55,14 +60,15 @@ class PixelMixBlock_V2(nn.Module):
         lam_mul (bool or float): Whether to mult lam in x_lam and mult (1-lam) in x_lam_
             to get pair-wise weight.
             Default: False.
-        lam_mul_k (float): Rescale lambda before multipling to x, which is adjusted by k.
-            Default: -1.
+        lam_mul_k (float or list): Rescale lambda before multipling to x, which is adjusted by k.
+            Build a list for various adjusting k. Default: -1.
         lam_residual (bool): Whether to use residual addition for lam_mult.
             Default: False.
         value_neck_cfg (dict): Config dict for a non-linear value embedding network.
             E.g., value_neck_cfg=dict(
-                type="ConvNeck", in_channels=256, hid_channels=128, out_channels=1, act_cfg=dict(type='ELU'),
-                num_layers=2, kernel_size=1, with_bias=True, with_residual=False).
+                type="ConvNeck", in_channels=256, hid_channels=128, out_channels=1,
+                act_cfg=dict(type='ELU'), num_layers=2, kernel_size=1, with_bias=True,
+                with_last_dropout=0.1, with_residual=False).
             Default: None. (default value network is 1x1 conv)
         x_qk_concat (bool): Whether to concat x and x_ in q, k pair-wise weight embedding.
             Default: False.
@@ -97,8 +103,9 @@ class PixelMixBlock_V2(nn.Module):
             mask_loss_mode="none",
             mask_loss_margin=0,
             mask_mode="none",
-            frozen=False):
-        super(PixelMixBlock_V2, self).__init__()
+            frozen=False,
+            **kwargs):
+        super(PixelMixBlock, self).__init__()
         # non-local args
         self.in_channels = int(in_channels)
         self.reduction = int(reduction)
@@ -106,11 +113,11 @@ class PixelMixBlock_V2(nn.Module):
         self.double_norm = bool(double_norm)
         self.inter_channels = max(in_channels // reduction, 1)
         self.attention_mode = str(attention_mode)
-        self.unsampling_mode = str(unsampling_mode)
+        self.unsampling_mode = [unsampling_mode] if isinstance(unsampling_mode, str) \
+            else list(unsampling_mode)
         assert self.attention_mode in ['gaussian', 'embedded_gaussian']
-        assert self.unsampling_mode in [
-            'nearest', 'linear', 'bilinear', 'bicubic', 'trilinear',
-        ]
+        for m in self.unsampling_mode:
+            assert m in ['nearest', 'bilinear', 'bicubic',]
         
         # pre MixBlock or parallel to MixBlock
         assert pre_norm_cfg is None or isinstance(pre_norm_cfg, dict)
@@ -138,7 +145,7 @@ class PixelMixBlock_V2(nn.Module):
         self.lam_concat = bool(lam_concat)
         self.lam_concat_v = bool(lam_concat_v)
         self.lam_mul = float(lam_mul) if float(lam_mul) > 0 else 0
-        self.lam_mul_k = float(lam_mul_k) if float(lam_mul_k) > 0 else -1
+        self.lam_mul_k = [lam_mul_k] if isinstance(lam_mul_k, (int, float)) else list(lam_mul_k)
         self.lam_residual = bool(lam_residual)
         assert value_neck_cfg is None or isinstance(value_neck_cfg, dict)
         self.value_neck_cfg = value_neck_cfg
@@ -149,7 +156,8 @@ class PixelMixBlock_V2(nn.Module):
         self.mask_mode = str(mask_mode)
         self.frozen = bool(frozen)
         assert 0 <= lam_mul and lam_mul <= 1
-        assert lam_mul_k == -1 or (lam_mul_k <= 10 and lam_mul_k >= 0)
+        for i in range(len(self.lam_mul_k)):
+            self.lam_mul_k[i] = min(self.lam_mul_k[i], 10) if self.lam_mul_k[i] >= 0 else -1
         assert mask_loss_mode in [
             "none", "L2", "L1", "Variance", "L1+Variance", "L2+Variance", "Sparsity"]
         assert mask_mode in [
@@ -222,23 +230,6 @@ class PixelMixBlock_V2(nn.Module):
                     nn.init.constant_(m.bias, 0)
 
     def _freeze(self):
-        # before mixblock
-        if self.pre_norm is not None:
-            self.pre_norm.eval()
-        if self.pre_conv is not None:
-            self.pre_conv.eval()
-        if self.pre_attn is not None:
-            self.pre_attn.eval()
-        if self.pre_neck is not None:
-            self.pre_neck.eval()
-        if self.pre_head is not None:
-            self.pre_head.eval()
-        # mixblock
-        self.value.eval()
-        if self.attention_mode == 'embedded_gaussian':
-            self.query.eval()
-            if self.key is not None:
-                self.key.eval()
         # detach
         if self.frozen:
             # before mixblock
@@ -302,14 +293,16 @@ class PixelMixBlock_V2(nn.Module):
             lam = float(lam)
         return 1 / (k - 2/3) * (4/3 * math.pow(lam, 3) -2 * lam**2 + k * lam)
 
-    def forward(self, x, lam, index, scale_factor, debug=False):
+    def forward(self, x, lam, index, scale_factor, debug=False, unsampling_override=None):
         """ v08.23, add pre_conv and pre_attn
+            v01.07, add override upsampling
 
             x (tensor): Input feature map [N, C, H, W].
             lam (int): Mixup ratio lambda.
             index (tensor): Random shuffle index in current mini-batch.
             scale_factor (int): Unsampling factor (assert scale_factor % 2 == 0).
             debug (bool): Whether to use debug mode.
+            unsampling_override (optional): Override upsampling mode for MixBlock.
         """
         results = dict()
         # pre-step 0: input 2d feature map x, [N, C, H, W]
@@ -338,8 +331,9 @@ class PixelMixBlock_V2(nn.Module):
         if self.lam_mul > 0:  # multiply lam to x_lam
             assert self.lam_concat == False
             # rescale lam
-            if self.lam_mul_k >= 0:
-                lam_rescale = self.rescale_lam_mult(lam, self.lam_mul_k)
+            _lam_mul_k = random.choices(self.lam_mul_k, k=1)[0]
+            if _lam_mul_k >= 0:
+                lam_rescale = self.rescale_lam_mult(lam, _lam_mul_k)
             else:
                 lam_rescale = lam
             # using residual
@@ -417,8 +411,19 @@ class PixelMixBlock_V2(nn.Module):
             mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
                 pairwise_weight.permute(0, 2, 1), v.clamp(min=-1e20, max=1e20)
             ).view(n, 1, h, w)
-        upsampling = nn.Upsample(scale_factor=scale_factor, mode=self.unsampling_mode)
-        mask_lam = upsampling(mask_lam)
+        # choose upsampling mode
+        if unsampling_override is not None:
+            if isinstance(unsampling_override, str):
+                up_mode = unsampling_override
+            elif isinstance(unsampling_override, list):
+                up_mode = random.choices(unsampling_override, k=1)[0]
+            else:
+                print_log("Warming upsampling_mode: {}, override to 'nearest'!".format(
+                    unsampling_override), logger='root')
+                up_mode = "nearest"
+        else:
+            up_mode = random.choices(self.unsampling_mode, k=1)[0]
+        mask_lam = F.upsample(mask_lam, scale_factor=scale_factor, mode=up_mode)
         mask_lam = torch.sigmoid(mask_lam)  # mask for lam, in [0, 1]
 
         if self.mask_mode != "none":
@@ -429,7 +434,7 @@ class PixelMixBlock_V2(nn.Module):
                 mask_lam = torch.matmul(
                     pairwise_weight, v_.clamp(min=-1e20, max=1e20)
                 ).view(n, 1, h, w)
-            mask_lam_ = upsampling(mask_lam_)
+            mask_lam_ = F.upsample(mask_lam_, scale_factor=scale_factor, mode=up_mode)
             mask_lam_ = torch.sigmoid(mask_lam_)  # mask for 1-lam
             if self.mask_mode == "sum":
                 # stop grad of one side [try]

@@ -2,7 +2,7 @@ import os
 from abc import ABCMeta, abstractmethod
 from PIL import Image
 import numpy as np
-from torchvision.datasets import CIFAR10, CIFAR100
+import torchvision
 
 from ..registry import DATASOURCES
 
@@ -53,7 +53,7 @@ class Cifar(metaclass=ABCMeta):
 
 
 @DATASOURCES.register_module
-class Cifar10(Cifar):
+class CIFAR10(Cifar):
 
     CLASSES = [
         'airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog',
@@ -65,7 +65,7 @@ class Cifar10(Cifar):
 
     def set_cifar(self):
         try:
-            self.cifar = CIFAR10(
+            self.cifar = torchvision.datasets.CIFAR10(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download CIFAR10 manually, \
@@ -98,7 +98,7 @@ class Cifar10(Cifar):
 
 
 @DATASOURCES.register_module
-class Cifar100(Cifar):
+class CIFAR100(Cifar):
 
     SUPER_CLASSES = [
         'aquatic mammals', 'fish', 'flowers', 'food containers',
@@ -137,7 +137,7 @@ class Cifar100(Cifar):
 
     def set_cifar(self):
         try:
-            self.cifar = CIFAR100(
+            self.cifar = torchvision.datasets.CIFAR100(
                 root=self.root, train=self.split == 'train', download=False)
         except:
             raise Exception("Please download CIFAR10 manually, \
@@ -202,7 +202,7 @@ class CIFAR_Corruption(metaclass=ABCMeta):
 
 
 @DATASOURCES.register_module
-class Cifar_C(Cifar):
+class CIFAR_C(Cifar):
     """ CIFAR-10 and CIFAR-100 Corruption 
     
     Implementation of "Benchmarking Neural Network Robustness to Common

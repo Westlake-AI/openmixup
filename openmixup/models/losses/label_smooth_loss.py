@@ -26,7 +26,7 @@ class LabelSmoothLoss(nn.Module):
         label_smooth_val (float): The degree of label smoothing.
         num_classes (int, optional): Number of classes. Defaults to None.
         mode (str): Refers to notes, Options are 'original', 'classy_vision',
-            'multi_label'. Defaults to 'classy_vision'
+            'multi_label', 'mix_decouple'. Defaults to 'classy_vision'.
         reduction (str): The method used to reduce the loss.
             Options are "none", "mean" and "sum". Defaults to 'mean'.
         loss_weight (float):  Weight of the loss. Defaults to 1.0.
@@ -85,7 +85,7 @@ class LabelSmoothLoss(nn.Module):
                 'to keep "classy_vision".', UserWarning)
             mode = 'classy_vision'
 
-        accept_mode = {'original', 'classy_vision', 'multi_label'}
+        accept_mode = {'original', 'classy_vision', 'multi_label', 'mix_decouple'}
         assert mode in accept_mode, \
             f'LabelSmoothLoss supports mode {accept_mode}, but gets {mode}.'
         self.mode = mode
@@ -96,6 +96,9 @@ class LabelSmoothLoss(nn.Module):
         if mode == 'multi_label':
             self.ce = CrossEntropyLoss(use_sigmoid=True)
             self.smooth_label = self.multilabel_smooth_label
+        elif mode == 'mix_decouple':
+            self.ce = CrossEntropyLoss(use_soft=True, use_sigmoid=False, use_mix_decouple=True)
+            self.smooth_label = self.original_smooth_label
         else:
             self.ce = CrossEntropyLoss(use_soft=True)
             self.smooth_label = self.original_smooth_label
@@ -105,7 +108,7 @@ class LabelSmoothLoss(nn.Module):
         hot like label vectors (float)"""
         # check if targets are inputted as class integers
         if label.dim() == 1 or (label.dim() == 2 and label.shape[1] == 1):
-            label = convert_to_one_hot(label.view(-1, 1), self.num_classes)
+            label = convert_to_one_hot(label.view(-1), self.num_classes)
         return label.float()
 
     def original_smooth_label(self, one_hot_like_label):

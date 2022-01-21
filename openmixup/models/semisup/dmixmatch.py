@@ -297,7 +297,7 @@ class DMixMatch(nn.Module):
         loss_mix_ll = None
         if self.head_mix is not None and self.weight_mix_ll > 0:
             mixed_x, mixed_labels = self.mixup(
-                img[:num_l, 0, ...].reshape(num_l, c, h, w), gt_labels[:num_l, ...])
+                img_labeled.reshape(num_l, c, h, w), gt_labels[:num_l, ...])
             if self.weight_mix_ll < 1e-3:
                 mixed_x = mixed_x.detach()
             pred_mix_ll = self.head_mix([mixed_x])
