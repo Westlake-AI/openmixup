@@ -53,7 +53,7 @@ class MixUpClassification(nn.Module):
         for _mode in self.mix_mode:
             assert _mode in ["vanilla", "mixup", "manifoldmix", "cutmix", "saliencymix", "resizemix", "fmix"]
             if _mode == "manifoldmix":
-                assert 0 == min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
+                assert 0 <= min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
             if _mode == "resizemix":
                 assert 0 <= min(mix_args[_mode]["scope"]) and max(mix_args[_mode]["scope"]) <= 1
         self.alpha = alpha if isinstance(alpha, list) else [float(alpha)]

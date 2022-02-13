@@ -9,7 +9,7 @@ from mmcv.runner import get_dist_info
 from torch.utils.data import DataLoader
 
 #from .sampler import DistributedGroupSampler, DistributedSampler, GroupSampler
-from .sampler import DistributedSampler, DistributedGivenIterationSampler
+from .sampler import DistributedSampler, DistributedGivenIterationSampler, RepeatAugSampler
 from torch.utils.data import RandomSampler
 
 if platform.system() != 'Windows':
@@ -24,6 +24,7 @@ def build_dataloader(dataset,
                      workers_per_gpu,
                      num_gpus=1,
                      dist=True,
+                     sampler='DistributedSampler',
                      shuffle=True,
                      replace=False,
                      seed=None,
@@ -52,14 +53,22 @@ def build_dataloader(dataset,
     """
     if dist:
         rank, world_size = get_dist_info()
-        sampler = DistributedSampler(
-            dataset, world_size, rank, shuffle=shuffle, replace=replace)
+        if sampler == 'RepeatAugSampler':
+            data_sampler = RepeatAugSampler(
+                dataset, shuffle=shuffle, rank=rank)
+        elif sampler == 'DistributedGivenIterationSampler':
+            data_sampler = DistributedGivenIterationSampler(
+                dataset, total_iter=kwargs.get('total_iter', 1e20),
+                batch_size=kwargs.get('batch_size', 256), rank=rank)
+        else:
+            data_sampler = DistributedSampler(
+                dataset, world_size, rank, shuffle=shuffle, replace=replace)
         batch_size = imgs_per_gpu
         num_workers = workers_per_gpu
     else:
         if replace:
             raise NotImplementedError
-        sampler = RandomSampler(
+        data_sampler = RandomSampler(
             dataset) if shuffle else None  # TODO: set replace
         batch_size = num_gpus * imgs_per_gpu
         num_workers = num_gpus * workers_per_gpu
@@ -73,7 +82,7 @@ def build_dataloader(dataset,
     data_loader = DataLoader(
         dataset,
         batch_size=batch_size,
-        sampler=sampler,
+        sampler=data_sampler,
         num_workers=num_workers,
         collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu),
         pin_memory=False,
