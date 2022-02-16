@@ -233,7 +233,10 @@ class DMixMatch(nn.Module):
             setattr(self, attr, self.loss_weights[attr] * _cos_annealing)
         # cos annealing accent, from 0 to 1
         for attr in self.loss_weights["accent_weight"]:
-            setattr(self, attr, self.loss_weights[attr] * (1-_cos_annealing))
+            setattr(self, attr, self.loss_weights[attr] * (max(0, 1-_cos_annealing)))
+        # mixup loss weight
+        if self.head_mix is not None:
+            self.weight_mix_ll = max(1e-6, self.weight_mix_ll)
 
     @torch.no_grad()
     def _momentum_update(self):

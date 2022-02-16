@@ -152,14 +152,21 @@ def _dist_train(model,
 
     optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
 
-    # register hooks
+    # preprocess hooks: add EMAHook bofore ValidationHook and CheckpointSaverHook
+    for hook in cfg.get('custom_hooks', list()):
+        if hook.type == "EMAHook":
+            common_params = dict(dist_mode=True)
+            runner.register_hook(build_hook(hook, common_params))
+    # register basic hooks
     runner.register_training_hooks(cfg.lr_config, optimizer_config,
                                    cfg.checkpoint_config, cfg.log_config)
     runner.register_hook(DistSamplerSeedHook())
     # register custom hooks
-    for hook in cfg.get('custom_hooks', ()):
+    for hook in cfg.get('custom_hooks', list()):
         if hook.type == "DeepClusterAutoMixHook" or hook.type == "DeepClusterHook":
             common_params = dict(dist_mode=True, data_loaders=data_loaders)
+        elif hook.type == "EMAHook":
+            continue
         else:
             common_params = dict(dist_mode=True)
         runner.register_hook(build_hook(hook, common_params))

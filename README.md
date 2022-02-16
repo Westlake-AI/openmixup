@@ -6,7 +6,7 @@
 
 ## Introduction
 
-The master branch works with **PyTorch 1.4** or higher.
+The master branch works with **PyTorch 1.6** or higher.
 
 `OpenMixup` is an open-source supervised, self- and semi-unsupervised representation learning toolbox based on PyTorch, especially for mixup-related methods.
 
@@ -30,24 +30,24 @@ Please refer to [INSTALL.md](docs/INSTALL.md) for installation and dataset prepa
 
 ## Get Started
 
-Please see [GETTING_STARTED.md](docs/GETTING_STARTED.md) for the basic usage of OpenMixup (based on OpenSelfSup).
+Please see [Getting Started](docs/GETTING_STARTED.md) for the basic usage of OpenMixup (based on MMSelfSup).
+Then, see [tutorials](docs/tutorials) for more tech details (based on MMClassification).
 
 ## Benchmark and Model Zoo
 
-Model zoo will be updated in the next two months!
+[Model Zoos](docs/model_zoos) and list of [Awesome Mixups](docs/awesome_mixups) will be updated in the next two months!
 
 ## License
 
 This project is released under the [Apache 2.0 license](LICENSE).
 
-
 ## Acknowledgement
 
+- OpenMixup is an open source project for mixup methods created by researchers in CAIRI AI LAB. We encourage researchers interested in mixup methods to contribute to OpenMixup!
 - This repo borrows the architecture design and part of the code from [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [MMClassification](https://github.com/open-mmlab/mmclassification).
 
 ## Contributors
 
-<!-- We encourage researchers interested in mixup methods to contribute to OpenMixup. Your contributions, including implementing or transferring new methods to OpenSelfSup, performing experiments, reproducing of results, parameter studies, etc, will be recorded in [MODEL_ZOO.md](docs/MODEL_ZOO.md). -->
 For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thanks contributors for MMSelfSup and MMClassification.
 
 ## Contact

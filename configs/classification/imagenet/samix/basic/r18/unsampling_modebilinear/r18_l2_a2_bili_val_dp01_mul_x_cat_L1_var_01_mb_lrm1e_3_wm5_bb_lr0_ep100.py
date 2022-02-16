@@ -136,6 +136,8 @@ checkpoint_config = dict(interval=100)
 # additional scheduler
 addtional_scheduler = dict(
     policy='CosineAnnealing', min_lr=0.001,  # 0.1 x 1/100
+    warmup='linear',  # warmup 5 epochs
+    warmup_iters=5, warmup_ratio=1e-4, warmup_by_epoch=True,
     paramwise_options=['mix_block'],
 )
 
