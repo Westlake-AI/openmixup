@@ -4,7 +4,7 @@ conv1x1=dict(
     type="ConvNeck",
     in_channels=256, hid_channels=128, out_channels=1,  # MixBlock v
     num_layers=2, kernel_size=1,
-    with_last_bn=False, norm_cfg=dict(type='BN'),  # default
+    with_last_bn=False, norm_cfg=dict(type='LN2d', eps=1e-6),
     with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
 
 # model settings

@@ -136,12 +136,14 @@ class MixUpClassification(nn.Module):
             for i in range(len(self.idx_list)):
                 if self.mix_prob[i] > rand_n:
                     cur_idx = self.idx_list[i]
-                    if cur_idx == remove_idx:
+                    if cur_idx == remove_idx:  # randomly choose one among the rest
                         candidate_list = self.idx_list.copy()
                         candidate_list.remove(int(remove_idx))
                         cur_idx = random.choices(candidate_list, k=1)[0]
                     break
         cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
+        
+        # applying mixup methods
         if cur_mode not in ["manifoldmix"]:
             if cur_mode in ["mixup", "cutmix", "saliencymix"]:
                 img, gt_label = eval(cur_mode)(img, gt_label, cur_alpha, dist_mode=False)

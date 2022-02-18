@@ -1,14 +1,10 @@
 # reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# copy from mmclassification mobilenet_v3.py
-import logging
-
+# modified from mmclassification mobilenet_v3.py
 import torch.nn as nn
 import torch.utils.checkpoint as cp
 from mmcv.cnn import ConvModule, constant_init, kaiming_init
-from mmcv.runner import load_checkpoint
 from torch.nn.modules.batchnorm import _BatchNorm
 
-from ..utils import make_divisible
 from ..utils import InvertedResidual
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
@@ -177,6 +173,15 @@ class MobileNetV3(BaseBackbone):
 
         return layers
 
+    def init_weights(self, pretrained=None):
+        super(MobileNetV3, self).init_weights(pretrained)
+        if pretrained is None:
+            for m in self.modules():
+                if isinstance(m, nn.Conv2d):
+                    kaiming_init(m)
+                elif isinstance(m, (_BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                    constant_init(m, val=1, bias=0)
+
     def forward(self, x):
         outs = []
         for i, layer_name in enumerate(self.layers):
@@ -200,5 +205,5 @@ class MobileNetV3(BaseBackbone):
         self._freeze_stages()
         if mode and self.norm_eval:
             for m in self.modules():
-                if isinstance(m, _BatchNorm):
+                if isinstance(m, (_BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
                     m.eval()

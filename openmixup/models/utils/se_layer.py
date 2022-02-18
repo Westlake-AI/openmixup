@@ -2,12 +2,10 @@
 import mmcv
 import torch.nn as nn
 from mmcv.cnn import ConvModule
-# from mmcv.runner import BaseModule
 
 from .make_divisible import make_divisible
 
 
-# class SELayer(BaseModule):
 class SELayer(nn.Module):
     """Squeeze-and-Excitation Module.
 
@@ -39,8 +37,8 @@ class SELayer(nn.Module):
                  bias='auto',
                  conv_cfg=None,
                  act_cfg=(dict(type='ReLU'), dict(type='Sigmoid')),
-                 init_cfg=None):
-        super(SELayer, self).__init__(init_cfg)
+                 **kwargs):
+        super(SELayer, self).__init__()
         if isinstance(act_cfg, dict):
             act_cfg = (act_cfg, act_cfg)
         assert len(act_cfg) == 2

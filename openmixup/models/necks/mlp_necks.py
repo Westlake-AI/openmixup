@@ -1,7 +1,7 @@
+from packaging import version
 import torch
 import torch.nn as nn
-from packaging import version
-from mmcv.cnn import kaiming_init, normal_init
+from mmcv.cnn import constant_init, kaiming_init, normal_init
 
 from ..registry import NECKS
 from ..utils import build_norm_layer
@@ -11,17 +11,16 @@ def _init_weights(module, init_linear='normal', std=0.01, bias=0.):
     assert init_linear in ['normal', 'kaiming'], \
         "Undefined init_linear: {}".format(init_linear)
     for m in module.modules():
-        if isinstance(m, nn.Linear):
+        if isinstance(m, nn.Conv2d):
+            kaiming_init(m)
+        elif isinstance(m, nn.Linear):
             if init_linear == 'normal':
                 normal_init(m, std=std, bias=bias)
             else:
                 kaiming_init(m, mode='fan_in', nonlinearity='relu')
         elif isinstance(m, (nn.BatchNorm1d, nn.BatchNorm2d,
                             nn.GroupNorm, nn.SyncBatchNorm)):
-            if m.weight is not None:
-                nn.init.constant_(m.weight, 1)
-            if m.bias is not None:
-                nn.init.constant_(m.bias, 0)
+            constant_init(m, val=1, bias=0)
 
 
 @NECKS.register_module
@@ -311,6 +310,9 @@ class NonLinearNeck(nn.Module):
                     self.bn_names.append(None)
             self.fc_names.append(f'fc{i}')
 
+    def init_weights(self, init_linear='normal'):
+        _init_weights(self, init_linear)
+
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
@@ -368,6 +370,9 @@ class SwAVNeck(nn.Module):
                 nn.Linear(in_channels, hid_channels), self.bn,
                 nn.ReLU(inplace=True), nn.Linear(hid_channels, out_channels))
 
+    def init_weights(self, init_linear='normal'):
+        _init_weights(self, init_linear)
+
     def forward_projection(self, x):
         if self.projection_neck is not None:
             x = self.projection_neck(x)
@@ -423,6 +428,9 @@ class DenseCLNeck(nn.Module):
             nn.Conv2d(in_channels, hid_channels, 1), nn.ReLU(inplace=True),
             nn.Conv2d(hid_channels, out_channels, 1))
         self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
+
+    def init_weights(self, init_linear='normal'):
+        _init_weights(self, init_linear)
 
     def forward(self, x):
         """Forward function of neck.

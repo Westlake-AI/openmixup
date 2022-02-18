@@ -257,25 +257,20 @@ class ShuffleNetV2(BaseBackbone):
             for param in m.parameters():
                 param.requires_grad = False
 
-    def init_weights(self):
-        super(ShuffleNetV2, self).init_weights()
-
-        if (isinstance(self.init_cfg, dict)
-                and self.init_cfg['type'] == 'Pretrained'):
-            # Suppress default init if use pretrained model.
-            return
-
-        for name, m in self.named_modules():
-            if isinstance(m, nn.Conv2d):
-                if 'conv1' in name:
-                    normal_init(m, mean=0, std=0.01)
-                else:
-                    normal_init(m, mean=0, std=1.0 / m.weight.shape[1])
-            elif isinstance(m, (_BatchNorm, nn.GroupNorm)):
-                constant_init(m.weight, val=1, bias=0.0001)
-                if isinstance(m, _BatchNorm):
-                    if m.running_mean is not None:
-                        nn.init.constant_(m.running_mean, 0)
+    def init_weights(self, pretrained=None):
+        super(ShuffleNetV2, self).init_weights(pretrained)
+        if pretrained is None:
+            for name, m in self.named_modules():
+                if isinstance(m, nn.Conv2d):
+                    if 'conv1' in name:
+                        normal_init(m, mean=0, std=0.01)
+                    else:
+                        normal_init(m, mean=0, std=1.0 / m.weight.shape[1])
+                elif isinstance(m, (_BatchNorm, nn.GroupNorm)):
+                    constant_init(m.weight, val=1, bias=0.0001)
+                    if isinstance(m, _BatchNorm):
+                        if m.running_mean is not None:
+                            nn.init.constant_(m.running_mean, 0)
 
     def forward(self, x):
         x = self.conv1(x)
@@ -295,5 +290,5 @@ class ShuffleNetV2(BaseBackbone):
         self._freeze_stages()
         if mode and self.norm_eval:
             for m in self.modules():
-                if isinstance(m, nn.BatchNorm2d):
+                if isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     m.eval()

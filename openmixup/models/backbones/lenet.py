@@ -52,18 +52,18 @@ class LeNet5(BaseBackbone):
         self.init_weights(pretrained=pretrained)
     
     def init_weights(self, pretrained=None):
-        for m in self.features.modules():
-            if isinstance(m, nn.Conv2d):
-                kaiming_init(m, mode='fan_in', nonlinearity='relu')
-        if self.mlp_neck is not None:
-            self.mlp_neck.init_weights(init_linear='normal')
-        if self.cls_neck is not None:
-            for m in self.cls_neck:
-                if isinstance(m, nn.Linear):
+        super(LeNet5, self).init_weights(pretrained)
+        if pretrained is None:
+            for m in self.features.modules():
+                if isinstance(m, nn.Conv2d):
+                    kaiming_init(m, mode='fan_in', nonlinearity='relu')
+                elif isinstance(m, nn.Linear):
                     if self.activation not in ['LeakyReLU', "ReLU"]:
                         normal_init(m, std=0.01, bias=0.)
                     else:
                         kaiming_init(m, mode='fan_in', nonlinearity='relu')
+            if self.mlp_neck is not None:
+                self.mlp_neck.init_weights(init_linear='normal')
     
     def forward(self, x):
         x = self.features(x)

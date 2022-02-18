@@ -103,7 +103,7 @@ class ConvNeck(nn.Module):
                     normal_init(m, std=std, bias=bias)
                 else:
                     kaiming_init(m, mode='fan_in', nonlinearity='relu')
-            elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+            elif isinstance(m, (nn.BatchNorm2d, nn.LayerNorm, nn.GroupNorm, nn.SyncBatchNorm)):
                 if m.weight is not None:
                     nn.init.constant_(m.weight, 1)
                 if m.bias is not None:

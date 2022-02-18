@@ -46,6 +46,19 @@ This project is released under the [Apache 2.0 license](LICENSE).
 - OpenMixup is an open source project for mixup methods created by researchers in CAIRI AI LAB. We encourage researchers interested in mixup methods to contribute to OpenMixup!
 - This repo borrows the architecture design and part of the code from [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [MMClassification](https://github.com/open-mmlab/mmclassification).
 
+## Citation
+
+If you find this project useful in your research, please consider cite:
+
+```BibTeX
+@misc{2022openmixup,
+    title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation},
+    author={Li, Siyuan and Liu, Zichen and Wu, Di},
+    howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
+    year={2022}
+}
+```
+
 ## Contributors
 
 For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thanks contributors for MMSelfSup and MMClassification.

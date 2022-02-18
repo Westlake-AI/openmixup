@@ -1,15 +1,15 @@
 # reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# copy from mmclassification resnet.py, resnet_cifar.py
-from openmixup.models.utils.gather_layer import grad_batch_unshuffle_ddp
+# modified from mmclassification resnet.py, resnet_cifar.py
+import random
 import torch.nn as nn
 import torch.utils.checkpoint as cp
 from mmcv.cnn import (ConvModule, build_conv_layer, build_norm_layer,
                       constant_init, kaiming_init)
 from mmcv.utils.parrots_wrapper import _BatchNorm
-import random
+
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import grad_batch_shuffle_ddp
+from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 
 
 class BasicBlock(nn.Module):
@@ -609,8 +609,8 @@ class ResNet_mmcls(BaseBackbone):
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):
                     kaiming_init(m)
-                elif isinstance(m, (_BatchNorm, nn.GroupNorm)):
-                    constant_init(m, 1)
+                elif isinstance(m, (_BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                    constant_init(m, val=1, bias=0)
 
             if self.zero_init_residual:
                 for m in self.modules():

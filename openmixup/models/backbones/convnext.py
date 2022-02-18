@@ -1,5 +1,5 @@
-# Copyright (c) OpenMMLab. All rights reserved.
-import logging
+# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
+# modified from mmclassification convnext.py
 from functools import partial
 from itertools import chain
 from typing import Sequence
@@ -11,7 +11,6 @@ from torch.nn import ModuleList, Sequential
 from mmcv.cnn.bricks import (NORM_LAYERS, build_activation_layer,
                              build_norm_layer)
 from mmcv.cnn.utils.weight_init import constant_init
-from mmcv.runner import load_checkpoint
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
@@ -311,10 +310,8 @@ class ConvNeXt(BaseBackbone):
         self._freeze_stages()
     
     def init_weights(self, pretrained=None):
-        if isinstance(pretrained, str):
-            logger = logging.getLogger()
-            load_checkpoint(self, pretrained, strict=False, logger=logger)
-        elif pretrained is None:
+        super(ConvNeXt, self).init_weights(pretrained)
+        if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
                     lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')
@@ -323,8 +320,6 @@ class ConvNeXt(BaseBackbone):
                 elif isinstance(m, (
                     nn.LayerNorm, LayerNorm2d, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
-        else:
-            raise TypeError('pretrained must be a str or None')
 
     def _freeze_stages(self):
         for i in range(self.frozen_stages):

@@ -1,14 +1,12 @@
+import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcv.runner import load_checkpoint
 from mmcv.cnn import kaiming_init, constant_init
-import random
-from openmixup.utils import get_root_logger
-from openmixup.models.utils.gather_layer import grad_batch_unshuffle_ddp
+
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import grad_batch_shuffle_ddp
+from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 
 
 class BasicBlock(nn.Module):
@@ -145,17 +143,13 @@ class WideResNet(BaseBackbone):
         self._freeze_stages()
     
     def init_weights(self, pretrained=None):
-        if isinstance(pretrained, str):
-            logger = get_root_logger()
-            load_checkpoint(self, pretrained, strict=True, logger=logger)
-        elif pretrained is None:
+        super(WideResNet, self).init_weights(pretrained)
+        if pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):
                     kaiming_init(m, mode='fan_out', nonlinearity='leaky_relu')
-                elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm)):
-                    constant_init(m, 1)
-        else:
-            raise TypeError('pretrained must be a str or None')
+                elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                    constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):
         if self.frozen_stages >= 0:

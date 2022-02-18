@@ -1,3 +1,4 @@
+import random
 import numpy as np
 import torch
 import torch.nn as nn
@@ -35,8 +36,9 @@ class DMixMatch(nn.Module):
         alpha (float): To sample Beta distribution in MixUp methods.
         mix_mode (str): Basice mixUp methods in input space. Default: "mixup".
         mix_args (dict): Args for manifoldmix, resizeMix, fmix mode. Default: None.
+        mix_prob (list): List of applying prob for given mixup modes. Default: None.
         p_mix_cutoff (float): Confidence cutoff hyper-parameter for the unsupervised
-            mixup loss masking. Default: 0.5.
+            mixup loss masking. Default: 0.95.
         label_rescale (str): Mixup label rescale based on lam, including ['labeled',
             'unlabeled', 'both', 'none']. Default: 'labeled'.
         lam_bias (str): Whether to use biased lam, i.e., lam>0.5, for ['labeled',
@@ -66,7 +68,8 @@ class DMixMatch(nn.Module):
                     resizemix=dict(scope=(0.1, 0.8), use_alpha=False),
                     fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False)
                  ),
-                 p_mix_cutoff=0.5,
+                 mix_prob=None,
+                 p_mix_cutoff=0.95,
                  label_rescale='labeled',
                  lam_bias='labeled',
                  loss_weights=dict(
@@ -101,18 +104,26 @@ class DMixMatch(nn.Module):
         self.ratio_ul = int(ratio_ul)
         self.ema_pseudo = float(ema_pseudo)
         self.deduplicate = bool(deduplicate)
-        assert ratio_ul >= 1 and 0 < p_cutoff <= 1
+        assert 1 <= ratio_ul and 0 < p_cutoff <= 1
 
         # mixup args
-        assert mix_mode in [
-            "mixup", "manifoldmix", "cutmix", "saliencymix", "resizemix", "fmix"]
-        if mix_mode in ["manifoldmix"]:
-            assert 0 == min(mix_args[mix_mode]["layer"]) and max(mix_args[mix_mode]["layer"]) < 4
-        if mix_mode == "resizemix":
-            assert 0 <= min(mix_args[mix_mode]["scope"]) and max(mix_args[mix_mode]["scope"]) <= 1
-        self.mix_mode = mix_mode
-        self.alpha = alpha
+        self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
+        for _mode in self.mix_mode:
+            assert _mode in ["vanilla", "mixup", "manifoldmix", "cutmix", "saliencymix", "resizemix", "fmix"]
+            if _mode == "manifoldmix":
+                assert 0 <= min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
+            if _mode == "resizemix":
+                assert 0 <= min(mix_args[_mode]["scope"]) and max(mix_args[_mode]["scope"]) <= 1
+        self.alpha = alpha if isinstance(alpha, list) else [float(alpha)]
+        assert len(self.alpha) == len(self.mix_mode) and len(self.mix_mode) < 6
+        self.idx_list = [i for i in range(len(self.mix_mode))]
         self.mix_args = mix_args
+        self.mix_prob = mix_prob if isinstance(mix_prob, list) else None
+        if self.mix_prob is not None:
+            assert len(self.mix_prob) == len(self.alpha) and abs(sum(self.mix_prob)-1e-10) <= 1, \
+                "mix_prob={}, sum={}, alpha={}".format(self.mix_prob, sum(self.mix_prob), self.alpha)
+            for i in range(1, len(self.mix_prob)):
+                self.mix_prob[i] = self.mix_prob[i] + self.mix_prob[i-1]
         assert label_rescale in ['labeled', 'unlabeled', 'both', 'none']
         self.label_rescale = label_rescale
         assert lam_bias in ['labeled', 'unlabeled', 'rand']
@@ -126,9 +137,9 @@ class DMixMatch(nn.Module):
                 self.loss_weights[key] = float(loss_weights[key]) \
                     if float(loss_weights[key]) > 0 else 0
         self.weight_one = loss_weights.get("weight_one", 1.)
-        self.weight_mix_ll = loss_weights.get("weight_mix_ll", 1.)
-        self.weight_mix_lu = loss_weights.get("weight_mix_lu", 1.)
-        self.cos_annealing = 1. - 1e-6  # decent from 1 to 0 as cosine
+        self.weight_mix_ll = loss_weights.get("weight_mix_ll", 1e-5)
+        self.weight_mix_lu = loss_weights.get("weight_mix_lu", 1e-5)
+        self.cos_annealing = 1 - 1e-5  # decent from 1 to 0 as cosine
 
     def init_weights(self, pretrained=None):
         """Initialize the weights of model.
@@ -165,32 +176,45 @@ class DMixMatch(nn.Module):
             x (tensor): Encoded features from the backbone or raw mixed imgs.
             gt_label (tensor): Mixed labels for x.
         """
+        # choose a mixup method
+        if self.mix_prob is None:
+            candidate_list = self.idx_list.copy()
+            cur_idx = random.choices(candidate_list, k=1)[0]
+        else:
+            rand_n = random.random()
+            for i in range(len(self.idx_list)):
+                if self.mix_prob[i] > rand_n:
+                    cur_idx = self.idx_list[i]
+                    break
+        cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
         # lam biased
-        lam = np.random.beta(self.alpha, self.alpha)
+        lam = np.random.beta(cur_alpha, cur_alpha)
         if self.lam_bias == 'labeled':
             lam = max(lam, 1-lam)
         elif self.lam_bias == 'unlabeled':
             lam = min(lam, 1-lam)
-        # various mixup methods
-        if self.mix_mode not in ["manifoldmix"]:
-            if self.mix_mode in ["mixup", "cutmix", "saliencymix"]:
-                img, gt_labels = eval(self.mix_mode)(img, gt_labels, lam=lam, dist_mode=dist_mode)
-            elif self.mix_mode in ["resizemix", "fmix"]:
-                mix_args = dict(lam=lam, dist_mode=dist_mode, **self.mix_args[self.mix_mode])
-                img, gt_labels = eval(self.mix_mode)(img, gt_labels, **mix_args)
+
+        # applying mixup methods
+        if cur_mode not in ["manifoldmix"]:
+            # Notice: cutmix related methods need 'inplace operation' on Variable img,
+            #   thus we use 'img.clone()' for each iteration.
+            if cur_mode in ["mixup", "cutmix", "saliencymix"]:
+                img, gt_labels = eval(cur_mode)(img.clone(), gt_labels, lam=lam, dist_mode=dist_mode)
+            elif cur_mode in ["resizemix", "fmix"]:
+                mix_args = dict(lam=lam, dist_mode=dist_mode, **self.mix_args[cur_mode])
+                img, gt_labels = eval(cur_mode)(img.clone(), gt_labels, **mix_args)
             else:
-                raise NotImplementedError
+                assert cur_mode == "vanilla"
             x = self.encoder[0](img)[-1]
         else:
-            rand_index, _layer, _mask, gt_labels = self._manifoldmix(img, gt_labels)
+            rand_index, _layer, _mask, gt_labels = self._manifoldmix(img, gt_labels, lam=lam)
             # manifoldmix
             if img.dim() == 5:
                 cross_view = True
                 img = img.reshape(-1, img.size(2), img.size(3), img.size(4))
             else:
                 cross_view = False
-
-            # args for mixup encoder_q
+            # args for manifoldmix encoder_q
             mix_args = dict(
                 layer=_layer, cross_view=cross_view, mask=_mask,
                 BN_shuffle=False, idx_shuffle_BN=None,
@@ -198,11 +222,11 @@ class DMixMatch(nn.Module):
             x = self.encoder[0](img, mix_args)[-1]
         return x, gt_labels
 
-    def _manifoldmix(self, img, gt_label, lam=None):
+    def _manifoldmix(self, img, gt_label, lam=None, alpha=None):
         """ pixel-wise manifoldmix for the latent space mixup backbone """
         # manifoldmix
         if lam is None:
-            lam = np.random.beta(self.alpha, self.alpha)
+            lam = np.random.beta(alpha, alpha)
         
         rand_index = torch.randperm(img.size(0)).cuda()
         # mixup labels
@@ -211,8 +235,8 @@ class DMixMatch(nn.Module):
         gt_label = (y_a, y_b, lam)
         
         _layer = np.random.randint(
-            min(self.mix_args[self.mix_mode]["layer"]),
-            max(self.mix_args[self.mix_mode]["layer"]), dtype=int)
+            min(self.mix_args["manifoldmix"]["layer"]),
+            max(self.mix_args["manifoldmix"]["layer"]), dtype=int)
         # generate mixup mask, should be [N, 1, H, W]
         _mask = None
         if img.size(3) > 64:  # normal version of resnet
@@ -236,7 +260,7 @@ class DMixMatch(nn.Module):
             setattr(self, attr, self.loss_weights[attr] * (max(0, 1-_cos_annealing)))
         # mixup loss weight
         if self.head_mix is not None:
-            self.weight_mix_ll = max(1e-6, self.weight_mix_ll)
+            self.weight_mix_ll = max(1e-5, self.weight_mix_ll)
 
     @torch.no_grad()
     def _momentum_update(self):
@@ -248,7 +272,7 @@ class DMixMatch(nn.Module):
         if self.head_mix is not None:
             for param_q, param_k in zip(self.head_mix.parameters(),
                                         self.head_mix_k.parameters()):
-                if self.weight_mix_ll < 1e-3 and self.weight_mix_lu < 1e-3:
+                if self.weight_mix_ll <= 1e-3 and self.weight_mix_lu < 1e-3:
                     param_k.data.copy_(param_q.data)
                 else:
                     param_k.data = param_k.data * self.momentum + \
@@ -301,6 +325,8 @@ class DMixMatch(nn.Module):
         if self.head_mix is not None and self.weight_mix_ll > 0:
             mixed_x, mixed_labels = self.mixup(
                 img_labeled.reshape(num_l, c, h, w), gt_labels[:num_l, ...])
+            # Notice: since mix_ll will cost low mask_ratio in the early stage, 
+            #   thus we stop mix_lu to affect the backbone when < 1e-3
             if self.weight_mix_ll < 1e-3:
                 mixed_x = mixed_x.detach()
             pred_mix_ll = self.head_mix([mixed_x])
@@ -330,7 +356,7 @@ class DMixMatch(nn.Module):
             loss_ul = self.encoder[1].loss([logits_ul_s], pseudo_label, weight=mask_pl)
         # 2.2 mixup between labeled and unlabeled
         loss_mix_lu = None
-        if self.head_mix is not None and self.weight_mix_lu > 0:
+        if self.head_mix is not None and self.weight_mix_lu > 1e-5:
             if self.deduplicate:
                 mixed_x, mixed_labels = self.mixup(
                     torch.cat((img_labeled[:num_l, ...].unsqueeze(1),
@@ -339,6 +365,8 @@ class DMixMatch(nn.Module):
             else:
                 mixed_x, mixed_labels = self.mixup(
                     img[:num_l, :2, ...], gt_labels[:num_l, ...])
+            # Notice: mix_lu is unreliable in the early stage and will cost low
+            #   mask_ratio, thus we stop mix_lu to affect the backbone when < 1e-3
             if self.weight_mix_lu < 1e-3:
                 mixed_x = mixed_x.detach()
             pred_mix_lu = self.head_mix([mixed_x])

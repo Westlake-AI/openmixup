@@ -1,4 +1,5 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
+# modified from mmclassification efficientnet.py
 import copy
 import math
 from functools import partial
@@ -6,15 +7,12 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
-from torch.nn import ModuleList, Sequential
-from mmcv.cnn.bricks import ConvModule
-from mmcv.runner import load_checkpoint
-from mmcv.cnn import kaiming_init, constant_init
+from mmcv.cnn import ConvModule, kaiming_init, constant_init
 
-from openmixup.utils import get_root_logger
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import DropPath, InvertedResidual, SELayer, make_divisible
+from ..utils import (DropPath, InvertedResidual, SELayer,
+                     make_divisible, trunc_normal_init)
 
 
 class EdgeResidual(nn.Module):
@@ -377,20 +375,18 @@ class EfficientNet(BaseBackbone):
                         with_cp=self.with_cp))
                 self.in_channels = out_channels
                 block_idx += 1
-            self.layers.append(Sequential(*layer))
+            self.layers.append(nn.Sequential(*layer))
 
     def init_weights(self, pretrained=None):
-        if isinstance(pretrained, str):
-            logger = get_root_logger()
-            load_checkpoint(self, pretrained, strict=True, logger=logger)
-        elif pretrained is None:
+        super(EfficientNet, self).init_weights(pretrained)
+        if pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):
                     kaiming_init(m, mode='fan_out', nonlinearity='relu')
+                elif isinstance(m, (nn.Linear)):
+                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
-        else:
-            raise TypeError('pretrained must be a str or None')
 
     def _freeze_stages(self):
         for i in range(self.frozen_stages):
