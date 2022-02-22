@@ -8,7 +8,7 @@ from mmcv.cnn import NonLocal2d, kaiming_init, normal_init
 from ..necks import ConvNeck
 from .. import builder
 from ..utils import build_norm_layer
-from openmixup.utils import print_log
+from openmixup.utils import force_fp32, print_log
 
 
 @HEADS.register_module
@@ -258,6 +258,7 @@ class PixelMixBlock(nn.Module):
             for param in self.value.parameters():
                 param.requires_grad = False
 
+    @force_fp32(apply_to=('q_x', 'k_x',))
     def gaussian(self, q_x, k_x):
         """ non-local similarity func """
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
@@ -270,6 +271,7 @@ class PixelMixBlock(nn.Module):
         pairwise_weight = pairwise_weight.softmax(dim=-1)
         return pairwise_weight
     
+    @force_fp32(apply_to=('q_x', 'k_x',))
     def embedded_gaussian(self, q_x, k_x):
         """ learnable non-local similarity func """
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
@@ -293,6 +295,7 @@ class PixelMixBlock(nn.Module):
             lam = float(lam)
         return 1 / (k - 2/3) * (4/3 * math.pow(lam, 3) -2 * lam**2 + k * lam)
 
+    @force_fp32(apply_to=('x',))
     def forward(self, x, lam, index, scale_factor, debug=False, unsampling_override=None):
         """ v08.23, add pre_conv and pre_attn
             v01.07, add override upsampling
@@ -395,6 +398,8 @@ class PixelMixBlock(nn.Module):
 
         # ste 3: 2d pairwise_weight: [N, HxW, HxW]
         pairwise_func = getattr(self, self.attention_mode)
+        q_x = q_x.type(torch.float32)  # force fp32 before attention
+        k_x = k_x.type(torch.float32)
         pairwise_weight = pairwise_func(q_x, k_x)  # x_lam [N, HxW, C/r] x [N, C/r, HxW] x_lam_
 
         # debug mode
@@ -407,9 +412,9 @@ class PixelMixBlock(nn.Module):
             pairwise_weight.permute(0, 2, 1), v).view(n, 1, h, w)  # mask for lam
         if torch.any(torch.isnan(mask_lam)):
             print_log("Warming mask_lam is nan, P: {}, v: {}".format(pairwise_weight, v), logger='root')
-            pairwise_weight = pairwise_weight.clamp(min=-1e20, max=1e20)
+            pairwise_weight = pairwise_weight.type(torch.float32).clamp(min=-1e20, max=1e20)
             mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
-                pairwise_weight.permute(0, 2, 1), v.clamp(min=-1e20, max=1e20)
+                pairwise_weight.permute(0, 2, 1), v.type(torch.float32).clamp(min=-1e20, max=1e20)
             ).view(n, 1, h, w)
         # choose upsampling mode
         if unsampling_override is not None:
@@ -432,7 +437,7 @@ class PixelMixBlock(nn.Module):
             if torch.any(torch.isnan(mask_lam_)):
                 print_log("Warming mask_lam_ is nan, P: {}, v: {}".format(pairwise_weight, v_), logger='root')
                 mask_lam = torch.matmul(
-                    pairwise_weight, v_.clamp(min=-1e20, max=1e20)
+                    pairwise_weight, v_.type(torch.float32).clamp(min=-1e20, max=1e20)
                 ).view(n, 1, h, w)
             mask_lam_ = F.upsample(mask_lam_, scale_factor=scale_factor, mode=up_mode)
             mask_lam_ = torch.sigmoid(mask_lam_)  # mask for 1-lam

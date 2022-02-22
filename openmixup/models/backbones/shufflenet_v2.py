@@ -1,9 +1,9 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
+# modified from mmclassification shufflenet_v2.py
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
 from mmcv.cnn import ConvModule, constant_init, normal_init
-# from mmcv.runner import BaseModule
 from torch.nn.modules.batchnorm import _BatchNorm
 
 from ..utils import channel_shuffle
@@ -11,7 +11,6 @@ from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
 
 
-# class InvertedResidual(BaseModule):
 class InvertedResidual(nn.Module):
     """InvertedResidual block for ShuffleNetV2 backbone.
 
@@ -164,8 +163,8 @@ class ShuffleNetV2(BaseBackbone):
                  act_cfg=dict(type='ReLU'),
                  norm_eval=False,
                  with_cp=False,
-                 init_cfg=None):
-        super(ShuffleNetV2, self).__init__(init_cfg)
+                 **kwargs):
+        super(ShuffleNetV2, self).__init__()
         self.stage_blocks = [4, 8, 4]
         for index in out_indices:
             if index not in range(0, 4):

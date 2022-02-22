@@ -321,7 +321,7 @@ class RepeatAugSampler(Sampler):
         num_replicas=None,
         rank=None,
         shuffle=True,
-        num_repeats=3,
+        num_repeats=2,
         selected_round=256,
         selected_ratio=0,
     ):

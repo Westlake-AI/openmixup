@@ -1,7 +1,6 @@
 import random
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 from mmcv.cnn import kaiming_init, constant_init
 
 from ..registry import BACKBONES
@@ -37,7 +36,8 @@ class BasicBlock(nn.Module):
         self.relu2 = nn.LeakyReLU(negative_slope=0.1, inplace=False)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1,
                                padding=1, bias=True)
-        self.drop_rate = drop_rate
+        self.dropout = nn.Dropout(float(drop_rate)) \
+            if float(drop_rate) > 0 else nn.Identity()
         self.equalInOut = (in_channels == out_channels)
         self.convShortcut = None
         if stride != 1 or not self.equalInOut:
@@ -52,8 +52,7 @@ class BasicBlock(nn.Module):
         else:
             out = self.relu1(self.bn1(x))
             out = self.relu2(self.bn2(self.conv1(out)))
-        if self.drop_rate > 0:
-            out = F.dropout(out, p=self.drop_rate, training=self.training)
+        out = self.dropout(out)
         out = self.conv2(out)
         return torch.add(x if self.equalInOut else self.convShortcut(x), out)
 

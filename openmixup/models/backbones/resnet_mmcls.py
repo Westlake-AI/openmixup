@@ -9,7 +9,7 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
+from ..utils import DropPath, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 
 
 class BasicBlock(nn.Module):
@@ -33,6 +33,8 @@ class BasicBlock(nn.Module):
             Default: None
         norm_cfg (dict): dictionary to construct and config norm layer.
             Default: dict(type='BN')
+        drop_path_rate (float): Additional DropPath in residual_block RSB A1/A2.
+            Default to 0.
     """
 
     def __init__(self,
@@ -45,7 +47,9 @@ class BasicBlock(nn.Module):
                  style='pytorch',
                  with_cp=False,
                  conv_cfg=None,
-                 norm_cfg=dict(type='BN')):
+                 norm_cfg=dict(type='BN'),
+                 drop_path_rate=0.0,
+                ):
         super(BasicBlock, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -86,6 +90,8 @@ class BasicBlock(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
+        self.drop_path = DropPath(drop_prob=drop_path_rate) \
+            if drop_path_rate > 1e-6 else nn.Identity()
 
     @property
     def norm1(self):
@@ -109,7 +115,8 @@ class BasicBlock(nn.Module):
 
             if self.downsample is not None:
                 identity = self.downsample(x)
-
+            
+            out = self.drop_path(out)
             out += identity
 
             return out
@@ -145,6 +152,8 @@ class Bottleneck(nn.Module):
             Default: None
         norm_cfg (dict): dictionary to construct and config norm layer.
             Default: dict(type='BN')
+        drop_path_rate (float): Additional DropPath in residual_block RSB A1/A2.
+            Default to 0.
     """
 
     def __init__(self,
@@ -157,7 +166,9 @@ class Bottleneck(nn.Module):
                  style='pytorch',
                  with_cp=False,
                  conv_cfg=None,
-                 norm_cfg=dict(type='BN')):
+                 norm_cfg=dict(type='BN'),
+                 drop_path_rate=0.0,
+                ):
         super(Bottleneck, self).__init__()
         assert style in ['pytorch', 'caffe']
 
@@ -216,6 +227,8 @@ class Bottleneck(nn.Module):
 
         self.relu = nn.ReLU(inplace=True)
         self.downsample = downsample
+        self.drop_path = DropPath(drop_prob=drop_path_rate) \
+            if drop_path_rate > 1e-6 else nn.Identity()
 
     @property
     def norm1(self):
@@ -248,6 +261,7 @@ class Bottleneck(nn.Module):
             if self.downsample is not None:
                 identity = self.downsample(x)
 
+            out = self.drop_path(out)
             out += identity
 
             return out
@@ -463,7 +477,8 @@ class ResNet_mmcls(BaseBackbone):
                  norm_cfg=dict(type='BN', requires_grad=True),
                  norm_eval=False,
                  with_cp=False,
-                 zero_init_residual=True):
+                 zero_init_residual=True,
+                 drop_path_rate=0.0):
         super(ResNet_mmcls, self).__init__()
         if depth not in self.arch_settings:
             raise KeyError(f'invalid depth {depth} for resnet')
@@ -510,7 +525,8 @@ class ResNet_mmcls(BaseBackbone):
                 avg_down=self.avg_down,
                 with_cp=with_cp,
                 conv_cfg=conv_cfg,
-                norm_cfg=norm_cfg)
+                norm_cfg=norm_cfg,
+                drop_path_rate=drop_path_rate)
             _in_channels = _out_channels
             _out_channels *= 2
             layer_name = f'layer{i + 1}'

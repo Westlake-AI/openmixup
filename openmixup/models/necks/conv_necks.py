@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 from mmcv.cnn import kaiming_init, normal_init, ConvModule
 from ..registry import NECKS
@@ -56,7 +55,6 @@ class ConvNeck(nn.Module):
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.act_cfg = act_cfg
-        self.dropout = None
         assert conv_cfg is None or isinstance(conv_cfg, dict)
         assert norm_cfg is None or isinstance(norm_cfg, dict)
         assert act_cfg is None or isinstance(act_cfg, dict)
@@ -75,6 +73,8 @@ class ConvNeck(nn.Module):
         elif float(with_last_dropout) > 0:
             assert float(with_last_dropout) < 1.
             self.dropout = nn.Dropout(float(with_last_dropout))
+        else:
+            self.dropout = nn.Identity()
 
         # build FFN
         layers = []
@@ -113,8 +113,7 @@ class ConvNeck(nn.Module):
         assert len(x) == 1, "Got: {}".format(len(x))
         res = x[0]
         x = self.conv(x[0])
-        if self.dropout is not None:
-            x = self.dropout(x)
+        x = self.dropout(x)
         if self.with_residual:
             x = x + res
         return [x]
