@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -47,6 +47,7 @@ class MixUpClassification(nn.Module):
                  pretrained=None,
                  **kwargs):
         super(MixUpClassification, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         self.head = builder.build_head(head)
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
@@ -219,6 +220,7 @@ class MixUpClassification(nn.Module):
     def aug_test(self, imgs):
         raise NotImplementedError
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

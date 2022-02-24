@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 from .. import builder
 from ..registry import MODELS
 from ..utils import Sobel
@@ -34,6 +34,7 @@ class ODC(nn.Module):
                  memory_bank=None,
                  pretrained=None):
         super(ODC, self).__init__()
+        self.fp16_enabled = False
         self.with_sobel = with_sobel
         if with_sobel:
             self.sobel_layer = Sobel()
@@ -115,6 +116,7 @@ class ODC(nn.Module):
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

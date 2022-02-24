@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -35,6 +35,7 @@ class NPID(nn.Module):
                  ensure_neg=False,
                  pretrained=None):
         super(NPID, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         self.neck = builder.build_neck(neck)
         self.head = builder.build_head(head)
@@ -119,6 +120,7 @@ class NPID(nn.Module):
     def forward_test(self, img, **kwargs):
         pass
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

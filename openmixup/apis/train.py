@@ -1,4 +1,5 @@
 import random
+import warnings
 
 import numpy as np
 import torch
@@ -8,12 +9,18 @@ from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import DistSamplerSeedHook, Runner, obj_from_dict
 
 from openmixup.datasets import build_dataloader
-from openmixup.hooks import build_hook, DistOptimizerHook, build_addtional_scheduler, build_optimizer
+from openmixup.hooks import (build_hook, build_addtional_scheduler, build_optimizer,
+                             DistOptimizerHook, Fp16OptimizerHook)
 from openmixup.utils import get_root_logger, print_log
+
+# import fp16 supports
 try:
     import apex
-except:
-    print('apex is not installed')
+    has_apex = True
+except ImportError:
+    has_apex = False
+    warnings.warn('DeprecationWarning: Nvidia Apex is not installed, '
+                  'using FP16OptimizerHook modified from mmcv.')
 
 
 def set_random_seed(seed, deterministic=False):
@@ -124,14 +131,26 @@ def _dist_train(model,
             img_norm_cfg=cfg.img_norm_cfg) for ds in dataset
     ]
     optimizer = build_optimizer(model, cfg.optimizer)
+    optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
     # if you have addtional_scheduler
     if cfg.get('addtional_scheduler', None) is not None:
         param_names = dict(model.named_parameters()).keys()
         assert isinstance(cfg.optimizer.get('paramwise_options', False), dict)
     # fp16
     if 'use_fp16' in cfg and cfg.use_fp16:
-        model, optimizer = apex.amp.initialize(model.cuda(), optimizer, opt_level="O1")
-        print_log('**** Initializing mixed precision done. ****')
+        # fp16 settings
+        default_fp16 = 'apex' if has_apex else 'mmcv'
+        fp16_cfg = cfg.get('fp16', dict(type=None))
+        fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)
+        fp16_cfg['loss_scale'] = fp16_cfg.get(
+            'loss_scale', dict(init_scale=512., mode='dynamic'))
+        if fp16_cfg['type'] == 'apex':
+            model, optimizer = apex.amp.initialize(model.cuda(), optimizer, opt_level="O1")
+            print_log('**** Initializing mixed precision apex done. ****')
+        elif fp16_cfg['type'] == 'mmcv':
+            optimizer_config = Fp16OptimizerHook(
+                **cfg.optimizer_config, **fp16_cfg, distributed=True)
+            print_log('**** Initializing mixed precision mmcv done. ****')
 
     # put model on gpus
     model = MMDistributedDataParallel(
@@ -149,8 +168,6 @@ def _dist_train(model,
         meta=meta)
     # an ugly walkaround to make the .log and .log.json filenames the same
     runner.timestamp = timestamp
-
-    optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
 
     # preprocess hooks: add EMAHook bofore ValidationHook and CheckpointSaverHook
     for hook in cfg.get('custom_hooks', list()):

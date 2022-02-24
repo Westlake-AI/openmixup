@@ -6,7 +6,7 @@ import os
 
 import matplotlib.pyplot as plt
 from torchvision import transforms
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -119,6 +119,7 @@ class MOCO_AutoMix_V2(nn.Module):
                  debug=False,
                  **kwargs):
         super(MOCO_AutoMix_V2, self).__init__()
+        self.fp16_enabled = False
         # build basic networks
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
@@ -1027,6 +1028,7 @@ class MOCO_AutoMix_V2(nn.Module):
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

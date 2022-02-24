@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -79,6 +79,7 @@ class DMixMatch(nn.Module):
                  deduplicate=False,
                  pretrained=None):
         super(DMixMatch, self).__init__()
+        self.fp16_enabled = False
         # network settings
         self.encoder = nn.Sequential(
             builder.build_backbone(backbone), builder.build_head(head))
@@ -421,6 +422,7 @@ class DMixMatch(nn.Module):
         preds = self.encoder_k(img)
         return preds
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

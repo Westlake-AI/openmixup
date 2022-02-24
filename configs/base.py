@@ -16,5 +16,9 @@ log_level = 'INFO'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]
+# datasets
 sampler = 'DistributedSampler'
 prefetch = False
+# fp16
+use_fp16 = False
+fp16 = dict(loss_scale=dict(init_scale=512., mode='dynamic'))

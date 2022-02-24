@@ -261,30 +261,39 @@ class PixelMixBlock(nn.Module):
     @force_fp32(apply_to=('q_x', 'k_x',))
     def gaussian(self, q_x, k_x):
         """ non-local similarity func """
+        # force fp32 before attention
+        q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
         pairwise_weight = torch.matmul(q_x, k_x)
         if torch.any(torch.isnan(pairwise_weight)):
-            print_log("Warming attention map is nan, P: {}".format(pairwise_weight), logger='root')
+            print_log("Warming attention map is nan, P: {}, exit!".format(
+                pairwise_weight), logger='root')
             raise ValueError
         if self.use_scale:
             pairwise_weight /= q_x.shape[-1]**0.5
-        pairwise_weight = pairwise_weight.softmax(dim=-1)
+        # force fp32 in exp
+        pairwise_weight = pairwise_weight.type(torch.float32).softmax(dim=-1)
         return pairwise_weight
     
     @force_fp32(apply_to=('q_x', 'k_x',))
     def embedded_gaussian(self, q_x, k_x):
         """ learnable non-local similarity func """
+        # force fp32 before attention
+        q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
         pairwise_weight = torch.matmul(q_x, k_x)
         if torch.any(torch.isnan(pairwise_weight)):
-            print_log("Warming attention map is nan, P: {}".format(pairwise_weight), logger='root')
+            print_log("Warming attention map is nan, P: {}, exit!".format(
+                pairwise_weight), logger='root')
             raise ValueError
         if self.use_scale:
             # q_x.shape[-1] is `self.inter_channels`
             pairwise_weight /= q_x.shape[-1]**0.5
-        pairwise_weight = pairwise_weight.softmax(dim=-1)
+        # force fp32 in exp
+        pairwise_weight = pairwise_weight.type(torch.float32).softmax(dim=-1)
         if self.double_norm:
-            pairwise_weight = pairwise_weight / (1e-8 + pairwise_weight.sum(dim=1, keepdim=True))
+            pairwise_weight = \
+                pairwise_weight / (1e-8 + pairwise_weight.sum(dim=1, keepdim=True))
         return pairwise_weight
     
     def rescale_lam_mult(self, lam, k=1):
@@ -396,26 +405,14 @@ class PixelMixBlock(nn.Module):
             else:
                 k_x = self.query(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
 
-        # ste 3: 2d pairwise_weight: [N, HxW, HxW]
+        # step 3: 2d pairwise_weight: [N, HxW, HxW]
         pairwise_func = getattr(self, self.attention_mode)
-        q_x = q_x.type(torch.float32)  # force fp32 before attention
-        k_x = k_x.type(torch.float32)
         pairwise_weight = pairwise_func(q_x, k_x)  # x_lam [N, HxW, C/r] x [N, C/r, HxW] x_lam_
 
         # debug mode
         if debug:
             debug_plot["pairwise_weight"] = pairwise_weight.clone().detach()
             results["debug_plot"] = debug_plot
-        
-        # step 4: generate mask and upsampling
-        mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
-            pairwise_weight.permute(0, 2, 1), v).view(n, 1, h, w)  # mask for lam
-        if torch.any(torch.isnan(mask_lam)):
-            print_log("Warming mask_lam is nan, P: {}, v: {}".format(pairwise_weight, v), logger='root')
-            pairwise_weight = pairwise_weight.type(torch.float32).clamp(min=-1e20, max=1e20)
-            mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
-                pairwise_weight.permute(0, 2, 1), v.type(torch.float32).clamp(min=-1e20, max=1e20)
-            ).view(n, 1, h, w)
         # choose upsampling mode
         if unsampling_override is not None:
             if isinstance(unsampling_override, str):
@@ -428,19 +425,40 @@ class PixelMixBlock(nn.Module):
                 up_mode = "nearest"
         else:
             up_mode = random.choices(self.unsampling_mode, k=1)[0]
-        mask_lam = F.upsample(mask_lam, scale_factor=scale_factor, mode=up_mode)
-        mask_lam = torch.sigmoid(mask_lam)  # mask for lam, in [0, 1]
 
-        if self.mask_mode != "none":
-            # P x v_lam_ = mask_lam_
-            mask_lam_ = torch.matmul(pairwise_weight, v_).view(n, 1, h, w)  # 1 - lam
+        # step 4: generate mask and upsampling
+        if self.mask_mode in ["none", "sum", "softmax"]:
+            # P^T x v_lam = mask_lam, force fp32 in matmul
+            mask_lam = torch.matmul(
+                pairwise_weight.permute(0, 2, 1).type(torch.float32),
+                v.type(torch.float32)
+            ).view(n, 1, h, w)  # mask for lam
+            if torch.any(torch.isnan(mask_lam)):
+                print_log("Warming mask_lam is nan, P: {}, v: {}".format(pairwise_weight, v), logger='root')
+                mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
+                    pairwise_weight.permute(0, 2, 1).type(torch.float64).clamp(min=-1e20, max=1e20),
+                    v.type(torch.float64).clamp(min=-1e20, max=1e20)
+                ).view(n, 1, h, w)
+            mask_lam = F.upsample(mask_lam, scale_factor=scale_factor, mode=up_mode)
+            # mask for lam in [0, 1], force fp32 in exp
+            mask_lam = torch.sigmoid(mask_lam.type(torch.float32))
+        if self.mask_mode in ["none_v_", "sum", "softmax"]:
+            # P x v_lam_ = mask_lam_, force fp32 in matmul
+            mask_lam_ = torch.matmul(
+                pairwise_weight.type(torch.float32),
+                v_.type(torch.float32)
+            ).view(n, 1, h, w)  # mask for 1-lam
             if torch.any(torch.isnan(mask_lam_)):
                 print_log("Warming mask_lam_ is nan, P: {}, v: {}".format(pairwise_weight, v_), logger='root')
                 mask_lam = torch.matmul(
-                    pairwise_weight, v_.type(torch.float32).clamp(min=-1e20, max=1e20)
+                    pairwise_weight.type(torch.float64).clamp(min=-1e20, max=1e20),
+                    v_.type(torch.float64).clamp(min=-1e20, max=1e20)
                 ).view(n, 1, h, w)
             mask_lam_ = F.upsample(mask_lam_, scale_factor=scale_factor, mode=up_mode)
-            mask_lam_ = torch.sigmoid(mask_lam_)  # mask for 1-lam
+            # mask for 1-lam in [0, 1], force fp32 in exp
+            mask_lam_ = torch.sigmoid(mask_lam_.type(torch.float32))
+
+        if self.mask_mode != "none":
             if self.mask_mode == "sum":
                 # stop grad of one side [try]
                 mask = torch.cat([mask_lam.clone().detach(), mask_lam_], dim=1)

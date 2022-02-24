@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 from .. import builder
 from ..registry import MODELS
 
@@ -44,6 +44,7 @@ class FixMatch(nn.Module):
                  deduplicate=False,
                  pretrained=None):
         super(FixMatch, self).__init__()
+        self.fp16_enabled = False
         self.encoder = nn.Sequential(
             builder.build_backbone(backbone), builder.build_head(head))
         self.encoder_k = nn.Sequential(  # EMA
@@ -171,6 +172,7 @@ class FixMatch(nn.Module):
         preds = self.encoder_k(img)
         return preds
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

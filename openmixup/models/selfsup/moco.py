@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -39,6 +39,7 @@ class MOCO(nn.Module):
                  momentum=0.999,
                  **kwargs):
         super(MOCO, self).__init__()
+        self.fp16_enabled = False
         self.encoder_q = nn.Sequential(
             builder.build_backbone(backbone), builder.build_neck(neck))
         self.encoder_k = nn.Sequential(
@@ -190,6 +191,7 @@ class MOCO(nn.Module):
     def forward_test(self, img, **kwargs):
         pass
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

@@ -10,7 +10,7 @@ from torchvision import transforms
 
 import logging
 from mmcv.runner import load_checkpoint
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 from .. import builder
 from ..registry import MODELS
 
@@ -100,6 +100,7 @@ class AutoMixup_V2(nn.Module):
                  pretrained_k=None):
         super(AutoMixup_V2, self).__init__()
         # basic params
+        self.fp16_enabled = False
         self.alpha = float(alpha)
         self.mask_layer = int(mask_layer)
         self.momentum = float(momentum)
@@ -585,6 +586,7 @@ class AutoMixup_V2(nn.Module):
         out_tensors = [p[0].cpu() for p in pred]  # NxC
         return dict(zip(keys, out_tensors))
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

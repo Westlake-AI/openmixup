@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -22,8 +22,13 @@ class RelativeLoc(nn.Module):
         pretrained (str, optional): Path to pre-trained weights. Default: None.
     """
 
-    def __init__(self, backbone, neck=None, head=None, pretrained=None):
+    def __init__(self,
+                 backbone,
+                 neck=None,
+                 head=None,
+                 pretrained=None):
         super(RelativeLoc, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         if neck is not None:
             self.neck = builder.build_neck(neck)
@@ -90,6 +95,7 @@ class RelativeLoc(nn.Module):
         out_tensors = [out.cpu() for out in outs]
         return dict(zip(keys, out_tensors))
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, patch_label=None, mode='train', **kwargs):
         if mode != "extract" and img.dim() == 5:  # Nx8x(2C)xHxW
             assert patch_label.dim() == 2  # Nx8

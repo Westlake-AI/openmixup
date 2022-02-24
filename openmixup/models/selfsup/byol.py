@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -32,6 +32,7 @@ class BYOL(nn.Module):
                  base_momentum=0.996,
                  **kwargs):
         super(BYOL, self).__init__()
+        self.fp16_enabled = False
         self.online_net = nn.Sequential(
             builder.build_backbone(backbone), builder.build_neck(neck))
         self.target_net = nn.Sequential(
@@ -102,6 +103,7 @@ class BYOL(nn.Module):
     def forward_test(self, img, **kwargs):
         pass
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

@@ -6,7 +6,7 @@ import os
 
 import matplotlib.pyplot as plt
 from torchvision import transforms
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -73,6 +73,7 @@ class MOCO_Mix(nn.Module):
                  save_name="mix_samples",
                  **kwargs):
         super(MOCO_Mix, self).__init__()
+        self.fp16_enabled = False
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.neck_q = builder.build_neck(neck)
@@ -349,6 +350,7 @@ class MOCO_Mix(nn.Module):
     def forward_test(self, img, **kwargs):
         raise NotImplementedError
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

@@ -6,7 +6,7 @@ import os
 import matplotlib.pyplot as plt
 from torchvision import transforms
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 from .. import builder
 from ..registry import MODELS
 from ..utils import GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp
@@ -63,6 +63,7 @@ class SimCLR_Mix(nn.Module):
                 save_name='mix_samples',
                 **kwargs):
         super(SimCLR_Mix, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         self.neck = builder.build_neck(neck)
         self.head = builder.build_head(head)
@@ -254,6 +255,7 @@ class SimCLR_Mix(nn.Module):
     def forward_test(self, img, **kwargs):
         pass
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

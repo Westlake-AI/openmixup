@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -20,8 +20,12 @@ class RotationPred(nn.Module):
         pretrained (str, optional): Path to pre-trained weights. Default: None.
     """
 
-    def __init__(self, backbone, head=None, pretrained=None):
+    def __init__(self,
+                 backbone,
+                 head=None,
+                 pretrained=None):
         super(RotationPred, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         if head is not None:
             self.head = builder.build_head(head)
@@ -77,6 +81,7 @@ class RotationPred(nn.Module):
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, rot_label=None, mode='train', **kwargs):
         if mode != "extract" and img.dim() == 5:  # Nx4xCxHxW
             assert rot_label.dim() == 2  # Nx4

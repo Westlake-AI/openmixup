@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -21,6 +21,7 @@ class FineTuning(nn.Module):
                  head=None,
                  pretrained=None):
         super(FineTuning, self).__init__()
+        self.fp16_enabled = False
         self.backbone = builder.build_backbone(backbone)
         self.head = head
         if head is not None:
@@ -84,6 +85,7 @@ class FineTuning(nn.Module):
     def aug_test(self, imgs):
         raise NotImplementedError
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

@@ -7,7 +7,7 @@ from .ema_hook import EMAHook
 from .extractor import Extractor
 from .momentum_hook import CosineHook, StepHook, CosineScheduleHook, StepScheduleHook
 from .odc_hook import ODCHook
-from .optimizer_hook import DistOptimizerHook
+from .optimizer_hook import DistOptimizerHook, Fp16OptimizerHook
 from .precise_bn_hook import PreciseBNHook
 from .registry import HOOKS
 from .save_hook import SAVEHook

@@ -4,7 +4,7 @@ import torch.nn as nn
 from mmcv.utils.parrots_wrapper import _BatchNorm
 import numpy as np
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -73,6 +73,7 @@ class DMixTuning(nn.Module):
                     weight_pgc=1, weight_one=1, weight_mix_ll=1, weight_mix_lu=1),
                  pretrained=None):
         super(DMixTuning, self).__init__()
+        self.fp16_enabled = False
         # network settings
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
@@ -460,6 +461,7 @@ class DMixTuning(nn.Module):
         preds = self.head_one(x)
         return preds
     
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

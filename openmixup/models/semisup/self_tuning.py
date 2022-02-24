@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -41,6 +41,7 @@ class SelfTuning(nn.Module):
                  temperature=0.07,
                  pretrained=None):
         super(SelfTuning, self).__init__()
+        self.fp16_enabled = False
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.projector_q = builder.build_neck(neck)
@@ -242,6 +243,7 @@ class SelfTuning(nn.Module):
         preds_one_k = self.head_cls(x)
         return preds_one_k
     
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)

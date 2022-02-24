@@ -1,6 +1,6 @@
 import torch.nn as nn
 
-from openmixup.utils import print_log
+from openmixup.utils import auto_fp16, print_log
 
 from .. import builder
 from ..registry import MODELS
@@ -24,6 +24,7 @@ class Classification(nn.Module):
                  head=None,
                  pretrained=None):
         super(Classification, self).__init__()
+        self.fp16_enabled = False
         self.with_sobel = with_sobel
         if with_sobel:
             self.sobel_layer = Sobel()
@@ -94,6 +95,7 @@ class Classification(nn.Module):
     def aug_test(self, imgs):
         raise NotImplementedError
 
+    @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
         if mode == 'train':
             return self.forward_train(img, **kwargs)
