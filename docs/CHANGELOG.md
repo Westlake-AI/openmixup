@@ -6,6 +6,7 @@
 * Support various popular backbones (ConvNets and ViTs).
 * Support various handcrafted mixup methods, AutoMix, and SAMix.
 * Support various self- & semi-supervised learning methods.
+* Support fast configs generation from a basic config file by 'auto_train.py'.
 * Provide image classification benchmarking results of mixup (updating). 
 
 #### Bug Fixes

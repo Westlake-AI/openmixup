@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 from ..registry import HEADS
-from mmcv.cnn import NonLocal2d, kaiming_init, normal_init
+from mmcv.cnn import ConvModule, NonLocal2d, kaiming_init, normal_init
 from ..necks import ConvNeck
 from .. import builder
 from ..utils import build_norm_layer
@@ -21,6 +21,8 @@ class PixelMixBlock(nn.Module):
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
         "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
             Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
+    *** Warning: FP16 training might result in inf or nan, please try a smaller
+        batch size when FP16 overflow occur! ***
     
     Args:
         in_channels (int): Channels of the input feature map.
@@ -74,6 +76,8 @@ class PixelMixBlock(nn.Module):
             Default: False.
         x_v_concat (bool): Whether to concat x and x_ in value embedding.
             Default: False.
+        att_norm_cfg (dict): Config dict for normalization layer in Attention. Default: None.
+        att_act_cfg (dict): Config dict for activation layer in Attention. Default: None.
         mask_loss_mode (str): Which mode in {'L1', 'L2', 'none', 'Variance'} to caculate loss.
             Default: "none".
         mask_loss_margin (int): Margine loss for the grid mask pattens. Default: 0.
@@ -100,6 +104,8 @@ class PixelMixBlock(nn.Module):
             value_neck_cfg=None,
             x_qk_concat=False,
             x_v_concat=False,
+            att_norm_cfg=None,
+            att_act_cfg=None,
             mask_loss_mode="none",
             mask_loss_margin=0,
             mask_mode="none",
@@ -147,6 +153,8 @@ class PixelMixBlock(nn.Module):
         self.lam_mul = float(lam_mul) if float(lam_mul) > 0 else 0
         self.lam_mul_k = [lam_mul_k] if isinstance(lam_mul_k, (int, float)) else list(lam_mul_k)
         self.lam_residual = bool(lam_residual)
+        assert att_norm_cfg is None or isinstance(att_norm_cfg, dict)
+        assert att_act_cfg is None or isinstance(att_act_cfg, dict)
         assert value_neck_cfg is None or isinstance(value_neck_cfg, dict)
         self.value_neck_cfg = value_neck_cfg
         self.x_qk_concat = bool(x_qk_concat)
@@ -171,6 +179,8 @@ class PixelMixBlock(nn.Module):
         if self.lam_concat or self.x_qk_concat:
             assert self.lam_concat != self.x_qk_concat, \
                 "x_lam=x_lam_=cat(x,x_) if x_qk_concat=True, it's no use to concat lam"
+        # FP16 training: exit after 10 times overflow
+        self.overflow = 0
 
         # concat all as k,q,v
         self.qk_in_channels = int(in_channels + 1) \
@@ -197,17 +207,23 @@ class PixelMixBlock(nn.Module):
             self.key = None
             if self.x_qk_concat:  # sym conv q and k
                 # conv key
-                self.key = nn.Conv2d(
-                    self.qk_in_channels,
-                    self.inter_channels,
-                    kernel_size=1,
-                    stride=1)
+                self.key = ConvModule(
+                    in_channels=self.qk_in_channels,
+                    out_channels=self.inter_channels,
+                    kernel_size=1, stride=1, padding=0,
+                    groups=1, bias='auto', 
+                    norm_cfg=att_norm_cfg,
+                    act_cfg=att_act_cfg,
+                )
             # conv query
-            self.query = nn.Conv2d(
-                self.qk_in_channels,
-                self.inter_channels,
-                kernel_size=1,
-                stride=1)
+            self.query = ConvModule(
+                in_channels=self.qk_in_channels,
+                out_channels=self.inter_channels,
+                kernel_size=1, stride=1, padding=0,
+                groups=1, bias='auto',
+                norm_cfg=att_norm_cfg,
+                act_cfg=att_act_cfg,
+            )
         
         self.init_weights()
         if self.frozen:
@@ -261,14 +277,20 @@ class PixelMixBlock(nn.Module):
     @force_fp32(apply_to=('q_x', 'k_x',))
     def gaussian(self, q_x, k_x):
         """ non-local similarity func """
-        # force fp32 before attention
+        # force fp32 before attention (causing NAN in fp16)
         q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
         pairwise_weight = torch.matmul(q_x, k_x)
         if torch.any(torch.isnan(pairwise_weight)):
-            print_log("Warming attention map is nan, P: {}, exit!".format(
+            print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
                 pairwise_weight), logger='root')
             raise ValueError
+        if torch.any(torch.isinf(pairwise_weight)):
+            print_log("Warming attention map is inf, P: {}, climp!".format(
+                pairwise_weight), logger='root')
+            pairwise_weight = pairwise_weight.clamp(min=-1e25, max=1e25)
+            self.self.overflow += 1
+            assert self.self.overflow < 10
         if self.use_scale:
             pairwise_weight /= q_x.shape[-1]**0.5
         # force fp32 in exp
@@ -278,14 +300,20 @@ class PixelMixBlock(nn.Module):
     @force_fp32(apply_to=('q_x', 'k_x',))
     def embedded_gaussian(self, q_x, k_x):
         """ learnable non-local similarity func """
-        # force fp32 before attention
+        # force fp32 before attention (causing NAN in fp16)
         q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
         pairwise_weight = torch.matmul(q_x, k_x)
         if torch.any(torch.isnan(pairwise_weight)):
-            print_log("Warming attention map is nan, P: {}, exit!".format(
+            print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
                 pairwise_weight), logger='root')
             raise ValueError
+        if torch.any(torch.isinf(pairwise_weight)):
+            print_log("Warming attention map is inf, P: {}, climp!".format(
+                pairwise_weight), logger='root')
+            pairwise_weight = pairwise_weight.clamp(min=-1e25, max=1e25)
+            self.self.overflow += 1
+            assert self.self.overflow < 10
         if self.use_scale:
             # q_x.shape[-1] is `self.inter_channels`
             pairwise_weight /= q_x.shape[-1]**0.5
@@ -304,7 +332,6 @@ class PixelMixBlock(nn.Module):
             lam = float(lam)
         return 1 / (k - 2/3) * (4/3 * math.pow(lam, 3) -2 * lam**2 + k * lam)
 
-    @force_fp32(apply_to=('x',))
     def forward(self, x, lam, index, scale_factor, debug=False, unsampling_override=None):
         """ v08.23, add pre_conv and pre_attn
             v01.07, add override upsampling
@@ -362,7 +389,7 @@ class PixelMixBlock(nn.Module):
             x_lam  = torch.cat([x_lam, lam_block], dim=1)
             x_lam_ = torch.cat([x_lam_, 1-lam_block], dim=1)
         
-        # step 1: conpute 1x1 conv value, v: [N, HxW, 1].
+        # **** step 1: conpute 1x1 conv value, v: [N, HxW, 1] ****
         v, v_ = x_lam, x_lam_
         if self.x_v_concat:
             v  = torch.cat([x_lam, x_lam_], dim=1)
@@ -387,7 +414,7 @@ class PixelMixBlock(nn.Module):
         if debug:
             debug_plot = dict(value=v_.view(n, h, -1).clone().detach())
         
-        # step 2: compute 1x1 conv q & k, q_x: [N, HxW, C], k_x: [N, C, HxW].
+        # **** step 2: compute 1x1 conv q & k, q_x: [N, HxW, C], k_x: [N, C, HxW] ****
         if self.x_qk_concat:
             x_lam = torch.cat([x_lam, x_lam_], dim=1)
             x_lam_ = x_lam
@@ -405,7 +432,7 @@ class PixelMixBlock(nn.Module):
             else:
                 k_x = self.query(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
 
-        # step 3: 2d pairwise_weight: [N, HxW, HxW]
+        # **** step 3: 2d pairwise_weight: [N, HxW, HxW] ****
         pairwise_func = getattr(self, self.attention_mode)
         pairwise_weight = pairwise_func(q_x, k_x)  # x_lam [N, HxW, C/r] x [N, C/r, HxW] x_lam_
 
@@ -426,57 +453,55 @@ class PixelMixBlock(nn.Module):
         else:
             up_mode = random.choices(self.unsampling_mode, k=1)[0]
 
-        # step 4: generate mask and upsampling
+        # **** step 4: generate mixup mask and upsampling ****
         if self.mask_mode in ["none", "sum", "softmax"]:
-            # P^T x v_lam = mask_lam, force fp32 in matmul
+            # P^T x v_lam = mask_lam, force fp32 in matmul (causing NAN in fp16)
             mask_lam = torch.matmul(
-                pairwise_weight.permute(0, 2, 1).type(torch.float32),
-                v.type(torch.float32)
+                pairwise_weight.permute(0, 2, 1).type(torch.float32), v.type(torch.float32)
             ).view(n, 1, h, w)  # mask for lam
             if torch.any(torch.isnan(mask_lam)):
-                print_log("Warming mask_lam is nan, P: {}, v: {}".format(pairwise_weight, v), logger='root')
+                print_log("Warming mask_lam is nan, P: {}, v: {}, remove nan.".format(
+                    pairwise_weight, v), logger='root')
                 mask_lam = torch.matmul(  # P^T x v_lam = mask_lam
-                    pairwise_weight.permute(0, 2, 1).type(torch.float64).clamp(min=-1e20, max=1e20),
-                    v.type(torch.float64).clamp(min=-1e20, max=1e20)
+                    pairwise_weight.permute(0, 2, 1).type(torch.float64), v.type(torch.float64)
                 ).view(n, 1, h, w)
+                mask_lam = torch.where(torch.isnan(mask_lam),
+                                       torch.full_like(mask_lam, 1e-4), mask_lam)
             mask_lam = F.upsample(mask_lam, scale_factor=scale_factor, mode=up_mode)
             # mask for lam in [0, 1], force fp32 in exp
             mask_lam = torch.sigmoid(mask_lam.type(torch.float32))
         if self.mask_mode in ["none_v_", "sum", "softmax"]:
-            # P x v_lam_ = mask_lam_, force fp32 in matmul
+            # P x v_lam_ = mask_lam_, force fp32 in matmul (causing NAN in fp16)
             mask_lam_ = torch.matmul(
-                pairwise_weight.type(torch.float32),
-                v_.type(torch.float32)
+                pairwise_weight.type(torch.float32), v_.type(torch.float32)
             ).view(n, 1, h, w)  # mask for 1-lam
             if torch.any(torch.isnan(mask_lam_)):
-                print_log("Warming mask_lam_ is nan, P: {}, v: {}".format(pairwise_weight, v_), logger='root')
-                mask_lam = torch.matmul(
-                    pairwise_weight.type(torch.float64).clamp(min=-1e20, max=1e20),
-                    v_.type(torch.float64).clamp(min=-1e20, max=1e20)
+                print_log("Warming mask_lam_ is nan, P: {}, v: {}, remove nan.".format(
+                    pairwise_weight, v_), logger='root')
+                mask_lam_ = torch.matmul(
+                    pairwise_weight.type(torch.float64), v_.type(torch.float64)
                 ).view(n, 1, h, w)
+                mask_lam_ = torch.where(torch.isnan(mask_lam_),
+                                        torch.full_like(mask_lam_, 1e-4), mask_lam_)
             mask_lam_ = F.upsample(mask_lam_, scale_factor=scale_factor, mode=up_mode)
-            # mask for 1-lam in [0, 1], force fp32 in exp
+            # mask for 1-lam in [0, 1], force fp32 in exp (causing NAN in fp16)
             mask_lam_ = torch.sigmoid(mask_lam_.type(torch.float32))
 
-        if self.mask_mode != "none":
-            if self.mask_mode == "sum":
-                # stop grad of one side [try]
-                mask = torch.cat([mask_lam.clone().detach(), mask_lam_], dim=1)
-                # sum to 1
-                sum_masks = mask.sum(1, keepdim=True)
-                mask /= sum_masks
-            elif self.mask_mode == "softmax":
-                # stop grad of one side [try]
-                mask = torch.cat([mask_lam.clone().detach(), mask_lam_], dim=1)
-                # sum to 1 by softmax
-                mask = mask.softmax(dim=1)
-            elif self.mask_mode == "none_v_":
-                mask_lam = None
-                mask = torch.cat([1 - mask_lam_, mask_lam_], dim=1)
-            else:
-                raise NotImplementedError
-        else:
+        if self.mask_mode == "none":
             mask = torch.cat([mask_lam, 1 - mask_lam], dim=1)
+        elif self.mask_mode == "none_v_":
+            mask = torch.cat([1 - mask_lam_, mask_lam_], dim=1)
+        elif self.mask_mode == "sum":
+            # stop grad of one side [try]
+            mask = torch.cat([mask_lam.clone().detach(), mask_lam_], dim=1)
+            sum_masks = mask.sum(1, keepdim=True)  # sum to 1
+            mask /= sum_masks
+        elif self.mask_mode == "softmax":
+            # stop grad of one side [try]
+            mask = torch.cat([mask_lam.clone().detach(), mask_lam_], dim=1)
+            mask = mask.softmax(dim=1)  # sum to 1 by softmax
+        else:
+            raise NotImplementedError
         
         results["mask"] = mask
         return results
@@ -508,7 +533,8 @@ class PixelMixBlock(nn.Module):
         else:
             raise NotImplementedError
         if torch.isnan(losses['loss']):
-            print_log("Warming mask loss: {}, mask sum: {}".format(losses['loss'], mask), logger='root')
+            print_log("Warming mask loss nan, mask sum: {}, skip.".format(mask), logger='root')
             losses['loss'] = None
-            # raise ValueError
+            self.self.overflow += 1
+            assert self.self.overflow < 10
         return losses

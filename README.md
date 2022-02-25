@@ -2,7 +2,7 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.1.0 is now released, which supports various backbones (ConvNets and ViTs), various mixup methods including [AutoMix](https://arxiv.org/pdf/2103.13027) and [SAMix](https://arxiv.org/pdf/2111.15454), FP16 training (Apex or MMCV).
+* OpenMixup v0.1.0 is now released, which supports various backbones (ConvNets and ViTs), various mixup methods including [AutoMix](https://arxiv.org/pdf/2103.13027) and [SAMix](https://arxiv.org/pdf/2111.15454), config files generation, FP16 training (Apex or MMCV).
 
 ## Introduction
 
@@ -16,7 +16,7 @@ Learning discriminative visual representation efficiently that facilitates downs
 
 ### Major features
 
-This repo will be continued to update in the next two months!
+This repo will be continued to update in the next two months! Please watch us for latest update!
 
 ## Change Log
 
@@ -35,7 +35,7 @@ Then, see [tutorials](docs/tutorials) for more tech details (based on MMClassifi
 
 ## Benchmark and Model Zoo
 
-[Model Zoos](docs/model_zoos) and list of [Awesome Mixups](docs/awesome_mixups) will be updated in the next two months!
+[Model Zoos](docs/model_zoos) and list of [Awesome Mixups](docs/awesome_mixups) will be updated in the next two months (before 2022.04)!
 
 ## License
 

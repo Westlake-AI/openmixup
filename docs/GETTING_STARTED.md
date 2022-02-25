@@ -5,7 +5,7 @@ For installation instructions, please see [INSTALL.md](INSTALL.md).
 
 ## Train existing methods
 
-**Note**: The default learning rate in config files is for 8 GPUs. If using differnt number GPUs, the total batch size will change in proportion, you have to scale the learning rate following `new_lr = old_lr * new_ngpus / old_ngpus`. We recommend to use `tools/dist_train.sh` even with 1 gpu, since some methods do not support non-distributed training.
+**Note**: The default learning rate in config files is for 4 or 8 GPUs. If using differnt number GPUs, the total batch size will change in proportion, you have to scale the learning rate following `new_lr = old_lr * new_ngpus / old_ngpus`. We recommend to use `tools/dist_train.sh` even with 1 gpu, since some methods do not support non-distributed training.
 
 ### Train with single/multiple GPUs
 
@@ -17,18 +17,17 @@ Optional arguments are:
 - `--pretrained ${PRETRAIN_WEIGHTS}`: Load pretrained weights for the backbone.
 - `--deterministic`: Switch on "deterministic" mode which slows down training but the results are reproducible.
 
-An example:
+An example: Run the following command, training results (checkpoints, jsons, logs) saved in `WORK_DIR=work_dirs/classification/imagenet/mixups/basic/r50/mix_modevanilla/r50_mixups_CE_none_ep100/`.
 ```shell
-# checkpoints and logs saved in WORK_DIR=work_dirs/selfsup/odc/r50_v1/
-bash tools/dist_train.sh configs/selfsup/odc/r50_v1.py 8
+bash tools/dist_train.sh configs/classification/imagenet/mixups/basic/r50/mix_modevanilla/r50_mixups_CE_none_ep100.py 8
 ```
 **Note**: During training, checkpoints and logs are saved in the same folder structure as the config file under `work_dirs/`. Custom work directory is not recommended since evaluation scripts infer work directories from the config file name. If you want to save your weights somewhere else, please use symlink, for example:
 
 ```shell
-ln -s /DATA/xhzhan/openselfsup_workdirs ${OPENSELFSUP}/work_dirs
+ln -s /lisiyuan/source/OPENMIXUP_WORKDIRS ${OPENMIXUP}/work_dirs
 ```
 
-Alternatively, if you run OpenSelfSup on a cluster managed with [slurm](https://slurm.schedmd.com/):
+Alternatively, if you run OpenMixup on a cluster managed with [slurm](https://slurm.schedmd.com/):
 ```shell
 SRUN_ARGS="${SRUN_ARGS}" bash tools/srun_train.sh ${PARTITION} ${CONFIG_FILE} ${GPUS} [optional arguments]
 ```
@@ -61,6 +60,14 @@ GPUS_PER_NODE=4 bash tools/srun_train.sh ${PARTITION} ${CONFIG_FILE} 4 --port 29
 GPUS_PER_NODE=4 bash tools/srun_train.sh ${PARTITION} ${CONFIG_FILE} 4 --port 29501
 ```
 
+### Generate fast config files
+
+If you want to adjust some parts of a basic config file (e.g., do ablation studies or tuning hyper-parameters), we provide ConfigGenerator in the config folders of each methods. For example, you want to train {'Mixup', 'CutMix'} with alpha in {0.2, 1.0} for {100, 300} epochs on ImageNet-1k based on PyTorch-style settings in `configs/classification/imagenet/mixups/basic/r50_mixups_CE_none.py`, you can modified `auto_train_in_mixups.py` and run
+```python
+python configs/classification/imagenet/mixups/auto_train_in_mixups.py
+```
+It will generate eight config files and a bash file `r50_mixups_CE_none_xxxx.sh`. You can adjust GPUs and PORT settings and execute this bash file to run eight experiments automaticly.
+
 ### What if I do not have so many GPUs?
 
 Assuming that you only have 1 GPU that can contain 64 images in a batch, while you expect the batch size to be 256, you may add the following line into your config file. It performs network update every 4 iterations. In this way, the equivalent batch size is 256. Of course, it is about 4x slower than using 4 GPUs. Note that the workaround is not applicable for methods like SimCLR which require intra-batch communication.
@@ -70,15 +77,16 @@ optimizer_config = dict(update_interval=4)
 ```
 
 ### Mixed Precision Training (Optional)
-We use [Apex](https://github.com/NVIDIA/apex) to implement Mixed Precision Training. 
+We use [Apex](https://github.com/NVIDIA/apex) and [mmcv]() to implement Mixed Precision Training. 
 If you want to use Mixed Precision Training, you can add below in the config file.
 ```python
 use_fp16 = True
+fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 optimizer_config = dict(use_fp16=use_fp16)
 ```
-An example:
+You can choose FP16 types in 'apex' or 'mmcv'. An example:
 ```python
-bash tools/dist_train.sh configs/selfsup/moco/r50_v1_fp16.py 8
+bash tools/dist_train.sh configs/classification/imagenet/mixups/rsb_a3/r50/r18_rsb_a3_CE_sigm_mix0_1_cut1_0_sz160_bs2048_fp16_ep100.py 4
 ```
 
 ### Speeding Up IO (Optional)

@@ -8,7 +8,7 @@ from torchvision import transforms
 
 import logging
 from mmcv.runner import load_checkpoint
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import auto_fp16, force_fp32, print_log
 from .. import builder
 from ..registry import MODELS
 
@@ -18,7 +18,8 @@ class AutoMixup(nn.Module):
     """ AutoMix and SAMix
         V0824 version (based on V1plus v0707)
         V1219 version (adding freezed backbone_k and mixblock)
-        V0109 version (adding up_mode override)
+        V0109 version (adding up_mode override and latent space mixup)
+        v0224 version (fix FP16 NAN loss)
 
     Official implementation of
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
@@ -319,7 +320,7 @@ class AutoMixup(nn.Module):
 
         return losses
 
-    @torch.no_grad()
+    @force_fp32(apply_to=('im_mixed', 'im_q', 'im_k',))
     def plot_mix(self, im_mixed, im_q, im_k, lam, debug_plot=None, name="k"):
         """ visualize mixup results, supporting 'debug' mode """
         invTrans = transforms.Compose([
@@ -337,21 +338,21 @@ class AutoMixup(nn.Module):
         assert self.save_name.find(".png") != -1
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
-        plt.close()
-        # debug: plot intermediate results
+        # debug: plot intermediate results, fp32
         if self.debug:
             assert isinstance(debug_plot, dict)
             for key,value in debug_plot.items():
-                n, h, w = value.size()
-                imgs = value[:4].view(h, 4 * w).detach().cpu().numpy()
+                _, h, w = value.size()
+                imgs = value[:4].view(h, 4 * w).type(torch.float32).detach().cpu().numpy()
                 fig = plt.figure()
                 plt.imshow(imgs)
                 # plt.title('debug {}, lambda k={}'.format(str(key), lam))
                 _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
                 if not os.path.exists(_debug_path):
                     plt.savefig(_debug_path, bbox_inches='tight')
-                plt.close()
+        plt.close()
     
+    @auto_fp16(apply_to=('x', 'mixed_x', ))
     def forward_q(self, x, mixed_x, y, index, lam):
         """
         Args:
@@ -372,18 +373,28 @@ class AutoMixup(nn.Module):
             # loss
             error_one_q = (pred_one_q, y)
             loss_one_q = self.head_one_q.loss(*error_one_q)
+            if torch.isnan(loss_one_q['loss']):
+                print_log("Warming NAN loss: loss_one_q. Force FP32!", logger='root')
+                loss_one_q = None
         
         # mixup q
         loss_mix_q = None
         if self.weight_mix_q > 0:
             out_mix_q = self.backbone_q(mixed_x)[-1]
             pred_mix_q = self.head_mix_q([out_mix_q])
+            # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
+            pred_mix_q[0] = pred_mix_q[0].type(torch.float32)
             # mixup loss
             y_mix_q = (y, y[index], lam)
             error_mix_q = (pred_mix_q, y_mix_q)
             loss_mix_q = self.head_mix_q.loss(*error_mix_q)
+            if torch.isnan(loss_mix_q['loss']):
+                print_log("Warming NAN loss: loss_mix_q. Exit.", logger='root')
+                loss_mix_q = None
+        
         return loss_one_q, loss_mix_q
 
+    @auto_fp16(apply_to=('mixed_x', ))
     def forward_k(self, mixed_x, y, index, lam):
         """ forward k with the mixup sample """
         loss_mix_k = dict()
@@ -391,10 +402,15 @@ class AutoMixup(nn.Module):
             # mixed_x forward
             out_mix_k = self.backbone_k(mixed_x)
             pred_mix_k = self.head_mix_k([out_mix_k[-1]])
+            # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
+            pred_mix_k[0] = pred_mix_k[0].type(torch.float32)
             # k mixup loss
             y_mix_k = (y, y[index], lam)
             error_mix_k = (pred_mix_k, y_mix_k)
             loss_mix_k = self.head_mix_k.loss(*error_mix_k)
+            if torch.isnan(loss_mix_k['loss']):
+                print_log("Warming NAN loss: loss_mix_k. Exit.", logger='root')
+                loss_mix_k = dict()
 
         # mixup loss, short cut of pre-mixblock
         if self.pre_mix_loss > 0:
@@ -406,16 +422,21 @@ class AutoMixup(nn.Module):
                 out_mb = self.mix_block.pre_conv([out_mb])  # neck
             # pre mixblock mixup loss
             pred_mix_mb = self.mix_block.pre_head(out_mb)
+            # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
+            pred_mix_mb[0] = pred_mix_mb[0].type(torch.float32)
             error_mix_mb = (pred_mix_mb, y_mix_k)
             loss_mix_k["pre_mix_loss"] = \
                 self.mix_block.pre_head.loss(*error_mix_mb)["loss"] * self.pre_mix_loss
+            if torch.isnan(loss_mix_k["pre_mix_loss"]):
+                print_log("Warming NAN loss: pre_mix_loss.", logger='root')
+                loss_mix_k["pre_mix_loss"] = None
         else:
             loss_mix_k["pre_mix_loss"] = None
         
         return loss_mix_k
     
     def pixel_mixup(self, x, y, lam, index, feature):
-        """ pixel-wise input space mixup, v08.24
+        """ pixel-wise input space mixup
 
         Args:
             x (Tensor): Input of a batch of images, (N, C, H, W).
@@ -459,6 +480,9 @@ class AutoMixup(nn.Module):
             error_one = (pred_one, y_one)
             results["pre_one_loss"] = \
                 self.mix_block.pre_head.loss(*error_one)["loss"] * self.pre_one_loss
+            if torch.isnan(results["pre_one_loss"]):
+                print_log("Warming NAN loss: pre_one_loss.", logger='root')
+                results["pre_one_loss"] = None
         
         mask_mb = mask_mb["mask"]
         mask_bb = mask_bb["mask"].clone().detach()
