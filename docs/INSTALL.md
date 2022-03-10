@@ -38,6 +38,7 @@ c. Install other third-party libraries (not necessary).
 ```shell
 conda install faiss-gpu cudatoolkit=10.1 -c pytorch  # optional for DeepCluster and ODC, assuming CUDA=10.1
 pip install opencv-contrib-python  # optional for SaliencyMix (cv2.saliency.StaticSaliencyFineGrained_create())
+pip install gco==1.0.1  # optional for PuzzleMix (graph-cut)
 ```
 
 d. Clone the openselfsup repository.

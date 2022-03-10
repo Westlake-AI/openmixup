@@ -20,6 +20,7 @@ from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, tr
 
 from .fmix import fmix
 from .mixup_input import cutmix, mixup, saliencymix, resizemix
+from .mixup_saliency import attentivemix, puzzlemix
 
 
 __all__ = [
@@ -30,5 +31,5 @@ __all__ = [
    'build_norm_layer', 'MultiPooling', 'make_divisible', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
    'AdaptivePadding', 'PatchEmbed', 'PatchMerging', 'MultiheadAttention', 'FFN',
    'GradWeighter', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
-   'cutmix', 'mixup', 'saliencymix', 'resizemix', 'fmix'
+   'cutmix', 'mixup', 'saliencymix', 'resizemix', 'fmix', 'attentivemix', 'puzzlemix',
 ]

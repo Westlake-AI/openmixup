@@ -557,6 +557,19 @@ class AutoMixup(nn.Module):
         
         out_tensors = [p[0].cpu() for p in pred]  # NxC
         return dict(zip(keys, out_tensors))
+    
+    def forward_vis(self, img, gt_label, **kwargs):
+        """" visualization by jupyter notebook """
+        batch_size = img.size()[0]
+        lam = kwargs.get('lam', [0.5, 0.5])
+        index = [i+1 for i in np.arange(batch_size)]
+        index[-1] = 0
+
+        # forward mixblock
+        indices = [index, index]
+        feature = self.backbone_k(img)[0]
+        results = self.pixel_mixup(img, gt_label, lam, indices, feature)
+        return {'mix_bb': results["img_mix_bb"], 'mix_mb': results["img_mix_mb"]}
 
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
@@ -564,5 +577,7 @@ class AutoMixup(nn.Module):
             return self.forward_train(img, **kwargs)
         elif mode == 'test':
             return self.forward_test(img, **kwargs)
+        elif mode == 'vis':
+            return self.forward_vis(img, **kwargs)
         else:
             raise Exception('No such mode: {}'.format(mode))

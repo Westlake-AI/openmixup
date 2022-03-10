@@ -277,10 +277,12 @@ class PixelMixBlock(nn.Module):
     @force_fp32(apply_to=('q_x', 'k_x',))
     def gaussian(self, q_x, k_x):
         """ non-local similarity func """
-        # force fp32 before attention (causing NAN in fp16)
-        q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
+        # Notice: force fp32 before and after matmul in attention, since
+        #   fp16 will cause inf or nan without any pre-normalization.
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
-        pairwise_weight = torch.matmul(q_x, k_x)
+        pairwise_weight = torch.matmul(
+            q_x.type(torch.float32), k_x.type(torch.float32)
+        ).type(torch.float32)
         if torch.any(torch.isnan(pairwise_weight)):
             print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
                 pairwise_weight), logger='root')
@@ -288,9 +290,10 @@ class PixelMixBlock(nn.Module):
         if torch.any(torch.isinf(pairwise_weight)):
             print_log("Warming attention map is inf, P: {}, climp!".format(
                 pairwise_weight), logger='root')
-            pairwise_weight = pairwise_weight.clamp(min=-1e25, max=1e25)
-            self.self.overflow += 1
-            assert self.self.overflow < 10
+            pairwise_weight = pairwise_weight.type(torch.float32).clamp(min=-1e25, max=1e25)
+            self.overflow += 1
+            if self.overflow > 10:
+                raise ValueError("Precision overflow in MixBlock, try fp32 training.")
         if self.use_scale:
             pairwise_weight /= q_x.shape[-1]**0.5
         # force fp32 in exp
@@ -300,10 +303,12 @@ class PixelMixBlock(nn.Module):
     @force_fp32(apply_to=('q_x', 'k_x',))
     def embedded_gaussian(self, q_x, k_x):
         """ learnable non-local similarity func """
-        # force fp32 before attention (causing NAN in fp16)
-        q_x, k_x = q_x.type(torch.float32), k_x.type(torch.float32)
+        # Notice: force fp32 before and after matmul in attention, since
+        #   fp16 will cause inf or nan without any pre-normalization.
         # NonLocal2d pairwise_weight: [N, HxW, HxW]
-        pairwise_weight = torch.matmul(q_x, k_x)
+        pairwise_weight = torch.matmul(
+            q_x.type(torch.float32), k_x.type(torch.float32)
+        ).type(torch.float32)
         if torch.any(torch.isnan(pairwise_weight)):
             print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
                 pairwise_weight), logger='root')
@@ -311,9 +316,10 @@ class PixelMixBlock(nn.Module):
         if torch.any(torch.isinf(pairwise_weight)):
             print_log("Warming attention map is inf, P: {}, climp!".format(
                 pairwise_weight), logger='root')
-            pairwise_weight = pairwise_weight.clamp(min=-1e25, max=1e25)
-            self.self.overflow += 1
-            assert self.self.overflow < 10
+            pairwise_weight = pairwise_weight.type(torch.float32).clamp(min=-1e25, max=1e25)
+            self.overflow += 1
+            if self.overflow > 10:
+                raise ValueError("Precision overflow in MixBlock, try fp32 training.")
         if self.use_scale:
             # q_x.shape[-1] is `self.inter_channels`
             pairwise_weight /= q_x.shape[-1]**0.5
@@ -384,7 +390,7 @@ class PixelMixBlock(nn.Module):
                 x_lam_ = x_lam_ * (1 - lam_rescale)
         if self.lam_concat:  # concat lam as a new channel
             # assert self.lam_mul > 0 and self.x_qk_concat == False
-            lam_block = torch.zeros(n, 1, h, w).cuda()
+            lam_block = torch.zeros(n, 1, h, w).cuda().type_as(x_lam)
             lam_block[:] = lam
             x_lam  = torch.cat([x_lam, lam_block], dim=1)
             x_lam_ = torch.cat([x_lam_, 1-lam_block], dim=1)
@@ -395,7 +401,7 @@ class PixelMixBlock(nn.Module):
             v  = torch.cat([x_lam, x_lam_], dim=1)
             v_ = v
         if self.lam_concat_v:
-            lam_block = torch.zeros(n, 1, h, w).cuda()
+            lam_block = torch.zeros(n, 1, h, w).cuda().type_as(x_lam)
             lam_block[:] = lam
             v  = torch.cat([x_lam, lam_block], dim=1)
             v_ = torch.cat([x_lam_, 1-lam_block], dim=1)
@@ -535,6 +541,7 @@ class PixelMixBlock(nn.Module):
         if torch.isnan(losses['loss']):
             print_log("Warming mask loss nan, mask sum: {}, skip.".format(mask), logger='root')
             losses['loss'] = None
-            self.self.overflow += 1
-            assert self.self.overflow < 10
+            self.overflow += 1
+            if self.overflow > 10:
+                raise ValueError("Precision overflow in MixBlock, try fp32 training.")
         return losses

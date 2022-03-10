@@ -31,6 +31,8 @@ def accuracy_mixup(pred, targets):
         Res: Single result of lam * Acc_lam + (1-lam) * Acc_lam_.
     """
     lam = targets[2]
+    if isinstance(lam, type(pred)):  # bugs of sample-wise lam
+        lam = lam.mean().cpu().numpy()
     maxk = 2  # top-2
     _, pred_label = pred.topk(maxk, dim=1)
     pred_label = pred_label.t()  # 2xN

@@ -1,6 +1,3 @@
-"""
-reference: https://github.com/ecs-vlc/FMix/blob/master/fmix.py
-"""
 import math
 import random
 import torch
@@ -171,7 +168,9 @@ def sample_and_apply(x, alpha, decay_power, shape, max_soft=0.0, reformulate=Fal
 def fmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
         decay_power=3, size=(32,32), max_soft=0., reformulate=False, **kwargs):
     """ FMix augmentation.
-        https://github.com/ecs-vlc/fmix
+
+    "FMix: Enhancing Mixed Sample Data Augmentation (https://arxiv.org/abs/2002.12047)".
+        https://github.com/ecs-vlc/FMix/blob/master/fmix.py
 
     Args:
         decay_power (float): Decay power for frequency decay prop 1/f**d
@@ -191,7 +190,8 @@ def fmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
 
     # fmix mask
     lam_, mask = sample_mask(alpha, decay_power, size, max_soft, reformulate)
-    mask = torch.from_numpy(mask).float().cuda()
+    # convert to img dtype (fp16)
+    mask = torch.from_numpy(mask).cuda().type_as(img)
     if lam is None:
         lam = lam_
     else:  # lam bias is fixed, lam should be larger than lam_

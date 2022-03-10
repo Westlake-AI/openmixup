@@ -1,14 +1,17 @@
-from operator import gt
 import numpy as np
 import torch
 import cv2
-from torch.nn.functional import interpolate  # resize tensor
+from torch.nn.functional import interpolate
 from ..utils import batch_shuffle_ddp
 
 
 @torch.no_grad()
 def cutmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
-    """ CutMix func.
+    """ CutMix augmentation.
+
+    "CutMix: Regularization Strategy to Train Strong Classifiers with Localizable
+    Features (https://arxiv.org/abs/1905.04899)".
+        https://github.com/clovaai/CutMix-PyTorch
     
     Args:
         img (Tensor): Input images of shape (N, C, H, W).
@@ -89,7 +92,10 @@ def cutmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
 
 @torch.no_grad()
 def mixup(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
-    """ MixUp func.
+    """ MixUp augmentation.
+
+    "Mixup: Beyond Empirical Risk Minimization (https://arxiv.org/abs/1710.09412)".
+        https://github.com/facebookresearch/mixup-cifar10
     
     Args:
         img (Tensor): Input images of shape (N, C, H, W).
@@ -144,9 +150,11 @@ def mixup(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
 
 @torch.no_grad()
 def saliencymix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
-    """ SaliencyMix func.
-        reference: https://arxiv.org/pdf/2006.01791.pdf
-            https://github.com/SaliencyMix/SaliencyMix/blob/main/SaliencyMix_CIFAR/saliencymix.py
+    """ SaliencyMix augmentation.
+
+    "SaliencyMix: A Saliency Guided Data Augmentation Strategy for Better
+    Regularization (https://arxiv.org/pdf/2006.01791.pdf)".
+        https://github.com/SaliencyMix/SaliencyMix/blob/main/SaliencyMix_CIFAR/saliencymix.py
     
     Args:
         img (Tensor): Input images of shape (C, H, W).
@@ -163,11 +171,13 @@ def saliencymix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
     def saliency_bbox(img, lam):
         """ generate saliency box by lam """
         size = img.size()
-        W = size[1]  # ?
-        H = size[2]  # ?
+        W = size[1]
+        H = size[2]
         cut_rat = np.sqrt(1. - lam)
         cut_w = np.int(W * cut_rat)
         cut_h = np.int(H * cut_rat)
+        # force fp32 when convert to numpy
+        img = img.type(torch.float32)
 
         # initialize OpenCV's static fine grained saliency detector and
         # compute the saliency map
@@ -238,7 +248,10 @@ def saliencymix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
 @torch.no_grad()
 def resizemix(img, gt_label, scope=(0.1, 0.8), dist_mode=False,
             alpha=1.0, lam=None, use_alpha=False, **kwargs):
-    """ my implementation of resizemix
+    """ my implementation of ResizeMix
+
+    "ResizeMix: Mixing Data with Preserved Object Information and True Labels
+    (https://arxiv.org/abs/2012.11101)".
     
     Args:
         img (Tensor): Input images of shape (N, C, H, W).

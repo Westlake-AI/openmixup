@@ -409,5 +409,7 @@ class EfficientNet(BaseBackbone):
             x = layer(x)
             if i in self.out_indices:
                 outs.append(x)
+                if len(self.out_indices) == 1:
+                    return outs
 
         return outs

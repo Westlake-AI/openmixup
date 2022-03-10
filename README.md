@@ -2,7 +2,7 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.1.0 is now released, which supports various backbones (ConvNets and ViTs), various mixup methods including [AutoMix](https://arxiv.org/pdf/2103.13027) and [SAMix](https://arxiv.org/pdf/2111.15454), config files generation, FP16 training (Apex or MMCV).
+* OpenMixup v0.1.0 is now released, which supports various backbones (ConvNets and ViTs), various mixup methods including [PuzzleMix](https://arxiv.org/abs/2009.06962), [AutoMix](https://arxiv.org/pdf/2103.13027), and [SAMix](https://arxiv.org/pdf/2111.15454), various classification datasets, config files generation, FP16 training (Apex or MMCV).
 
 ## Introduction
 

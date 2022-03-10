@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import kaiming_init, normal_init
@@ -119,6 +120,8 @@ class ClsHead(nn.Module):
         else:
             # mixup classification
             y_a, y_b, lam = labels
+            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,1]
+                lam = lam.unsqueeze(-1)
             # whether is the single label cls [N,] or multi-label cls [N,C]
             single_label = \
                 y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)

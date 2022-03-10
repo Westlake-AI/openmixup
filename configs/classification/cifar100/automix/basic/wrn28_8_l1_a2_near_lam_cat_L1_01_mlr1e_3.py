@@ -29,6 +29,7 @@ model = dict(
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
+        att_norm_cfg=dict(type='BN'),  # AutoMix: attention norm (for fp16)
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
         mask_mode="none_v_",
         frozen=False),

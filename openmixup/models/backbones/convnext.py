@@ -345,6 +345,8 @@ class ConvNeXt(BaseBackbone):
                     else:
                         x = norm_layer(x)
                 outs.append(x)
+                if len(self.out_indices) == 1:
+                    return outs
 
         return outs
 
