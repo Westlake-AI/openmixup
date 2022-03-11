@@ -4,10 +4,11 @@
 
 #### Highlight
 * Support various popular backbones (ConvNets and ViTs).
-* Support various handcrafted mixup methods, AutoMix, and SAMix.
+* Support mixed precision training (NVIDIA Apex or MMCV Apex).
+* Support various handcrafted methods and optimization-based methods (e.g., PuzzleMix, AutoMix, SAMix).
 * Support various self- & semi-supervised learning methods.
 * Support fast configs generation from a basic config file by 'auto_train.py'.
-* Provide image classification benchmarking results of mixup (updating). 
+* Provide image classification benchmarks in model_zoo and results (on updating). 
 
 #### Bug Fixes
 * Fix bugs of code refactoring (backbones, fp16, etc.).

@@ -18,15 +18,16 @@ model = dict(
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
-    mix_block = dict(  # V1+, using tricks in SAMix
+    mix_block = dict(  # AutoMix+, using tricks in SAMix
         type='PixelMixBlock',
         in_channels=1024, reduction=2, use_scale=True, double_norm=False,
         attention_mode='embedded_gaussian',
-        unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
+        unsampling_mode=['bilinear',],  # str or list, tricks from SAMix
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
+        att_norm_cfg=dict(type='BN'),  # AutoMix: attention norm (for fp16)
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
         mask_mode="none_v_",
         frozen=False),
@@ -114,8 +115,9 @@ optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
                     'mix_block': dict(lr=0.1,
                                       momentum=0.9)})  # set momentum to 0 performs better in 100ep
-# optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=False, grad_clip=None)
+# apex
+use_fp16 = False
+optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

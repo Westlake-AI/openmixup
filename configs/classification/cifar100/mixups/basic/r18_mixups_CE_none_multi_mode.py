@@ -8,9 +8,14 @@ model = dict(
     mix_prob=None,  # list of applying probs (sum=1), None for random applying
     mix_repeat=1,  # times of repeating mixup aug
     mix_args=dict(
+        attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
+        automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
+        fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
         manifoldmix=dict(layer=(0, 3)),
-        resizemix=dict(scope=(0.1, 0.8), use_alpha=False),
-        fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False)
+        puzzlemix=dict(transport=True, t_batch_size=None, t_size=4,
+            block_num=5, beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
+        resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
+        samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
         type='ResNet_CIFAR',  # CIFAR version
@@ -20,7 +25,7 @@ model = dict(
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
     head=dict(
-        type='ClsHead',  # normal CE loss
+        type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
         with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100)
 )

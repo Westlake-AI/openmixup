@@ -14,11 +14,11 @@ model = dict(
     debug=True,  # show attention and content map
     backbone=dict(
         type='ResNet_mmcls',
-        depth=34,
+        depth=18,
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
-    mix_block = dict(  # V1
+    mix_block = dict(  # AutoMix
         type='PixelMixBlock',
         in_channels=256, reduction=2, use_scale=True, double_norm=False,
         attention_mode='embedded_gaussian',
@@ -114,8 +114,9 @@ custom_hooks = [
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
                     'mix_block': dict(lr=0.1, momentum=0.9)},)  # required parawise_option
-# optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=False, grad_clip=None)
+# apex
+use_fp16 = False
+optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

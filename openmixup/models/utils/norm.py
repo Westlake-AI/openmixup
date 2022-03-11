@@ -1,13 +1,5 @@
 import torch.nn as nn
 
-norm_cfg = {
-    # format: layer_type: (abbreviation, module)
-    'BN': ('bn', nn.BatchNorm2d),
-    'SyncBN': ('bn', nn.SyncBatchNorm),
-    'GN': ('gn', nn.GroupNorm),
-    # and potentially 'SN'
-}
-
 
 def build_norm_layer(cfg, num_features, postfix=''):
     """Build normalization layer.
@@ -27,6 +19,14 @@ def build_norm_layer(cfg, num_features, postfix=''):
     """
     assert isinstance(cfg, dict) and 'type' in cfg
     cfg_ = cfg.copy()
+
+    norm_cfg = {
+        # format: layer_type: (abbreviation, module)
+        'BN': ('bn', nn.BatchNorm2d),
+        'SyncBN': ('bn', nn.SyncBatchNorm),
+        'GN': ('gn', nn.GroupNorm),
+        # and potentially 'SN'
+    }
 
     layer_type = cfg_.pop('type')
     if layer_type not in norm_cfg:

@@ -6,11 +6,6 @@ from mmcv.cnn import constant_init, kaiming_init
 from .conv_ws import ConvWS2d
 from .norm import build_norm_layer
 
-conv_cfg = {
-    'Conv': nn.Conv2d,
-    'ConvWS': ConvWS2d,
-}
-
 
 def build_conv_layer(cfg, *args, **kwargs):
     """Build convolution layer.
@@ -23,6 +18,10 @@ def build_conv_layer(cfg, *args, **kwargs):
     Returns:
         nn.Module: Created conv layer.
     """
+    conv_cfg = {
+        'Conv': nn.Conv2d,
+        'ConvWS': ConvWS2d,
+    }
     if cfg is None:
         cfg_ = dict(type='Conv')
     else:

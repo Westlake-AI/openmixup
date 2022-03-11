@@ -3,19 +3,19 @@
 ### Requirements
 
 - Linux (Windows is not officially supported)
-- Python 3.5+
-- PyTorch 1.4 or higher
-- CUDA 9.0 or higher
+- Python 3.6+
+- PyTorch 1.6 or higher
+- CUDA 10.0 or higher
 - NCCL 2
 - GCC 4.9 or higher
-- [mmcv](https://github.com/open-mmlab/mmcv)
+- [mmcv](https://github.com/open-mmlab/mmcv) 1.2.7 or higher
 
 We have tested the following versions of OS and softwares:
 
 - OS: Ubuntu 16.04/18.04 and CentOS 7.2
-- CUDA: 9.0/9.2/10.0/10.1/11.0/11.2
+- CUDA: 10.0/10.1/11.0/11.2
 - NCCL: 2.1.15/2.2.13/2.3.7/2.4.2 (PyTorch-1.1 w/ NCCL-2.4.2 has a deadlock bug, see [here](https://github.com/open-mmlab/OpenSelfSup/issues/6))
-- GCC(G++): 4.9/5.3/5.4/7.3
+- GCC(G++): 4.9/5.3/5.4/7.3/7.4/7.5
 
 ### Install openmixup
 

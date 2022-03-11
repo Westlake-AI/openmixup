@@ -5,11 +5,11 @@ def main():
     # Please generate SAMix configs by auto_train.py
 
     # *** default CE ***
-    base_path = "configs/classification/imagenet/samix/basic/r18_l2_a2_bili_val_dp01_mul_x_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/samix/basic/r34_l2_a2_bili_val_dp01_mul_x_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/samix/basic/r50_l2_a2_bili_val_dp01_mul_x_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/samix/basic/r101_l2_a2_bili_val_dp01_mul_x_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/samix/basic/rx101_l2_a2_bili_val_dp01_mul_x_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
+    base_path = "configs/classification/imagenet/samix/basic/r18_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/samix/basic/r34_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/samix/basic/r50_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/samix/basic/r101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/samix/basic/rx101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0.py"
 
     # abbreviation of long attributes
     abbs = {

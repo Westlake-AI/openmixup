@@ -1,4 +1,4 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../../../../base.py'
 # value_neck_cfg
 conv1x1=dict(
     type="ConvNeck",
@@ -20,9 +20,8 @@ model = dict(
     mask_up_override=None,  # If not none, override upsampling when train MixBlock
     debug=True,  # show attention and content map
     backbone=dict(
-        type='ResNeXt',
-        depth=101,
-        groups=32, width_per_group=4,  # 32x4d
+        type='ResNet_mmcls',
+        depth=50,
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
@@ -35,7 +34,7 @@ model = dict(
         lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)
         value_neck_cfg=conv1x1,  # SAMix: non-linear value
         x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
-        att_norm_cfg=dict(type='BN'),  # AutoMix: attention norm (for fp16)
+        att_norm_cfg=dict(type='BN'),  # SAMix: attention norm (for fp16)
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
         mask_mode="none_v_",
         frozen=False),
@@ -43,16 +42,16 @@ model = dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
         with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=1000),
-    head_mix=dict(  # backbone & mixblock
+    head_mix=dict(  # backbone
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
         with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=1000),
-    # head_mix_k=dict(  # mixblock
-    #     type='ClsMixupHead',  # mixup, soft CE (onehot encoding)
-    #     loss=dict(type='CrossEntropyLoss', use_soft=True, use_sigmoid=False, loss_weight=1.0),
-    #     with_avg_pool=True, multi_label=True,
-    #     neg_weight=1,  # try neg (eta in SAMix)
-    #     in_channels=2048, num_classes=1000),
+    head_mix_k=dict(  # mixblock
+        type='ClsMixupHead',  # mixup, soft CE (onehot encoding)
+        loss=dict(type='CrossEntropyLoss', use_soft=True, use_sigmoid=False, loss_weight=1.0),
+        with_avg_pool=True, multi_label=True,
+        neg_weight=1,  # try neg (eta in SAMix)
+        in_channels=2048, num_classes=1000),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -129,8 +128,9 @@ optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
                     'mix_block': dict(lr=0.1,
                                       momentum=0.9)})  # set momentum to 0 performs better in 100ep
-# optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=False, grad_clip=None)
+# apex
+use_fp16 = False
+optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)
@@ -143,4 +143,4 @@ addtional_scheduler = dict(
 )
 
 # runtime settings
-total_epochs = 100
+total_epochs = 300

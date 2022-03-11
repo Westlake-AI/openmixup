@@ -5,13 +5,11 @@ def main():
     # Please generate AutoMix configs by auto_train.py
 
     # *** default CE ***
-    base_path = "configs/classification/imagenet/automix/basic/r18_l2_a2_near_lam_cat_L1_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/automix/basic/r34_l2_a2_near_lam_cat_L1_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/automix/basic/r50_l2_a2_near_lam_cat_L1_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/automix/basic/r101_l2_a2_near_lam_cat_L1_01_mb_lrm1e_3_bb_lr0.py"
-    # base_path = "configs/classification/imagenet/automix/basic/rx101_l2_a2_near_lam_cat_L1_01_mb_lrm1e_3_bb_lr0.py"
-    ## V1+: add SAMix tricks
-    # base_path = "configs/classification/imagenet/automix/v1_plus/r50_l2_a2_bili_lam_cat_L1_var_01_mb_lrm1e_3_bb_lr0.py"
+    base_path = "configs/classification/imagenet/automix/basic/r18_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/automix/basic/r34_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/automix/basic/r50_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/automix/basic/r101_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py"
+    # base_path = "configs/classification/imagenet/automix/basic/rx101_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py"
 
     # abbreviation of long attributes
     abbs = {

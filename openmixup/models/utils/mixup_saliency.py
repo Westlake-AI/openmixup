@@ -1,7 +1,4 @@
-try:
-    import gco
-except:
-    print("please install gco for puzzlemix")
+import gco
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -21,14 +18,6 @@ def cost_matrix(width):
     C = C / (width - 1)**2
     C = torch.tensor(C).cuda()
     return C
-
-
-cost_matrix_dict = {
-    '2': cost_matrix(2).unsqueeze(0),
-    '4': cost_matrix(4).unsqueeze(0),
-    '8': cost_matrix(8).unsqueeze(0),
-    '16': cost_matrix(16).unsqueeze(0)
-}
 
 
 def graphcut_multi(unary1, unary2, pw_x, pw_y, alpha, beta, eta, n_labels=2, eps=1e-8):
@@ -85,6 +74,13 @@ def neigh_penalty(input1, input2, k):
 
 def mask_transport(mask, grad_pool, eps=0.01):
     """optimal transport plan"""
+    cost_matrix_dict = {
+        '2': cost_matrix(2).unsqueeze(0),
+        '4': cost_matrix(4).unsqueeze(0),
+        '8': cost_matrix(8).unsqueeze(0),
+        '16': cost_matrix(16).unsqueeze(0)
+    }
+    
     block_num = mask.shape[-1]
 
     n_iter = int(block_num)

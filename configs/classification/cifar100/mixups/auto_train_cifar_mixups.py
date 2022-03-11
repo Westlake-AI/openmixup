@@ -15,10 +15,11 @@ def main():
             |   |   |--> ...
     """
 
-    # *** default CE ***
+    # *** default CE (not support PuzzleMix) ***
     base_path = "configs/classification/cifar100/mixups/basic/r18_mixups_CE_none.py"
     # base_path = "configs/classification/cifar100/mixups/basic/rx50_mixups_CE_none.py"
     # base_path = "configs/classification/cifar100/mixups/basic/wrn28_8_mixups_CE_none.py"
+    # base_path = "configs/classification/cifar100/mixups/basic/r18_attentivemix_CE_none.py"
     
     # *** soft CE ***
     # base_path = "configs/classification/cifar100/mixups/basic/r18_mixups_CE_soft.py"
@@ -40,6 +41,7 @@ def main():
     model_var = {
         'model.mix_mode': ["mixup",],
         # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix",],
+        # 'model.mix_mode': ["attentivemix", "automix", "puzzlemix", "samix",],
     }
     # adjust sub-attributes (cannot be none)
     gm_var = {
