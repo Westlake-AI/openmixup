@@ -1,14 +1,22 @@
 ## Changelog
 
-### v0.1.0 (22/01/2022)
+### v0.1.1 (15/03/2022)
 
 #### Highlight
 * Support various popular backbones (ConvNets and ViTs).
-* Support mixed precision training (NVIDIA Apex or MMCV Apex).
 * Support various handcrafted methods and optimization-based methods (e.g., PuzzleMix, AutoMix, SAMix).
-* Support various self- & semi-supervised learning methods.
-* Support fast configs generation from a basic config file by 'auto_train.py'.
-* Provide image classification benchmarks in model_zoo and results (on updating). 
+* Provide supervised image classification benchmarks in model_zoo and results (on updating). 
+
+#### Bug Fixes
+* Fix bugs of new mixup methods (e.g., gco for Puzzlemix, etc.).
+
+### v0.1.0 (22/01/2022)
+
+#### Highlight
+* Support various popular backbones (popular ConvNets and ViTs).
+* Support mixed precision training (NVIDIA Apex or MMCV Apex).
+* Support supervised, self- & semi-supervised learning methods and benchmarks.
+* Support fast configs generation from a basic config file by 'auto_train.py'. 
 
 #### Bug Fixes
 * Fix bugs of code refactoring (backbones, fp16, etc.).

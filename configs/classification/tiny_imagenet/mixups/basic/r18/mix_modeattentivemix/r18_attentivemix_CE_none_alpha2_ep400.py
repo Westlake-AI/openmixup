@@ -1,4 +1,4 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../../../../base.py'
 # model settings
 model = dict(
     type='MixUpClassification',
@@ -92,7 +92,7 @@ optimizer_config = dict(grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)
-checkpoint_config = dict(interval=800)
+checkpoint_config = dict(interval=400)
 
 # runtime settings
 total_epochs = 400

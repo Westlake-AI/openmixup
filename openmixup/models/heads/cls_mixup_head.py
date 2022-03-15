@@ -56,7 +56,7 @@ class ClsMixupHead(nn.Module):
                  lam_scale_mode='none',
                  lam_thr=1,
                  lam_idx=1,
-                 eta_weight=dict(eta=1, mode="both", thr=0.5),
+                 eta_weight=dict(eta=0, mode="both", thr=0.5),
                  neg_weight=1,
                  frozen=False):
         super(ClsMixupHead, self).__init__()

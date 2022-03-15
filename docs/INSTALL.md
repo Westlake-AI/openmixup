@@ -33,12 +33,11 @@ conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 # assuming CUDA=10.1, "pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html"
 ```
 
-c. Install other third-party libraries (not necessary).
+c. Install other third-party libraries (not necessary). Please install [pyGCO](https://github.com/Borda/pyGCO) for PuzzleMix (used for cut_grid_graph, DON'T USE `pip install gco==1.0.1`).
 
 ```shell
 conda install faiss-gpu cudatoolkit=10.1 -c pytorch  # optional for DeepCluster and ODC, assuming CUDA=10.1
 pip install opencv-contrib-python  # optional for SaliencyMix (cv2.saliency.StaticSaliencyFineGrained_create())
-pip install gco==1.0.1  # optional for PuzzleMix (graph-cut)
 ```
 
 d. Clone the openselfsup repository.
@@ -63,7 +62,7 @@ pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp
 
 Note:
 
-1. The git commit id will be written to the version number with step d, e.g. 0.6.0+2e7045c. The version will also be saved in trained models.
+1. The git commit id will be written to the version number with step d, e.g. 0.1.0+2e7045c. The version will also be saved in trained models.
 
 2. Following the above instructions, openselfsup is installed on `dev` mode, any local modifications made to the code will take effect without the need to reinstall it (unless you submit some commits and want to update the version number).
 

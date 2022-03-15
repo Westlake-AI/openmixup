@@ -1,4 +1,7 @@
-import gco
+try:
+    import gco
+except:
+    print("please install gco from https://github.com/Borda/pyGCO")
 import numpy as np
 import torch
 import torch.nn.functional as F

@@ -1,11 +1,10 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../../../../base.py'
 # model settings
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    pretrained_k="work_dirs/my_pretrains/official/resnet18_pytorch.pth",
-    alpha=2,
-    mix_mode="attentivemix",
+    alpha=1,
+    mix_mode="puzzlemix",
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
@@ -18,20 +17,17 @@ model = dict(
     ),
     backbone=dict(
         type='ResNet_CIFAR',  # CIFAR version
+        # type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
         depth=18,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
-    backbone_k=dict(  # PyTorch pre-trained R-18 is required for attentivemix+
-        type='ResNet_mmcls',
-        depth=18,
-        num_stages=4,
-        out_indices=(3,),
-        style='pytorch'),
     head=dict(
-        type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
-        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=200)
+        type='ClsMixupHead',  # mixup soft CE loss
+        loss=dict(type='CrossEntropyLoss',  # soft CE (one-hot encoding)
+            use_soft=True, use_sigmoid=False, loss_weight=1.0),
+        with_avg_pool=True, multi_label=True, two_hot=False,
+        in_channels=512, num_classes=200)
 )
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
@@ -92,7 +88,7 @@ optimizer_config = dict(grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)
-checkpoint_config = dict(interval=800)
+checkpoint_config = dict(interval=400)
 
 # runtime settings
 total_epochs = 400

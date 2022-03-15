@@ -1,6 +1,5 @@
 faiss-gpu==1.6.1
 future
-gco==1.0.1
 matplotlib
 mmcv==1.2.7
 numpy

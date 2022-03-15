@@ -73,7 +73,9 @@ custom_hooks = [
 # optimizer
 optimizer = dict(type='SGD',
                  lr=0.1, momentum=0.9, weight_decay=0.0001)  # adjust wd={1e-4, 5e-4} for mixup methods
-optimizer_config = dict(grad_clip=None)
+# apex
+use_fp16 = False
+optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

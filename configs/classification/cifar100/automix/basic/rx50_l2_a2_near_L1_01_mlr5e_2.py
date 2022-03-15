@@ -6,26 +6,25 @@ model = dict(
     pretrained=None,
     alpha=2.0,
     momentum=0.999,  # 0.999 to 0.999999
-    mask_layer=1,  # for WRN
+    mask_layer=2,
     mask_loss=0.1,  # using mask loss
     mask_adjust=0,
     lam_margin=0.08,  # degenerate to mixup when lam or 1-lam <= 0.08
     mask_up_override=None,  # If not none, override upsampling when train MixBlock
     debug=True,  # show attention and content map
     backbone=dict(
-        type='WideResNet',
-        first_stride=1,  # CIFAR version
-        in_channels=3,
-        depth=28, widen_factor=8,  # WRN-28-8, 128-256-512
-        drop_rate=0.0,
-        out_indices=(1,2,),  # no conv-1, stage-2 for MixBlock, x-1: stage-x
-    ),
+        type='ResNeXt_CIFAR',
+        depth=50,
+        groups=32, width_per_group=4,  # 32x4d
+        num_stages=4,
+        out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
+        style='pytorch'),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
-        in_channels=256, reduction=2, use_scale=True, double_norm=False,
+        in_channels=1024, reduction=2, use_scale=True, double_norm=False,
         attention_mode='embedded_gaussian',
         unsampling_mode=['nearest',],  # str or list
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: no lam cat for small datasets
+        lam_concat=False, lam_concat_v=False,  # AutoMix: no lam cat for small-scale datasets
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
@@ -36,11 +35,11 @@ model = dict(
     head_one=dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=100),
     head_mix=dict(  # backbone & mixblock
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=100),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -96,13 +95,11 @@ custom_hooks = [
 ]
 
 # optimizer
-optimizer = dict(type='SGD', lr=0.03, momentum=0.9, weight_decay=0.001,  # lr=3e-2 + wd=1e-3 for WRN
-                paramwise_options={
-                    'mix_block': dict(lr=0.03, momentum=0)})  # momentum=0 performs better in 400ep
+optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
 optimizer_config = dict(grad_clip=None)
 
 # learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=1e-3)
+lr_config = dict(policy='CosineAnnealing', min_lr=0.05)  # min_lr=5e-2 for the momentum encoder
 checkpoint_config = dict(interval=800)
 
 # runtime settings

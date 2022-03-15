@@ -69,7 +69,11 @@ custom_hooks = [
         interval=1,
         imgs_per_gpu=100,
         workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5)))
+        eval_param=dict(topk=(1, 5))),
+    dict(type='SAVEHook',
+        iter_per_epoch=500,
+        save_interval=12500,  # plot every 500 x 25 ep
+    )
 ]
 
 # optimizer

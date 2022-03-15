@@ -16,8 +16,8 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        # type='ResNet_CIFAR',  # CIFAR version
-        type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
+        type='ResNet_CIFAR',  # CIFAR version
+        # type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
         depth=18,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
@@ -76,7 +76,11 @@ custom_hooks = [
         interval=1,
         imgs_per_gpu=100,
         workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5)))
+        eval_param=dict(topk=(1, 5))),
+    dict(type='SAVEHook',
+        iter_per_epoch=1000,
+        save_interval=1000 * 25,  # plot every 25 ep
+    )
 ]
 # optimizer
 optimizer = dict(type='SGD', lr=0.2, momentum=0.9, weight_decay=0.0001)

@@ -13,7 +13,7 @@ def readme():
 
 MAJOR = 0
 MINOR = 1
-PATCH = 0
+PATCH = 1
 SUFFIX = ''
 if PATCH != '':
     SHORT_VERSION = '{}.{}.{}{}'.format(MAJOR, MINOR, PATCH, SUFFIX)
@@ -168,11 +168,11 @@ if __name__ == '__main__':
     setup(
         name='openmixup',
         version=get_version(),
-        description='Mixup for Supervision, Semi- and Self-Supervision Toolbox and Benchmark',
+        description='Mixup for Supervision, Semi- and Self-Supervision Learning Toolbox and Benchmark',
         long_description=readme(),
         author='CAIRI Westlake University Contributors',
         author_email='lisiyuan@westlake.edu.com',
-        keywords='classification, semi- and self-supervised learning',
+        keywords='mixup classification, semi- and self-supervised learning',
         url='https://github.com/Westlake-AI/openmixup',
         packages=find_packages(exclude=('configs', 'tools', 'demo')),
         classifiers=[

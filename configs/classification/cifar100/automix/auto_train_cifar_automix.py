@@ -11,14 +11,14 @@ def main():
             CIFAR-100 based on R-18 using 'nearest' upsampling as following:
             |-- configs/classification/cifar100/automix/basic/
             |   |--> r18/unsampling_modenearest/
-            |   |   |--> r18_l2_a2_near_lam_cat_L1_01_mlr5e_2_ep800.py
+            |   |   |--> r18_l2_a2_near_L1_01_mlr5e_2_ep800.py
             |   |   |--> ...
     """
 
     # *** default CE ***
-    base_path = "configs/classification/cifar100/automix/basic/r18_l2_a2_near_lam_cat_L1_01_mlr5e_2.py"
-    # base_path = "configs/classification/cifar100/automix/basic/rx50_l2_a2_near_lam_cat_L1_01_mlr5e_2.py"
-    # base_path = "configs/classification/cifar100/automix/basic/wrn28_8_l1_a2_near_lam_cat_L1_01_mlr1e_3.py"
+    base_path = "configs/classification/cifar100/automix/basic/r18_l2_a2_near_L1_01_mlr5e_2.py"
+    # base_path = "configs/classification/cifar100/automix/basic/rx50_l2_a2_near_L1_01_mlr5e_2.py"
+    # base_path = "configs/classification/cifar100/automix/basic/wrn28_8_l1_a2_near_L1_01_mlr1e_3.py"
 
     # abbreviation of long attributes
     abbs = {

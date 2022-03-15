@@ -13,32 +13,33 @@ model = dict(
     mask_up_override=None,  # If not none, override upsampling when train MixBlock
     debug=True,  # show attention and content map
     backbone=dict(
-        type='ResNet_CIFAR',  # CIFAR version
-        depth=18,
+        type='ResNeXt_CIFAR',
+        depth=50,
+        groups=32, width_per_group=4,  # 32x4d
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
-        in_channels=256, reduction=2, use_scale=True, double_norm=False,
+        in_channels=1024, reduction=2, use_scale=True, double_norm=False,
         attention_mode='embedded_gaussian',
         unsampling_mode=['nearest',],  # str or list
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: no lam cat for small datasets
+        lam_concat=False, lam_concat_v=False,  # AutoMix: no lam cat for small-scale datasets
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
-        att_norm_cfg=dict(type='BN'),  # AutoMix: attention norm
+        att_norm_cfg=dict(type='BN'),  # AutoMix: attention norm (for fp16)
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
         mask_mode="none_v_",
         frozen=False),
     head_one=dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=200),
     head_mix=dict(  # backbone & mixblock
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=200),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -64,7 +65,7 @@ if not prefetch:
 test_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
 
 data = dict(
-    imgs_per_gpu=100,
+    imgs_per_gpu=50,  # V100: 50 x 2gpus = bs100 (try fp16 for fast training)
     workers_per_gpu=4,
     train=dict(
         type=dataset_type,

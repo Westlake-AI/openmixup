@@ -23,7 +23,7 @@ model = dict(
         in_channels=256, reduction=2, use_scale=True, double_norm=False,
         attention_mode='embedded_gaussian',
         unsampling_mode=['nearest',],  # str or list
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: no lam cat for small datasets
+        lam_concat=False, lam_concat_v=False,  # AutoMix: no lam cat for small-scale datasets
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none

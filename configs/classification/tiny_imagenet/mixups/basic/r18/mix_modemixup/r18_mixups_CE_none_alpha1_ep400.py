@@ -1,11 +1,10 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../../../../base.py'
 # model settings
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    pretrained_k="work_dirs/my_pretrains/official/resnet18_pytorch.pth",
-    alpha=2,
-    mix_mode="attentivemix",
+    alpha=1,
+    mix_mode="mixup",
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
@@ -17,16 +16,11 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='ResNet_CIFAR',  # CIFAR version
+        # type='ResNet_CIFAR',  # CIFAR version
+        type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
         depth=18,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
-        style='pytorch'),
-    backbone_k=dict(  # PyTorch pre-trained R-18 is required for attentivemix+
-        type='ResNet_mmcls',
-        depth=18,
-        num_stages=4,
-        out_indices=(3,),
         style='pytorch'),
     head=dict(
         type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
@@ -80,11 +74,7 @@ custom_hooks = [
         interval=1,
         imgs_per_gpu=100,
         workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5))),
-    dict(type='SAVEHook',
-        iter_per_epoch=1000,
-        save_interval=1000 * 25,  # plot every 25 ep
-    )
+        eval_param=dict(topk=(1, 5)))
 ]
 # optimizer
 optimizer = dict(type='SGD', lr=0.2, momentum=0.9, weight_decay=0.0001)
@@ -92,7 +82,7 @@ optimizer_config = dict(grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)
-checkpoint_config = dict(interval=800)
+checkpoint_config = dict(interval=400)
 
 # runtime settings
 total_epochs = 400
