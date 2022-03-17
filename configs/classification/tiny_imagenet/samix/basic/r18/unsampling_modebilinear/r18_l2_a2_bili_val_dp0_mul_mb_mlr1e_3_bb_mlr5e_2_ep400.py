@@ -34,7 +34,7 @@ model = dict(
         lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (optional 0.25)
         value_neck_cfg=conv1x1,  # SAMix: non-linear value
         x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
-        att_norm_cfg=dict(type='BN'),  # SAMix: attention norm
+        # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
         mask_mode="none_v_",
         frozen=False),

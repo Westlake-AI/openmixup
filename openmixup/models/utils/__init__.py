@@ -15,7 +15,8 @@ from .scale import Scale
 from .sobel import Sobel
 from .smoothing import Smoothing
 from .se_layer import SELayer
-from .transformer import AdaptivePadding, PatchEmbed, PatchMerging, MultiheadAttention, FFN
+from .transformer import AdaptivePadding, PatchEmbed, PatchMerging, MultiheadAttention, FFN, \
+   build_2d_sincos_position_embedding
 from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 
 from .fmix import fmix
@@ -30,6 +31,7 @@ __all__ = [
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
    'build_norm_layer', 'MultiPooling', 'make_divisible', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
    'AdaptivePadding', 'PatchEmbed', 'PatchMerging', 'MultiheadAttention', 'FFN',
+   'build_2d_sincos_position_embedding',
    'GradWeighter', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
    'cutmix', 'mixup', 'saliencymix', 'resizemix', 'fmix', 'attentivemix', 'puzzlemix',
 ]

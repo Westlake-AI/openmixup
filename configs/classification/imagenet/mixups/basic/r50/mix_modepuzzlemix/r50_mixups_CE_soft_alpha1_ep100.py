@@ -1,10 +1,10 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../../../../base.py'
 # model settings
 model = dict(
     type='MixUpClassification',
     pretrained=None,
     alpha=1,  # float or list
-    mix_mode="mixup",  # str or list, choose a mixup mode
+    mix_mode="puzzlemix",  # str or list, choose a mixup mode
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock

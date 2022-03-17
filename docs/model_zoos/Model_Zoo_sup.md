@@ -69,12 +69,12 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | Settings    |     A2    |     A3    |   A2   |   A3   |     A2    |     A3    |
 | RSB         |   79.80   |   78.08   |  77.26 |  74.02 |   72.87   |   69.86   |
 | MixUp       |           |   77.66   |  77.19 |  73.87 |   72.78   |   69.73   |
-| CutMix      |           |   77.62   |  77.24 |  73.46 |   72.23   |   69.78   |
-| ManifoldMix |           |   77.78   |  77.22 |  73.83 |   72.34   |   69.71   |
-| SaliencyMix |           |   77.93   |  77.06 |  73.42 |   72.07   |   69.69   |
-| FMix*       |           |   77.76   |  77.33 |  73.71 |   72.79   |   69.70   |
-| PuzzleMix   |           |   78.02   |  77.35 |  74.10 |   72.85   |   70.13   |
-| ResizeMix*  |           |   77.85   |  77.27 |  73.67 |   72.50   |   69.94   |
+| CutMix      |   79.38   |   77.62   |  77.24 |  73.46 |   72.23   |   69.78   |
+| ManifoldMix |   79.47   |   77.78   |  77.22 |  73.83 |   72.34   |   69.71   |
+| SaliencyMix |   79.42   |   77.93   |  77.67 |  73.42 |   72.07   |   69.69   |
+| FMix*       |   79.05   |   77.76   |  77.33 |  73.71 |   72.79   |   69.70   |
+| PuzzleMix   |   79.78   |   78.02   |  77.35 |  74.10 |   72.85   |   70.13   |
+| ResizeMix*  |   79.74   |   77.85   |  77.27 |  73.67 |   72.50   |   69.94   |
 | AutoMix*    |           |   78.44   |  77.58 |  74.61 |   73.19   |   71.16   |
 | SAMix       |           |   78.64   |        |  75.28 |   73.42   |   71.24   |
 
@@ -122,11 +122,12 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | CutMix        |    96.11   |    96.13   |    96.68   |    96.56    |
 | ManifoldMix   |    96.04   |    96.57   |    96.71   |    97.02    |
 | SaliencyMix   |    96.05   |    96.42   |    96.20   |    96.18    |
-| AttentiveMix+ |    xx.xx   |    xx.xx   |    xx.xx   |    xx.xx    |
+| AttentiveMix+ |    96.21   |    96.45   |    96.63   |    96.49    |
 | FMix*         |    96.17   |    96.53   |    96.18   |    96.01    |
 | PuzzleMix     |    96.42   |    96.87   |    97.10   |    97.13    |
 | ResizeMix*    |    96.16   |    96.91   |    96.76   |    97.04    |
-| AutoMix*      |    96.59   |    97.08   |    97.22   |    97.30    |
+| AutoMix*      |    96.59   |    97.08   |    97.34   |    97.30    |
+| SAMix*        |    96.67   |    97.16   |    97.50   |             |
 
 | Backbones     | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |
 |---------------|:----------:|:----------:|:----------:|:-----------:|
@@ -138,9 +139,10 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | SaliencyMix   |    96.65   |    96.89   |    96.70   |    96.60    |
 | AttentiveMix+ |    xx.xx   |    xx.xx   |    xx.xx   |    xx.xx    |
 | FMix*         |    96.72   |    96.76   |    96.76   |    96.10    |
-| PuzzleMix     |    97.05   |    97.24   |    97.27   |    97.34    |
+| PuzzleMix     |    97.05   |    97.24   |    97.37   |    97.34    |
 | ResizeMix*    |    97.02   |    97.38   |    97.21   |    97.36    |
 | AutoMix*      |    97.19   |    97.42   |    97.65   |    97.51    |
+| SAMix*        |            |            |    97.93   |             |
 
 ### CIFAR-100
 
@@ -173,7 +175,7 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | CutMix        |    81.52   |    78.52   |    78.32   |    77.17    |    84.45   |
 | ManifoldMix   |    81.59   |    82.56   |    82.88   |    83.28    |    83.24   |
 | SaliencyMix   |    80.72   |    78.63   |    78.77   |    77.51    |    84.35   |
-| AttentiveMix+ |            |    79.87   |            |             |    84.34   |
+| AttentiveMix+ |    81.69   |    81.53   |            |             |    84.34   |
 | FMix*         |    79.87   |    78.99   |    79.02   |    78.24    |    84.21   |
 | PuzzleMix     |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
 | Co-Mixup      |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |

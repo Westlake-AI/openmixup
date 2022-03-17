@@ -1,9 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
-from torch.utils.data import Dataset
-
 from openmixup.utils import build_from_cfg
-
+from torch.utils.data import Dataset
 from torchvision.transforms import Compose
 
 from .registry import PIPELINES
@@ -18,6 +16,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
             `openselfsup.datasets.data_sources`.
         pipeline (list[dict]): A list of dict, where each element represents
             an operation defined in `oenselfsup.datasets.pipelines`.
+        prefetch (bool, optional): Whether to prefetch data. Defaults to False.
     """
 
     def __init__(self, data_source, pipeline, prefetch=False):
@@ -25,6 +24,7 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         pipeline = [build_from_cfg(p, PIPELINES) for p in pipeline]
         self.pipeline = Compose(pipeline)
         self.prefetch = prefetch
+        self.CLASSES = self.data_source.CLASSES
 
     def __len__(self):
         return self.data_source.get_length()

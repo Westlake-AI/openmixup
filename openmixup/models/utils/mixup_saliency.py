@@ -133,7 +133,7 @@ def transport_image(img, plan, block_num, block_size):
 
 @torch.no_grad()
 def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
-              features=None, block_num=2, beta=0., gamma=0., eta=0.2,
+              features=None, block_num=2, beta=1.2, gamma=0.5, eta=0.2,
               neigh_size=2, n_labels=2, t_eps=10.0, t_size=-1,
               mean=None, std=None, transport=True,
               noise=None, adv_mask1=0, adv_mask2=0,
@@ -163,7 +163,7 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
         neigh_size (int): Number of neighbors.
         n_labels (int): Graph cut algorithm.
         t_eps (float): Transport cost coefficient. Default: 10.
-        t_size (int): Transport size in small-scale datasets. Default: 16.
+        t_size (int): Transport size in small-scale datasets. Default: -1.
         t_batch_size (int): Transporting batch size in large-scale datasets.
         transport (bool): Whether to use optimal-transport. Default: False.
         mp: Multi-process for graphcut (CPU). Default: None.

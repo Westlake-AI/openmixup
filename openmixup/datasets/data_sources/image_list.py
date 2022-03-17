@@ -6,6 +6,14 @@ from ..registry import DATASOURCES
 
 @DATASOURCES.register_module
 class ImageList(object):
+    """The implementation for loading any image list file.
+
+    The `ImageList` can load an annotation file or a list of files and merge
+    all data records to one list. If data is unlabeled, the gt_label will be
+    set -1.
+    """
+
+    CLASSES = None
 
     def __init__(self,
                  root,

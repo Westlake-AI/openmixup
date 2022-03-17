@@ -24,6 +24,7 @@ This repo will be continued to update in the next two months! Please watch us fo
 Please refer to [CHANGELOG.md](docs/CHANGELOG.md) for details and release history.
 
 [2020-03-15] `OpenMixup` v0.1.1 is released.
+
 [2020-01-22] `OpenMixup` v0.1.0 is released (bugs fixed).
 
 ## Installation
