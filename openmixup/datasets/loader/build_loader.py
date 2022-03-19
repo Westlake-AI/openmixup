@@ -6,6 +6,7 @@ from functools import partial
 import numpy as np
 from mmcv.parallel import collate
 from mmcv.runner import get_dist_info
+from mmcv.utils import digit_version
 from torch.utils.data import DataLoader
 
 #from .sampler import DistributedGroupSampler, DistributedSampler, GroupSampler
@@ -16,7 +17,10 @@ if platform.system() != 'Windows':
     # https://github.com/pytorch/pytorch/issues/973
     import resource
     rlimit = resource.getrlimit(resource.RLIMIT_NOFILE)
-    resource.setrlimit(resource.RLIMIT_NOFILE, (4096, rlimit[1]))
+    base_soft_limit = rlimit[0]
+    hard_limit = rlimit[1]
+    soft_limit = min(max(4096, base_soft_limit), hard_limit)
+    resource.setrlimit(resource.RLIMIT_NOFILE, (soft_limit, hard_limit))
 
 
 def build_dataloader(dataset,
@@ -28,6 +32,8 @@ def build_dataloader(dataset,
                      shuffle=True,
                      replace=False,
                      seed=None,
+                     pin_memory=True,
+                     persistent_workers=True,
                      **kwargs):
     """Build PyTorch DataLoader.
 
@@ -36,16 +42,25 @@ def build_dataloader(dataset,
 
     Args:
         dataset (Dataset): A PyTorch dataset.
-        imgs_per_gpu (int): Number of images on each GPU, i.e., batch size of
-            each GPU.
+        imgs_per_gpu (int): (Deprecated, please use samples_per_gpu) Number of
+            images on each GPU, i.e., batch size of each GPU. Defaults to None.
         workers_per_gpu (int): How many subprocesses to use for data loading
-            for each GPU.
+            for each GPU. `persistent_workers` option needs num_workers > 0.
+            Defaults to 1.
         num_gpus (int): Number of GPUs. Only used in non-distributed training.
         dist (bool): Distributed training/test or not. Default: True.
         shuffle (bool): Whether to shuffle the data at every epoch.
             Default: True.
         replace (bool): Replace or not in random shuffle.
-            It works on when shuffle is True.
+            It works on when shuffle is True. Defaults to False.
+        seed (int): set seed for dataloader.
+        pin_memory (bool, optional): If True, the data loader will copy Tensors
+            into CUDA pinned memory before returning them. Defaults to True.
+        persistent_workers (bool): If True, the data loader will not shutdown
+            the worker processes after a dataset has been consumed once.
+            This allows to maintain the workers Dataset instances alive.
+            The argument also has effect in PyTorch>=1.7.0.
+            Defaults to True.
         kwargs: any keyword argument to be used to initialize DataLoader
 
     Returns:
@@ -73,6 +88,9 @@ def build_dataloader(dataset,
         batch_size = num_gpus * imgs_per_gpu
         num_workers = num_gpus * workers_per_gpu
 
+    if digit_version(torch.__version__) >= digit_version('1.8.0'):
+        kwargs['persistent_workers'] = persistent_workers
+
     if kwargs.get('prefetch') is not None:
         prefetch = kwargs.pop('prefetch')
         img_norm_cfg = kwargs.pop('img_norm_cfg')
@@ -85,7 +103,7 @@ def build_dataloader(dataset,
         sampler=data_sampler,
         num_workers=num_workers,
         collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu),
-        pin_memory=False,
+        pin_memory=pin_memory,
         worker_init_fn=worker_init_fn if seed is not None else None,
         **kwargs)
 
@@ -98,12 +116,11 @@ def build_dataloader(dataset,
 def worker_init_fn(seed):
     np.random.seed(seed)
     random.seed(seed)
+    torch.manual_seed(seed)
 
 
 class PrefetchLoader:
-    """
-    A data loader wrapper for prefetching data
-    """
+    """A data loader wrapper for prefetching data."""
     def __init__(self, loader, mean, std):
         self.loader = loader
         self._mean = mean
@@ -117,8 +134,14 @@ class PrefetchLoader:
 
         for next_input_dict in self.loader:
             with torch.cuda.stream(stream):
-                data = next_input_dict['img'].cuda(non_blocking=True)
-                next_input_dict['img'] = data.float().sub_(self.mean).div_(self.std)
+                if isinstance(next_input_dict['img'], list):
+                    next_input_dict['img'] = [
+                        data.cuda(non_blocking=True).float().sub_(self.mean).div_(self.std)
+                        for data in next_input_dict['img']
+                    ]
+                else:
+                    data = next_input_dict['img'].cuda(non_blocking=True)
+                    next_input_dict['img'] = data.float().sub_(self.mean).div_(self.std)
 
             if not first:
                 yield input

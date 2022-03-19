@@ -1,4 +1,4 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../_base_/datasets/cifar100/sz32_bs100.py'
 
 # model settings
 model = dict(
@@ -44,46 +44,9 @@ model = dict(
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
-# dataset settings
-data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
-dataset_type = 'ClassificationDataset'
-img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
-train_pipeline = [
-    dict(type='RandomCrop', size=32, padding=4, padding_mode="reflect"),
-    dict(type='RandomHorizontalFlip'),
-]
-test_pipeline = []
-# prefetch
-prefetch = True
-if not prefetch:
-    train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
-test_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
-
-data = dict(
-    imgs_per_gpu=100,
-    workers_per_gpu=4,
-    train=dict(
-        type=dataset_type,
-        data_source=dict(split='train', **data_source_cfg),
-        pipeline=train_pipeline,
-        prefetch=prefetch,
-    ),
-    val=dict(
-        type=dataset_type,
-        data_source=dict(split='test', **data_source_cfg),
-        pipeline=test_pipeline,
-        prefetch=False),
-)
 
 # additional hooks
 custom_hooks = [
-    dict(type='ValidateHook',
-        dataset=data['val'],
-        initial=False,
-        interval=1,
-        imgs_per_gpu=100,
-        workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5))),
     dict(type='CosineScheduleHook',
         end_momentum=0.999999,
         adjust_scope=[0.1, 1.0],
@@ -103,7 +66,6 @@ optimizer_config = dict(grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=1e-3)
-checkpoint_config = dict(interval=800)
 
 # runtime settings
-total_epochs = 400
+runner = dict(type='EpochBasedRunner', max_epochs=400)

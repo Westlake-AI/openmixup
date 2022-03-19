@@ -6,17 +6,18 @@ import os
 
 import matplotlib.pyplot as plt
 from torchvision import transforms
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import concat_all_gather, batch_shuffle_ddp, \
-    batch_unshuffle_ddp, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
-from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
+from ..utils import (concat_all_gather, batch_shuffle_ddp, batch_unshuffle_ddp, \
+                     grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp, \
+                     cutmix, mixup, saliencymix, resizemix, fmix)
 
 
 @MODELS.register_module
-class MOCO_Mix(nn.Module):
+class MOCO_Mix(BaseModel):
     """MOCO mixup baseline V0721 (fixed by 09.13)
 
     Implementation of "Momentum Contrast for Unsupervised Visual
@@ -70,19 +71,15 @@ class MOCO_Mix(nn.Module):
                  cross_view_gen=False,
                  cross_view_ssl=False,
                  save=False,
-                 save_name="mix_samples",
+                 save_name="MixedSamples",
+                 init_cfg=None,
                  **kwargs):
-        super(MOCO_Mix, self).__init__()
-        self.fp16_enabled = False
+        super(MOCO_Mix, self).__init__(init_cfg, **kwargs)
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.neck_q = builder.build_neck(neck)
         self.neck_k = builder.build_neck(neck)
-        # stop grad for k
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
-        for param in self.neck_k.parameters():
-            param.requires_grad = False
         self.head = builder.build_head(head)
 
         self.mix_block = mix_block
@@ -127,18 +124,21 @@ class MOCO_Mix(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(MOCO_Mix, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.encoder_q.init_weights(pretrained=pretrained)
         self.neck_q.init_weights(init_linear='kaiming')
-        # if self.mix_block is not None and not isinstance(self.mix_block, str):
-        #     self.mix_block.init_weights(init_linear='kaiming')
+        # stop grad for k
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
         for param_q, param_k in zip(self.neck_q.parameters(),
                                     self.neck_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
 
     @torch.no_grad()
     def _momentum_update_key_encoder(self):
@@ -174,16 +174,16 @@ class MOCO_Mix(nn.Module):
         """Forward computation during training.
 
         Args:
-            img (Tensor): Input of two concatenated images of shape (N, 2, C, H, W).
-                Typically these should be mean centered and std scaled.
+            img (list[Tensor]): A list of input images with shape
+                (N, C, H, W). Typically these should be mean centered
+                and std scaled.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        assert img.dim() == 5, \
-            "Input must have 5 dims, got: {}".format(img.dim())
-        im_q = img[:, 0, ...].contiguous()
-        im_k = img[:, 1, ...].contiguous()
+        assert isinstance(img, list) and len(img) >= 2
+        im_q = img[0].contiguous()
+        im_k = img[1].contiguous()
 
         losses = dict()
         # various mixup methods
@@ -337,26 +337,12 @@ class MOCO_Mix(nn.Module):
                 mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
             transforms.Normalize(
                 mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
-        imgs = torch.cat((im[:4], im_[:4], im_mixed[:4]), dim=0)
-        img_grid = torchvision.utils.make_grid(imgs, nrow=4, pad_value=0)
-        imgs = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
+        img = torch.cat((im[:4], im_[:4], im_mixed[:4]), dim=0)
+        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
+        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure()
-        plt.imshow(imgs)
+        plt.imshow(img)
         plt.title('lambda {}: {}'.format(name, lam))
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
         plt.close()
-
-    def forward_test(self, img, **kwargs):
-        raise NotImplementedError
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

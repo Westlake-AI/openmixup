@@ -1,5 +1,11 @@
 ## Changelog
 
+### v0.1.2 (20/03/2022)
+
+#### Highlight
+* Refactor code structures according to MMSelfsup to fit high version of mmcv and PyTorch.
+* Support self-supervised methods and optimizes config structures.
+
 ### v0.1.1 (15/03/2022)
 
 #### Highlight

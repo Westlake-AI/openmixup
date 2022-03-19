@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class NPID(nn.Module):
+class NPID(BaseModel):
     """NPID.
 
     Implementation of "Unsupervised Feature Learning via Non-parametric
@@ -33,10 +34,12 @@ class NPID(nn.Module):
                  memory_bank=None,
                  neg_num=65536,
                  ensure_neg=False,
-                 pretrained=None):
-        super(NPID, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(NPID, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.neck = builder.build_neck(neck)
         self.head = builder.build_head(head)
         self.memory_bank = builder.build_memory(memory_bank)
@@ -52,23 +55,12 @@ class NPID(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(NPID, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
         self.neck.init_weights(init_linear='kaiming')
-
-    def forward_backbone(self, img):
-        """Forward backbone.
-
-        Args:
-            img (Tensor): Input images of shape (N, C, H, W).
-                Typically these should be mean centered and std scaled.
-
-        Returns:
-            tuple[Tensor]: backbone outputs.
-        """
-        x = self.backbone(img)
-        return x
 
     def forward_train(self, img, idx, **kwargs):
         """Forward computation during training.
@@ -116,17 +108,3 @@ class NPID(nn.Module):
             self.memory_bank.update(idx, feature.detach())
 
         return losses
-
-    def forward_test(self, img, **kwargs):
-        pass
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

@@ -3,15 +3,16 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
 
 
 @MODELS.register_module
-class DMixMatch(nn.Module):
+class DMixMatch(BaseModel):
     """
     Implementation of DMixMatch (using Decoupled Mixup)
         based on FixMatch, FlexMatch and mixup methods.
@@ -77,22 +78,19 @@ class DMixMatch(nn.Module):
                     accent_weight=['weight_mix_lu'],
                     weight_one=1, weight_mix_ll=1, weight_mix_lu=1),
                  deduplicate=False,
-                 pretrained=None):
-        super(DMixMatch, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(DMixMatch, self).__init__(init_cfg, **kwargs)
         # network settings
         self.encoder = nn.Sequential(
             builder.build_backbone(backbone), builder.build_head(head))
         self.encoder_k = nn.Sequential(  # EMA
             builder.build_backbone(backbone), builder.build_head(head))
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
         self.head_mix = None
         if head_mix is not None:
             self.head_mix = builder.build_head(head_mix)
             self.head_mix_k = builder.build_head(head_mix)
-            for param in self.head_mix_k.parameters():
-                param.requires_grad = False
         self.init_weights(pretrained=pretrained)
 
         # FixMatch args
@@ -160,10 +158,12 @@ class DMixMatch(nn.Module):
         for param_q, param_k in zip(self.encoder.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
         if self.head_mix is not None:
             for param_q, param_k in zip(self.head_mix.parameters(),
                                         self.head_mix_k.parameters()):
                 param_k.data.copy_(param_q.data)
+                param_k.requires_grad = False
 
     def mixup(self, img, gt_labels, dist_mode=False):
         """ mixup based on img and gt_labels
@@ -421,16 +421,3 @@ class DMixMatch(nn.Module):
         """ pred probs calibration """
         preds = self.encoder_k(img)
         return preds
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.encoder[0](img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

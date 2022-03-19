@@ -1,4 +1,5 @@
-_base_ = '../../../../../../base.py'
+_base_ = '../../../../../_base_/datasets/tiny_imagenet/sz64_bs100.py'
+
 # model settings
 model = dict(
     type='MixUpClassification',
@@ -29,54 +30,9 @@ model = dict(
         with_avg_pool=True, multi_label=True, two_hot=False,
         in_channels=512, num_classes=200)
 )
-# dataset settings
-data_source_cfg = dict(type='ImageNet')
-# Tiny Imagenet
-data_train_list = 'data/TinyImageNet/meta/train_labeled.txt'  # train 10w
-data_train_root = 'data/TinyImageNet/train/'
-data_test_list = 'data/TinyImageNet/meta/val_labeled.txt'  # val 1w
-data_test_root = 'data/TinyImageNet/val/'
 
-dataset_type = 'ClassificationDataset'
-img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-train_pipeline = [
-    dict(type='RandomResizedCrop', size=64),
-    dict(type='RandomHorizontalFlip'),
-]
-test_pipeline = []
-# prefetch
-prefetch = True
-if not prefetch:
-    train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
-test_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
-
-data = dict(
-    imgs_per_gpu=100,
-    workers_per_gpu=4,
-    train=dict(
-        type=dataset_type,
-        data_source=dict(
-            list_file=data_train_list, root=data_train_root,
-            **data_source_cfg),
-        pipeline=train_pipeline,
-        prefetch=prefetch,
-    ),
-    val=dict(
-        type=dataset_type,
-        data_source=dict(
-            list_file=data_test_list, root=data_test_root, **data_source_cfg),
-        pipeline=test_pipeline,
-        prefetch=False,
-    ))
 # additional hooks
 custom_hooks = [
-    dict(type='ValidateHook',
-        dataset=data['val'],
-        initial=False,
-        interval=1,
-        imgs_per_gpu=100,
-        workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5))),
     dict(type='SAVEHook',
         iter_per_epoch=1000,
         save_interval=1000 * 25,  # plot every 25 ep
@@ -88,7 +44,6 @@ optimizer_config = dict(grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)
-checkpoint_config = dict(interval=400)
 
 # runtime settings
-total_epochs = 400
+runner = dict(type='EpochBasedRunner', max_epochs=400)

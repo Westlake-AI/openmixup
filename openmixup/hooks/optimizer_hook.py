@@ -22,6 +22,10 @@ class DistOptimizerHook(OptimizerHook):
             e.g., cancel_grad=dict(regexp=cancel_iter), 'regexp' stands for param_name.
             Default: None.
         grad_clip (dict): Gradient clip tricks. Default: None.
+        coalesce (bool, optional): Whether allreduce parameters as a whole.
+            Defaults to True.
+        bucket_size_mb (int, optional): Size of bucket, the unit is MB.
+            Defaults to -1.
         use_fp16 (bool): Whether to use fp16 training skills. Defalut: False.
     """
 

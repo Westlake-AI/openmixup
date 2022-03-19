@@ -1,6 +1,5 @@
-# Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from mmcv.utils import build_from_cfg
+from openmixup.utils import build_from_cfg
 from torchvision.transforms import Compose
 
 from .base import BaseDataset
@@ -53,7 +52,7 @@ class MultiViewDataset(BaseDataset):
         self.trans = trans
 
     def __getitem__(self, idx):
-        img = self.data_source.get_img(idx)
+        img = self.data_source.get_sample(idx)
         multi_views = list(map(lambda trans: trans(img), self.trans))
         if self.prefetch:
             multi_views = [
@@ -61,5 +60,5 @@ class MultiViewDataset(BaseDataset):
             ]
         return dict(img=multi_views)
 
-    def evaluate(self, results, logger=None):
-        return NotImplementedError
+    def evaluate(self, scores, keyword, logger=None):
+        raise NotImplementedError

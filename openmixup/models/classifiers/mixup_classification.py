@@ -4,22 +4,22 @@ import logging
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 
 from mmcv.runner import load_checkpoint
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 from torch.autograd import Variable
 from torchvision import transforms
 
+from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..utils import cutmix, mixup, saliencymix, resizemix, fmix, attentivemix, puzzlemix
 
 
 @MODELS.register_module
-class MixUpClassification(nn.Module):
+class MixUpClassification(BaseModel):
     """MixUp classification.
         v01.09 (randomly selecting mix_mode)
         v01.17 (add mix_repeat)
@@ -27,7 +27,7 @@ class MixUpClassification(nn.Module):
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
-        head (dict): Config dict for module of loss functions.
+        head (dict): Config dict for module of loss functions. Default: None.
         backbone_k (dict, optional): Config dict for pre-trained backbone. Default: None.
         mix_block (dict, optional): Config dict for mix_block in AutoMix/SAMix.
         alpha (float or list): To sample Beta distribution in MixUp methods. Build a
@@ -46,7 +46,7 @@ class MixUpClassification(nn.Module):
 
     def __init__(self,
                  backbone,
-                 head,
+                 head=None,
                  backbone_k=None,
                  mix_block=None,
                  alpha=1.0,
@@ -67,11 +67,12 @@ class MixUpClassification(nn.Module):
                  pretrained=None,
                  pretrained_k=None,
                  save_name='MixedSamples',
+                 init_cfg=None,
                  **kwargs):
-        super(MixUpClassification, self).__init__()
-        self.fp16_enabled = False
+        super(MixUpClassification, self).__init__(init_cfg, **kwargs)
         # networks
         self.backbone = builder.build_backbone(backbone)
+        assert isinstance(head, dict)
         self.head = builder.build_head(head)
         self.mix_block = None
         self.backbone_k = None
@@ -135,8 +136,7 @@ class MixUpClassification(nn.Module):
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
-        if self.head is not None:
-            self.head.init_weights()
+        self.head.init_weights()
         if self.backbone_k is not None and pretrained_k is None:
             for param_q, param_k in zip(self.backbone.parameters(),
                                         self.backbone_k.parameters()):
@@ -322,14 +322,6 @@ class MixUpClassification(nn.Module):
         keys = ['head{}'.format(i) for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
-
-    def forward_calibration(self, img, **kwargs):
-        img, gt_label = img[0], img[1]
-        
-        inputs = (img, False)
-        x = self.backbone(inputs)
-        outs = self.head(x)
-        return outs
     
     def plot_mix(self, img_mixed, mix_mode="", lam=None):
         """ visualize mixup results """
@@ -337,11 +329,11 @@ class MixUpClassification(nn.Module):
             transforms.Normalize(mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
             transforms.Normalize(mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
         # plot mixup results
-        imgs = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)
-        img_grid = torchvision.utils.make_grid(imgs, nrow=4, pad_value=0)
-        imgs = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
+        img = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)
+        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
+        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure()
-        plt.imshow(imgs)
+        plt.imshow(img)
         title_name = "{}, lam={}".format(mix_mode, str(round(lam, 6))) \
             if isinstance(lam, float) else mix_mode
         plt.title(title_name)
@@ -349,16 +341,3 @@ class MixUpClassification(nn.Module):
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
         plt.close()
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.self.backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

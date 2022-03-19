@@ -17,33 +17,33 @@ def main():
     """
 
     # *** default CE ***
-    base_path = "configs/classification/imagenet/mixups/basic/r18_mixups_CE_none.py"
-    # base_path = "configs/classification/imagenet/mixups/basic/r34_mixups_CE_none.py"
-    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_none.py"
-    # base_path = "configs/classification/imagenet/mixups/basic/r101_mixups_CE_none.py"
-    # base_path = "configs/classification/imagenet/mixups/basic/rx101_mixups_CE_none.py"
+    base_path = "configs/classification/imagenet/mixups/basic/r18_mixups_CE_none_4xb64.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r34_mixups_CE_none_4xb64.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_none_4xb64.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r101_mixups_CE_none_4xb64.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/rx101_mixups_CE_none_4xb64.py"
 
     # *** soft CE ***
-    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_soft.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_soft_4xb64.py"
 
     # *** BCE (sigmoid) ***
-    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_sigm.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_sigm_4xb64.py"
 
     # *** multi-mode mixup (using various mixup policies) ***
-    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_soft_multi_mode.py"
-    # base_path = "configs/classification/imagenet/mixups/rbs_a3/r50_rsb_a3_CE_sigm_multi_mode_sz160_bs2048.py"
+    # base_path = "configs/classification/imagenet/mixups/basic/r50_mixups_CE_soft_multi_mode_4xb64.py"
+    # base_path = "configs/classification/imagenet/mixups/rbs_a3/r50_rsb_a3_CE_sigm_multi_mode_4xb512.py"
 
     # *** decouple mixup ***
-    # base_path = "configs/classification/imagenet/mixups/decouple/r50_mixups_CE_soft_decouple.py"
+    # base_path = "configs/classification/imagenet/mixups/decouple/r50_mixups_CE_soft_decouple_4xb64.py"
 
     # *** DeiT (Swim) ***
-    # base_path = "configs/classification/imagenet/mixups/deit/deit_s_timm_smooth_mix0_8_cut1_0_sz224_bs1024_ema.py"
+    # base_path = "configs/classification/imagenet/mixups/deit/deit_s_timm_smooth_mix0_8_cut1_0_4xb256_ema.py"
 
     # *** RSB A2 ***
-    # base_path = "configs/classification/imagenet/mixups/rsb_a2/r50_rsb_a2_CE_sigm_mix0_1_cut1_0_sz224_bs2048_fp16.py"
+    # base_path = "configs/classification/imagenet/mixups/rsb_a2/r50_rsb_a2_CE_sigm_mix0_1_cut1_0_4xb256_accu2_fp16.py"
 
     # *** RSB A3 ***
-    # base_path = "configs/classification/imagenet/mixups/rsb_a3/r50_rsb_a3_CE_sigm_sz160_bs2048_fp16.py"
+    # base_path = "configs/classification/imagenet/mixups/rsb_a3/r50_rsb_a3_CE_sigm_4xb512_fp16.py"
 
     # abbreviation of long attributes
     abbs = {

@@ -6,15 +6,16 @@ import os
 
 import matplotlib.pyplot as plt
 from torchvision import transforms
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import GatherLayer, Smoothing
+from ..utils import concat_all_gather, GatherLayer, Smoothing
 
 
 @MODELS.register_module
-class MOCO_AutoMix_V2(nn.Module):
+class MOCO_AutoMix_V2(BaseModel):
     """MOCO + AutoMix.V2 V0824 (OK version 09.21)
         pre mixblock conv and loss (08.24 update)
         'no_repeat'  and 'mask_smooth' (09.22 update)
@@ -115,22 +116,18 @@ class MOCO_AutoMix_V2(nn.Module):
                     weight_bb_mix=1, weight_bb_ssl=1, weight_mb_main=1, weight_mb_auxi=0.5,
                     weight_mb_pre=1, weight_mb_mask=0.1),
                  save=False,
-                 save_name="",
+                 save_name="MixedSamples",
                  debug=False,
+                 init_cfg=None,
                  **kwargs):
-        super(MOCO_AutoMix_V2, self).__init__()
-        self.fp16_enabled = False
+        super(MOCO_AutoMix_V2, self).__init__(init_cfg, **kwargs)
         # build basic networks
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.neck_q = builder.build_neck(neck)
         self.neck_k = builder.build_neck(neck)
         self.backbone = self.encoder_q  # for feature extract
-        # stop grad
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
-        for param in self.neck_k.parameters():
-            param.requires_grad = False
         self.head = builder.build_head(head)
 
         self.mix_block = mix_block
@@ -146,8 +143,6 @@ class MOCO_AutoMix_V2(nn.Module):
             # cluster head: cls
             self.head_clst = builder.build_head(head_clst)
             self.head_clst_off = builder.build_head(head_clst)
-            for param in self.head_clst_off.parameters():
-                param.requires_grad = False
             
             # DeepCluster or ODC reweight
             self.num_classes = head_clst.num_classes
@@ -213,7 +208,8 @@ class MOCO_AutoMix_V2(nn.Module):
         self.loss_weights = loss_weights
         for key in loss_weights.keys():
             if not isinstance(loss_weights[key], list):
-                self.loss_weights[key] = float(loss_weights[key]) if float(loss_weights[key]) > 0 else 0
+                self.loss_weights[key] = \
+                    float(loss_weights[key]) if float(loss_weights[key]) > 0 else 0
         self.weight_bb_mix = loss_weights.get("weight_bb_mix", 1.)
         self.weight_bb_ssl = loss_weights.get("weight_bb_ssl", 1.)
         self.weight_mb_main = loss_weights.get("weight_mb_main", 1.)
@@ -236,6 +232,8 @@ class MOCO_AutoMix_V2(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(MOCO_AutoMix_V2, self).init_weights()
+
         if pretrained is not None:
             print_log('load encoder_q from: {}'.format(pretrained), logger='root')
         self.encoder_q.init_weights(pretrained=pretrained)
@@ -246,18 +244,22 @@ class MOCO_AutoMix_V2(nn.Module):
         self.neck_q.init_weights(init_linear='kaiming')
         if self.mix_block is not None:
             self.mix_block.init_weights(init_linear='normal')
+        # stop grad for head_clst_off
         if self.head_clst is not None:
             self.head_clst.init_weights(init_linear='normal')
             for param_q, param_k in zip(self.head_clst.parameters(),
                                         self.head_clst_off.parameters()):
                 param_k.data.copy_(param_q.data)
-        
+                param_k.requires_grad = False
+        # stop grad for k
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
         for param_q, param_k in zip(self.neck_q.parameters(),
                                     self.neck_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
 
     @torch.no_grad()
     def _momentum_update_key_encoder(self):
@@ -447,17 +449,17 @@ class MOCO_AutoMix_V2(nn.Module):
         """Forward computation during training.
 
         Args:
-            img (Tensor): Input of two concatenated images of shape (N, 2, C, H, W).
-                Typically these should be mean centered and std scaled.
+            img (list[Tensor]): A list of input images with shape
+                (N, C, H, W). Typically these should be mean centered
+                and std scaled.
             kwargs: Any keyword arguments to be used to forward.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        assert img.dim() == 5, \
-            "Input must have 5 dims, got: {}".format(img.dim())
-        im_q = img[:, 0, ...].contiguous()
-        im_k = img[:, 1, ...].contiguous()
+        assert isinstance(img, list) and len(img) >= 2
+        im_q = img[0].contiguous()
+        im_k = img[1].contiguous()
         # update loss weights
         self._update_loss_weights()
 
@@ -896,7 +898,7 @@ class MOCO_AutoMix_V2(nn.Module):
         if self.weight_mb_mask > 0:
             results["mask_loss"] = self.mix_block.mask_loss(mask_mb, lam[1])["loss"]
         
-        # step 3: generate mixup imgs
+        # step 3: generate mixup img
         # img mixup bb for backbone
         im_k_shuffle, _, _ = self._grad_batch_shuffle_ddp(im_k, idx_shuffle_bb)
         results["im_mixed_bb"] = \
@@ -924,11 +926,11 @@ class MOCO_AutoMix_V2(nn.Module):
             transforms.Normalize(
                 mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
         # plot mixup results
-        imgs = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
-        img_grid = torchvision.utils.make_grid(imgs, nrow=4, pad_value=0)
-        imgs = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
+        img = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
+        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
+        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure()
-        plt.imshow(imgs)
+        plt.imshow(img)
         plt.title('lambda {}={}'.format(name, lam))
         assert self.save_name.find(".png") != -1
         if not os.path.exists(self.save_name):
@@ -938,9 +940,9 @@ class MOCO_AutoMix_V2(nn.Module):
             assert isinstance(debug_plot, dict)
             for key,value in debug_plot.items():
                 n, h, w = value.size()
-                imgs = value[:4].view(h, 4 * w).detach().cpu().numpy()
+                img = value[:4].view(h, 4 * w).detach().cpu().numpy()
                 fig = plt.figure()
-                plt.imshow(imgs)
+                plt.imshow(img)
                 # plt.title('debug {}, lambda k={}'.format(str(key), lam))
                 _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
                 if not os.path.exists(_debug_path):
@@ -1020,40 +1022,19 @@ class MOCO_AutoMix_V2(nn.Module):
         self.head_clst_off.criterion.class_weight = self.loss_weight
 
     def forward_test(self, img, **kwargs):
+        """Forward computation during test.
+
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+
+        Returns:
+            dict[str, Tensor]: A dictionary of output features.
+        """
         # deep cluster head test
         x = self.backbone(img)  # tuple
         assert self.head_clst is not None
         outs = self.head_clst(x)
-        keys = ['head{}'.format(i) for i in range(len(outs))]
+        keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            if len(img.size()) != 4:
-                img = img[:, 0, ...].contiguous()  # contrastive data
-            return self.backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))
-
-
-# utils
-@torch.no_grad()
-def concat_all_gather(tensor):
-    """Performs all_gather operation on the provided tensors.
-
-    *** Warning ***: torch.distributed.all_gather has no gradient.
-    """
-    tensors_gather = [
-        torch.ones_like(tensor)
-        for _ in range(torch.distributed.get_world_size())
-    ]
-    torch.distributed.all_gather(tensors_gather, tensor, async_op=False)
-
-    output = torch.cat(tensors_gather, dim=0)
-    return output

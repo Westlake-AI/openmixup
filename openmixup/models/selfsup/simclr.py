@@ -1,15 +1,15 @@
 import torch
-import torch.nn as nn
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..utils import GatherLayer
 
 
 @MODELS.register_module
-class SimCLR(nn.Module):
+class SimCLR(BaseModel):
     """SimCLR.
 
     Implementation of "A Simple Framework for Contrastive Learning
@@ -27,10 +27,12 @@ class SimCLR(nn.Module):
                  backbone,
                  neck=None,
                  head=None,
-                 pretrained=None):
-        self.fp16_enabled = False
-        super(SimCLR, self).__init__()
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(SimCLR, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.neck = builder.build_neck(neck)
         self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
@@ -52,39 +54,29 @@ class SimCLR(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(SimCLR, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
         self.neck.init_weights(init_linear='kaiming')
 
-    def forward_backbone(self, img):
-        """Forward backbone.
-
-        Args:
-            img (Tensor): Input images of shape (N, C, H, W).
-                Typically these should be mean centered and std scaled.
-
-        Returns:
-            tuple[Tensor]: backbone outputs.
-        """
-        x = self.backbone(img)
-        return x
-
     def forward_train(self, img, **kwargs):
         """Forward computation during training.
 
         Args:
-            img (Tensor): Input of two concatenated images of shape (N, 2, C, H, W).
-                Typically these should be mean centered and std scaled.
+            img (list[Tensor]): A list of input images with shape
+                (N, C, H, W). Typically these should be mean centered
+                and std scaled.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        assert img.dim() == 5, \
-            "Input must have 5 dims, got: {}".format(img.dim())
+        assert isinstance(img, list) and len(img) >= 2
+        img = torch.stack(img, 1)
         img = img.reshape(
             img.size(0) * 2, img.size(2), img.size(3), img.size(4))
-        x = self.forward_backbone(img)  # 2n
+        x = self.backbone(img)  # 2n
         z = self.neck(x)[0]  # (2n)xd
         z = z / (torch.norm(z, p=2, dim=1, keepdim=True) + 1e-10)
         z = torch.cat(GatherLayer.apply(z), dim=0)  # (2N)xd
@@ -99,17 +91,3 @@ class SimCLR(nn.Module):
         negative = torch.masked_select(s, neg_mask == 1).reshape(s.size(0), -1)
         losses = self.head(positive, negative)
         return losses
-
-    def forward_test(self, img, **kwargs):
-        pass
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

@@ -9,7 +9,15 @@ from .utils import to_numpy
 
 @DATASETS.register_module
 class ClassificationDataset(BaseDataset):
-    """Dataset for classification.
+    """The dataset outputs one view of an image, containing some other
+        information such as label, idx, etc.
+
+    Args:
+        data_source (dict): Data source defined in
+            `mmselfsup.datasets.data_sources`.
+        pipeline (list[dict]): A list of dict, where each element represents
+            an operation defined in `mmselfsup.datasets.pipelines`.
+        prefetch (bool, optional): Whether to prefetch data. Defaults to False.
     """
 
     def __init__(self, data_source, pipeline, prefetch=False):
@@ -20,15 +28,25 @@ class ClassificationDataset(BaseDataset):
         img = self.pipeline(img)
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))
-        return dict(img=img, gt_label=target)
+        return dict(img=img, gt_label=target, idx=idx)
 
     def evaluate(self, scores, keyword, logger=None, topk=(1, 5)):
+        """The evaluation function to output accuracy.
+
+        Args:
+            results (dict): The key-value pair is the output head name and
+                corresponding prediction values.
+            logger (logging.Logger | str | None, optional): The defined logger
+                to be used. Defaults to None.
+            topk (tuple(int)): The output includes topk accuracy.
+        """
         eval_res = {}
 
         target = torch.LongTensor(self.data_source.labels)
         assert scores.size(0) == target.size(0), \
             "Inconsistent length for results and labels, {} vs {}".format(
             scores.size(0), target.size(0))
+        
         num = scores.size(0)
         _, pred = scores.topk(max(topk), dim=1, largest=True, sorted=True)
         pred = pred.t()

@@ -9,3 +9,4 @@ from .flops_counter import get_model_complexity_info
 from .logger import get_root_logger, print_log
 from .registry import Registry, build_from_cfg
 from .optimizers import LARS, LAMB
+from .setup_env import setup_multi_processes

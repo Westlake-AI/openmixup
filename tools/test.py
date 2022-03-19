@@ -6,13 +6,14 @@ import time
 
 import mmcv
 import torch
+from mmcv import DictAction
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 
 from openmixup.datasets import build_dataloader, build_dataset
 from openmixup.models import build_model
 from openmixup.utils import (get_root_logger, dist_forward_collect, 
-                               nondist_forward_collect, traverse_replace)
+                             setup_multi_processes, nondist_forward_collect, traverse_replace)
 
 
 def single_gpu_test(model, data_loader):
@@ -50,6 +51,16 @@ def parse_args():
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--port', type=int, default=29500,
         help='port only works when launcher=="slurm"')
+    parser.add_argument(
+        '--cfg-options',
+        nargs='+',
+        action=DictAction,
+        help='override some settings in the used config, the key-value pair '
+        'in xxx=yyy format will be merged into config file. If the value to '
+        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+        'Note that the quotation marks are necessary and that no white space '
+        'is allowed.')
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -61,6 +72,12 @@ def main():
     args = parse_args()
 
     cfg = mmcv.Config.fromfile(args.config)
+    if args.cfg_options is not None:
+        cfg.merge_from_dict(args.cfg_options)
+    
+    # set multi-process settings
+    setup_multi_processes(cfg)
+
     # set cudnn_benchmark
     if cfg.get('cudnn_benchmark', False):
         torch.backends.cudnn.benchmark = True

@@ -1,14 +1,16 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
+from ..utils import concat_all_gather
 
 
 @MODELS.register_module
-class MOCO(nn.Module):
+class MOCO(BaseModel):
     """MOCO.
 
     Implementation of "Momentum Contrast for Unsupervised Visual
@@ -37,16 +39,15 @@ class MOCO(nn.Module):
                  queue_len=65536,
                  feat_dim=128,
                  momentum=0.999,
+                 init_cfg=None,
                  **kwargs):
-        super(MOCO, self).__init__()
-        self.fp16_enabled = False
+        super(MOCO, self).__init__(init_cfg, **kwargs)
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.encoder_q = nn.Sequential(
             builder.build_backbone(backbone), builder.build_neck(neck))
         self.encoder_k = nn.Sequential(
             builder.build_backbone(backbone), builder.build_neck(neck))
         self.backbone = self.encoder_q[0]
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
         self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
 
@@ -65,12 +66,15 @@ class MOCO(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(MOCO, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.encoder_q[0].init_weights(pretrained=pretrained)
         self.encoder_q[1].init_weights(init_linear='kaiming')
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
+            param_k.requires_grad = False
             param_k.data.copy_(param_q.data)
 
     @torch.no_grad()
@@ -149,16 +153,16 @@ class MOCO(nn.Module):
         """Forward computation during training.
 
         Args:
-            img (Tensor): Input of two concatenated images of shape (N, 2, C, H, W).
-                Typically these should be mean centered and std scaled.
+            img (list[Tensor]): A list of input images with shape
+                (N, C, H, W). Typically these should be mean centered
+                and std scaled.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        assert img.dim() == 5, \
-            "Input must have 5 dims, got: {}".format(img.dim())
-        im_q = img[:, 0, ...].contiguous()
-        im_k = img[:, 1, ...].contiguous()
+        assert isinstance(img, list) and len(img) >= 2
+        im_q = img[0].contiguous()
+        im_k = img[1].contiguous()
         # compute query features
         q = self.encoder_q(im_q)[0]  # queries: NxC
         q = nn.functional.normalize(q, dim=1)
@@ -184,37 +188,8 @@ class MOCO(nn.Module):
         l_neg = torch.einsum('nc,ck->nk', [q, self.queue.clone().detach()])
 
         losses = self.head(l_pos, l_neg)
+
+        # update the queue
         self._dequeue_and_enqueue(k)
 
         return losses
-
-    def forward_test(self, img, **kwargs):
-        pass
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))
-
-
-# utils
-@torch.no_grad()
-def concat_all_gather(tensor):
-    """Performs all_gather operation on the provided tensors.
-
-    *** Warning ***: torch.distributed.all_gather has no gradient.
-    """
-    tensors_gather = [
-        torch.ones_like(tensor)
-        for _ in range(torch.distributed.get_world_size())
-    ]
-    torch.distributed.all_gather(tensors_gather, tensor, async_op=False)
-
-    output = torch.cat(tensors_gather, dim=0)
-    return output

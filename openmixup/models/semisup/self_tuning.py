@@ -1,14 +1,15 @@
 import torch
 import torch.nn as nn
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class SelfTuning(nn.Module):
+class SelfTuning(BaseModel):
     """
     Implementation of "Self-Tuning for Data-Efficient Deep Learning
         (https://arxiv.org/pdf/2102.12903.pdf)".
@@ -39,18 +40,15 @@ class SelfTuning(nn.Module):
                  class_num=200,
                  momentum=0.999,
                  temperature=0.07,
-                 pretrained=None):
-        super(SelfTuning, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(SelfTuning, self).__init__(init_cfg, **kwargs)
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.projector_q = builder.build_neck(neck)
         self.projector_k = builder.build_neck(neck)
         self.backbone = self.encoder_q
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
-        for param in self.projector_k.parameters():
-            param.requires_grad = False
         self.head_cls = builder.build_head(head_cls)
         self.init_weights(pretrained=pretrained)
 
@@ -96,9 +94,11 @@ class SelfTuning(nn.Module):
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
         for param_q, param_k in zip(self.projector_q.parameters(),
                                     self.projector_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
 
     def forward_backbone(self, img):
         """Forward backbone.
@@ -242,16 +242,3 @@ class SelfTuning(nn.Module):
         x = self.encoder_q(img)
         preds_one_k = self.head_cls(x)
         return preds_one_k
-    
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

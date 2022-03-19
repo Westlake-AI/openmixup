@@ -1,14 +1,14 @@
 import torch
-import torch.nn as nn
 
 from openmixup.utils import auto_fp16, print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class RelativeLoc(nn.Module):
+class RelativeLoc(BaseModel):
     """Relative patch location.
 
     Implementation of "Unsupervised Visual Representation Learning
@@ -26,14 +26,14 @@ class RelativeLoc(nn.Module):
                  backbone,
                  neck=None,
                  head=None,
-                 pretrained=None):
-        super(RelativeLoc, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(RelativeLoc, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
-        if neck is not None:
-            self.neck = builder.build_neck(neck)
-        if head is not None:
-            self.head = builder.build_head(head)
+        assert isinstance(neck, dict) and isinstance(head, dict)
+        self.neck = builder.build_neck(neck)
+        self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
 
     def init_weights(self, pretrained=None):
@@ -43,6 +43,8 @@ class RelativeLoc(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(RelativeLoc, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
@@ -85,18 +87,33 @@ class RelativeLoc(nn.Module):
         return losses
 
     def forward_test(self, img, **kwargs):
+        """Forward computation during training.
+
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+
+        Returns:
+            dict[str, Tensor]: A dictionary of output features.
+        """
         img1, img2 = torch.chunk(img, 2, dim=1)
         x1 = self.forward_backbone(img1)  # tuple
         x2 = self.forward_backbone(img2)  # tuple
         x = (torch.cat((x1[0], x2[0]), dim=1),)
         x = self.neck(x)
         outs = self.head(x)
-        keys = ['head{}'.format(i) for i in range(len(outs))]
+        keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]
         return dict(zip(keys, out_tensors))
 
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, patch_label=None, mode='train', **kwargs):
+        """Forward function to select mode and modify the input image shape.
+
+        Args:
+            img (Tensor): Input images, the shape depends on mode.
+                Typically these should be mean centered and std scaled.
+        """
         if mode != "extract" and img.dim() == 5:  # Nx8x(2C)xHxW
             assert patch_label.dim() == 2  # Nx8
             img = img.view(

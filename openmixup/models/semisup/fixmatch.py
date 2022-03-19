@@ -1,13 +1,16 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from openmixup.utils import auto_fp16, print_log
+
+from openmixup.utils import print_log
+
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class FixMatch(nn.Module):
+class FixMatch(BaseModel):
     """
     Implementation of "FixMatch: Simplifying Semi-Supervised Learning with Consistency
         and Confidence (https://arxiv.org/abs/2001.07685), NeurIPS, 2020."
@@ -42,15 +45,14 @@ class FixMatch(nn.Module):
                  ratio_ul=7,
                  ema_pseudo=1.0,
                  deduplicate=False,
-                 pretrained=None):
-        super(FixMatch, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(FixMatch, self).__init__(init_cfg, **kwargs)
         self.encoder = nn.Sequential(
             builder.build_backbone(backbone), builder.build_head(head))
         self.encoder_k = nn.Sequential(  # EMA
             builder.build_backbone(backbone), builder.build_head(head))
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
         self.init_weights(pretrained=pretrained)
 
         self.momentum = float(momentum)
@@ -80,6 +82,7 @@ class FixMatch(nn.Module):
         for param_q, param_k in zip(self.encoder.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
 
     @torch.no_grad()
     def _momentum_update(self):
@@ -171,16 +174,3 @@ class FixMatch(nn.Module):
         """ pred probs calibration """
         preds = self.encoder_k(img)
         return preds
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.encoder[0](img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

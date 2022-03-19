@@ -1,13 +1,12 @@
-import torch.nn as nn
+from openmixup.utils import print_log
 
-from openmixup.utils import auto_fp16, print_log
-
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class FineTuning(nn.Module):
+class FineTuning(BaseModel):
     """Vanilla image classification.
 
     Args:
@@ -19,9 +18,10 @@ class FineTuning(nn.Module):
     def __init__(self,
                  backbone,
                  head=None,
-                 pretrained=None):
-        super(FineTuning, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(FineTuning, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
         self.head = head
         if head is not None:
@@ -40,19 +40,6 @@ class FineTuning(nn.Module):
         self.backbone.init_weights(pretrained=pretrained)
         if self.head is not None:
             self.head.init_weights()
-
-    def forward_backbone(self, img):
-        """Forward backbone.
-
-        Args:
-            img (Tensor): Input images of shape (N, C, H, W).
-                Typically these should be mean centered and std scaled.
-
-        Returns:
-            tuple[Tensor]: backbone outputs.
-        """
-        x = self.backbone(img)
-        return x
 
     def forward_train(self, img, gt_labels, **kwargs):
         """Forward computation during training.
@@ -81,17 +68,3 @@ class FineTuning(nn.Module):
         keys = ['head{}'.format(i) for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
-
-    def aug_test(self, imgs):
-        raise NotImplementedError
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

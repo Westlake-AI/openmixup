@@ -1,20 +1,21 @@
 import torch
-import torch.nn as nn
 import numpy as np
 import torchvision
 import os
 import matplotlib.pyplot as plt
 from torchvision import transforms
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
+
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp
-from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
+from ..utils import (GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp, \
+                     cutmix, mixup, saliencymix, resizemix, fmix)
 
 
 @MODELS.register_module
-class SimCLR_Mix(nn.Module):
+class SimCLR_Mix(BaseModel):
     """SimCLR mixup baseline V0913 (update 09.17)
 
     Implementation of "A Simple Framework for Contrastive Learning
@@ -60,11 +61,12 @@ class SimCLR_Mix(nn.Module):
                 cross_view_gen=False,
                 cross_view_ssl=False,
                 save=False,
-                save_name='mix_samples',
+                save_name='MixedSamples',
+                init_cfg=None,
                 **kwargs):
-        super(SimCLR_Mix, self).__init__()
-        self.fp16_enabled = False
+        super(SimCLR_Mix, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
+        assert isinstance(neck, dict) and isinstance(head, dict)
         self.neck = builder.build_neck(neck)
         self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
@@ -111,38 +113,27 @@ class SimCLR_Mix(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(SimCLR_Mix, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
         self.neck.init_weights(init_linear='kaiming')
 
-    def forward_backbone(self, img):
-        """Forward backbone.
-
-        Args:
-            img (Tensor): Input images of shape (N, C, H, W).
-                Typically these should be mean centered and std scaled.
-
-        Returns:
-            tuple[Tensor]: backbone outputs.
-        """
-        x = self.backbone(img)
-        return x
-
     def forward_train(self, img, **kwargs):
         """Forward computation during training.
 
         Args:
-            img (Tensor): Input of two concatenated images of shape (N, 2, C, H, W).
-                Typically these should be mean centered and std scaled.
+            img (list[Tensor]): A list of input images with shape
+                (N, C, H, W). Typically these should be mean centered
+                and std scaled.
 
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        assert img.dim() == 5, \
-            "Input must have 5 dims, got: {}".format(img.dim())
-        im_q = img[:, 0, ...].contiguous()
-        im_k = img[:, 1, ...].contiguous()
+        assert isinstance(img, list) and len(img) >= 2
+        im_q = img[0].contiguous()
+        im_k = img[1].contiguous()
         losses = dict()
         
         # =============== Step 1: SimCLR forward ================
@@ -251,17 +242,3 @@ class SimCLR_Mix(nn.Module):
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
         plt.close()
-
-    def forward_test(self, img, **kwargs):
-        pass
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

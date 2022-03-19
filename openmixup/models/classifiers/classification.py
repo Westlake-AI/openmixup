@@ -1,37 +1,35 @@
-import torch.nn as nn
+from openmixup.utils import print_log
 
-from openmixup.utils import auto_fp16, print_log
-
+from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import Sobel
 
 
 @MODELS.register_module
-class Classification(nn.Module):
+class Classification(BaseModel):
     """Simple image classification.
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
-        with_sobel (bool): Whether to apply a Sobel filter on images. Default: False.
+        neck (dict): Config dict for module of deep features to compact feature vectors.
+            Default: None.
         head (dict): Config dict for module of loss functions. Default: None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
     """
 
     def __init__(self,
                  backbone,
-                 with_sobel=False,
+                 neck=None,
                  head=None,
-                 pretrained=None):
-        super(Classification, self).__init__()
-        self.fp16_enabled = False
-        self.with_sobel = with_sobel
-        if with_sobel:
-            self.sobel_layer = Sobel()
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(Classification, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
-        self.head = head
-        if head is not None:
-            self.head = builder.build_head(head)
+        assert isinstance(head, dict)
+        if neck is not None:
+            self.neck = builder.build_neck(neck)
+        self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
 
     def init_weights(self, pretrained=None):
@@ -44,23 +42,9 @@ class Classification(nn.Module):
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
-        if self.head is not None:
-            self.head.init_weights()
-
-    def forward_backbone(self, img):
-        """Forward backbone.
-
-        Args:
-            img (Tensor): Input images of shape (N, C, H, W).
-                Typically these should be mean centered and std scaled.
-
-        Returns:
-            tuple[Tensor]: backbone outputs.
-        """
-        if self.with_sobel:
-            img = self.sobel_layer(img)
-        x = self.backbone(img)
-        return x
+        if self.with_neck:
+            self.neck.init_weights(init_linear='kaiming')
+        self.head.init_weights()
 
     def forward_train(self, img, gt_label, **kwargs):
         """Forward computation during training.
@@ -74,36 +58,19 @@ class Classification(nn.Module):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        x = self.forward_backbone(img)
+        x = self.backbone(img)
+        if self.with_neck:
+            x = self.neck(x)
         outs = self.head(x)
         loss_inputs = (outs, gt_label)
         losses = self.head.loss(*loss_inputs)
         return losses
 
     def forward_test(self, img, **kwargs):
-        x = self.forward_backbone(img)  # tuple
+        x = self.backbone(img)  # tuple
+        if self.with_neck:
+            x = self.neck(x)
         outs = self.head(x)
-        keys = ['head{}'.format(i) for i in range(len(outs))]
+        keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
-
-    def forward_calibration(self, img, **kwargs):
-        x = self.backbone(img)
-        preds_one_k = self.head(x)
-        return preds_one_k
-
-    def aug_test(self, imgs):
-        raise NotImplementedError
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

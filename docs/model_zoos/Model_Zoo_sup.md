@@ -137,7 +137,7 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | CutMix        |    96.78   |    96.54   |    96.60   |    96.35    |
 | ManifoldMix   |    96.97   |    97.39   |    97.33   |    97.36    |
 | SaliencyMix   |    96.65   |    96.89   |    96.70   |    96.60    |
-| AttentiveMix+ |    xx.xx   |    xx.xx   |    xx.xx   |    xx.xx    |
+| AttentiveMix+ |    96.84   |    96.91   |    96.87   |    xx.xx    |
 | FMix*         |    96.72   |    96.76   |    96.76   |    96.10    |
 | PuzzleMix     |    97.05   |    97.24   |    97.37   |    97.34    |
 | ResizeMix*    |    97.02   |    97.38   |    97.21   |    97.36    |

@@ -1,14 +1,14 @@
 import torch
-import torch.nn as nn
 
 from openmixup.utils import auto_fp16, print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class RotationPred(nn.Module):
+class RotationPred(BaseModel):
     """Rotation prediction.
 
     Implementation of "Unsupervised Representation Learning
@@ -16,17 +16,23 @@ class RotationPred(nn.Module):
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
+        neck (dict): Config dict for module of deep features to compact feature vectors.
+            Default: None.
         head (dict): Config dict for module of loss functions. Default: None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
     """
 
     def __init__(self,
                  backbone,
+                 neck=None,
                  head=None,
-                 pretrained=None):
-        super(RotationPred, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(RotationPred, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
+        if neck is not None:
+            self.neck = builder.build_neck(neck)
         if head is not None:
             self.head = builder.build_head(head)
         self.init_weights(pretrained=pretrained)
@@ -38,10 +44,14 @@ class RotationPred(nn.Module):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
+        super(RotationPred, self).init_weights()
+
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
         self.backbone.init_weights(pretrained=pretrained)
-        self.head.init_weights(init_linear='kaiming')
+        if self.with_neck:
+            self.neck.init_weights(init_linear='normal')
+        self.head.init_weights(init_linear='normal')
 
     def forward_backbone(self, img):
         """Forward backbone.
@@ -69,6 +79,8 @@ class RotationPred(nn.Module):
             dict[str, Tensor]: A dictionary of loss components.
         """
         x = self.forward_backbone(img)
+        if self.with_neck:
+            x = self.neck(x)
         outs = self.head(x)
         loss_inputs = (outs, rot_label)
         losses = self.head.loss(*loss_inputs)
@@ -76,8 +88,10 @@ class RotationPred(nn.Module):
 
     def forward_test(self, img, **kwargs):
         x = self.forward_backbone(img)  # tuple
+        if self.with_neck:
+            x = self.neck(x)
         outs = self.head(x)
-        keys = ['head{}'.format(i) for i in range(len(outs))]
+        keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 

@@ -4,15 +4,16 @@ import torch.nn as nn
 from mmcv.utils.parrots_wrapper import _BatchNorm
 import numpy as np
 
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
 
+from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
 
 
 @MODELS.register_module
-class DMixTuning(nn.Module):
+class DMixTuning(BaseModel):
     """
     Implementation of DMix-Tuning (using Decoupled Mixup)
         based on Self-Tuning (https://arxiv.org/pdf/2102.12903.pdf) and mixup methods.
@@ -71,19 +72,16 @@ class DMixTuning(nn.Module):
                     decent_weight=[],
                     accent_weight=['weight_mix_lu'],
                     weight_pgc=1, weight_one=1, weight_mix_ll=1, weight_mix_lu=1),
-                 pretrained=None):
-        super(DMixTuning, self).__init__()
-        self.fp16_enabled = False
+                 pretrained=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(DMixTuning, self).__init__(init_cfg, **kwargs)
         # network settings
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
         self.projector_q = builder.build_neck(neck)
         self.projector_k = builder.build_neck(neck)
         self.backbone = self.encoder_q
-        for param in self.encoder_k.parameters():
-            param.requires_grad = False
-        for param in self.projector_k.parameters():
-            param.requires_grad = False
         self.head_one = None
         self.head_mix = None
         if head_one is not None:
@@ -165,9 +163,11 @@ class DMixTuning(nn.Module):
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
         for param_q, param_k in zip(self.projector_q.parameters(),
                                     self.projector_k.parameters()):
             param_k.data.copy_(param_q.data)
+            param_k.requires_grad = False
 
     def _freeze_bn(self):
         """ keep normalization layer freezed. """
@@ -460,16 +460,3 @@ class DMixTuning(nn.Module):
         x = self.encoder_q(img)
         preds = self.head_one(x)
         return preds
-    
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
-        elif mode == 'extract':
-            return self.forward_backbone(img)
-        else:
-            raise Exception("No such mode: {}".format(mode))

@@ -2,7 +2,6 @@ import os
 import torch
 import random
 import numpy as np
-import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import torchvision
@@ -10,13 +9,15 @@ from torchvision import transforms
 
 import logging
 from mmcv.runner import load_checkpoint
-from openmixup.utils import auto_fp16, print_log
+from openmixup.utils import print_log
+
+from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 
 
 @MODELS.register_module
-class AutoMixup_V2(nn.Module):
+class AutoMixup_V2(BaseModel):
     """ AutoMix and SAMix
         V0824 version (based on V1plus v0707)
         V1219 version (adding freezed backbone_k and mixblock)
@@ -97,10 +98,11 @@ class AutoMixup_V2(nn.Module):
                  debug=False,
                  mix_shuffle_no_repeat=False,
                  pretrained=None,
-                 pretrained_k=None):
-        super(AutoMixup_V2, self).__init__()
+                 pretrained_k=None,
+                 init_cfg=None,
+                 **kwargs):
+        super(AutoMixup_V2, self).__init__(init_cfg, **kwargs)
         # basic params
-        self.fp16_enabled = False
         self.alpha = float(alpha)
         self.mask_layer = int(mask_layer)
         self.momentum = float(momentum)
@@ -150,14 +152,10 @@ class AutoMixup_V2(nn.Module):
         else:
             self.backbone_k = builder.build_backbone(backbone)
         self.backbone = self.backbone_k  # for feature extract
-        for param in self.backbone_k.parameters():  # stop grad k
-            param.requires_grad = False
         # mixup cls head
         assert "head_mix_q" in head_weights.keys() and "head_mix_k" in head_weights.keys()
         self.head_mix_q = builder.build_head(head_mix)
         self.head_mix_k = builder.build_head(head_mix_k)
-        for param in self.head_mix_k.parameters():  # stop grad k
-            param.requires_grad = False
         # onehot cls head
         if "head_one_q" in head_weights.keys():
             self.head_one_q = builder.build_head(head_one)
@@ -165,8 +163,6 @@ class AutoMixup_V2(nn.Module):
             self.head_one_q = None
         if "head_one_k" in head_weights.keys() and "head_one_q" in head_weights.keys():
             self.head_one_k = builder.build_head(head_one_k)
-            for param in self.head_one_k.parameters():  # stop grad k
-                param.requires_grad = False
         else:
             self.head_one_k = None
         # for feature extract
@@ -202,6 +198,7 @@ class AutoMixup_V2(nn.Module):
                 for param_one_k, param_mix_k in zip(self.head_one_k.parameters(),
                                                     self.head_mix_k.parameters()):
                     param_mix_k.data.copy_(param_one_k.data)
+                    param_mix_k.requires_grad = False  # stop grad k
         
         # init backbone, based on params in q
         if pretrained is not None:
@@ -212,6 +209,7 @@ class AutoMixup_V2(nn.Module):
             for param_q, param_k in zip(self.backbone_q.parameters(),
                                         self.backbone_k.parameters()):
                 param_k.data.copy_(param_q.data)
+                param_k.requires_grad = False  # stop grad k
         
         # init head
         if self.head_mix_q is not None:
@@ -225,12 +223,14 @@ class AutoMixup_V2(nn.Module):
             for param_one_q, param_one_k in zip(self.head_one_q.parameters(),
                                                 self.head_one_k.parameters()):
                 param_one_k.data.copy_(param_one_q.data)
+                param_one_k.requires_grad = False  # stop grad k
         # copy head mix param from q to k
         if (self.head_mix_q is not None and self.head_mix_k is not None) and \
             (pretrained_k is None and self.momentum < 1):
             for param_mix_q, param_mix_k in zip(self.head_mix_q.parameters(),
                                                 self.head_mix_k.parameters()):
                 param_mix_k.data.copy_(param_mix_q.data)
+                param_mix_k.requires_grad = False  # stop grad k
 
     @torch.no_grad()
     def _momentum_update(self):
@@ -365,11 +365,11 @@ class AutoMixup_V2(nn.Module):
             transforms.Normalize(
                 mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
         # plot mixup results
-        imgs = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
-        img_grid = torchvision.utils.make_grid(imgs, nrow=4, pad_value=0)
-        imgs = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
+        img = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
+        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
+        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure()
-        plt.imshow(imgs)
+        plt.imshow(img)
         plt.title('lambda {}={}'.format(name, lam))
         assert self.save_name.find(".png") != -1
         if not os.path.exists(self.save_name):
@@ -380,9 +380,9 @@ class AutoMixup_V2(nn.Module):
             assert isinstance(debug_plot, dict)
             for key,value in debug_plot.items():
                 n, h, w = value.size()
-                imgs = value[:4].view(h, 4 * w).detach().cpu().numpy()
+                img = value[:4].view(h, 4 * w).detach().cpu().numpy()
                 fig = plt.figure()
-                plt.imshow(imgs)
+                plt.imshow(img)
                 # plt.title('debug {}, lambda k={}'.format(str(key), lam))
                 _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
                 if not os.path.exists(_debug_path):
@@ -585,12 +585,3 @@ class AutoMixup_V2(nn.Module):
         
         out_tensors = [p[0].cpu() for p in pred]  # NxC
         return dict(zip(keys, out_tensors))
-
-    @auto_fp16(apply_to=('img', ))
-    def forward(self, img, mode='train', **kwargs):
-        if mode == 'train':
-            return self.forward_train(img, **kwargs)
-        elif mode == 'test':
-            return self.forward_test(img, **kwargs)
-        else:
-            raise Exception('No such mode: {}'.format(mode))

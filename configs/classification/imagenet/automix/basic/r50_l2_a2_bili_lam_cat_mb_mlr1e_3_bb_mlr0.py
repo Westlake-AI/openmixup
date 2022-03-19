@@ -1,4 +1,4 @@
-_base_ = '../../../../base.py'
+_base_ = '../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py'
 
 # model settings
 model = dict(
@@ -43,59 +43,8 @@ model = dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
 
-# dataset settings
-data_source_cfg = dict(type='ImageNet')
-# ImageNet dataset
-data_train_list = 'data/meta/ImageNet/train_labeled_full.txt'
-data_train_root = 'data/ImageNet/train'
-data_test_list = 'data/meta/ImageNet/val_labeled.txt'
-data_test_root = 'data/ImageNet/val/'
-
-dataset_type = 'ClassificationDataset'
-img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-train_pipeline = [
-    dict(type='RandomResizedCrop', size=224),
-    dict(type='RandomHorizontalFlip'),
-]
-test_pipeline = [
-    dict(type='Resize', size=256),
-    dict(type='CenterCrop', size=224),
-    dict(type='ToTensor'),
-    dict(type='Normalize', **img_norm_cfg),
-]
-# prefetch
-prefetch = True
-if not prefetch:
-    train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
-
-data = dict(
-    imgs_per_gpu=64,  # 64 x 4gpus = 256
-    workers_per_gpu=8,
-    drop_last=True,
-    train=dict(
-        type=dataset_type,
-        data_source=dict(
-            list_file=data_train_list, root=data_train_root,
-            **data_source_cfg),
-        pipeline=train_pipeline,
-        prefetch=prefetch,
-    ),
-    val=dict(
-        type=dataset_type,
-        data_source=dict(
-            list_file=data_test_list, root=data_test_root, **data_source_cfg),
-        pipeline=test_pipeline,
-        prefetch=False,
-    ))
 # additional hooks
 custom_hooks = [
-    dict(type='ValidateHook',
-        dataset=data['val'],
-        initial=False,
-        interval=1,
-        imgs_per_gpu=100,
-        workers_per_gpu=4,
-        eval_param=dict(topk=(1, 5))),
     dict(type='SAVEHook',
         save_interval=50040,  # plot every 5004 x 10ep
         iter_per_epoch=5004,
@@ -110,6 +59,7 @@ custom_hooks = [
         warming_up="constant",
         interval=1)
 ]
+
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
@@ -121,7 +71,6 @@ optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)
-checkpoint_config = dict(interval=100)
 
 # additional scheduler
 addtional_scheduler = dict(
@@ -130,4 +79,4 @@ addtional_scheduler = dict(
 )
 
 # runtime settings
-total_epochs = 100
+runner = dict(type='EpochBasedRunner', max_epochs=100)

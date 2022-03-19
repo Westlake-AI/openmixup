@@ -16,8 +16,9 @@ class BaseBackbone(nn.Module, metaclass=ABCMeta):
 
     """
 
-    def __init__(self):
+    def __init__(self, init_cfg=None):
         super(BaseBackbone, self).__init__()
+        self.init_cfg = init_cfg
 
     def init_weights(self, pretrained=None):
         """Init backbone weights

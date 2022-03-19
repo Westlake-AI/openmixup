@@ -99,7 +99,7 @@ optimizer_config = dict(grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.05)  # min_lr=5e-2 for the momentum encoder
-checkpoint_config = dict(interval=800)
+checkpoint_config = dict(interval=100, max_keep_ckpts=1)
 
 # runtime settings
-total_epochs = 800
+runner = dict(type='EpochBasedRunner', max_epochs=800)
