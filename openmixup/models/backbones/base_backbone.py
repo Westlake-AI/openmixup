@@ -1,5 +1,3 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# copy from mmclassification base_backbone.py
 import logging
 from abc import ABCMeta, abstractmethod
 

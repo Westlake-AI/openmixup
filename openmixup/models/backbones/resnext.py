@@ -184,9 +184,7 @@ class ResNeXt_CIFAR(ResNeXt):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu(x)
+        x = self.relu(self.norm1(self.conv1(x)))
         outs = []
         for i, layer_name in enumerate(self.res_layers):
             res_layer = getattr(self, layer_name)
@@ -340,9 +338,7 @@ class ResNeXt_Mix(ResNet_mmcls):
         if self.deep_stem:
             x = self.stem(x)
         else:
-            x = self.conv1(x)
-            x = self.norm1(x)
-            x = self.relu(x)
+            x = self.relu(self.norm1(self.conv1(x)))
         x = self.maxpool(x)
 
         outs = []
@@ -475,9 +471,7 @@ class ResNeXt_CIFAR_Mix(ResNet_mmcls):
         if mix_layer == 0:
             x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
         # CIFAR stem
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu(x)
+        x = self.relu(self.norm1(self.conv1(x)))
 
         outs = []
         # stage 1 to 4

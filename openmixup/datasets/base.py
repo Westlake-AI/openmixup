@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
+import numpy as np
 from openmixup.utils import build_from_cfg
 from torch.utils.data import Dataset
 from torchvision.transforms import Compose
@@ -25,6 +26,9 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
         self.pipeline = Compose(pipeline)
         self.prefetch = prefetch
         self.CLASSES = self.data_source.CLASSES
+        self.targets = self.data_source.labels
+        if isinstance(self.targets, list):
+            self.targets = np.array(self.targets)
 
     def __len__(self):
         return self.data_source.get_length()

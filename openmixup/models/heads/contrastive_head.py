@@ -30,8 +30,7 @@ class ContrastiveHead(nn.Module):
             dict[str, Tensor]: A dictionary of loss components.
         """
         N = pos.size(0)
-        logits = torch.cat((pos, neg), dim=1)
-        logits /= self.temperature
+        logits = torch.cat((pos, neg), dim=1) / self.temperature
         labels = torch.zeros((N, ), dtype=torch.long).cuda()
         losses = dict()
         losses['loss'] = self.criterion(logits, labels)

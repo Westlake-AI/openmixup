@@ -209,9 +209,7 @@ class SEResNet_CIFAR(SEResNet):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu(x)
+        x = self.relu(self.norm1(self.conv1(x)))
         outs = []
         for i, layer_name in enumerate(self.res_layers):
             res_layer = getattr(self, layer_name)

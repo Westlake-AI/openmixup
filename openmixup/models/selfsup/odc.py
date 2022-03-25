@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup odc.py
 import numpy as np
 import torch
 

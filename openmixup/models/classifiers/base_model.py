@@ -15,8 +15,8 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
     """Base model class for supervised, semi- and self-supervised learning."""
 
     def __init__(self,
-                 with_sobel=False,
                  init_cfg=None,
+                 with_sobel=False,
                  **kwargs):
         super(BaseModel, self).__init__()
         self.fp16_enabled = False
@@ -88,9 +88,21 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         pass
 
     def forward_vis(self, img, **kwargs):
-        """" visualization by jupyter notebook """
-        pass
+        """Forward backbone features for visualization.
 
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+
+        Returns:
+            dict[str, Tensor]: A dictionary of output features.
+        """
+        feat = self.forward_backbone(img)  # tuple
+        feat = nn.functional.adaptive_avg_pool2d(feat[-1], 1)  # NxCx1x1
+        keys = ['gap']
+        outs = [feat.view(feat.size(0), -1).cpu()]
+        return dict(zip(keys, outs))
+    
     def forward_calibration(self, img, **kwargs):
         x = self.backbone(img)
         preds = self.head(x)

@@ -187,7 +187,7 @@ class WideResNet(BaseBackbone):
         if mode and self.norm_eval:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
-                if isinstance(m, nn.BatchNorm2d):
+                if isinstance(m, nn.BatchNorm2d, nn.SyncBatchNorm):
                     m.eval()
 
 

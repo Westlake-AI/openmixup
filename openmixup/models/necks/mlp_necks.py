@@ -1,10 +1,10 @@
-from packaging import version
 import torch
 import torch.nn as nn
-from mmcv.cnn import constant_init, kaiming_init, normal_init
+
+from mmcv.cnn import (build_norm_layer,
+                      constant_init, kaiming_init, normal_init)
 
 from ..registry import NECKS
-from ..utils import build_norm_layer
 
 
 def _init_weights(module, init_linear='normal', std=0.01, bias=0.):
@@ -25,10 +25,9 @@ def _init_weights(module, init_linear='normal', std=0.01, bias=0.):
 
 @NECKS.register_module
 class AvgPoolNeck(nn.Module):
-    """Average pooling neck.
-    """
+    """Average pooling 2d neck."""
 
-    def __init__(self):
+    def __init__(self, output_size=1):
         super(AvgPoolNeck, self).__init__()
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
@@ -42,81 +41,73 @@ class AvgPoolNeck(nn.Module):
 
 @NECKS.register_module
 class LinearNeck(nn.Module):
-    """Linear neck: fc only.
-    """
+    """The linear neck: fc only.
 
-    def __init__(self, in_channels, out_channels, with_avg_pool=True):
-        super(LinearNeck, self).__init__()
-        self.with_avg_pool = with_avg_pool
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        self.fc = nn.Linear(in_channels, out_channels)
-
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
-
-    def forward(self, x):
-        assert len(x) == 1
-        x = x[0]
-        if self.with_avg_pool:
-            x = self.avgpool(x)
-        return [self.fc(x.view(x.size(0), -1))]
-
-
-@NECKS.register_module
-class RelativeLocNeck(nn.Module):
-    """Relative patch location neck: fc-bn-relu-dropout.
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        with_avg_pool (bool): Whether to apply the global
+            average pooling after backbone. Defaults to True.
+        init_cfg (dict or list[dict], optional): Initialization config dict.
+            Defaults to None.
     """
 
     def __init__(self,
                  in_channels,
                  out_channels,
-                 sync_bn=False,
                  with_avg_pool=True):
-        super(RelativeLocNeck, self).__init__()
-        self.with_avg_pool = with_avg_pool
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        super(LinearNeck, self).__init__()
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
+        self.fc = nn.Linear(in_channels, out_channels)
 
-        if version.parse(torch.__version__) < version.parse("1.4.0"):
-            self.expand_for_syncbn = True
-        else:
-            self.expand_for_syncbn = False
-
-        self.fc = nn.Linear(in_channels * 2, out_channels)
-        if sync_bn:
-            _, self.bn = build_norm_layer(
-                dict(type='SyncBN', momentum=0.003),
-                out_channels)
-        else:
-            self.bn = nn.BatchNorm1d(
-                out_channels, momentum=0.003)
-        self.relu = nn.ReLU(inplace=True)
-        self.drop = nn.Dropout()
-        self.sync_bn = sync_bn
-
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear, std=0.005, bias=0.1)
-
-    def _forward_syncbn(self, module, x):
-        assert x.dim() == 2
-        if self.expand_for_syncbn:
-            x = module(x.unsqueeze(-1).unsqueeze(-1)).squeeze(-1).squeeze(-1)
-        else:
-            x = module(x)
-        return x
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
-        if self.with_avg_pool:
-            x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
+        x = self.avgpool(x).view(x.size(0), -1)
+        return [self.fc(x)]
+
+
+@NECKS.register_module
+class RelativeLocNeck(nn.Module):
+    """The neck of relative patch location: fc-bn-relu-dropout.
+
+    Args:
+        in_channels (int): Number of input channels.
+        out_channels (int): Number of output channels.
+        with_avg_pool (bool): Whether to apply the global
+            average pooling after backbone. Defaults to True.
+        norm_cfg (dict): Dictionary to construct and config norm layer.
+            Defaults to dict(type='BN1d').
+        init_cfg (dict or list[dict], optional): Initialization config dict.
+    """
+
+    def __init__(self,
+                 in_channels,
+                 out_channels,
+                 with_avg_pool=True,
+                 norm_cfg=dict(type='BN1d')):
+        super(RelativeLocNeck, self).__init__()
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
+        self.fc = nn.Linear(in_channels * 2, out_channels)
+        self.bn = build_norm_layer(
+            dict(**norm_cfg, momentum=0.003), out_channels)[1]
+        self.relu = nn.ReLU(inplace=True)
+        self.drop = nn.Dropout()
+
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, std=0.005, bias=0.1)
+
+    def forward(self, x):
+        assert len(x) == 1
+        x = x[0]
+        x = self.avgpool(x).view(x.size(0), -1)
         x = self.fc(x)
-        if self.sync_bn:
-            x = self._forward_syncbn(self.bn, x)
-        else:
-            x = self.bn(x)
+        x = self.bn(x)
         x = self.relu(x)
         x = self.drop(x)
         return [x]
@@ -124,61 +115,43 @@ class RelativeLocNeck(nn.Module):
 
 @NECKS.register_module
 class ODCNeck(nn.Module):
-    """The non-linear neck in ODC, fc-bn-relu-dropout-fc-relu.
+    """The non-linear neck of ODC: fc-bn-relu-dropout-fc-relu.
+
+    Args:
+        in_channels (int): Number of input channels.
+        hid_channels (int): Number of hidden channels.
+        out_channels (int): Number of output channels.
+        with_avg_pool (bool): Whether to apply the global
+            average pooling after backbone. Defaults to True.
+        norm_cfg (dict): Dictionary to construct and config norm layer.
+            Defaults to dict(type='SyncBN').
+        init_cfg (dict or list[dict], optional): Initialization config dict.
     """
 
     def __init__(self,
                  in_channels,
                  hid_channels,
                  out_channels,
-                 sync_bn=False,
+                 norm_cfg=dict(type='SyncBN'),
                  with_avg_pool=True):
         super(ODCNeck, self).__init__()
-        self.with_avg_pool = with_avg_pool
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-
-        if version.parse(torch.__version__) < version.parse("1.4.0"):
-            self.expand_for_syncbn = True
-        else:
-            self.expand_for_syncbn = False
-
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
         self.fc0 = nn.Linear(in_channels, hid_channels)
-        if sync_bn:
-            _, self.bn0 = build_norm_layer(
-                dict(type='SyncBN', momentum=0.001, affine=False),
-                hid_channels)
-        else:
-            self.bn0 = nn.BatchNorm1d(
-                hid_channels, momentum=0.001, affine=False)
-
+        self.bn0 = build_norm_layer(
+            dict(**norm_cfg, momentum=0.001, affine=False), hid_channels)[1]
         self.fc1 = nn.Linear(hid_channels, out_channels)
         self.relu = nn.ReLU(inplace=True)
         self.drop = nn.Dropout()
-        self.sync_bn = sync_bn
 
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
-
-    def _forward_syncbn(self, module, x):
-        assert x.dim() == 2
-        if self.expand_for_syncbn:
-            x = module(x.unsqueeze(-1).unsqueeze(-1)).squeeze(-1).squeeze(-1)
-        else:
-            x = module(x)
-        return x
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
-        if self.with_avg_pool:
-            x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
         x = self.fc0(x)
-        if self.sync_bn:
-            x = self._forward_syncbn(self.bn0, x)
-        else:
-            x = self.bn0(x)
+        x = self.bn0(x)
         x = self.relu(x)
         x = self.drop(x)
         x = self.fc1(x)
@@ -189,7 +162,6 @@ class ODCNeck(nn.Module):
 @NECKS.register_module
 class MoCoV2Neck(nn.Module):
     """The non-linear neck in MoCo v2: fc-relu-fc.
-        v12.29: add activation choices.
 
     Args:
         in_channels (int): Number of input channels.
@@ -203,35 +175,22 @@ class MoCoV2Neck(nn.Module):
                  in_channels,
                  hid_channels,
                  out_channels,
-                 activation="ReLU",  # add 12.29
                  with_avg_pool=True):
         super(MoCoV2Neck, self).__init__()
-        self.with_avg_pool = with_avg_pool
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
-        if activation != "ReLU":
-            assert activation in ["LeakyReLU", "Tanh", "ELU", "Sigmoid"]
-            if activation == "Tanh" or activation == "Sigmoid":  # add 12.30
-                inplace_choice = ""
-            else:
-                inplace_choice = "inplace=True"
-            self.mlp = nn.Sequential(  # using my activation func
-                nn.Linear(in_channels, hid_channels), eval( "nn.{}({})".format(activation, inplace_choice) ),
-                nn.Linear(hid_channels, out_channels))
-        else:  # ori in MoCo.v2 (ReLU)
-            self.mlp = nn.Sequential(
-                nn.Linear(in_channels, hid_channels), nn.ReLU(inplace=True),
-                nn.Linear(hid_channels, out_channels))
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
+        self.mlp = nn.Sequential(
+            nn.Linear(in_channels, hid_channels), nn.ReLU(inplace=True),
+            nn.Linear(hid_channels, out_channels))
 
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
-        if self.with_avg_pool:
-            x = self.avgpool(x)
-        return [self.mlp(x.view(x.size(0), -1))]
+        x = self.avgpool(x).view(x.size(0), -1)
+        return [self.mlp(x)]
 
 
 @NECKS.register_module()
@@ -275,9 +234,8 @@ class NonLinearNeck(nn.Module):
                  norm_cfg=dict(type='SyncBN'),
                 ):
         super(NonLinearNeck, self).__init__()
-        self.with_avg_pool = with_avg_pool
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
         self.relu = nn.ReLU(inplace=True)
         self.fc0 = nn.Linear(in_channels, hid_channels, bias=with_bias)
         self.bn0 = build_norm_layer(norm_cfg, hid_channels)[1]
@@ -310,21 +268,17 @@ class NonLinearNeck(nn.Module):
                     self.bn_names.append(None)
             self.fc_names.append(f'fc{i}')
 
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
-        if self.with_avg_pool:
-            x = self.avgpool(x)
-        x = x.view(x.size(0), -1)
-        x = self.fc0(x)
-        x = self.bn0(x)
+        x = self.avgpool(x).view(x.size(0), -1)
+        x = self.bn0(self.fc0(x))
         for fc_name, bn_name in zip(self.fc_names, self.bn_names):
             fc = getattr(self, fc_name)
-            x = self.relu(x)
-            x = fc(x)
+            x = fc(self.relu(x))
             if bn_name is not None:
                 bn = getattr(self, bn_name)
                 x = bn(x)
@@ -356,10 +310,9 @@ class SwAVNeck(nn.Module):
                  norm_cfg=dict(type='SyncBN'),
                 ):
         super(SwAVNeck, self).__init__()
-        self.with_avg_pool = with_avg_pool
         self.with_l2norm = with_l2norm
-        if with_avg_pool:
-            self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
         if out_channels == 0:
             self.projection_neck = None
         elif hid_channels == 0:
@@ -370,8 +323,8 @@ class SwAVNeck(nn.Module):
                 nn.Linear(in_channels, hid_channels), self.bn,
                 nn.ReLU(inplace=True), nn.Linear(hid_channels, out_channels))
 
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward_projection(self, x):
         if self.projection_neck is not None:
@@ -386,9 +339,7 @@ class SwAVNeck(nn.Module):
         avg_out = []
         for _x in x:
             _x = _x[0]
-            if self.with_avg_pool:
-                _out = self.avgpool(_x)
-                avg_out.append(_out)
+            avg_out.append(self.avgpool(_x))
         feat_vec = torch.cat(avg_out)  # [sum(num_crops) * N, C]
         feat_vec = feat_vec.view(feat_vec.size(0), -1)
         output = self.forward_projection(feat_vec)
@@ -422,15 +373,15 @@ class DenseCLNeck(nn.Module):
             nn.Linear(hid_channels, out_channels))
 
         self.with_pool = True if num_grid is not None else False
-        if self.with_pool:
-            self.pool = nn.AdaptiveAvgPool2d((num_grid, num_grid))
+        self.pool = nn.AdaptiveAvgPool2d((num_grid, num_grid)) \
+            if self.with_pool else nn.Identity()
         self.mlp2 = nn.Sequential(
             nn.Conv2d(in_channels, hid_channels, 1), nn.ReLU(inplace=True),
             nn.Conv2d(hid_channels, out_channels, 1))
         self.avgpool2 = nn.AdaptiveAvgPool2d((1, 1))
 
-    def init_weights(self, init_linear='normal'):
-        _init_weights(self, init_linear)
+    def init_weights(self, init_linear='normal', **kwargs):
+        _init_weights(self, init_linear, **kwargs)
 
     def forward(self, x):
         """Forward function of neck.
@@ -440,13 +391,10 @@ class DenseCLNeck(nn.Module):
         """
         assert len(x) == 1
         x = x[0]
-
         avgpooled_x = self.avgpool(x)
         avgpooled_x = self.mlp(avgpooled_x.view(avgpooled_x.size(0), -1))
 
-        if self.with_pool:
-            x = self.pool(x)  # sxs
-        x = self.mlp2(x)  # sxs: bxdxsxs
+        x = self.mlp2(self.pool(x))  # sxs: bxdxsxs
         avgpooled_x2 = self.avgpool2(x)  # 1x1: bxdx1x1
         x = x.view(x.size(0), x.size(1), -1)  # bxdxs^2
         avgpooled_x2 = avgpooled_x2.view(avgpooled_x2.size(0), -1)  # bxd

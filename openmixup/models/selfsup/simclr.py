@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup simclr.py
 import torch
 
 from openmixup.utils import print_log

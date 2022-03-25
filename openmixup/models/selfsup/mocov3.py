@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup mocov3.py
 import torch
 import torch.nn as nn
 
@@ -6,7 +8,6 @@ from openmixup.utils import print_log
 from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import concat_all_gather
 
 
 @MODELS.register_module
@@ -15,6 +16,9 @@ class MoCoV3(BaseModel):
 
     Implementation of `An Empirical Study of Training Self-Supervised Vision
     Transformers <https://arxiv.org/abs/2104.02057>`_.
+
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook`
+        after_train_iter in `momentum_hook.py`.
 
     Args:
         backbone (dict): Config dict for module of backbone.
@@ -70,7 +74,7 @@ class MoCoV3(BaseModel):
 
     @torch.no_grad()
     def momentum_update(self):
-        """Momentum update of the momentum encoder."""
+        """Momentum update of the momentum encoder by hook."""
         for param_b, param_m in zip(self.base_encoder.parameters(),
                                     self.momentum_encoder.parameters()):
             param_m.data = param_m.data * self.momentum + \

@@ -17,6 +17,9 @@ class DMixMatch(BaseModel):
     Implementation of DMixMatch (using Decoupled Mixup)
         based on FixMatch, FlexMatch and mixup methods.
 
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook`
+        after_train_iter in `momentum_hook.py`.
+
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
         head (dict): Config dict for module of loss functions. Default: None.
@@ -264,7 +267,7 @@ class DMixMatch(BaseModel):
             self.weight_mix_ll = max(1e-5, self.weight_mix_ll)
 
     @torch.no_grad()
-    def _momentum_update(self):
+    def momentum_update(self):
         """Momentum update of the EMA encoder."""
         for param_q, param_k in zip(self.encoder.parameters(),
                                     self.encoder_k.parameters()):
@@ -296,10 +299,8 @@ class DMixMatch(BaseModel):
         assert img.dim() == 5 and img.size(1) == 3, \
             "Input both must have 5 dims, got: {} and {}".format(img.dim(), img.size(1))
         bs, _, c, h, w = img.size()
-        # update EMA encoder and loss weights
-        with torch.no_grad():
-            self._momentum_update()
-            self._update_loss_weights()
+        # update loss weights
+        self._update_loss_weights()
         
         # ============= labeled data =============
         if self.deduplicate:
@@ -319,8 +320,7 @@ class DMixMatch(BaseModel):
             img_labeled = img[:num_l, 0, ...].contiguous()
         # 1.1 head q one-hot cls
         pred_l = self.encoder(img_labeled)  # logits: N_lxC
-        loss_inputs = (pred_l, gt_labels[:num_l, ...])
-        loss_l = self.encoder[1].loss(*loss_inputs)
+        loss_l = self.encoder[1].loss(pred_l, gt_labels[:num_l, ...])
         # 1.2 mixup between labeled data
         loss_mix_ll = None
         if self.head_mix is not None and self.weight_mix_ll > 0:
@@ -331,8 +331,7 @@ class DMixMatch(BaseModel):
             if self.weight_mix_ll < 1e-3:
                 mixed_x = mixed_x.detach()
             pred_mix_ll = self.head_mix([mixed_x])
-            loss_inputs = (pred_mix_ll, mixed_labels)
-            loss_mix_ll = self.head_mix.loss(*loss_inputs)
+            loss_mix_ll = self.head_mix.loss(pred_mix_ll, mixed_labels)
 
         # ============= unlabeled data =============
         if self.ema_pseudo > np.random.random():

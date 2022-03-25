@@ -17,6 +17,9 @@ class FixMatch(BaseModel):
         * Tensorflow (official): https://github.com/google-research/fixmatch
         * PyTorch (flexmatch): https://github.com/torchssl/torchssl
 
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook`
+        after_train_iter in `momentum_hook.py`.
+    
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
         head (dict): Config dict for module of loss functions. Default: None.
@@ -85,7 +88,7 @@ class FixMatch(BaseModel):
             param_k.requires_grad = False
 
     @torch.no_grad()
-    def _momentum_update(self):
+    def momentum_update(self):
         """Momentum update of the EMA encoder."""
         for param_q, param_k in zip(self.encoder.parameters(),
                                     self.encoder_k.parameters()):
@@ -126,12 +129,9 @@ class FixMatch(BaseModel):
             num_l = img.size(0) // self.ratio_ul
             img_labeled = img[:num_l, 0, ...].contiguous()
 
-        with torch.no_grad():  # no gradient to keys
-            self._momentum_update()  # update the key encoder
         # head q
         logits_l = self.encoder(img_labeled)  # logits: N_lxC
-        loss_inputs = (logits_l, gt_labels[:num_l, ...])
-        loss_l = self.encoder[1].loss(*loss_inputs)
+        loss_l = self.encoder[1].loss(logits_l, gt_labels[:num_l, ...])
         
         # for unlabeled data
         if self.ema_pseudo > np.random.random():

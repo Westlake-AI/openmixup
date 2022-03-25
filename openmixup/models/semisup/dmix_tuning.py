@@ -373,8 +373,7 @@ class DMixTuning(BaseModel):
         if self.head_one is not None and self.weight_one > 0:
             x = self.encoder_q(img_labeled_q)[-1]
             outs = self.head_one([x])
-            loss_inputs = (outs, gt_labels)
-            one_loss = self.head_one.loss(*loss_inputs)
+            one_loss = self.head_one.loss(outs, gt_labels)
 
         img_labeled_q = img[:, 0, ...].contiguous()
         # 1.3 mixup between labeled data
@@ -382,8 +381,7 @@ class DMixTuning(BaseModel):
         if self.head_mix is not None and self.weight_mix_ll > 0:
             mixed_x, mixed_labels = self.mixup(img_labeled_q, gt_labels)
             outs = self.head_mix([mixed_x])
-            loss_inputs = (outs, mixed_labels)
-            mix_loss_ll = self.head_mix.loss(*loss_inputs)
+            mix_loss_ll = self.head_mix.loss(outs, mixed_labels)
         
         # ============= unlabeled data =============
         img_unlabeled_q = img[:, 2, ...].contiguous()

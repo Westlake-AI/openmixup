@@ -10,11 +10,12 @@ import torch.nn.functional as F
 from torch.nn import ModuleList, Sequential
 from mmcv.cnn.bricks import (NORM_LAYERS, build_activation_layer,
                              build_norm_layer)
-from mmcv.cnn.utils.weight_init import constant_init
+from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
+from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import DropPath, lecun_normal_init, trunc_normal_init
+from ..utils import DropPath, lecun_normal_init
 
 
 @NORM_LAYERS.register_module('LN2d')
@@ -214,8 +215,9 @@ class ConvNeXt(BaseBackbone):
                  out_indices=-1,
                  frozen_stages=0,
                  gap_before_final_norm=True,
+                 init_cfg=None,
                  **kwargs):
-        super().__init__()
+        super().__init__(init_cfg)
 
         if isinstance(arch, str):
             assert arch in self.arch_settings, \
@@ -353,3 +355,8 @@ class ConvNeXt(BaseBackbone):
     def train(self, mode=True):
         super(ConvNeXt, self).train(mode)
         self._freeze_stages()
+        if mode and self.norm_eval:
+            for m in self.modules():
+                # trick: eval have effect on BatchNorm only
+                if isinstance(m, _BatchNorm, nn.SyncBatchNorm):
+                    m.eval()

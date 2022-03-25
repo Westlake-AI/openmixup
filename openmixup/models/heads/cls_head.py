@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import kaiming_init, normal_init
 
-from ..utils import accuracy, accuracy_mixup
+from ..utils import accuracy, accuracy_mixup, trunc_normal_init
 from ..registry import HEADS
 from ..builder import build_loss
 
@@ -46,33 +46,29 @@ class ClsHead(nn.Module):
             loss = dict(type='CrossEntropyLoss', loss_weight=1.0)
             self.criterion = build_loss(loss)
         # pooling
-        if self.with_avg_pool:
-            self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if self.with_avg_pool else nn.Identity()
         # fc layer
-        self.fc_cls = nn.Linear(in_channels, num_classes)
+        self.fc = nn.Linear(in_channels, num_classes)
         if frozen:
             self.frozen()
 
     def frozen(self):
-        self.fc_cls.eval()
-        for param in self.fc_cls.parameters():
+        self.fc.eval()
+        for param in self.fc.parameters():
             param.requires_grad = False
 
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
-        assert init_linear in ['normal', 'kaiming'], \
+        assert init_linear in ['normal', 'kaiming', 'trunc_normal'], \
             "Undefined init_linear: {}".format(init_linear)
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 if init_linear == 'normal':
                     normal_init(m, std=std, bias=bias)
-                else:
+                elif init_linear == 'kaiming':
                     kaiming_init(m, mode='fan_in', nonlinearity='relu')
-            elif isinstance(m,
-                            (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                if m.weight is not None:
-                    nn.init.constant_(m.weight, 1)
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
+                elif init_linear == 'trunc_normal':
+                    trunc_normal_init(m, std=std, bias=bias)
 
     def forward(self, x):
         assert isinstance(x, (tuple, list)) and len(x) == 1
@@ -80,10 +76,8 @@ class ClsHead(nn.Module):
         if self.with_avg_pool:
             assert x.dim() == 4, \
                 "Tensor must has 4 dims, got: {}".format(x.dim())
-            x = self.avg_pool(x)
-        x = x.view(x.size(0), -1)
-        cls_score = self.fc_cls(x)
-        return [cls_score]
+        x = self.avg_pool(x).view(x.size(0), -1)
+        return [self.fc(x)]
 
     def loss(self, cls_score, labels, **kwargs):
         """" cls loss forward

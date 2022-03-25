@@ -26,6 +26,9 @@ class AutoMixup(BaseModel):
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
         "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
             Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
+
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook` after
+        train_iter; `mask_loss` is adjusted by `CustomCosineAnnealingHook`.
     
     Args:
         backbone (dict): Config dict for module of backbone ConvNet (main).
@@ -214,8 +217,8 @@ class AutoMixup(BaseModel):
                 param_mix_k.requires_grad = False  # stop grad k
 
     @torch.no_grad()
-    def _momentum_update(self):
-        """Momentum update of the k form q, including the backbone and heads """
+    def momentum_update(self):
+        """Momentum update of the k form q by hook, including the backbone and heads """
         # we don't update q to k when momentum > 1
         if self.momentum >= 1.:
             return
@@ -275,9 +278,6 @@ class AutoMixup(BaseModel):
         else:
             index_bb = torch.randperm(batch_size).cuda()
             index_mb = torch.randperm(batch_size).cuda()
-
-        with torch.no_grad():
-            self._momentum_update()
 
         # auto Mixup
         indices = [index_mb, index_bb]
@@ -371,8 +371,7 @@ class AutoMixup(BaseModel):
             out_one_q = self.backbone_q(x)[-1]
             pred_one_q = self.head_one_q([out_one_q])
             # loss
-            error_one_q = (pred_one_q, y)
-            loss_one_q = self.head_one_q.loss(*error_one_q)
+            loss_one_q = self.head_one_q.loss(pred_one_q, y)
             if torch.isnan(loss_one_q['loss']):
                 print_log("Warming NAN loss: loss_one_q. Force FP32!", logger='root')
                 loss_one_q = None
@@ -386,8 +385,7 @@ class AutoMixup(BaseModel):
             pred_mix_q[0] = pred_mix_q[0].type(torch.float32)
             # mixup loss
             y_mix_q = (y, y[index], lam)
-            error_mix_q = (pred_mix_q, y_mix_q)
-            loss_mix_q = self.head_mix_q.loss(*error_mix_q)
+            loss_mix_q = self.head_mix_q.loss(pred_mix_q, y_mix_q)
             if torch.isnan(loss_mix_q['loss']):
                 print_log("Warming NAN loss: loss_mix_q. Exit.", logger='root')
                 loss_mix_q = None
@@ -406,8 +404,7 @@ class AutoMixup(BaseModel):
             pred_mix_k[0] = pred_mix_k[0].type(torch.float32)
             # k mixup loss
             y_mix_k = (y, y[index], lam)
-            error_mix_k = (pred_mix_k, y_mix_k)
-            loss_mix_k = self.head_mix_k.loss(*error_mix_k)
+            loss_mix_k = self.head_mix_k.loss(pred_mix_k, y_mix_k)
             if torch.isnan(loss_mix_k['loss']):
                 print_log("Warming NAN loss: loss_mix_k. Exit.", logger='root')
                 loss_mix_k = dict()
@@ -424,9 +421,8 @@ class AutoMixup(BaseModel):
             pred_mix_mb = self.mix_block.pre_head(out_mb)
             # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
             pred_mix_mb[0] = pred_mix_mb[0].type(torch.float32)
-            error_mix_mb = (pred_mix_mb, y_mix_k)
             loss_mix_k["pre_mix_loss"] = \
-                self.mix_block.pre_head.loss(*error_mix_mb)["loss"] * self.pre_mix_loss
+                self.mix_block.pre_head.loss(pred_mix_mb, y_mix_k)["loss"] * self.pre_mix_loss
             if torch.isnan(loss_mix_k["pre_mix_loss"]):
                 print_log("Warming NAN loss: pre_mix_loss.", logger='root')
                 loss_mix_k["pre_mix_loss"] = None
@@ -477,9 +473,8 @@ class AutoMixup(BaseModel):
         if self.pre_one_loss > 0.:
             pred_one = self.mix_block.pre_head([mask_mb["x_lam"]])
             y_one = (y, y, 1)
-            error_one = (pred_one, y_one)
             results["pre_one_loss"] = \
-                self.mix_block.pre_head.loss(*error_one)["loss"] * self.pre_one_loss
+                self.mix_block.pre_head.loss(pred_one, y_one)["loss"] * self.pre_one_loss
             if torch.isnan(results["pre_one_loss"]):
                 print_log("Warming NAN loss: pre_one_loss.", logger='root')
                 results["pre_one_loss"] = None

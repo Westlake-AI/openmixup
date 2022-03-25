@@ -64,6 +64,8 @@ class ConvNeck(nn.Module):
         self.with_avg_pool = bool(with_avg_pool)
         self.with_last_norm = bool(with_last_norm)
         self.with_residual = bool(with_residual)
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
+            if with_avg_pool else nn.Identity()
         if isinstance(with_last_dropout, dict):
             _type = with_last_dropout.pop('type', None)
             _prob = with_last_dropout.pop('prob', 0.)
@@ -112,8 +114,9 @@ class ConvNeck(nn.Module):
     def forward(self, x):
         assert len(x) == 1, "Got: {}".format(len(x))
         res = x[0]
-        x = self.conv(x[0])
-        x = self.dropout(x)
+        x = self.dropout(self.conv(x[0]))
+        if self.with_avg_pool:
+            x = self.avgpool(x).view(x.size(0), -1)
         if self.with_residual:
             x = x + res
         return [x]

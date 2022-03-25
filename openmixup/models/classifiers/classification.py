@@ -62,8 +62,7 @@ class Classification(BaseModel):
         if self.with_neck:
             x = self.neck(x)
         outs = self.head(x)
-        loss_inputs = (outs, gt_label)
-        losses = self.head.loss(*loss_inputs)
+        losses = self.head.loss(outs, gt_label)
         return losses
 
     def forward_test(self, img, **kwargs):

@@ -7,12 +7,12 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
-from mmcv.cnn import ConvModule, kaiming_init, constant_init
+from mmcv.cnn import ConvModule, kaiming_init, constant_init, trunc_normal_init
+from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import (DropPath, InvertedResidual, SELayer,
-                     make_divisible, trunc_normal_init)
+from ..utils import DropPath, InvertedResidual, SELayer, make_divisible
 
 
 class EdgeResidual(nn.Module):
@@ -400,7 +400,8 @@ class EfficientNet(BaseBackbone):
         self._freeze_stages()
         if mode and self.norm_eval:
             for m in self.modules():
-                if isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                # trick: eval have effect on BatchNorm only
+                if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()
 
     def forward(self, x):
@@ -411,5 +412,4 @@ class EfficientNet(BaseBackbone):
                 outs.append(x)
                 if len(self.out_indices) == 1:
                     return outs
-
         return outs

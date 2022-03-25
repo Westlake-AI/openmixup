@@ -1,6 +1,9 @@
 from math import cos, pi
+
+from mmcv.parallel import is_module_wrapper
 from mmcv.runner import Hook
 
+from openmixup.utils import print_log
 from .registry import HOOKS
 
 
@@ -31,13 +34,24 @@ class CosineHook(Hook):
         self.adjust_scope = adjust_scope
         self.update_interval = update_interval
         self.restart_step = int(min(max(restart_step, 1), 1e10))
+        self.run_momentum_update = False
         assert adjust_scope >= 0.
 
-    def before_train_iter(self, runner):
+    def before_run(self, runner):
         assert hasattr(runner.model.module, 'momentum'), \
-            "The runner must have attribute \"momentum\" in BYOLHook."
+            "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
-            "The runner must have attribute \"base_momentum\" in BYOLHook."
+            "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if is_module_wrapper(runner.model):
+            self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
+        else:
+            self.run_momentum_update = hasattr(runner.model, 'momentum_update')
+        if self.run_momentum_update:
+            print_log("Execute `momentum_update()` after training iter.", logger='root')
+        else:
+            print_log("Only update `momentum` without `momentum_update()`", logger='root')
+
+    def before_train_iter(self, runner):
         if self.every_n_iters(runner, self.update_interval):
             cur_iter = runner.iter
             if self.adjust_scope < 1:
@@ -52,6 +66,15 @@ class CosineHook(Hook):
                     m = self.end_momentum - (self.end_momentum - base_m) * (
                         cos(pi * cur_iter / float(max_iter)) + 1) / 2
                 runner.model.module.momentum = m
+
+    def after_train_iter(self, runner):
+        if self.run_momentum_update == False:
+            return
+        if self.every_n_iters(runner, self.update_interval):
+            if is_module_wrapper(runner.model):
+                runner.model.module.momentum_update()
+            else:
+                runner.model.momentum_update()
 
 
 @HOOKS.register_module
@@ -82,13 +105,24 @@ class StepHook(Hook):
         self.adjust_scope = adjust_scope
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.run_momentum_update = False
         assert 0 <= adjust_scope and 0 < gamma < 1
 
-    def before_train_iter(self, runner):
+    def before_run(self, runner):
         assert hasattr(runner.model.module, 'momentum'), \
-            "The runner must have attribute \"momentum\" in BYOLHook."
+            "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
-            "The runner must have attribute \"base_momentum\" in BYOLHook."
+            "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if is_module_wrapper(runner.model):
+            self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
+        else:
+            self.run_momentum_update = hasattr(runner.model, 'momentum_update')
+        if self.run_momentum_update:
+            print_log("Execute `momentum_update()` after training iter.", logger='root')
+        else:
+            print_log("Only update `momentum` without `momentum_update()`", logger='root')
+
+    def before_train_iter(self, runner):
         if self.every_n_iters(runner, self.update_interval):
             cur_iter = runner.iter
             if self.adjust_scope < 1:
@@ -107,6 +141,15 @@ class StepHook(Hook):
                             break
             else:
                 pass
+
+    def after_train_iter(self, runner):
+        if self.run_momentum_update == False:
+            return
+        if self.every_n_iters(runner, self.update_interval):
+            if is_module_wrapper(runner.model):
+                runner.model.module.momentum_update()
+            else:
+                runner.model.momentum_update()
 
 
 @HOOKS.register_module
@@ -140,13 +183,24 @@ class CosineScheduleHook(Hook):
         self.warming_up = warming_up
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.run_momentum_update = False
         assert len(adjust_scope) == 2 and adjust_scope[0] <= adjust_scope[1]
 
-    def before_train_iter(self, runner):
+    def before_run(self, runner):
         assert hasattr(runner.model.module, 'momentum'), \
-            "The runner must have attribute \"momentum\" in BYOLHook."
+            "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
-            "The runner must have attribute \"base_momentum\" in BYOLHook."
+            "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if is_module_wrapper(runner.model):
+            self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
+        else:
+            self.run_momentum_update = hasattr(runner.model, 'momentum_update')
+        if self.run_momentum_update:
+            print_log("Execute `momentum_update()` after training iter.", logger='root')
+        else:
+            print_log("Only update `momentum` without `momentum_update()`", logger='root')
+
+    def before_train_iter(self, runner):
         if self.every_n_iters(runner, self.update_interval):
             cur_iter = runner.iter
             base_m = runner.model.module.base_momentum
@@ -179,6 +233,15 @@ class CosineScheduleHook(Hook):
                         assert self.warming_up in ["linear", "constant"]
                 else:
                     pass
+
+    def after_train_iter(self, runner):
+        if self.run_momentum_update == False:
+            return
+        if self.every_n_iters(runner, self.update_interval):
+            if is_module_wrapper(runner.model):
+                runner.model.module.momentum_update()
+            else:
+                runner.model.momentum_update()
 
 
 @HOOKS.register_module
@@ -217,13 +280,24 @@ class StepScheduleHook(Hook):
         self.warming_up = warming_up
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.run_momentum_update = False
         assert 0 <= adjust_scope and 0 < gamma < 1
 
-    def before_train_iter(self, runner):
+    def before_run(self, runner):
         assert hasattr(runner.model.module, 'momentum'), \
-            "The runner must have attribute \"momentum\" in BYOLHook."
+            "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
-            "The runner must have attribute \"base_momentum\" in BYOLHook."
+            "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if is_module_wrapper(runner.model):
+            self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
+        else:
+            self.run_momentum_update = hasattr(runner.model, 'momentum_update')
+        if self.run_momentum_update:
+            print_log("Execute `momentum_update()` after training iter.", logger='root')
+        else:
+            print_log("Only update `momentum` without `momentum_update()`", logger='root')
+
+    def before_train_iter(self, runner):
         if self.every_n_iters(runner, self.update_interval):
             cur_iter = runner.iter
             base_m = runner.model.module.base_momentum
@@ -259,3 +333,12 @@ class StepScheduleHook(Hook):
                         assert self.warming_up in ["linear", "constant"]
                 else:
                     pass
+
+    def after_train_iter(self, runner):
+        if self.run_momentum_update == False:
+            return
+        if self.every_n_iters(runner, self.update_interval):
+            if is_module_wrapper(runner.model):
+                runner.model.module.momentum_update()
+            else:
+                runner.model.momentum_update()

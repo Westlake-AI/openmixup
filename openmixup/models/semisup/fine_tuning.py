@@ -58,8 +58,7 @@ class FineTuning(BaseModel):
         img = img[:, 0, ...].contiguous()
         x = self.forward_backbone(img)
         outs = self.head(x)
-        loss_inputs = (outs, gt_labels)
-        losses = self.head.loss(*loss_inputs)
+        losses = self.head.loss(outs, gt_labels)
         return losses
 
     def forward_test(self, img, **kwargs):

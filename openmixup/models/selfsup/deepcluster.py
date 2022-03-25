@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup deepcluster.py
 import numpy as np
 import torch
 

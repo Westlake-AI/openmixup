@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup byol.py
 import torch
 import torch.nn as nn
 
@@ -14,6 +16,9 @@ class BYOL(BaseModel):
 
     Implementation of "Bootstrap Your Own Latent: A New Approach to
     Self-Supervised Learning (https://arxiv.org/abs/2006.07733)".
+
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook`
+        after_train_iter in `momentum_hook.py`.
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
@@ -70,7 +75,7 @@ class BYOL(BaseModel):
 
     @torch.no_grad()
     def momentum_update(self):
-        """Momentum update of the target network."""
+        """Momentum update of the target network by hook."""
         for param_ol, param_tgt in zip(self.online_net.parameters(),
                                        self.target_net.parameters()):
             param_tgt.data = param_tgt.data * self.momentum + \

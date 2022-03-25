@@ -28,6 +28,9 @@ class AutoMixup_V2(BaseModel):
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
         "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
             Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
+
+    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook` after
+        train_iter; `mask_loss` is adjusted by `CustomCosineAnnealingHook`.
     
     Args:
         backbone (dict): Config dict for module of backbone ConvNet (main).
@@ -233,8 +236,8 @@ class AutoMixup_V2(BaseModel):
                 param_mix_k.requires_grad = False  # stop grad k
 
     @torch.no_grad()
-    def _momentum_update(self):
-        """Momentum update of the k form q, including the backbone and heads """
+    def momentum_update(self):
+        """Momentum update of the k form q by hook, including the backbone and heads """
         # we don't update q to k when momentum > 1
         if self.momentum >= 1.:
             return
@@ -295,8 +298,6 @@ class AutoMixup_V2(BaseModel):
             index_bb = torch.randperm(batch_size).cuda()
             index_mb = torch.randperm(batch_size).cuda()
 
-        with torch.no_grad():
-            self._momentum_update()
         # hard example mining for bb: rescale lam
         if self.HEM_lam_thr > 0:
             _thr = min(self.HEM_lam_thr * 2, 0.5)

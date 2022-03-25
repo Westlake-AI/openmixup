@@ -207,8 +207,7 @@ class SelfTuning(BaseModel):
         img_labeled_q = img[:, 0, ...].contiguous()
         x = self.encoder_q(img_labeled_q)[-1]
         outs = self.head_cls([x])
-        loss_inputs = (outs, gt_labels)
-        CE_loss = self.head_cls.loss(*loss_inputs)
+        CE_loss = self.head_cls.loss(outs, gt_labels)
 
         # for unlabeled data
         img_unlabeled_q = img[:, 2, ...].contiguous()

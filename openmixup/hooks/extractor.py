@@ -1,6 +1,7 @@
 import torch.nn as nn
 from torch.utils.data import Dataset
 
+from openmixup import datasets
 from openmixup.utils import nondist_forward_collect, dist_forward_collect
 
 
@@ -21,27 +22,32 @@ class Extractor(object):
                  dataset,
                  imgs_per_gpu,
                  workers_per_gpu,
-                 dist_mode=False):
-        from openmixup import datasets
+                 forward_mode='extract',
+                 dist_mode=False,
+                 **kwargs):
         if isinstance(dataset, Dataset):
             self.dataset = dataset
         elif isinstance(dataset, dict):
             self.dataset = datasets.build_dataset(dataset)
         else:
             raise TypeError(
-                'dataset must be a Dataset object or a dict, not {}'.format(
-                    type(dataset)))
+                f'dataset must be a Dataset object or a dict, not {type(dataset)}')
         self.data_loader = datasets.build_dataloader(
             self.dataset,
             imgs_per_gpu,
             workers_per_gpu,
             dist=dist_mode,
-            shuffle=False)
+            shuffle=False,
+            prefetch=kwargs.get('prefetch', False),
+            img_norm_cfg=kwargs.get('img_norm_cfg', dict()),
+        )
+        assert forward_mode in ['test', 'vis', 'extract',]
+        self.forward_mode = forward_mode
         self.dist_mode = dist_mode
         self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
 
     def _forward_func(self, runner, **x):
-        backbone_feat = runner.model(mode='extract', **x)
+        backbone_feat = runner.model(mode=self.forward_mode, **x)
         last_layer_feat = runner.model.module.neck([backbone_feat[-1]])[0]
         last_layer_feat = last_layer_feat.view(last_layer_feat.size(0), -1)
         return dict(feature=last_layer_feat.cpu())

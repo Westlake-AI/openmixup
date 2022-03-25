@@ -11,5 +11,5 @@ from .contrastive import ContrastiveDataset
 from .deepcluster_contrastive import ClusterContrastiveDataset
 from .dataset_wrappers import ConcatDataset, RepeatDataset
 from .loader import DistributedGroupSampler, GroupSampler, build_dataloader
-from .registry import DATASETS
+from .registry import DATASOURCES, DATASETS, PIPELINES
 from .semi_supervised import SemiSupervisedDataset

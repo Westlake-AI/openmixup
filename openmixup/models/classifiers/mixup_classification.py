@@ -278,8 +278,7 @@ class MixUpClassification(BaseModel):
             self.plot_mix(img_mixed=img, mix_mode=cur_mode, lam=plot_lam)
         # mixup loss
         outs = self.head(x)
-        loss_inputs = (outs, gt_label)
-        losses = self.head.loss(*loss_inputs)
+        losses = self.head.loss(outs, gt_label)
         return losses, cur_idx
 
     def forward_train(self, img, gt_label, **kwargs):

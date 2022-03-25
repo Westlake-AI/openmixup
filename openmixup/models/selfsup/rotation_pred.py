@@ -1,3 +1,5 @@
+# reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
+# modified from mmselfsup rotation_pred.py
 import torch
 
 from openmixup.utils import auto_fp16, print_log

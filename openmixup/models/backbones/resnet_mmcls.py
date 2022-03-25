@@ -639,9 +639,7 @@ class ResNet_mmcls(BaseBackbone):
         if self.deep_stem:
             x = self.stem(x)
         else:
-            x = self.conv1(x)
-            x = self.norm1(x)
-            x = self.relu(x)
+            x = self.relu(self.norm1(self.conv1(x)))
         x = self.maxpool(x)
         outs = []
         for i, layer_name in enumerate(self.res_layers):
@@ -659,7 +657,7 @@ class ResNet_mmcls(BaseBackbone):
         if mode and self.norm_eval:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
-                if isinstance(m, _BatchNorm):
+                if isinstance(m, _BatchNorm, nn.SyncBatchNorm):
                     m.eval()
 
 
@@ -742,9 +740,7 @@ class ResNet_CIFAR(ResNet_mmcls):
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu(x)
+        x = self.relu(self.norm1(self.conv1(x)))
         outs = []
         for i, layer_name in enumerate(self.res_layers):
             res_layer = getattr(self, layer_name)
@@ -843,9 +839,7 @@ class ResNet_Mix(ResNet_mmcls):
         if self.deep_stem:
             x = self.stem(x)
         else:
-            x = self.conv1(x)
-            x = self.norm1(x)
-            x = self.relu(x)
+            x = self.relu(self.norm1(self.conv1(x)))
         x = self.maxpool(x)
 
         outs = []
@@ -962,9 +956,7 @@ class ResNet_Mix_CIFAR(ResNet_mmcls):
         if mix_layer == 0:
             x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
         # CIFAR stem
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu(x)
+        x = self.relu(self.norm1(self.conv1(x)))
 
         outs = []
         # stage 1 to 4

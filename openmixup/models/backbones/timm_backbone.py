@@ -1,4 +1,5 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
+# modified from mmclassification timm_backbone.py
 try:
     import timm
 except ImportError:

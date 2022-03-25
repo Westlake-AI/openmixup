@@ -1,12 +1,10 @@
-# Copyright (c) OpenMMLab. All rights reserved.
-import logging
+# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
+# modified from mmclassification deit.py
 import torch
 import torch.nn as nn
-from mmcv.cnn.utils.weight_init import constant_init
-from mmcv.runner import load_checkpoint
+from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 
 from ..builder import BACKBONES
-from ..utils import trunc_normal_init, trunc_normal_
 from .vision_transformer import VisionTransformer
 
 
@@ -48,10 +46,8 @@ class DistilledVisionTransformer(VisionTransformer):
         self.dist_token = nn.Parameter(torch.zeros(1, 1, self.embed_dims))
 
     def init_weights(self, pretrained=None):
-        if isinstance(pretrained, str):
-            logger = logging.getLogger()
-            load_checkpoint(self, pretrained, strict=False, logger=logger)
-        elif pretrained is None:
+        super(DistilledVisionTransformer, self).init_weights(pretrained)
+        if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d, nn.Linear)):
                     trunc_normal_init(m, mean=0., std=0.02, bias=0)
@@ -59,12 +55,10 @@ class DistilledVisionTransformer(VisionTransformer):
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
             # ViT pos_embed & cls_token
-            trunc_normal_(self.pos_embed, mean=0., std=0.02, bias=0, a=-2., b=2.)
-            trunc_normal_(self.cls_token, mean=0., std=0.02, bias=0, a=-2., b=2.)
+            trunc_normal_init(self.pos_embed, mean=0., std=0.02)
+            trunc_normal_init(self.cls_token, mean=0., std=0.02)
             # DeiT dist_token
-            trunc_normal_(self.dist_token, mean=0., std=0.02, bias=0, a=-2., b=2.)
-        else:
-            raise TypeError('pretrained must be a str or None')
+            trunc_normal_init(self.dist_token, mean=0., std=0.02)
     
     def forward(self, x):
         B = x.shape[0]

@@ -59,6 +59,7 @@ class AlexNet(BaseBackbone):
         self.init_weights(pretrained=pretrained)
     
     def init_weights(self, pretrained=None):
+        super(AlexNet, self).init_weights(pretrained)
         for m in self.features.modules():
             if isinstance(m, nn.Conv2d):
                 kaiming_init(m, mode='fan_in', nonlinearity='relu')

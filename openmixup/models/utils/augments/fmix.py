@@ -4,7 +4,7 @@ import torch
 
 import numpy as np
 from scipy.stats import beta
-from ..utils import batch_shuffle_ddp
+from openmixup.models.utils import batch_shuffle_ddp
 
 
 def fftfreqnd(h, w=None, z=None):

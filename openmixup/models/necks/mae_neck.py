@@ -2,14 +2,15 @@
 import torch
 import torch.nn as nn
 from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
-from mmcv.cnn import build_norm_layer
+from mmcv.cnn import build_norm_layer, constant_init, normal_init
+from mmcv.runner.base_module import BaseModule
 
 from ..registry import NECKS
 from ..utils import build_2d_sincos_position_embedding
 
 
 @NECKS.register_module()
-class MAEPretrainDecoder(nn.Module):
+class MAEPretrainDecoder(BaseModule):
     """Decoder for MAE Pre-training.
 
     Args:
@@ -77,28 +78,20 @@ class MAEPretrainDecoder(nn.Module):
             decoder_embed_dim, patch_size**2 * in_chans, bias=True)
 
     def init_weights(self):
-        super(MAEPretrainDecoder, self).init_weights()
-
-        # initialize position embedding of MAE decoder
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                if isinstance(m, nn.Linear) and m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
+                constant_init(m, val=1, bias=0)
+        # initialize position embedding and mask token
         decoder_pos_embed = build_2d_sincos_position_embedding(
             int(self.num_patches**.5),
             self.decoder_pos_embed.shape[-1],
             cls_token=True)
         self.decoder_pos_embed.data.copy_(decoder_pos_embed.float())
-
-        torch.nn.init.normal_(self.mask_token, std=.02)
-
-        self.apply(self._init_weights)
-
-    def _init_weights(self, m):
-
-        if isinstance(m, nn.Linear):
-            torch.nn.init.xavier_uniform_(m.weight)
-            if isinstance(m, nn.Linear) and m.bias is not None:
-                nn.init.constant_(m.bias, 0)
-        elif isinstance(m, nn.LayerNorm):
-            nn.init.constant_(m.bias, 0)
-            nn.init.constant_(m.weight, 1.0)
+        normal_init(self.mask_token, std=0.02, bias=0.)
 
     @property
     def decoder_norm(self):

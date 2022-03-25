@@ -1,5 +1,11 @@
 ## Changelog
 
+### v0.1.3 (25/03/2022)
+
+* Refactor code structures for vision transformers and self-supervised methods (supporting MAE).
+* Provide online analysis of self-supervised methods (knn metric and t-SNE/UMAP visualization). 
+* More results are provided in Model Zoos.
+
 ### v0.1.2 (20/03/2022)
 
 #### Highlight

@@ -133,6 +133,6 @@ benchmarks/detection/output
 configs/classification_IP89
 configs/selfsup_IP89
 # configs/semisup
-configs/selfsup
+# configs/selfsup
 *.json
 openmixup/models/classifiers/backup

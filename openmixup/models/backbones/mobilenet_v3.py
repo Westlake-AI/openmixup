@@ -205,5 +205,6 @@ class MobileNetV3(BaseBackbone):
         self._freeze_stages()
         if mode and self.norm_eval:
             for m in self.modules():
-                if isinstance(m, (_BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                # trick: eval have effect on BatchNorm only
+                if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()

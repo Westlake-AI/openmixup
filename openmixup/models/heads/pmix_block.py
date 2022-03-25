@@ -4,11 +4,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import random
 from ..registry import HEADS
-from mmcv.cnn import ConvModule, NonLocal2d, kaiming_init, normal_init
+from mmcv.cnn import build_norm_layer, ConvModule, NonLocal2d, kaiming_init, normal_init
+
+from openmixup.utils import force_fp32, print_log
 from ..necks import ConvNeck
 from .. import builder
-from ..utils import build_norm_layer
-from openmixup.utils import force_fp32, print_log
 
 
 @HEADS.register_module
@@ -425,13 +425,13 @@ class PixelMixBlock(nn.Module):
             x_lam = torch.cat([x_lam, x_lam_], dim=1)
             x_lam_ = x_lam
         if self.attention_mode == 'gaussian':
-            q_x = x_lam.view(n, self.qk_in_channels, -1)
-            q_x = q_x.permute(0, 2, 1)  # q for lam: [N, HxW, C]
+            q_x = x_lam.view(  # q for lam: [N, HxW, C]
+                n, self.qk_in_channels, -1).permute(0, 2, 1)
             k_x = x_lam_.view(n, self.qk_in_channels, -1)  # k for 1-lam: [N, C, HxW]
         else:
             # query
-            q_x = self.query(x_lam).view(n, self.inter_channels, -1)
-            q_x = q_x.permute(0, 2, 1)  # q for lam: [N, HxW, C/r]
+            q_x = self.query(x_lam).view(  # q for lam: [N, HxW, C/r]
+                n, self.inter_channels, -1).permute(0, 2, 1)
             # key
             if self.key is not None:
                 k_x = self.key(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]

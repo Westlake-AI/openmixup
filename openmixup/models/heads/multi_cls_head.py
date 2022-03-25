@@ -1,8 +1,9 @@
 import torch.nn as nn
+from mmcv.cnn import build_norm_layer
 
 from ..utils import accuracy
 from ..registry import HEADS
-from ..utils import build_norm_layer, MultiPooling
+from ..utils import MultiPooling
 
 
 @HEADS.register_module
