@@ -35,7 +35,7 @@ class VisionTransformerClsHead(BaseModule):
                  loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
                  multi_label=False,
                  frozen=False,
-                 init_cfg=dict(type='Constant', layer='Linear', val=0),
+                 init_cfg=dict(type='TruncNormal', layer='Linear', std=.02),
                  **kwargs):
         super(VisionTransformerClsHead, self).__init__(init_cfg)
         self.in_channels = in_channels

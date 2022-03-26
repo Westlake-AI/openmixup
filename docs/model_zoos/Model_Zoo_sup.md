@@ -2,7 +2,7 @@
 
 **OpenMixup provides mixup benchmarks on supervised learning on various tasks. Configs, experiments results, training logs will be updated as soon as possible. More mixup variants will be supported!**
 
-Notice that * denotes open-source arxiv pre-prints reproduced by us, and $\dagger$ denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 and sampling $\lambda$ from $\Beta(\alpha,8)$ as AttentiveMix+.
+Notice that * denotes open-source arxiv pre-prints reproduced by us, and :book: denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 and sampling $\lambda$ from $\Beta(\alpha,8)$ as AttentiveMix+. Moreover, you can summary experiment results (json files) by tools in `openmixup/tools/summary/`.
 
 <details open>
 <summary>Supported sample mixing policies</summary>
@@ -42,41 +42,41 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 **Note**
 * These benchmarks follow PyTorch-style settings, training 100 and 300 epochs on ImageNet-1k.
 * Please run configs in `configs/classification/imagenet/mixups/basic`, and modify epochs and mix_mode in `auto_train_in_mixups.py` to generate proper configs by yourself.
-* Notice that $\dagger$ denotes original results reproduced by official implementations.
+* Notice that :book: denotes original results reproduced by official implementations.
 
-| Backbones          |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 | ResNeXt-101 |
-|--------------------|:----------:|:----------:|:----------:|:----------:|:-----------:|
-| Epochs             | 100 epochs | 100 epochs | 100 epochs | 100 epochs |  100 epochs |
-| Vanilla            |    70.04   |    73.85   |    76.83   |    78.18   |    78.71    |
-| MixUp              |    69.98   |    73.97   |    77.12   |    78.97   |    79.98    |
-| CutMix             |    68.95   |    73.58   |    77.17   |    78.96   |    80.42    |
-| ManifoldMix        |    69.98   |    73.98   |    77.01   |    79.02   |    79.93    |
-| SaliencyMix        |    69.16   |    73.56   |    77.14   |    79.32   |    80.27    |
-| AttentiveMix+      |    68.57   |      -     |    77.28   |      -     |      -      |
-| FMix*              |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
-| PuzzleMix          |    70.12   |    74.26   |    77.54   |    79.43   |    80.53    |
-| Co-Mixup $\dagger$ |      -     |      -     |    77.60   |      -     |      -      |
-| SuperMix $\dagger$ |      -     |      -     |    77.63   |      -     |      -      |
-| ResizeMix*         |    69.50   |    73.88   |    77.42   |    79.27   |    80.55    |
-| AlignMix $\dagger$ |      -     |      -     |            |      -     |      -      |
-| Grafting $\dagger$ |      -     |      -     |    77.74   |      -     |      -      |
-| AutoMix*           |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
-| SAMix*             |    70.83   |    74.95   |    78.06   |    80.05   |    80.98    |
+| Backbones       |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 | ResNeXt-101 |
+|-----------------|:----------:|:----------:|:----------:|:----------:|:-----------:|
+| Epochs          | 100 epochs | 100 epochs | 100 epochs | 100 epochs |  100 epochs |
+| Vanilla         |    70.04   |    73.85   |    76.83   |    78.18   |    78.71    |
+| MixUp           |    69.98   |    73.97   |    77.12   |    78.97   |    79.98    |
+| CutMix          |    68.95   |    73.58   |    77.17   |    78.96   |    80.42    |
+| ManifoldMix     |    69.98   |    73.98   |    77.01   |    79.02   |    79.93    |
+| SaliencyMix     |    69.16   |    73.56   |    77.14   |    79.32   |    80.27    |
+| AttentiveMix+   |    68.57   |      -     |    77.28   |      -     |      -      |
+| FMix*           |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
+| PuzzleMix       |    70.12   |    74.26   |    77.54   |    79.43   |    80.53    |
+| Co-Mixup :book: |      -     |      -     |    77.60   |      -     |      -      |
+| SuperMix :book: |      -     |      -     |    77.63   |      -     |      -      |
+| ResizeMix*      |    69.50   |    73.88   |    77.42   |    79.27   |    80.55    |
+| AlignMix :book: |      -     |      -     |            |      -     |      -      |
+| Grafting :book: |      -     |      -     |    77.74   |      -     |      -      |
+| AutoMix*        |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
+| SAMix*          |    70.83   |    74.95   |    78.06   |    80.05   |    80.98    |
 
-| Backbones          |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 |
-|--------------------|:----------:|:----------:|:----------:|:----------:|
-| Epochs             | 300 epochs | 300 epochs | 300 epochs | 300 epochs |
-| Vanilla            |    71.83   |    75.29   |    77.35   |    78.91   |
-| MixUp              |    71.72   |    75.73   |    78.44   |    80.60   |
-| CutMix             |    71.01   |    75.16   |    78.69   |    80.59   |
-| ManifoldMix        |    71.73   |    75.44   |    78.21   |    80.64   |
-| SaliencyMix        |    70.21   |    75.01   |    78.46   |    80.45   |
-| FMix*              |    70.30   |    75.12   |    78.51   |    80.20   |
-| PuzzleMix          |    71.64   |    75.84   |    78.86   |    80.67   |
-| ResizeMix*         |    71.32   |    75.64   |    78.91   |    80.52   |
-| AlignMix $\dagger$ |      -     |      -     |    79.32   |      -     |
-| AutoMix*           |    72.05   |    76.10   |    79.25   |    80.98   |
-| SAMix*             |    72.27   |    76.28   |    79.39   |    81.10   |
+| Backbones       |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 |
+|-----------------|:----------:|:----------:|:----------:|:----------:|
+| Epochs          | 300 epochs | 300 epochs | 300 epochs | 300 epochs |
+| Vanilla         |    71.83   |    75.29   |    77.35   |    78.91   |
+| MixUp           |    71.72   |    75.73   |    78.44   |    80.60   |
+| CutMix          |    71.01   |    75.16   |    78.69   |    80.59   |
+| ManifoldMix     |    71.73   |    75.44   |    78.21   |    80.64   |
+| SaliencyMix     |    70.21   |    75.01   |    78.46   |    80.45   |
+| FMix*           |    70.30   |    75.12   |    78.51   |    80.20   |
+| PuzzleMix       |    71.64   |    75.84   |    78.86   |    80.67   |
+| ResizeMix*      |    71.32   |    75.64   |    78.91   |    80.52   |
+| AlignMix :book: |      -     |      -     |    79.32   |      -     |
+| AutoMix*        |    72.05   |    76.10   |    79.25   |    80.98   |
+| SAMix*          |    72.27   |    76.28   |    79.39   |    81.10   |
 
 ### Timm RSB A2/A3 Training Settings on ImageNet-1k
 
@@ -107,7 +107,7 @@ Coming soon!
 **Note**
 * This benchmark largely based on CIFAR settings, training 400 epochs on TinyImageNet-200.
 * Please run configs in `configs/classification/tiny_imagenet/mixups/`.
-* Notice that $\dagger$ denotes original results reproduced by official implementations.
+* Notice that :book: denotes original results reproduced by official implementations.
 
 | Backbones          | ResNet-18 | ResNeXt-50 |
 |--------------------|:---------:|:----------:|
@@ -119,9 +119,9 @@ Coming soon!
 | AttentiveMix+      |   64.85   |    67.42   |
 | FMix*              |   63.47   |    65.08   |
 | PuzzleMix          |   65.81   |    67.83   |
-| Co-Mixup $\dagger$ |   65.92   |    68.02   |
+| Co-Mixup :book:    |   65.92   |    68.02   |
 | ResizeMix*         |   63.74   |    65.87   |
-| AlignMix $\dagger$ |   66.87   |            |
+| AlignMix :book:    |   66.87   |            |
 | AutoMix*           |   67.33   |    70.72   |
 | SAMix*             |   68.89   |    72.18   |
 
@@ -135,80 +135,80 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 **Note**
 * This benchmark follows CutMix settings, training 200/400/800/1200 epochs on CIFAR-10.
 * Please run configs in `configs/classification/cifar10/mixups/`.
-* Notice that $\dagger$ denotes original results reproduced by official implementations.
+* Notice that :book: denotes original results reproduced by official implementations.
 
-| Backbones          |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
-|--------------------|:----------:|:----------:|:----------:|:-----------:|
-| Epochs             | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla            |    94.87   |    95.10   |    95.50   |    95.59    |
-| MixUp              |    95.70   |    96.55   |    96.62   |    96.84    |
-| CutMix             |    96.11   |    96.13   |    96.68   |    96.56    |
-| ManifoldMix        |    96.04   |    96.57   |    96.71   |    97.02    |
-| SaliencyMix        |    96.05   |    96.42   |    96.20   |    96.18    |
-| AttentiveMix+      |    96.21   |    96.45   |    96.63   |    96.49    |
-| FMix*              |    96.17   |    96.53   |    96.18   |    96.01    |
-| PuzzleMix          |    96.42   |    96.87   |    97.10   |    97.13    |
-| ResizeMix*         |    96.16   |    96.91   |    96.76   |    97.04    |
-| AlignMix $\dagger$ |            |            |            |    97.05    |
-| AutoMix*           |    96.59   |    97.08   |    97.34   |    97.30    |
-| SAMix*             |    96.67   |    97.16   |    97.50   |             |
+| Backbones       |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
+|-----------------|:----------:|:----------:|:----------:|:-----------:|
+| Epochs          | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
+| Vanilla         |    94.87   |    95.10   |    95.50   |    95.59    |
+| MixUp           |    95.70   |    96.55   |    96.62   |    96.84    |
+| CutMix          |    96.11   |    96.13   |    96.68   |    96.56    |
+| ManifoldMix     |    96.04   |    96.57   |    96.71   |    97.02    |
+| SaliencyMix     |    96.05   |    96.42   |    96.20   |    96.18    |
+| AttentiveMix+   |    96.21   |    96.45   |    96.63   |    96.49    |
+| FMix*           |    96.17   |    96.53   |    96.18   |    96.01    |
+| PuzzleMix       |    96.42   |    96.87   |    97.10   |    97.13    |
+| ResizeMix*      |    96.16   |    96.91   |    96.76   |    97.04    |
+| AlignMix :book: |            |            |            |    97.05    |
+| AutoMix*        |    96.59   |    97.08   |    97.34   |    97.30    |
+| SAMix*          |    96.67   |    97.16   |    97.50   |             |
 
-| Backbones          | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |
-|--------------------|:----------:|:----------:|:----------:|:-----------:|
-| Epochs             | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla            |    95.92   |    95.81   |    96.23   |    96.26    |
-| MixUp              |    96.88   |    97.19   |    97.30   |    97.33    |
-| CutMix             |    96.78   |    96.54   |    96.60   |    96.35    |
-| ManifoldMix        |    96.97   |    97.39   |    97.33   |    97.36    |
-| SaliencyMix        |    96.65   |    96.89   |    96.70   |    96.60    |
-| AttentiveMix+      |    96.84   |    96.91   |    96.87   |    96.62    |
-| FMix*              |    96.72   |    96.76   |    96.76   |    96.10    |
-| PuzzleMix          |    97.05   |    97.24   |    97.37   |    97.34    |
-| ResizeMix*         |    97.02   |    97.38   |    97.21   |    97.36    |
-| AlignMix $\dagger$ |            |            |            |             |
-| AutoMix*           |    97.19   |    97.42   |    97.65   |    97.51    |
-| SAMix*             |            |            |    97.93   |             |
+| Backbones       | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |
+|-----------------|:----------:|:----------:|:----------:|:-----------:|
+| Epochs          | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
+| Vanilla         |    95.92   |    95.81   |    96.23   |    96.26    |
+| MixUp           |    96.88   |    97.19   |    97.30   |    97.33    |
+| CutMix          |    96.78   |    96.54   |    96.60   |    96.35    |
+| ManifoldMix     |    96.97   |    97.39   |    97.33   |    97.36    |
+| SaliencyMix     |    96.65   |    96.89   |    96.70   |    96.60    |
+| AttentiveMix+   |    96.84   |    96.91   |    96.87   |    96.62    |
+| FMix*           |    96.72   |    96.76   |    96.76   |    96.10    |
+| PuzzleMix       |    97.05   |    97.24   |    97.37   |    97.34    |
+| ResizeMix*      |    97.02   |    97.38   |    97.21   |    97.36    |
+| AlignMix :book: |            |            |            |             |
+| AutoMix*        |    97.19   |    97.42   |    97.65   |    97.51    |
+| SAMix*          |    97.23   |    97.51   |    97.93   |             |
 
 ### CIFAR-100
 
 **Note**
 * This benchmark follows CutMix settings, training 200/400/800/1200 epochs on CIFAR-100. Please use wd=5e-4 for cutting-based methods (CutMix, AttributeMix+, SaliencyMix, FMix, ResizeMix) based on ResNeXt-50 for better performances.
 * Please run configs in `configs/classification/cifar100/mixups/`.
-* Notice that $\dagger$ denotes original results reproduced by official implementations.
+* Notice that :book: denotes original results reproduced by official implementations.
 
-| Backbones          |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
-|--------------------|:----------:|:----------:|:----------:|:-----------:|
-| Epoch              | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla            |    76.42   |    77.73   |    78.04   |    78.55    |
-| MixUp              |    78.52   |    79.34   |    79.12   |    79.24    |
-| CutMix             |    79.45   |    79.58   |    78.17   |    78.29    |
-| ManifoldMix        |    79.18   |    80.18   |    80.35   |    80.21    |
-| SaliencyMix        |    79.75   |    79.64   |    79.12   |    77.66    |
-| AttentiveMix+      |    79.62   |    80.14   |    78.91   |    78.41    |
-| FMix*              |    78.91   |    79.91   |    79.69   |    79.50    |
-| PuzzleMix          |    79.96   |    80.82   |    81.13   |    81.10    |
-| Co-Mixup $\dagger$ |    80.01   |    80.87   |    81.17   |    81.18    |
-| ResizeMix*         |    79.56   |    79.19   |    80.01   |    79.23    |
-| AlignMix $\dagger$ |            |            |            |    81.71    |
-| AutoMix*           |    80.12   |    81.78   |    82.04   |    81.95    |
-| SAMix*             |    81.21   |    81.97   |    82.30   |    82.41    |
+| Backbones       |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
+|-----------------|:----------:|:----------:|:----------:|:-----------:|
+| Epoch           | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
+| Vanilla         |    76.42   |    77.73   |    78.04   |    78.55    |
+| MixUp           |    78.52   |    79.34   |    79.12   |    79.24    |
+| CutMix          |    79.45   |    79.58   |    78.17   |    78.29    |
+| ManifoldMix     |    79.18   |    80.18   |    80.35   |    80.21    |
+| SaliencyMix     |    79.75   |    79.64   |    79.12   |    77.66    |
+| AttentiveMix+   |    79.62   |    80.14   |    78.91   |    78.41    |
+| FMix*           |    78.91   |    79.91   |    79.69   |    79.50    |
+| PuzzleMix       |    79.96   |    80.82   |    81.13   |    81.10    |
+| Co-Mixup :book: |    80.01   |    80.87   |    81.17   |    81.18    |
+| ResizeMix*      |    79.56   |    79.19   |    80.01   |    79.23    |
+| AlignMix :book: |            |            |            |    81.71    |
+| AutoMix*        |    80.12   |    81.78   |    82.04   |    81.95    |
+| SAMix*          |    81.21   |    81.97   |    82.30   |    82.41    |
 
-| Backbones          | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |  WRN-28-8  |
-|--------------------|:----------:|:----------:|:----------:|:-----------:|:----------:|
-| Epoch              | 200 epochs | 400 epochs | 800 epochs | 1200 epochs | 400 epochs |
-| Vanilla            |    79.37   |    80.24   |    81.09   |    81.32    |    81.63   |
-| MixUp              |    81.18   |    82.54   |    82.10   |    81.77    |    82.82   |
-| CutMix             |    81.52   |    78.52   |    78.32   |    77.17    |    84.45   |
-| ManifoldMix        |    81.59   |    82.56   |    82.88   |    83.28    |    83.24   |
-| SaliencyMix        |    80.72   |    78.63   |    78.77   |    77.51    |    84.35   |
-| AttentiveMix+      |    81.69   |    81.53   |    80.54   |             |    84.34   |
-| FMix*              |    79.87   |    78.99   |    79.02   |    78.24    |    84.21   |
-| PuzzleMix          |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
-| Co-Mixup $\dagger$ |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
-| ResizeMix*         |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
-| AlignMix $\dagger$ |            |            |            |             |            |
-| AutoMix*           |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
-| SAMix*             |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
+| Backbones       | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |  WRN-28-8  |
+|-----------------|:----------:|:----------:|:----------:|:-----------:|:----------:|
+| Epoch           | 200 epochs | 400 epochs | 800 epochs | 1200 epochs | 400 epochs |
+| Vanilla         |    79.37   |    80.24   |    81.09   |    81.32    |    81.63   |
+| MixUp           |    81.18   |    82.54   |    82.10   |    81.77    |    82.82   |
+| CutMix          |    81.52   |    78.52   |    78.32   |    77.17    |    84.45   |
+| ManifoldMix     |    81.59   |    82.56   |    82.88   |    83.28    |    83.24   |
+| SaliencyMix     |    80.72   |    78.63   |    78.77   |    77.51    |    84.35   |
+| AttentiveMix+   |    81.69   |    81.53   |    80.54   |    79.60    |    84.34   |
+| FMix*           |    79.87   |    78.99   |    79.02   |    78.24    |    84.21   |
+| PuzzleMix       |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
+| Co-Mixup :book: |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
+| ResizeMix*      |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
+| AlignMix :book: |            |            |            |             |            |
+| AutoMix*        |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
+| SAMix*          |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
 
 
 ## Fine-grained and Scenic Classification Benchmarks
