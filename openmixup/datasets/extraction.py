@@ -25,7 +25,7 @@ class ExtractDataset(BaseDataset):
         img = self.pipeline(img)
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))
-        return dict(img=img)
+        return dict(img=img, idx=idx)
 
     def evaluate(self, scores, keyword, logger=None):
         raise NotImplementedError

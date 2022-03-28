@@ -1,6 +1,5 @@
-import os
 import numpy as np
-
+import mmcv
 from mmcv.runner import Hook
 
 import torch
@@ -81,15 +80,11 @@ class DeepClusterHook(Hook):
             new_labels = clustering_algo.labels.astype(np.int64)
             # mkdir and save
             if self.save_cluster:
-                if not os.path.exists("{}/cluster".format(runner.work_dir)):
-                    try:
-                        os.mkdir("{}/cluster".format(runner.work_dir))
-                    except:
-                        print("mkdir error: {}/cluster".format(runner.work_dir))
+                mmcv.mkdir_or_exist(f"{runner.work_dir}/cluster")
                 # save cluster labels
                 np.save(
-                    "{}/cluster/cluster_epoch_{}.npy".format(runner.work_dir,
-                                                    runner.epoch), new_labels)
+                    f"{runner.work_dir}/cluster/cluster_epoch_{runner.epoch+1}.npy",
+                    new_labels)
             self.evaluate(runner, new_labels)
         else:
             new_labels = np.zeros((len(self.data_loaders[0].dataset), ),

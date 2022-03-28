@@ -24,7 +24,7 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         if init_cfg is not None:
             self.init_cfg = init_cfg
         self.backbone = nn.Identity()
-        self.neck = nn.Identity()
+        self.neck = None
         self.head = nn.Identity()
         self.with_sobel = with_sobel
         self.sobel_layer = Sobel() if with_sobel else nn.Identity()
@@ -97,8 +97,9 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         Returns:
             dict[str, Tensor]: A dictionary of output features.
         """
-        feat = self.forward_backbone(img)  # tuple
-        feat = nn.functional.adaptive_avg_pool2d(feat[-1], 1)  # NxCx1x1
+        feat = self.forward_backbone(img)[-1]  # tuple
+        if feat.dim() == 4:
+            feat = nn.functional.adaptive_avg_pool2d(feat, 1)  # NxCx1x1
         keys = ['gap']
         outs = [feat.view(feat.size(0), -1).cpu()]
         return dict(zip(keys, outs))

@@ -93,7 +93,7 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | ManifoldMix |   79.47   |   77.78   |  77.22 |  73.83 |   72.34   |   70.05   |
 | SaliencyMix |   79.42   |   77.93   |  77.67 |  73.42 |   72.07   |   69.69   |
 | FMix*       |   79.05   |   77.76   |  77.33 |  73.71 |   72.79   |   70.10   |
-| PuzzleMix   |   79.78   |   78.02   |  77.35 |  74.10 |   72.85   |   70.23   |
+| PuzzleMix   |   79.78   |   78.02   |  77.35 |  74.10 |   72.85   |   70.04   |
 | ResizeMix*  |   79.74   |   77.85   |  77.27 |  73.67 |   72.50   |   69.94   |
 | AutoMix*    |           |   78.44   |  77.58 |  74.61 |   73.19   |   71.16   |
 | SAMix       |           |   78.64   |  77.69 |  75.28 |   73.42   |   71.24   |
@@ -167,7 +167,7 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | ResizeMix*      |    97.02   |    97.38   |    97.21   |    97.36    |
 | AlignMix :book: |            |            |            |             |
 | AutoMix*        |    97.19   |    97.42   |    97.65   |    97.51    |
-| SAMix*          |    97.23   |    97.51   |    97.93   |             |
+| SAMix*          |    97.23   |    97.51   |    97.93   |    97.74    |
 
 ### CIFAR-100
 

@@ -88,7 +88,7 @@ class DenseCL(BaseModel):
             param_k.requires_grad = False
             param_k.data.copy_(param_q.data)
         # init the predictor in the head
-        self.head.init_weights()
+        self.head.init_weights(init_linear='normal')
 
     @torch.no_grad()
     def _momentum_update(self):

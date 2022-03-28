@@ -79,7 +79,7 @@ class ValidateHook(Hook):
                 self._evaluate(runner, torch.from_numpy(val), name)
                 if self.save_val:
                     np.save(
-                        "{}/val_epoch_{}.npy".format(runner.work_dir, runner.epoch), val)
+                        f"{runner.work_dir}/val_epoch_{runner.epoch+1}.npy", val)
         runner.model.train()
 
     def _evaluate(self, runner, results, keyword):

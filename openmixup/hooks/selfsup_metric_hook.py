@@ -1,9 +1,13 @@
+import math
 import numpy as np
 import mmcv
 import torch
+
 from mmcv.runner import Hook
 from torch.utils.data import Dataset
 from matplotlib import pyplot as plt
+import pandas as pd
+import seaborn as sns
 
 from openmixup.utils import nondist_forward_collect, dist_forward_collect
 from openmixup import datasets
@@ -98,6 +102,7 @@ class SSLMetricHook(Hook):
                 T=metric_args.get('temperature', 0.07),
                 distance_fx=metric_args.get('metric', 'cosine'),
                 epsilon=metric_args.get('epsilon', 1e-5),
+                chunk_size=metric_args.get('chunk_size', 128),
             )
         else:
             self.metric = None
@@ -132,16 +137,42 @@ class SSLMetricHook(Hook):
         else:
             self.visualize = None
 
-    def _plot_visualization(self, results, labels, save_name):
+    def _plt_plot_visualization(self, results, labels, save_name):
         res_min, res_max = results.min(0), results.max(0)
         res_norm = (results - res_min) / (res_max - res_min)
-        plt.figure(figsize=(10, 10))
+        plt.figure(figsize=(9, 9))
         plt.scatter(
             res_norm[:, 0], res_norm[:, 1],
             alpha=self.visual_args.get('plot_alpha', 1.0),
             s=self.visual_args.get('plot_s', 15),
             c=labels,
             cmap=self.visual_args.get('plot_cmap', 'tab20'))
+        plt.savefig(save_name)
+        plt.close()
+
+    def _sns_plot_visualization(self, results, labels, save_name):
+        df = pd.DataFrame()
+        df["feat_1"] = results[:, 0]
+        df["feat_2"] = results[:, 1]
+        df["labels"] = labels
+        num_classes = np.max(labels) + 1
+
+        plt.figure(figsize=(9, 9))
+        ax = sns.scatterplot(
+            x="feat_1", y="feat_2", hue="labels", data=df,
+            palette=sns.color_palette('hls', num_classes),
+            legend="full", alpha=0.3,
+        )
+        ax.set(xlabel="", ylabel="", xticklabels=[], yticklabels=[])
+        ax.tick_params(left=False, right=False, bottom=False, top=False)
+
+        # manually improve quality of imagenet umaps
+        if num_classes > 100:
+            anchor = (0.5, 1.8)
+        else:
+            anchor = (0.5, 1.35)
+        plt.legend(loc="upper center", bbox_to_anchor=anchor, ncol=math.ceil(num_classes / 10))
+        plt.tight_layout()
         plt.savefig(save_name)
         plt.close()
 
@@ -189,15 +220,22 @@ class SSLMetricHook(Hook):
                         runner.log_buffer.output[key] = val
                     runner.log_buffer.ready = True
                     if self.save_val:
-                        np.save(f"{runner.work_dir}/metric/val_epoch_{runner.epoch}.npy",
+                        np.save(f"{runner.work_dir}/metric/val_epoch_{runner.epoch+1}.npy",
                                 val_results[name])
             # visualization
             if self.visualize is not None:
                 for name, val in val_results.items():
                     val = self.visualize.fit_transform(val)
-                    self._plot_visualization(
-                        val, self.val_dataset.targets,
-                        f"{runner.work_dir}/visualization/{name}_epoch_{runner.epoch}.png")
+                    if self.visual_args.get('plot_backend', 'seaborn') == 'seaborn':
+                        self._sns_plot_visualization(
+                            val, self.val_dataset.targets,
+                            f"{runner.work_dir}/visualization/{name}_epoch_{runner.epoch+1}.png")
+                    else:
+                        self._plt_plot_visualization(
+                            val, self.val_dataset.targets,
+                            f"{runner.work_dir}/visualization/{name}_epoch_{runner.epoch+1}.png")
                     if self.save_val:
-                        np.save(f"{runner.work_dir}/metric/val_{name}_2d_epoch_{runner.epoch}.npy", val)
+                        np.save(
+                            f"{runner.work_dir}/metric/val_{name}_2d_epoch_{runner.epoch+1}.npy",
+                            val)
         runner.model.train()

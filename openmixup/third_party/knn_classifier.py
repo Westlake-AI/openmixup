@@ -10,12 +10,17 @@ from openmixup.utils import print_log
 class WeightedKNNClassifier():
     """Implements the weighted k-NN classifier used for evaluation.
 
+    KNN metric is propised in "Unsupervised Feature Learning via Non-Parametric
+    Instance Discrimination (https://arxiv.org/pdf/1805.01978.pdf)"
+        https://github.com/zhirongw/lemniscate.pytorch
+
     Args:
         k (int, optional): number of neighbors. Defaults to 20.
         T (float, optional): temperature for the exponential. Only used with cosine
             distance. Defaults to 0.07.
-        max_distance_matrix_size (int, optional): maximum number of elements in the
-            distance matrix. Defaults to 1e7.
+        chunk_size (int, optional): Mini batch size for performing knn classification.
+            Reduce the chunk_size when the number of train samples is too large, which
+            might cause the distance matrix out of CUDA memory. Defaults to 128.
         distance_fx (str, optional): Distance function. Accepted arguments: "cosine" or
             "euclidean". Defaults to "cosine".
         epsilon (float, optional): Small value for numerical stability. Only used with
@@ -25,14 +30,14 @@ class WeightedKNNClassifier():
     def __init__(self,
                  k=20,
                  T=0.07,
-                 max_distance_matrix_size=1e7,
+                 chunk_size=128,
                  distance_fx="cosine",
                  epsilon=1e-5,
                 ):
         super().__init__()
         self.k = k
         self.T = T
-        self.max_distance_matrix_size = max_distance_matrix_size
+        self.chunk_size = chunk_size
         self.distance_fx = distance_fx
         self.epsilon = epsilon
 
@@ -65,9 +70,7 @@ class WeightedKNNClassifier():
         num_train_images = train_targets.size(0)
         num_test_images = test_targets.size(0)
         num_train_images = train_targets.size(0)
-        chunk_size = min(
-            int(max(1, self.max_distance_matrix_size // num_train_images)),
-            num_test_images)
+        chunk_size = min(self.chunk_size, num_test_images)
         k = min(self.k, num_train_images)
 
         top1, top5, total = 0.0, 0.0, 0
@@ -97,9 +100,8 @@ class WeightedKNNClassifier():
                 similarities = similarities.clone().div_(self.T).exp_()
 
             probs = torch.sum(
-                torch.mul(
-                    retrieval_one_hot.view(batch_size, -1, num_classes),
-                    similarities.view(batch_size, -1, 1)),
+                torch.mul(retrieval_one_hot.view(batch_size, -1, num_classes),
+                         similarities.view(batch_size, -1, 1)),
                 1,
             )
             _, predictions = probs.sort(1, True)

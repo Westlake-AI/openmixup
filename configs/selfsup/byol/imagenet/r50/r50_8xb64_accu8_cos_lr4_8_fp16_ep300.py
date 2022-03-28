@@ -6,14 +6,14 @@ model = dict(
     base_momentum=0.99,
     backbone=dict(
         type='ResNet_mmcls',
-        depth=18,
+        depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
         norm_cfg=dict(type='SyncBN'),
         style='pytorch'),
     neck=dict(
         type='NonLinearNeck',
-        in_channels=512, hid_channels=4096, out_channels=256,
+        in_channels=2048, hid_channels=4096, out_channels=256,
         num_layers=2,
         with_bias=True, with_last_bn=False,
         with_avg_pool=True),
@@ -64,4 +64,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=100)
+runner = dict(type='EpochBasedRunner', max_epochs=300)

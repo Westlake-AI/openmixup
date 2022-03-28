@@ -156,7 +156,7 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
         features (tensor): Gradient of loss as the saliency information.
-        block_num (float): Number of grid size in input images.
+        block_num (int or tuple): Number of grid size in input images.
         beta (float): Label smoothness.
         gamma (float): Data local smoothness.
         eta (float): Prior term.
@@ -185,7 +185,11 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
         y_a = gt_label
         y_b = gt_label[rand_index]
     
-    block_num = 2**np.random.randint(1, block_num)  # given num is the range
+    if isinstance(block_num, int):
+        block_num = (1, block_num)
+    elif isinstance(block_num, tuple):
+        assert len(block_num) == 2
+    block_num = 2**np.random.randint(block_num[0], block_num[1])  # given num is the range
     if mean is None:
         mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
     if std is None:

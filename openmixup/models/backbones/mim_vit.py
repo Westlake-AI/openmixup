@@ -1,8 +1,9 @@
 # reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
 # modified from mmselfsup mae_pretrain_vit.py
+from openmixup.models.utils.weight_init import trunc_normal_
 import torch
 from torch import nn
-from mmcv.cnn import build_norm_layer, constant_init, trunc_normal_init
+from mmcv.cnn import build_norm_layer, xavier_init, constant_init
 
 from ..builder import BACKBONES
 from .vision_transformer import VisionTransformer
@@ -87,13 +88,13 @@ class MAEViT(VisionTransformer):
             w = self.patch_embed.projection.weight.data
             nn.init.xavier_uniform_(w.view([w.shape[0], -1]))
 
-            trunc_normal_init(self.cls_token, mean=0., std=0.02, bias=0)
+            trunc_normal_(self.cls_token, std=0.02, bias=0)
 
             self.apply(self._init_weights)
 
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
-            trunc_normal_init(m, mean=0., std=0.02, bias=0)
+            xavier_init(m, gain=1, bias=0, distribution='normal')
         elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
             constant_init(m, val=1, bias=0)
 
@@ -256,4 +257,4 @@ class MIMVisionTransformer(VisionTransformer):
             outs = self.fc_norm(x)
         else:
             outs = x[:, 0]
-        return outs
+        return [outs]

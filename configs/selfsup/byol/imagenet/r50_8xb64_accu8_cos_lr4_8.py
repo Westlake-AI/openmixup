@@ -49,7 +49,7 @@ optimizer = dict(
     })
 
 # apex
-use_fp16 = True
+use_fp16 = False
 fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
@@ -64,4 +64,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=100)
+runner = dict(type='EpochBasedRunner', max_epochs=200)

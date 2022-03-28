@@ -52,6 +52,24 @@ class MAE(BaseModel):
         self.backbone.init_weights(pretrained=pretrained)
         self.neck.init_weights()
 
+    def forward_backbone(self, img):
+        """Forward backbone.
+
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+
+        Returns:
+            tuple[Tensor]: backbone outputs of (N, D).
+        """
+        x = self.backbone(img)
+        if len(x) == 3:
+            # return cls_token, yeilding better performances than patch tokens
+            x = x[0][:, 0]
+        else:
+            x = x[0][-1]  # return cls_token
+        return [x]
+
     def forward_train(self, img, **kwargs):
         """Forward computation during training.
 

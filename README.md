@@ -2,7 +2,7 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.1.3 is now available, which steadily support ViTs, self-supervised methods, and online analysis (knn metric and visualization). It requires rebuilding of OpenMixup (install mmcv-full to support ViTs). More results are provided in Model Zoos.
+* OpenMixup v0.1.3 is now available (bugs fixed), which steadily support ViTs, self-supervised methods (e.g., MoCo.V3 and MAE), and online analysis (knn metric and visualization). It requires rebuilding of OpenMixup (install mmcv-full to support ViTs). More results are provided in Model Zoos.
 * OpenMixup v0.1.2 is now released (finished code refactoring). It supports self-supervised methods and optimizes config structures.
 * OpenMixup v0.1.1 is released, which supports various backbones (ConvNets and ViTs), various mixup methods (e.g., [PuzzleMix](https://arxiv.org/abs/2009.06962), [AutoMix](https://arxiv.org/pdf/2103.13027), [SAMix](https://arxiv.org/pdf/2111.15454), etc.), various classification datasets, benchmarks (model_zoo), config files generation, FP16 training (Apex or MMCV).
 

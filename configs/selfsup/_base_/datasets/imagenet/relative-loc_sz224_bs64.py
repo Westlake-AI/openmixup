@@ -1,5 +1,13 @@
+_base_ = '../../../../base.py'
+
 # dataset settings
-data_source = 'ImageNet'
+data_source_cfg = dict(type='ImageNet')
+# ImageNet dataset
+data_train_list = 'data/meta/ImageNet/train_full.txt'
+data_train_root = 'data/ImageNet/train'
+data_test_list = 'data/meta/ImageNet/val.txt'
+data_test_root = 'data/ImageNet/val/'
+
 dataset_type = 'RelativeLocDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
@@ -21,28 +29,25 @@ prefetch = False
 
 # dataset summary
 data = dict(
-    samples_per_gpu=64,  # 64 x 8 = 512
-    workers_per_gpu=4,
+    imgs_per_gpu=64,  # V100: 64 x 8gpus = bs512
+    workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(
-            type=data_source,
-            data_prefix='data/imagenet/train',
-            ann_file='data/imagenet/meta/train.txt',
-        ),
+            list_file=data_train_list, root=data_train_root,
+            **data_source_cfg),
         pipeline=train_pipeline,
         format_pipeline=format_pipeline,
         prefetch=prefetch),
     val=dict(
         type=dataset_type,
         data_source=dict(
-            type=data_source,
-            data_prefix='data/imagenet/val',
-            ann_file='data/imagenet/meta/val.txt',
-        ),
+            list_file=data_test_list, root=data_test_root,
+            **data_source_cfg),
         pipeline=test_pipeline,
         format_pipeline=format_pipeline,
-        prefetch=prefetch))
+        prefetch=prefetch),
+)
 
 # checkpoint
 checkpoint_config = dict(interval=10, max_keep_ckpts=1)

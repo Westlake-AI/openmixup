@@ -3,6 +3,7 @@ from PIL import Image
 
 from .registry import DATASETS
 from .base import BaseDataset
+from .utils import to_numpy
 
 
 def rotate(img):
@@ -27,8 +28,8 @@ class RotationPredDataset(BaseDataset):
     """Dataset for rotation prediction.
     """
 
-    def __init__(self, data_source, pipeline):
-        super(RotationPredDataset, self).__init__(data_source, pipeline)
+    def __init__(self, data_source, pipeline, prefetch=False):
+        super(RotationPredDataset, self).__init__(data_source, pipeline, prefetch)
 
     def __getitem__(self, idx):
         img = self.data_source.get_sample(idx)
@@ -37,6 +38,8 @@ class RotationPredDataset(BaseDataset):
             Please ensure that the list file does not contain labels.'.format(
             type(img))
         img = self.pipeline(img)
+        if self.prefetch:
+            img = torch.from_numpy(to_numpy(img))
         img = torch.stack(rotate(img), dim=0)
         rotation_labels = torch.LongTensor([0, 1, 2, 3])
         return dict(img=img, rot_label=rotation_labels)

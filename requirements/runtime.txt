@@ -8,5 +8,6 @@ scipy
 six
 terminaltables
 sklearn
+seaborn
 tensorboard
 tqdm

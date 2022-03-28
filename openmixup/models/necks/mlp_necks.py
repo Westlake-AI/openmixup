@@ -216,6 +216,8 @@ class NonLinearNeck(nn.Module):
             Defaults to False.
         with_avg_pool (bool): Whether to apply the global average pooling
             after backbone. Defaults to True.
+        vit_backbone (bool): Whether to use ViT (use cls_token) backbones. The
+            cls_token will be removed in this neck. Defaults to False.
         norm_cfg (dict): Dictionary to construct and config norm layer.
             Defaults to dict(type='SyncBN').
         init_cfg (dict or list[dict], optional): Initialization config dict.
@@ -231,11 +233,13 @@ class NonLinearNeck(nn.Module):
                  with_last_bn_affine=True,
                  with_last_bias=False,
                  with_avg_pool=True,
+                 vit_backbone=False,
                  norm_cfg=dict(type='SyncBN'),
                 ):
         super(NonLinearNeck, self).__init__()
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
             if with_avg_pool else nn.Identity()
+        self.vit_backbone = vit_backbone
         self.relu = nn.ReLU(inplace=True)
         self.fc0 = nn.Linear(in_channels, hid_channels, bias=with_bias)
         self.bn0 = build_norm_layer(norm_cfg, hid_channels)[1]
@@ -274,6 +278,8 @@ class NonLinearNeck(nn.Module):
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
+        if self.vit_backbone:  # remove cls_token
+            x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
         x = self.bn0(self.fc0(x))
         for fc_name, bn_name in zip(self.fc_names, self.bn_names):

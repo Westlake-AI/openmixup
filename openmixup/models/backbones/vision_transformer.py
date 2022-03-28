@@ -1,17 +1,22 @@
 # Reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbone/vision_transformer.py
+import math
 from typing import Sequence
+from functools import reduce
+from operator import mul
 
 import numpy as np
 import torch
 import torch.nn as nn
 from mmcv.cnn import build_norm_layer
 from mmcv.cnn.bricks.transformer import FFN, PatchEmbed
-from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
+from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init, \
+                                       uniform_init, xavier_init
 from mmcv.runner.base_module import BaseModule, ModuleList
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from openmixup.utils import get_root_logger, print_log
-from ..utils import MultiheadAttention, to_2tuple, resize_pos_embed
+from ..utils import MultiheadAttention, to_2tuple, \
+                    resize_pos_embed, build_2d_sincos_position_embedding
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
 
@@ -93,7 +98,7 @@ class TransformerEncoderLayer(BaseModule):
 
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.Linear)):
-                trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                trunc_normal_init(m, std=0.02, bias=0)
             elif isinstance(m, (
                 nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                 constant_init(m, val=1, bias=0)
@@ -235,6 +240,7 @@ class VisionTransformer(BaseBackbone):
             assert arch in set(self.arch_zoo), \
                 f'Arch {arch} is not in default archs {set(self.arch_zoo)}'
             self.arch_settings = self.arch_zoo[arch]
+            self.arch = arch.split("-")[0]
         else:
             essential_keys = {
                 'embed_dims', 'num_layers', 'num_heads', 'feedforward_channels'
@@ -242,6 +248,7 @@ class VisionTransformer(BaseBackbone):
             assert isinstance(arch, dict) and essential_keys <= set(arch), \
                 f'Custom arch needs a dict with keys {essential_keys}'
             self.arch_settings = arch
+            self.arch = 'deit'
 
         self.embed_dims = self.arch_settings['embed_dims']
         self.num_layers = self.arch_settings['num_layers']
@@ -332,15 +339,40 @@ class VisionTransformer(BaseBackbone):
         super(VisionTransformer, self).init_weights(pretrained)
 
         if pretrained is None:
-            for m in self.modules():
-                if isinstance(m, (nn.Conv2d, nn.Linear)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
-                elif isinstance(m, (
-                    nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                    constant_init(m, val=1, bias=0)
-            # ViT pos_embed & cls_token
-            trunc_normal_init(self.pos_embed, mean=0., std=0.02)
-            trunc_normal_init(self.cls_token, mean=0., std=0.02)
+            if self.arch != "mocov3":  # normal ViT
+                for m in self.modules():
+                    if isinstance(m, (nn.Conv2d, nn.Linear)):
+                        trunc_normal_init(m, std=0.02, bias=0)
+                    elif isinstance(m, (
+                        nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                        constant_init(m, val=1, bias=0)
+                # ViT pos_embed & cls_token
+                nn.init.trunc_normal_(self.pos_embed, mean=0, std=.02)
+                nn.init.trunc_normal_(self.cls_token, mean=0, std=.02)
+            else:  # MoCo.V3 pre-training
+                # Use fixed 2D sin-cos position embedding
+                pos_emb = build_2d_sincos_position_embedding(
+                    patches_resolution=self.patch_resolution,
+                    embed_dims=self.embed_dims,
+                    cls_token=True)
+                self.pos_embed.data.copy_(pos_emb)
+                self.pos_embed.requires_grad = False
+                # xavier_uniform initialization for PatchEmbed
+                if isinstance(self.patch_embed, PatchEmbed):
+                    val = math.sqrt(
+                        6. / float(3 * reduce(mul, to_2tuple(self.patch_size), 1) +
+                                self.embed_dims))
+                    uniform_init(self.patch_embed.projection, -val, val, bias=0)
+                # initialization for linear layers
+                for name, m in self.named_modules():
+                    if isinstance(m, nn.Linear):
+                        if 'qkv' in name:  # treat the weights of Q, K, V separately
+                            val = math.sqrt(
+                                6. / float(m.weight.shape[0] // 3 + m.weight.shape[1]))
+                            uniform_init(m, -val, val, bias=0)
+                        else:
+                            xavier_init(m, distribution='uniform')
+                nn.init.normal_(self.cls_token, std=1e-6)
     
     def _prepare_pos_embed(self, state_dict, prefix, *args, **kwargs):
         name = prefix + 'pos_embed'

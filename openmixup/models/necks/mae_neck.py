@@ -1,8 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
+from openmixup.models.utils.weight_init import trunc_normal_
 import torch
 import torch.nn as nn
 from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
-from mmcv.cnn import build_norm_layer, constant_init, normal_init
+from mmcv.cnn import build_norm_layer, constant_init, trunc_normal_init
 from mmcv.runner.base_module import BaseModule
 
 from ..registry import NECKS
@@ -80,9 +81,7 @@ class MAEPretrainDecoder(BaseModule):
     def init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Linear):
-                nn.init.xavier_uniform_(m.weight)
-                if isinstance(m, nn.Linear) and m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
+                trunc_normal_init(m, std=0.02, bias=0)
             elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
                 constant_init(m, val=1, bias=0)
         # initialize position embedding and mask token
@@ -91,7 +90,7 @@ class MAEPretrainDecoder(BaseModule):
             self.decoder_pos_embed.shape[-1],
             cls_token=True)
         self.decoder_pos_embed.data.copy_(decoder_pos_embed.float())
-        normal_init(self.mask_token, std=0.02, bias=0.)
+        trunc_normal_(self.mask_token, std=0.02)
 
     @property
     def decoder_norm(self):

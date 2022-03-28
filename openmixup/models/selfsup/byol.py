@@ -71,7 +71,7 @@ class BYOL(BaseModel):
             param_tgt.requires_grad = False
             param_tgt.data.copy_(param_ol.data)
         # init the predictor in the head
-        self.head.init_weights()
+        self.head.init_weights(init_linear='normal')
 
     @torch.no_grad()
     def momentum_update(self):

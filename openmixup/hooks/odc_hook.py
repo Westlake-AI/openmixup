@@ -1,6 +1,6 @@
-import os
 import numpy as np
 
+import mmcv
 from mmcv.runner import Hook
 
 from openmixup.utils import print_log
@@ -67,16 +67,10 @@ class ODCHook(Hook):
                 new_labels = new_labels.cpu()
             # mkdir and save
             if self.save_cluster:
-                if not os.path.exists("{}/cluster".format(runner.work_dir)):
-                    try:
-                        os.mkdir("{}/cluster".format(runner.work_dir))
-                    except:
-                        print("mkdir error: {}/cluster".format(runner.work_dir))
-                np.save(
-                    "{}/cluster/cluster_epoch_{}.npy".format(runner.work_dir,
-                                                    runner.epoch),
-                    new_labels.numpy())
-
+                mmcv.mkdir_or_exist(f"{runner.work_dir}/cluster")
+                np.save(f"{runner.work_dir}/cluster/cluster_epoch_{runner.epoch+1}.npy",
+                        new_labels.numpy())
+    
     def evaluate(self, runner, new_labels):
         hist = np.bincount(
             new_labels, minlength=runner.model.module.memory_bank.num_classes)

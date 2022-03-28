@@ -16,7 +16,7 @@ train_pipeline1 = [
     dict(type='RandomAppliedTrans',
         transforms=[dict(
             type='ColorJitter',
-            brightness=0.4, contrast=0.4, saturation=0.2,hue=0.1)
+            brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)
         ],
         p=0.8),
     dict(type='RandomGrayscale', p=0.2),
@@ -29,7 +29,7 @@ train_pipeline2 = [
     dict(type='RandomAppliedTrans',
         transforms=[
             dict(type='ColorJitter',
-                brightness=0.4, contrast=0.4, saturation=0.2,hue=0.1)
+                brightness=0.4, contrast=0.4, saturation=0.2, hue=0.1)
         ],
         p=0.8),
     dict(type='RandomGrayscale', p=0.2),
@@ -45,8 +45,8 @@ if not prefetch:
 
 # dataset summary
 data = dict(
-    imgs_per_gpu=64,  # V100: 64 x 16 = bs4096
-    workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    imgs_per_gpu=64,  # V100: 64 x 8gpus x 8 accumulates = bs4096
+    workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(

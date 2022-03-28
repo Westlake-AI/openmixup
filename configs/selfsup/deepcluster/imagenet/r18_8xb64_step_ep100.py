@@ -25,7 +25,7 @@ update_interval = 1
 optimizer = dict(type='SGD', lr=0.03, weight_decay=1e-4, momentum=0.9)
 
 # apex
-use_fp16 = True
+use_fp16 = False
 fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
@@ -34,4 +34,4 @@ optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad
 lr_config = dict(policy='step', step=[120, 160])
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=200)
+runner = dict(type='EpochBasedRunner', max_epochs=100)

@@ -1,6 +1,5 @@
 # reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
 # modified from mmclassification swin_transformer.py
-import logging
 from copy import deepcopy
 from typing import Sequence
 
@@ -10,7 +9,7 @@ import torch.nn as nn
 import torch.utils.checkpoint as cp
 from mmcv.cnn import build_norm_layer
 from mmcv.cnn.bricks.transformer import FFN, PatchEmbed, PatchMerging
-from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
+from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init, trunc_normal_
 from mmcv.runner.base_module import BaseModule, ModuleList
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
@@ -408,13 +407,13 @@ class SwinTransformer(BaseBackbone):
                 if isinstance(m, (nn.Conv2d)):
                     lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')
                 elif isinstance(m, (nn.Linear)):
-                    trunc_normal_init(m, mean=0., std=0.02)
+                    trunc_normal_init(m, std=0.02)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
             # pos_embed & cls_token
             if self.use_abs_pos_embed:
-                trunc_normal_init(self.absolute_pos_embed, mean=0., std=0.02)
+                trunc_normal_(self.absolute_pos_embed, std=0.02)
 
     def forward(self, x):
         x, hw_shape = self.patch_embed(x)

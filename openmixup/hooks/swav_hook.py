@@ -37,7 +37,7 @@ class SwAVHook(Hook):
                  queue_length=0,
                  interval=1,
                  **kwargs):
-        self.batch_size = batch_size * dist.get_world_size()\
+        self.batch_size = batch_size * dist.get_world_size() \
             if dist.is_initialized() else batch_size
         self.epoch_queue_starts = epoch_queue_starts
         self.crops_for_assign = crops_for_assign

@@ -40,8 +40,9 @@ class RelativeLocDataset(BaseDataset):
     """Dataset for relative patch location.
     """
 
-    def __init__(self, data_source, pipeline, format_pipeline):
+    def __init__(self, data_source, pipeline, format_pipeline, prefetch=False):
         super(RelativeLocDataset, self).__init__(data_source, pipeline)
+        assert prefetch == False
         format_pipeline = [build_from_cfg(p, PIPELINES) for p in format_pipeline]
         self.format_pipeline = Compose(format_pipeline)
 
