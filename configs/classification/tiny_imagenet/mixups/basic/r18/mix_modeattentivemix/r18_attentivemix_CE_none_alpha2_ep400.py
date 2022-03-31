@@ -1,4 +1,7 @@
-_base_ = '../../../../../_base_/datasets/tiny_imagenet/sz64_bs100.py'
+_base_ = [
+    '../../../../../_base_/datasets/tiny_imagenet/sz64_bs100.py',
+    '../../../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
@@ -24,7 +27,7 @@ model = dict(
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
     backbone_k=dict(  # PyTorch pre-trained R-18 is required for attentivemix+
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=18,
         num_stages=4,
         out_indices=(3,),

@@ -150,6 +150,7 @@ class ODCNeck(nn.Module):
     def forward(self, x):
         assert len(x) == 1
         x = x[0]
+        x = self.avgpool(x).view(x.size(0), -1)
         x = self.fc0(x)
         x = self.bn0(x)
         x = self.relu(x)

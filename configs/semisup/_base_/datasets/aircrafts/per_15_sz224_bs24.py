@@ -1,14 +1,11 @@
-_base_ = '../../../../base.py'
-
 # dataset settings
 data_source_cfg = dict(type='ImageNet', splitor=",")
 # Aircrafts
-data_base = "data/Aircraft/"
-data_train_labeled_list = data_base + 'image_list/train_15.txt'  # download from Self-Tuning
-data_train_unlabeled_list = data_base + 'image_list/unlabeled_15.txt'
-data_train_root = data_base
-data_test_list = data_base + 'image_list/test.txt'
-data_test_root = data_base
+data_train_labeled_list = 'data/meta/Aircrafts/image_list/train_15.txt'  # download from Self-Tuning
+data_train_unlabeled_list = 'data/meta/Aircrafts/image_list/unlabeled_15.txt'
+data_train_root = 'data/Aircrafts/'
+data_test_list = 'data/meta/Aircrafts/image_list/test.txt'
+data_test_root = 'data/Aircrafts/'
 
 dataset_type = 'SemiSupervisedDataset'
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])

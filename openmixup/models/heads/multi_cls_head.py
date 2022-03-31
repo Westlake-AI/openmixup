@@ -9,6 +9,20 @@ from ..utils import MultiPooling
 @HEADS.register_module
 class MultiClsHead(nn.Module):
     """Multiple classifier heads.
+
+    This head inputs feature maps from different stages of backbone, average
+    pools each feature map to around 9000 dimensions, and then appends a
+    linear classifier at each stage to predict corresponding class scores.
+
+    Args:
+        pool_type (str): 'adaptive' or 'specified'. If set to 'adaptive', use
+            adaptive average pooling, otherwise use specified pooling params.
+        in_indices (Sequence[int]): Input from which stages.
+        with_last_layer_unpool (bool): Whether to unpool the features from
+            last layer. Defaults to False.
+        backbone (str): Specify which backbone to use. Defaults to 'resnet50'.
+        norm_cfg (dict): dictionary to construct and config norm layer.
+        num_classes (int): Number of classes. Defaults to 1000.
     """
 
     FEAT_CHANNELS = {
@@ -16,6 +30,7 @@ class MultiClsHead(nn.Module):
         'resnet50': [64, 256, 512, 1024, 2048]
     }
     FEAT_LAST_UNPOOL = {
+        'resnet50': 512 * 7 * 7,
         'resnet50': 2048 * 7 * 7
     }
 
@@ -63,6 +78,15 @@ class MultiClsHead(nn.Module):
                     nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
+        """Forward head.
+
+        Args:
+            x (list[Tensor] | tuple[Tensor]): Feature maps of backbone,
+                each tensor has shape (N, C, H, W).
+
+        Returns:
+            list[Tensor]: A list of class scores.
+        """
         assert isinstance(x, (list, tuple))
         if self.with_last_layer_unpool:
             last_x = x[-1]
@@ -76,6 +100,7 @@ class MultiClsHead(nn.Module):
         return x
 
     def loss(self, cls_score, labels):
+        """Compute the loss."""
         losses = dict()
         for i, s in enumerate(cls_score):
             # keys must contain "loss"

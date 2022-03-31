@@ -2,6 +2,7 @@ from .accuracy import Accuracy, accuracy, accuracy_mixup
 from .conv_ws import ConvWS2d, conv_ws_2d
 from .channel_shuffle import channel_shuffle
 from .drop import DropPath
+from .evaluation import *
 from .gather_layer import GatherLayer, concat_all_gather, \
    batch_shuffle_ddp, batch_unshuffle_ddp, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 from .grad_weight import GradWeighter

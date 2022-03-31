@@ -1,22 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/simclr_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='SimCLR',
-    backbone=dict(
-        type='ResNet_mmcls',
-        depth=50,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='SyncBN'),
-        style='pytorch'),
-    neck=dict(
-        type='NonLinearNeck',  # SimCLR non-linear neck
-        in_channels=2048, hid_channels=2048, out_channels=128,
-        num_layers=2,
-        with_avg_pool=True),
-    head=dict(type='ContrastiveHead', temperature=0.1)
-)
+_base_ = [
+    '../../_base_/models/simclr/r50.py',
+    '../../_base_/datasets/imagenet/simclr_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # interval for accumulate gradient
 update_interval = 1  # SimCLR cannot use grad accumulation, total: 8 x bs64 = bs512

@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py'
+_base_ = [
+    '../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # value_neck_cfg
 conv1x1=dict(
@@ -21,7 +24,7 @@ model = dict(
     mask_up_override=None,  # If not none, override upsampling when train MixBlock
     debug=True,  # show attention and content map
     backbone=dict(
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=101,
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x

@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/imagenet/rsb_a3_sz160_4xbs512.py'
+_base_ = [
+    '../../../_base_/datasets/imagenet/rsb_a3_sz160_4xbs512.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
@@ -13,7 +16,7 @@ model = dict(
         fmix=dict(decay_power=3, size=(160,160), max_soft=0., reformulate=False)
     ),
     backbone=dict(
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x

@@ -308,7 +308,7 @@ class AutoMixup(BaseModel):
             losses['loss'] += loss_one_q['loss'] * self.weight_one_q
             losses['acc_one_q'] = loss_one_q['acc']
         # mixblock loss
-        if self.weight_mix_k > 0:
+        if loss_mix_k['loss'] is not None and self.weight_mix_k > 0:
             losses["loss"] += loss_mix_k['loss'] * self.weight_mix_k
             losses['acc_mix_k'] = loss_mix_k['acc']
         if results["mask_loss"] is not None and self.mask_loss > 0:
@@ -373,7 +373,7 @@ class AutoMixup(BaseModel):
             # loss
             loss_one_q = self.head_one_q.loss(pred_one_q, y)
             if torch.isnan(loss_one_q['loss']):
-                print_log("Warming NAN loss: loss_one_q. Force FP32!", logger='root')
+                print_log("Warming NAN in loss_one_q. Please use FP32!", logger='root')
                 loss_one_q = None
         
         # mixup q
@@ -387,8 +387,8 @@ class AutoMixup(BaseModel):
             y_mix_q = (y, y[index], lam)
             loss_mix_q = self.head_mix_q.loss(pred_mix_q, y_mix_q)
             if torch.isnan(loss_mix_q['loss']):
-                print_log("Warming NAN loss: loss_mix_q. Exit.", logger='root')
-                loss_mix_q = None
+                print_log("Warming NAN in loss_mix_q. Please use FP32!", logger='root')
+                loss_mix_q = dict(loss=None)
         
         return loss_one_q, loss_mix_q
 
@@ -406,8 +406,8 @@ class AutoMixup(BaseModel):
             y_mix_k = (y, y[index], lam)
             loss_mix_k = self.head_mix_k.loss(pred_mix_k, y_mix_k)
             if torch.isnan(loss_mix_k['loss']):
-                print_log("Warming NAN loss: loss_mix_k. Exit.", logger='root')
-                loss_mix_k = dict()
+                print_log("Warming NAN in loss_mix_k. Please use FP32!", logger='root')
+                loss_mix_k = dict(loss=None)
 
         # mixup loss, short cut of pre-mixblock
         if self.pre_mix_loss > 0:
@@ -424,7 +424,7 @@ class AutoMixup(BaseModel):
             loss_mix_k["pre_mix_loss"] = \
                 self.mix_block.pre_head.loss(pred_mix_mb, y_mix_k)["loss"] * self.pre_mix_loss
             if torch.isnan(loss_mix_k["pre_mix_loss"]):
-                print_log("Warming NAN loss: pre_mix_loss.", logger='root')
+                print_log("Warming NAN in pre_mix_loss.", logger='root')
                 loss_mix_k["pre_mix_loss"] = None
         else:
             loss_mix_k["pre_mix_loss"] = None
@@ -476,7 +476,7 @@ class AutoMixup(BaseModel):
             results["pre_one_loss"] = \
                 self.mix_block.pre_head.loss(pred_one, y_one)["loss"] * self.pre_one_loss
             if torch.isnan(results["pre_one_loss"]):
-                print_log("Warming NAN loss: pre_one_loss.", logger='root')
+                print_log("Warming NAN in pre_one_loss.", logger='root')
                 results["pre_one_loss"] = None
         
         mask_mb = mask_mb["mask"]

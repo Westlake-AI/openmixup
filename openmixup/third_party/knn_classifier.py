@@ -1,6 +1,7 @@
 # This file is modified from
 # https://github.com/vturrisi/solo-learn/solo/utils/knn.py
 from tqdm import tqdm
+import numpy as np
 import torch
 import torch.nn.functional as F
 
@@ -8,7 +9,7 @@ from openmixup.utils import print_log
 
 
 class WeightedKNNClassifier():
-    """Implements the weighted k-NN classifier used for evaluation.
+    """Implements the weighted k-NN classifier for evaluation.
 
     KNN metric is propised in "Unsupervised Feature Learning via Non-Parametric
     Instance Discrimination (https://arxiv.org/pdf/1805.01978.pdf)"
@@ -40,11 +41,13 @@ class WeightedKNNClassifier():
         self.chunk_size = chunk_size
         self.distance_fx = distance_fx
         self.epsilon = epsilon
+        self.model_path = None
+        self.save_model = False
 
     @torch.no_grad()
     def evaluate(self,
                  train_features, train_targets, test_features, test_targets,
-                 keyword, logger=None, topk=(1, 5)):
+                 keyword, logger=None, topk=(1, 5), **kwargs):
         """Computes weighted k-NN accuracy top-1 & top-5.
         
         If cosine distance is selected, the weight is computed using the exponential
@@ -52,15 +55,22 @@ class WeightedKNNClassifier():
         is selected, the weight corresponds to the inverse of the euclidean distance.
 
         Args:
-            train_features (torch.Tensor, optional): a batch of train features.
-            train_targets (torch.Tensor, optional): a batch of train targets.
-            test_features (torch.Tensor, optional): a batch of test features.
-            test_targets (torch.Tensor, optional): a batch of test targets.
+            train_features (torch.Tensor | np.array): Train features in (N,D).
+            train_targets (torch.Tensor | np.array): Train targets in (N,C).
+            test_features (torch.Tensor | np.array): Test features in (N,D).
+            test_targets (torch.Tensor | np.array): Test targets in (N,C).
             logger (logging.Logger | str | None, optional): The defined logger
                 to be used. Defaults to None.
             topk (tuple(int)): The output includes topk accuracy.
         """
         eval_res = {}
+
+        to_tensor = (lambda x: torch.from_numpy(x)
+                    if isinstance(x, np.ndarray) else x)
+        train_features = to_tensor(train_features)
+        train_targets = to_tensor(train_targets)
+        test_features = to_tensor(test_features)
+        test_targets = to_tensor(test_targets)
 
         if self.distance_fx == "cosine":
             train_features = F.normalize(train_features)

@@ -481,7 +481,7 @@ class SwinTransformer(BaseBackbone):
         if mode and self.norm_eval:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
-                if isinstance(m, _BatchNorm, nn.SyncBatchNorm):
+                if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()
 
     def _prepare_abs_pos_embed(self, state_dict, prefix, *args, **kwargs):

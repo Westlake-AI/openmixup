@@ -1,5 +1,3 @@
-_base_ = '../../../../base.py'
-
 # FixMatch RandAugment policy (14)
 fixmatch_augment_policies = [
     dict(type='AutoContrast'),

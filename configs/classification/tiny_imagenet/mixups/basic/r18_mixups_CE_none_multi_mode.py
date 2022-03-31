@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/tiny_imagenet/sz64_bs100.py'
+_base_ = [
+    '../../../_base_/datasets/tiny_imagenet/sz64_bs100.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(

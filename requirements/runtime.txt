@@ -4,6 +4,7 @@ matplotlib
 mmcv-full>=1.4.2,<=1.5.0
 numpy
 packaging
+pandas
 scipy
 six
 terminaltables

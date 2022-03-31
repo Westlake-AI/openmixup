@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/cifar100/sz32_bs100.py'
+_base_ = [
+    '../../../_base_/datasets/cifar100/sz32_bs100.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # value_neck_cfg
 conv1x1=dict(

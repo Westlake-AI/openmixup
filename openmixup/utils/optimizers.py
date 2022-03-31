@@ -1,10 +1,12 @@
 import math
 
 import torch
+from mmcv.runner.optimizer.builder import OPTIMIZERS
 from torch.optim.optimizer import Optimizer, required
 from torch.optim import *
 
 
+@OPTIMIZERS.register_module()
 class LARS(Optimizer):
     r"""Implements layer-wise adaptive rate scaling for SGD.
 
@@ -118,6 +120,7 @@ class LARS(Optimizer):
         return loss
 
 
+@OPTIMIZERS.register_module()
 class LAMB(Optimizer):
     r"""Implements a pure pytorch variant of FuseLAMB (NvLamb variant) optimizer
     from apex.optimizers.FusedLAMB

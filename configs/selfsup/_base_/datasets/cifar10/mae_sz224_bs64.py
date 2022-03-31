@@ -1,5 +1,3 @@
-_base_ = '../../../../base.py'
-
 # dataset settings
 data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 
@@ -19,7 +17,7 @@ if not prefetch:
 # dataset summary
 data = dict(
     imgs_per_gpu=64,  # V100: 64 x 8gpus x 8 accumulates = bs4096
-    workers_per_gpu=4,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         data_source=dict(split='train', return_label=False, **data_source_cfg),

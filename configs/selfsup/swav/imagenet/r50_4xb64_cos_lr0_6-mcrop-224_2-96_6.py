@@ -1,26 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/swav_mcrop-2-6_sz224_96_bs32.py'
-
-# model settings
-model = dict(
-    type='SwAV',
-    backbone=dict(
-        type='ResNet_mmcls',
-        depth=50,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='SyncBN'),
-        style='pytorch'),
-    neck=dict(
-        type='SwAVNeck',
-        in_channels=2048, hid_channels=2048, out_channels=128,
-        with_avg_pool=True),
-    head=dict(
-        type='SwAVHead',
-        feat_dim=128,  # equal to neck['out_channels']
-        epsilon=0.05,
-        temperature=0.1,
-        num_crops=[2, 6],)
-)
+_base_ = [
+    '../../_base_/models/swav/r50.py',
+    '../../_base_/datasets/imagenet/swav_mcrop-2-6_sz224_96_bs32.py',
+    '../../_base_/default_runtime.py',
+]
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs64 x 1 accumulates = bs256

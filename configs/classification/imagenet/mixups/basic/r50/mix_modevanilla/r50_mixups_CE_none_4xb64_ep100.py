@@ -1,4 +1,7 @@
-_base_ = '../../../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py'
+_base_ = [
+    '../../../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
+    '../../../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
@@ -18,7 +21,7 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='ResNet_mmcls',  # normal
+        type='ResNet',  # normal
         # type='ResNet_Mix',  # required by 'manifoldmix'
         depth=50,
         num_stages=4,

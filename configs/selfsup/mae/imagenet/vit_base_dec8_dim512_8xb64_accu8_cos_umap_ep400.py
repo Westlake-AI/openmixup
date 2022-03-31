@@ -1,23 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/mae_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='MAE',
-    backbone=dict(
-        type='MAEViT',
-        arch='base', patch_size=16, mask_ratio=0.75),
-    neck=dict(
-        type='MAEPretrainDecoder',
-        patch_size=16,
-        in_chans=3,
-        embed_dim=768,
-        decoder_embed_dim=512,
-        decoder_depth=8,  # 3/4 * eocoder depth
-        decoder_num_heads=16,
-        mlp_ratio=4.,
-    ),
-    head=dict(type='MAEPretrainHead', norm_pix=True, patch_size=16)
-)
+_base_ = [
+    '../../_base_/models/mae/vit_base.py',
+    '../../_base_/datasets/imagenet/mae_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # dataset settings for SSL metrics
 val_data_source_cfg = dict(type='ImageNet')

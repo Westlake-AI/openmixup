@@ -2,7 +2,15 @@ import torch.nn as nn
 
 
 class MultiPooling(nn.Module):
-    """Pooling layers for features from multiple depth."""
+    """Pooling layers for features from multiple depth.
+
+    Args:
+        pool_type (str): Pooling type for the feature map. Options are
+            'adaptive' and 'specified'. Defaults to 'adaptive'.
+        in_indices (Sequence[int]): Output from which backbone stages.
+            Defaults to (0, ).
+        backbone (str): The selected backbone. Defaults to 'resnet50'.
+    """
 
     POOL_PARAMS = {
         'resnet50': [

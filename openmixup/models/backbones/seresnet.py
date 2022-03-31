@@ -6,7 +6,7 @@ from mmcv.cnn import ConvModule, build_conv_layer, build_norm_layer
 import torch.utils.checkpoint as cp
 
 from ..registry import BACKBONES
-from .resnet_mmcls import Bottleneck, ResLayer, ResNet_mmcls
+from .resnet_mmcls import Bottleneck, ResLayer, ResNet
 
 
 class SELayer(nn.Module):
@@ -108,7 +108,7 @@ class SEBottleneck(Bottleneck):
 
 
 @BACKBONES.register_module()
-class SEResNet(ResNet_mmcls):
+class SEResNet(ResNet):
     """SEResNet backbone.
 
     Please refer to the `paper <https://arxiv.org/abs/1709.01507>`_ for

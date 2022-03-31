@@ -6,7 +6,7 @@ from mmcv.cnn import build_conv_layer, build_norm_layer
 
 from ..registry import BACKBONES
 from .resnet_mmcls import Bottleneck as _Bottleneck
-from .resnet_mmcls import ResLayer, ResNet_mmcls
+from .resnet_mmcls import ResLayer, ResNet
 from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 
 
@@ -91,7 +91,7 @@ class Bottleneck(_Bottleneck):
 
 
 @BACKBONES.register_module()
-class ResNeXt(ResNet_mmcls):
+class ResNeXt(ResNet):
     """ResNeXt backbone.
     mmclassification version
 
@@ -197,7 +197,7 @@ class ResNeXt_CIFAR(ResNeXt):
 
 
 @BACKBONES.register_module()
-class ResNeXt_Mix(ResNet_mmcls):
+class ResNeXt_Mix(ResNet):
     """ResNeXt backbone, Supporting ManifoldMix and its variants.
         mmclassification version
         v09.13
@@ -357,7 +357,7 @@ class ResNeXt_Mix(ResNet_mmcls):
 
 
 @BACKBONES.register_module()
-class ResNeXt_CIFAR_Mix(ResNet_mmcls):
+class ResNeXt_CIFAR_Mix(ResNet):
     """ResNeXt backbone for CIFAR, support ManifoldMix and its variants
         v09.13
 

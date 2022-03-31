@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/inaturalist2017/basic_sz224_4xbs64.py'
+_base_ = [
+    '../../../_base_/datasets/inaturalist2017/basic_sz224_4xbs64.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(

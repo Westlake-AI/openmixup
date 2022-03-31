@@ -214,6 +214,7 @@ class ConvNeXt(BaseBackbone):
                  layer_scale_init_value=1e-6,
                  out_indices=-1,
                  frozen_stages=0,
+                 norm_eval=False,
                  gap_before_final_norm=True,
                  init_cfg=None,
                  **kwargs):
@@ -251,6 +252,7 @@ class ConvNeXt(BaseBackbone):
         self.out_indices = out_indices
 
         self.frozen_stages = frozen_stages
+        self.norm_eval = norm_eval
         self.gap_before_final_norm = gap_before_final_norm
 
         # stochastic depth decay rule
@@ -358,5 +360,5 @@ class ConvNeXt(BaseBackbone):
         if mode and self.norm_eval:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
-                if isinstance(m, _BatchNorm, nn.SyncBatchNorm):
+                if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()

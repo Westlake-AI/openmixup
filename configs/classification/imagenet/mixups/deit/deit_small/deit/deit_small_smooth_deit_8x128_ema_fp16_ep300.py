@@ -1,4 +1,7 @@
-_base_ = '../../../../../_base_/datasets/imagenet/swin_sz224_8xbs128.py'
+_base_ = [
+    '../../../../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
+    '../../../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(

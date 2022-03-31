@@ -4,6 +4,7 @@ from .addtional_scheduler import \
     CyclicLrAdditionalHook, CustomFixedHook, CustomStepHook, CustomExpHook, CustomPolyHook, \
     CustomCosineAnnealingHook
 from .builder import build_hook, build_addtional_scheduler, build_optimizer
+from .constructor import DefaultOptimizerConstructor, MAEFtOptimizerConstructor
 from .deepcluster_hook import DeepClusterHook
 from .deepcluster_automix_hook import DeepClusterAutoMixHook
 from .ema_hook import EMAHook
@@ -19,7 +20,6 @@ from .selfsup_metric_hook import SSLMetricHook
 from .swav_hook import SwAVHook
 from .validate_hook import ValidateHook
 
-
 __all__ = [
     'HOOKS',
     'FixedLrAdditionalHook', 'StepLrAdditionalHook', 'ExpLrAdditionalHook', 'PolyLrAdditionalHook',
@@ -27,6 +27,7 @@ __all__ = [
     'CyclicLrAdditionalHook', 'CustomFixedHook', 'CustomStepHook', 'CustomExpHook', 'CustomPolyHook',
     'CustomCosineAnnealingHook',
     'build_hook', 'build_addtional_scheduler', 'build_optimizer',
+    'DefaultOptimizerConstructor', 'MAEFtOptimizerConstructor',
     'DeepClusterHook', 'DeepClusterAutoMixHook', 'ODCHook', 'PreciseBNHook', 'SwAVHook',
     'StepFixCosineAnnealingLrUpdaterHook', 'CosineHook', 'StepHook', 'CosineScheduleHook', 'StepScheduleHook',
     'EMAHook', 'Extractor', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',

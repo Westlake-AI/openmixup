@@ -1,5 +1,4 @@
 from mmcv.runner import Hook
-from mmcv.parallel import is_module_wrapper
 from math import cos, pi
 from .registry import HOOKS
 
@@ -41,8 +40,8 @@ class LrAddtionalSchedulerHook(Hook):
         if warmup is not None:
             assert warmup_iters > 0, \
                 '"warmup_iters" must be a positive integer'
-            assert 0 < warmup_ratio <= 1.0, \
-                '"warmup_ratio" must be in range (0,1]'
+            assert 0 <= warmup_ratio <= 1.0, \
+                '"warmup_ratio" must be in range [0,1]'
         
         # optional indice
         self.addtional_indice = addtional_indice
@@ -434,7 +433,6 @@ def annealing_cos(start, end, factor, weight=1):
     return end + 0.5 * weight * (start - end) * cos_out
 
 
-
 class CustomSchedulerHook(Hook):
     """Custom Scheduler Hook.
 
@@ -474,8 +472,8 @@ class CustomSchedulerHook(Hook):
         if warmup is not None:
             assert warmup_iters > 0, \
                 '"warmup_iters" must be a positive integer'
-            assert 0 < warmup_ratio <= 1.0, \
-                '"warmup_ratio" must be in range (0,1]'
+            assert 0 <= warmup_ratio <= 1.0, \
+                '"warmup_ratio" must be in range [0,1]'
         
         # basic custom scheduler args
         self.attr_name = attr_name

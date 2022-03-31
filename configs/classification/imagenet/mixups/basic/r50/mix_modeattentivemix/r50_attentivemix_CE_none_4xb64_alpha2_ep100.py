@@ -1,4 +1,7 @@
-_base_ = '../../../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py'
+_base_ = [
+    '../../../../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
+    '../../../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
@@ -19,13 +22,13 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='ResNet_mmcls',  # normal
+        type='ResNet',  # normal
         depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
     backbone_k=dict(  # PyTorch pre-trained R-18 is required for attentivemix+
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=18,
         num_stages=4,
         out_indices=(3,),

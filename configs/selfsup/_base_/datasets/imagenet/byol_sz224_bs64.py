@@ -1,5 +1,3 @@
-_base_ = '../../../../base.py'
-
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # ImageNet dataset

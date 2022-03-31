@@ -1,23 +1,8 @@
-_base_ = '../../_base_/datasets/cifar10/mae_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='MAE',
-    backbone=dict(
-        type='MAEViT',
-        arch='small', patch_size=16, mask_ratio=0.75),
-    neck=dict(
-        type='MAEPretrainDecoder',
-        patch_size=16,
-        in_chans=3,
-        embed_dim=768,
-        decoder_embed_dim=512,
-        decoder_depth=6,  # 3/4 * eocoder depth
-        decoder_num_heads=16,
-        mlp_ratio=4.,
-    ),
-    head=dict(type='MAEPretrainHead', norm_pix=True, patch_size=16)
-)
+_base_ = [
+    '../../_base_/models/mae/vit_small.py',
+    '../../_base_/datasets/cifar10/mae_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # dataset settings for SSL metrics
 data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')

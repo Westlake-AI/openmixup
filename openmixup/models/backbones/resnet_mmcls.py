@@ -397,7 +397,7 @@ class ResLayer(nn.Sequential):
 
 
 @BACKBONES.register_module()
-class ResNet_mmcls(BaseBackbone):
+class ResNet(BaseBackbone):
     """ResNet backbone.
 
     Please refer to the `paper <https://arxiv.org/abs/1512.03385>`_ for
@@ -479,7 +479,7 @@ class ResNet_mmcls(BaseBackbone):
                  with_cp=False,
                  zero_init_residual=True,
                  drop_path_rate=0.0):
-        super(ResNet_mmcls, self).__init__()
+        super(ResNet, self).__init__()
         if depth not in self.arch_settings:
             raise KeyError(f'invalid depth {depth} for resnet')
         self.depth = depth
@@ -620,7 +620,7 @@ class ResNet_mmcls(BaseBackbone):
                 m.train()
 
     def init_weights(self, pretrained=None):
-        super(ResNet_mmcls, self).init_weights(pretrained)
+        super(ResNet, self).init_weights(pretrained)
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):
@@ -652,17 +652,17 @@ class ResNet_mmcls(BaseBackbone):
         return outs
 
     def train(self, mode=True):
-        super(ResNet_mmcls, self).train(mode)
+        super(ResNet, self).train(mode)
         self._freeze_stages()
         if mode and self.norm_eval:
             for m in self.modules():
                 # trick: eval have effect on BatchNorm only
-                if isinstance(m, _BatchNorm, nn.SyncBatchNorm):
+                if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()
 
 
 @BACKBONES.register_module()
-class ResNetV1d(ResNet_mmcls):
+class ResNetV1d(ResNet):
     """ResNetV1d variant described in
     `Bag of Tricks <https://arxiv.org/pdf/1812.01187.pdf>`_.
 
@@ -678,7 +678,7 @@ class ResNetV1d(ResNet_mmcls):
 
 
 @BACKBONES.register_module()
-class ResNet_CIFAR(ResNet_mmcls):
+class ResNet_CIFAR(ResNet):
     """ResNet backbone for CIFAR.
 
     Compared to standard ResNet, it uses `kernel_size=3` and `stride=1` in
@@ -753,7 +753,7 @@ class ResNet_CIFAR(ResNet_mmcls):
 
 
 @BACKBONES.register_module()
-class ResNet_Mix(ResNet_mmcls):
+class ResNet_Mix(ResNet):
     """ResNet Support ManifoldMix and its variants
         v09.13
 
@@ -858,7 +858,7 @@ class ResNet_Mix(ResNet_mmcls):
 
 
 @BACKBONES.register_module()
-class ResNet_Mix_CIFAR(ResNet_mmcls):
+class ResNet_Mix_CIFAR(ResNet):
     """ResNet backbone for CIFAR, support ManifoldMix and its variants
         v09.13
 

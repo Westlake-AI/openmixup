@@ -64,6 +64,7 @@ def train_model(model,
             seed=cfg.seed,
             drop_last=getattr(cfg.data, 'drop_last', False),
             prefetch=cfg.prefetch,
+            persistent_workers=getattr(cfg, 'persistent_workers', True),
             img_norm_cfg=cfg.img_norm_cfg) for ds in dataset
     ]
 
@@ -78,7 +79,7 @@ def train_model(model,
     # fp16 and optimizer
     if distributed:
         optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
-        if cfg.use_fp16:
+        if cfg.get('use_fp16', False):
             # fp16 settings
             fp16_cfg = cfg.get('fp16', dict(type=None))
             fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)

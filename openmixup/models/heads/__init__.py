@@ -8,7 +8,6 @@ from .pmix_block import PixelMixBlock
 from .swav_head import MultiPrototypes, SwAVHead
 from .vision_transformer_head import VisionTransformerClsHead
 
-
 __all__ = [
     'ContrastiveHead', 'ClsHead', 'ClsMixupHead', 'LatentPredictHead', 'LatentClsHead',
     'MoCoV3Head', 'MAEPretrainHead', 'MultiClsHead', 'MultiPrototypes', 'SwAVHead',

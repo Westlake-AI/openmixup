@@ -1,14 +1,11 @@
-_base_ = '../../../../base.py'
-
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # CUB200
-cub_base = "data/CUB200/"
-data_train_labeled_list = cub_base + 'image_list/train_50.txt'  # download from Self-Tuning
-data_train_unlabeled_list = cub_base + 'image_list/unlabeled_50.txt'
-data_train_root = cub_base
-data_test_list = cub_base + 'image_list/test.txt'
-data_test_root = cub_base
+data_train_labeled_list = 'data/meta/CUB200/image_list/train_50.txt'  # download from Self-Tuning
+data_train_unlabeled_list = 'data/meta/CUB200/image_list/unlabeled_50.txt'
+data_train_root = 'data/CUB200/'
+data_test_list = 'data/meta/CUB200/image_list/test.txt'
+data_test_root = 'data/CUB200/'
 
 dataset_type = 'SemiSupervisedDataset'
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])

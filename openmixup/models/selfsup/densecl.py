@@ -87,8 +87,6 @@ class DenseCL(BaseModel):
                                     self.encoder_k.parameters()):
             param_k.requires_grad = False
             param_k.data.copy_(param_q.data)
-        # init the predictor in the head
-        self.head.init_weights(init_linear='normal')
 
     @torch.no_grad()
     def _momentum_update(self):
@@ -163,7 +161,7 @@ class DenseCL(BaseModel):
             self._momentum_update()
 
             # shuffle for making use of BN
-            im_k, idx_unshuffle = batch_shuffle_ddp(im_k)
+            im_k, idx_unshuffle, _ = batch_shuffle_ddp(im_k)
 
             k_b = self.encoder_k[0](im_k)  # backbone features
             k, k_grid, k2 = self.encoder_k[1](k_b)  # keys: NxC; NxCxS^2
@@ -210,6 +208,9 @@ class DenseCL(BaseModel):
         loss_dense = self.head(l_pos_dense, l_neg_dense)['loss']
 
         losses = dict()
+        #####################
+        print(self.loss_lambda)
+        #####################
         losses['loss_single'] = loss_single * (1 - self.loss_lambda)
         losses['loss_dense'] = loss_dense * self.loss_lambda
 

@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/aircrafts/per_50_sz224_bs24.py'
+_base_ = [
+    '../../../_base_/datasets/aircrafts/per_50_sz224_bs24.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
@@ -10,7 +13,7 @@ model = dict(
     temperature=0.07,
     pretrained="work_dirs/my_pretrains/official/resnet50_pytorch.pth",
     backbone=dict(
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=50,
         in_channels=3,
         out_indices=(3,),  # no conv-1, x-1: stage-x

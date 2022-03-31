@@ -1,9 +1,9 @@
 import re
+import copy
 import torch.distributed as dist
-from openmixup.utils import build_from_cfg, optimizers, print_log
+from mmcv.runner.optimizer.builder import build_optimizer_constructor
 
-from mmcv.runner import obj_from_dict
-
+from openmixup.utils import build_from_cfg, print_log
 from .registry import HOOKS
 
 
@@ -48,6 +48,8 @@ def build_addtional_scheduler(param_names, hook_cfg):
 def build_optimizer(model, optimizer_cfg):
     """Build optimizer from configs.
 
+    *** Modifying `build_optimizer` in MMCV ***
+
     Args:
         model (:obj:`nn.Module`): The model with parameters to be optimized.
         optimizer_cfg (dict): The config dict of the optimizer.
@@ -75,39 +77,14 @@ def build_optimizer(model, optimizer_cfg):
         >>>                      paramwise_options=paramwise_options)
         >>> optimizer = build_optimizer(model, optimizer_cfg)
     """
-    if hasattr(model, 'module'):
-        model = model.module
-
-    optimizer_cfg = optimizer_cfg.copy()
-    paramwise_options = optimizer_cfg.pop('paramwise_options', None)
-    # if no paramwise option is specified, just use the global setting
-    if paramwise_options is None:
-        return obj_from_dict(optimizer_cfg, optimizers,
-                             dict(params=model.parameters()))
-    else:
-        assert isinstance(paramwise_options, dict)
-        params = []
-        for name, param in model.named_parameters():
-            param_group = {'params': [param]}
-            if not param.requires_grad:
-                params.append(param_group)
-                continue
-
-            for regexp, options in paramwise_options.items():
-                if re.search(regexp, name):
-                    for key, value in options.items():
-                        if key.endswith('_mult'): # is a multiplier
-                            key = key[:-5]
-                            assert key in optimizer_cfg, \
-                                "{} not in optimizer_cfg".format(key)
-                            value = optimizer_cfg[key] * value
-                        param_group[key] = value
-                        if not dist.is_initialized() or dist.get_rank() == 0:
-                            print_log('paramwise_options -- {}: {}={}'.format(
-                                name, key, value))
-
-            # otherwise use the global settings
-            params.append(param_group)
-
-        optimizer_cls = getattr(optimizers, optimizer_cfg.pop('type'))
-        return optimizer_cls(params, **optimizer_cfg)
+    optimizer_cfg = copy.deepcopy(optimizer_cfg)
+    constructor_type = optimizer_cfg.pop('constructor',
+                                         'DefaultOptimizerConstructor')
+    paramwise_cfg = optimizer_cfg.pop('paramwise_options', None)
+    optim_constructor = build_optimizer_constructor(
+        dict(
+            type=constructor_type,
+            optimizer_cfg=optimizer_cfg,
+            paramwise_cfg=paramwise_cfg))
+    optimizer = optim_constructor(model)
+    return optimizer

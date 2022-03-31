@@ -1,10 +1,14 @@
-_base_ = '../../../_base_/datasets/imagenet/swav_mcrop-2-6_sz224_96_bs32.py'
+_base_ = [
+    '../../../_base_/models/swav/r50.py',
+    '../../../_base_/datasets/imagenet/swav_mcrop-2-6_sz224_96_bs32.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(
     type='SwAV',
     backbone=dict(
-        type='ResNet_mmcls',
+        type='ResNet',
         depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x

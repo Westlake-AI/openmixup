@@ -15,7 +15,6 @@ from .simclr_mix import SimCLR_Mix
 from .simsiam import SimSiam
 from .swav import SwAV
 
-
 __all__ = [
     'BYOL', 'DeepCluster', 'DenseCL', 'MAE', 'MOCO', 'MOCO_Mix', 'MOCO_AutoMix_V2',
     'MoCoV3', 'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimCLR_Mix',

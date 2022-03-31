@@ -79,9 +79,14 @@ def main():
     # set cudnn_benchmark
     if cfg.get('cudnn_benchmark', False):
         torch.backends.cudnn.benchmark = True
-    # update configs according to CLI args
+    # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
         cfg.work_dir = args.work_dir
+    elif cfg.get('work_dir', None) is None:
+        # use config filename as default work_dir if cfg.work_dir is None
+        work_type = args.config.split('/')[1]
+        cfg.work_dir = osp.join('./work_dirs', work_type,
+                                osp.splitext(osp.basename(args.config))[0])
     if args.resume_from is not None:
         cfg.resume_from = args.resume_from
     cfg.gpus = args.gpus
@@ -93,9 +98,10 @@ def main():
     # init distributed env first, since logger depends on the dist info.
     if args.launcher == 'none':
         distributed = False
-        assert cfg.model.type not in \
-            ['DeepCluster', 'MOCO', 'SimCLR', 'ODC', 'NPID'], \
-            "{} does not support non-dist training.".format(cfg.model.type)
+        assert cfg.model.type not in [
+            'DeepCluster', 'MoCo', 'SimCLR', 'ODC', 'NPID', 'SimSiam',
+            'DenseCL', 'BYOL', 'MAE',
+        ], f"{cfg.model.type} does not support non-dist training."
     else:
         distributed = True
         if args.launcher == 'slurm':
@@ -123,7 +129,7 @@ def main():
 
     # log some basic info
     logger.info('Distributed training: {}'.format(distributed))
-    logger.info('Config:\n{}'.format(cfg.text))
+    logger.info('Config:\n{}'.format(cfg.pretty_text))
 
     # set random seeds
     if args.seed is not None:
@@ -132,6 +138,7 @@ def main():
         set_random_seed(args.seed, deterministic=args.deterministic)
     cfg.seed = args.seed
     meta['seed'] = args.seed
+    meta['exp_name'] = osp.basename(args.config)
 
     if args.pretrained is not None:
         assert isinstance(args.pretrained, str)
@@ -144,8 +151,8 @@ def main():
         # save openmixup version, config file content and class names in
         # checkpoints as meta data
         cfg.checkpoint_config.meta = dict(
-            openmixup_version=__version__, config=cfg.text)
-    # add an attribute for visualization convenience
+            openmixup_version=__version__, config=cfg.pretty_text)
+    
     train_model(
         model,
         datasets,

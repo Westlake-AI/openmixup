@@ -35,7 +35,7 @@ Notice that * denotes open-source arxiv pre-prints reproduced by us, and :book: 
 
 ## ImageNet Benchmarks
 
-We provide three popular benchmarks on ImageNet-1k based on various backbones. We also provide results on TinyImageNet-200 for fast training. The median of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs is reported.
+We provide three popular benchmarks on ImageNet-1k based on various backbones. We also provide results on TinyImageNet-200 for fast training. The **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs is reported for ResNet variants, and the **best** top-1 accuracy is reported for DeiT training settings.
 
 ### PyTorch-style Training Settings on ImageNet-1k
 
@@ -58,7 +58,7 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | Co-Mixup :book: |      -     |      -     |    77.60   |      -     |      -      |
 | SuperMix :book: |      -     |      -     |    77.63   |      -     |      -      |
 | ResizeMix*      |    69.50   |    73.88   |    77.42   |    79.27   |    80.55    |
-| AlignMix :book: |      -     |      -     |            |      -     |      -      |
+| AlignMix :book: |      -     |      -     |    78.00   |      -     |      -      |
 | Grafting :book: |      -     |      -     |    77.74   |      -     |      -      |
 | AutoMix*        |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
 | SAMix*          |    70.83   |    74.95   |    78.06   |    80.05   |    80.98    |
@@ -100,7 +100,25 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 
 ### DeiT Training Settings on ImageNet-1k
 
-Coming soon!
+**Note**
+* Since recently proposed transformer-based archetectures adopt mixups as parts of enssential augmentations, we report the mean of the best performance in trivals as their original paper. Notice that the performances of transformer-based archetectures are more difficult to reproduce than ResNet variants.
+* Please run configs in `configs/classification/imagenet/deit/`, `configs/classification/imagenet/swin/`, and `configs/classification/imagenet/convnext/`.
+* Notice that :book: denotes original results reproduced by official implementations.
+
+| Methods         | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
+|-----------------|:----------:|:---------:|:-------------:|
+| DeiT            |    79.80   |   81.28   |     82.10     |
+| MixUp           |            |           |     80.88     |
+| CutMix          |    79.54   |           |     81.57     |
+| ManifoldMix     |      -     |     -     |     80.57     |
+| AttentiveMix    |    77.63   |           |     78.19     |
+| SaliencyMix     |    79.32   |           |     81.33     |
+| PuzzleMix       |    79.84   |           |     81.48     |
+| FMix            |    79.21   |           |     81.04     |
+| ResizeMix       |            |           |     81.64     |
+| TransMix :book: |    80.70   |   81.80   |       -       |
+| AutoMix         |    80.78   |           |     82.28     |
+| SAMix           |    80.94   |           |     82.35     |
 
 ### TinyImageNet-200
 
@@ -151,7 +169,7 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | ResizeMix*      |    96.16   |    96.91   |    96.76   |    97.04    |
 | AlignMix :book: |            |            |            |    97.05    |
 | AutoMix*        |    96.59   |    97.08   |    97.34   |    97.30    |
-| SAMix*          |    96.67   |    97.16   |    97.50   |             |
+| SAMix*          |    96.67   |    97.16   |    97.50   |    97.41    |
 
 | Backbones       | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |
 |-----------------|:----------:|:----------:|:----------:|:-----------:|

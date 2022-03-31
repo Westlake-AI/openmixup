@@ -1,30 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/odc_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='ODC',
-    with_sobel=False,
-    backbone=dict(
-        type='ResNet_mmcls',
-        depth=18,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='SyncBN'),
-        style='pytorch'),
-    neck=dict(
-        type='ODCNeck',
-        in_channels=512, hid_channels=512, out_channels=256,
-        with_avg_pool=True),
-    head=dict(
-        type='ClsHead',
-        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=False,  # already has avgpool in the neck
-        in_channels=256, num_classes=10000),
-    memory_bank=dict(
-        type='ODCMemory',
-        length=1281167, feat_dim=256, momentum=0.5,
-        num_classes=10000, min_cluster=20, debug=False)
-)
+_base_ = [
+    '../../_base_/models/odc/r18.py',
+    '../../_base_/datasets/imagenet/odc_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs64 x 1 accumulates = bs512

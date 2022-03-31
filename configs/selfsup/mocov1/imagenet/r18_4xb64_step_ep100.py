@@ -1,25 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/mocov1_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='MOCO',
-    queue_len=65536,
-    feat_dim=128,
-    momentum=0.999,
-    backbone=dict(
-        type='ResNet_mmcls',
-        depth=18,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='BN'),
-        style='pytorch'),
-    neck=dict(
-        type='LinearNeck',
-        in_channels=512,
-        out_channels=128,
-        with_avg_pool=True),
-    head=dict(type='ContrastiveHead', temperature=0.07)
-)
+_base_ = [
+    '../../_base_/models/mocov1/r18.py',
+    '../../_base_/datasets/imagenet/mocov1_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs64 x 1 accumulates = bs256

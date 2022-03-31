@@ -1,5 +1,3 @@
-_base_ = '../../../../base.py'
-
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # ImageNet dataset
@@ -55,7 +53,7 @@ custom_hooks = [
     dict(
         type='DeepClusterHook',
         extractor=dict(
-            imgs_per_gpu=128,
+            imgs_per_gpu=256,
             workers_per_gpu=8,
             dataset=data['extract'],
             prefetch=prefetch,

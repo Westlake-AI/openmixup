@@ -1,25 +1,8 @@
-_base_ = '../../_base_/datasets/imagenet/relative-loc_sz224_bs64.py'
-
-# model settings
-model = dict(
-    type='RelativeLoc',
-    backbone=dict(
-        type='ResNet_mmcls',
-        depth=50,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='BN'),
-        style='pytorch'),
-    neck=dict(
-        type='RelativeLocNeck',
-        in_channels=2048, out_channels=4096,
-        with_avg_pool=True),
-    head=dict(
-        type='ClsHead',
-        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=False,  # already has avgpool in the neck
-        in_channels=4096, num_classes=8),
-)
+_base_ = [
+    '../../_base_/models/relative_loc/r50.py',
+    '../../_base_/datasets/imagenet/relative-loc_sz224_bs64.py',
+    '../../_base_/default_runtime.py',
+]
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs64 x 1 accumulates = bs512

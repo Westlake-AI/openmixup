@@ -4,24 +4,22 @@
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
 #
-################################################################################
-"""
-This script can be used to extract the VOC2007 and VOC2012 dataset files
+###############################################################################
+"""This script can be used to extract the VOC2007 and VOC2012 dataset files.
+
 [data, labels] from the given annotations that can be used for training. The
-files can be prepared for various data splits
+files can be prepared for various data splits.
 """
 
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 import argparse
 import logging
-import numpy as np
-import os
+import os.path as osp
 import sys
 from glob import glob
+
+import numpy as np
 
 # initiate the logger
 FORMAT = '[%(levelname)s: %(filename)s: %(lineno)4d]: %(message)s'
@@ -30,9 +28,9 @@ logger = logging.getLogger(__name__)
 
 
 def validate_files(input_files):
-    """
-    The valid files will have name: <class_name>_<split>.txt. We want to remove
-    all the other files from the input.
+    """The valid files will have name: <class_name>_<split>.txt.
+
+    We want to remove all the other files from the input.
     """
     output_files = []
     for item in input_files:
@@ -42,13 +40,14 @@ def validate_files(input_files):
 
 
 def get_data_files(split, args):
-    data_dir = os.path.join(args.data_source_dir, 'ImageSets/Main')
-    assert os.path.exists(data_dir), "Data: {} doesn't exist".format(data_dir)
-    test_data_files = glob(os.path.join(data_dir, '*_test.txt'))
+    """Get data files according to input split information."""
+    data_dir = osp.join(args.data_source_dir, 'ImageSets/Main')
+    assert osp.exists(data_dir), f"Data: {data_dir} doesn't exist"
+    test_data_files = glob(osp.join(data_dir, '*_test.txt'))
     test_data_files = validate_files(test_data_files)
     if args.separate_partitions > 0:
-        train_data_files = glob(os.path.join(data_dir, '*_train.txt'))
-        val_data_files = glob(os.path.join(data_dir, '*_val.txt'))
+        train_data_files = glob(osp.join(data_dir, '*_train.txt'))
+        val_data_files = glob(osp.join(data_dir, '*_val.txt'))
         train_data_files = validate_files(train_data_files)
         val_data_files = validate_files(val_data_files)
         assert len(train_data_files) == len(val_data_files)
@@ -59,21 +58,23 @@ def get_data_files(split, args):
         else:
             data_files = val_data_files
     else:
-        train_data_files = glob(os.path.join(data_dir, '*_trainval.txt'))
+        train_data_files = glob(osp.join(data_dir, '*_trainval.txt'))
         if len(test_data_files) == 0:
             # For VOC2012 dataset, we have trainval, val and train data.
-            train_data_files = glob(os.path.join(data_dir, '*_train.txt'))
-            test_data_files = glob(os.path.join(data_dir, '*_val.txt'))
+            train_data_files = glob(osp.join(data_dir, '*_train.txt'))
+            test_data_files = glob(osp.join(data_dir, '*_val.txt'))
         test_data_files = validate_files(test_data_files)
         train_data_files = validate_files(train_data_files)
         data_files = train_data_files if (split
                                           == 'train') else test_data_files
-    assert len(train_data_files) == len(test_data_files), "Missing classes"
+    assert len(train_data_files) == len(test_data_files), 'Missing classes'
     return data_files
 
 
 def get_images_labels_info(split, args):
-    assert os.path.exists(args.data_source_dir), "Data source NOT found. Abort"
+    """Obtain image paths and labels information separately and build a
+    corresponding dict {img_id: out_lbl}"""
+    assert osp.exists(args.data_source_dir), 'Data source NOT found. Abort'
 
     data_files = get_data_files(split, args)
     # we will construct a map for image name to the vector of -1, 0, 1
@@ -90,7 +91,7 @@ def get_images_labels_info(split, args):
                         img_labels_map[img_name] = -np.ones(
                             len(data_files), dtype=np.int32)
                     orig_label = int(orig_label)
-                    # in VOC data, -1 (not present), set it to 0 as train target
+                    # in VOC data, -1 (not present), set to 0 as train target
                     if orig_label == -1:
                         orig_label = 0
                     # in VOC data, 0 (ignore), set it to -1 as train target
@@ -98,13 +99,13 @@ def get_images_labels_info(split, args):
                         orig_label = -1
                     img_labels_map[img_name][cls_num] = orig_label
                 except Exception:
-                    logger.info('Error processing: {} data_path: {}'.format(
-                        line, data_path))
+                    logger.info(
+                        f'Error processing: {line} data_path: {data_path}')
 
     img_paths, img_labels = [], []
     for item in sorted(img_labels_map.keys()):
         img_paths.append(
-            os.path.join(args.data_source_dir, 'JPEGImages', item + '.jpg'))
+            osp.join(args.data_source_dir, 'JPEGImages', item + '.jpg'))
         img_labels.append(img_labels_map[item])
 
     output_dict = {}
@@ -130,28 +131,28 @@ def get_images_labels_info(split, args):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Create VOC data files")
+    parser = argparse.ArgumentParser(description='Create VOC data files')
     parser.add_argument(
         '--data_source_dir',
         type=str,
         default=None,
-        help="Path to data directory containing ImageSets and JPEGImages")
+        help='Path to data directory containing ImageSets and JPEGImages')
     parser.add_argument(
         '--output_dir',
         type=str,
         default=None,
-        help="Output directory where images/label information will be written")
+        help='Output directory where images/label information will be written')
     parser.add_argument(
         '--separate_partitions',
         type=int,
         default=0,
-        help="Whether to create files separately for partitions train/test/val"
+        help='Whether to create files separately for partitions train/test/val'
     )
     parser.add_argument(
         '--generate_json',
         type=int,
         default=0,
-        help="Whether to json files for partitions train/test/val")
+        help='Whether to json files for partitions train/test/val')
     args = parser.parse_args()
 
     # given the data directory for the partitions train, val, and test, we will
@@ -161,31 +162,30 @@ def main():
         partitions.append('val')
 
     for partition in partitions:
-        logger.info(
-            '========Preparing {} data files========'.format(partition))
+        logger.info(f'========Preparing {partition} data files========')
         imgs_info, lbls_info, output_dict = get_images_labels_info(
             partition, args)
-        img_info_out_path = os.path.join(args.output_dir,
-                                         partition + '_images.npy')
-        label_info_out_path = os.path.join(args.output_dir,
-                                           partition + '_labels.npy')
+        img_info_out_path = osp.join(args.output_dir,
+                                     partition + '_images.npy')
+        label_info_out_path = osp.join(args.output_dir,
+                                       partition + '_labels.npy')
         logger.info(
             '=================SAVING DATA files=======================')
-        logger.info('partition: {} saving img_paths to: {}'.format(
-            partition, img_info_out_path))
-        logger.info('partition: {} saving lbls_paths: {}'.format(
-            partition, label_info_out_path))
-        logger.info('partition: {} imgs: {}'.format(partition,
-                                                    np.array(imgs_info).shape))
+        logger.info(
+            f'partition: {partition} saving img_paths to: {img_info_out_path}')
+        logger.info(
+            f'partition: {partition} saving lbls_paths: {label_info_out_path}')
+        logger.info(
+            f'partition: {partition} imgs: {np.array(imgs_info).shape}')
         np.save(img_info_out_path, np.array(imgs_info))
         np.save(label_info_out_path, np.array(lbls_info))
         if args.generate_json:
-            json_out_path = os.path.join(args.output_dir,
-                                         partition + '_targets.json')
+            json_out_path = osp.join(args.output_dir,
+                                     partition + '_targets.json')
             import json
             with open(json_out_path, 'w') as fp:
                 json.dump(output_dict, fp)
-            logger.info('Saved Json to: {}'.format(json_out_path))
+            logger.info(f'Saved Json to: {json_out_path}')
     logger.info('DONE!')
 
 

@@ -1,4 +1,7 @@
-_base_ = '../../../_base_/datasets/cifar100/400_randaug_sz32_bs64.py'
+_base_ = [
+    '../../../_base_/datasets/cifar100/400_randaug_sz32_bs64.py',
+    '../../../_base_/default_runtime.py',
+]
 
 # model settings
 model = dict(

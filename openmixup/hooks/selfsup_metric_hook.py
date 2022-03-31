@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import mmcv
-import torch
 
 from mmcv.runner import Hook
 from torch.utils.data import Dataset
@@ -11,7 +10,7 @@ import seaborn as sns
 
 from openmixup.utils import nondist_forward_collect, dist_forward_collect
 from openmixup import datasets
-from openmixup.third_party import WeightedKNNClassifier
+from openmixup.third_party import LinearSVMClassifier, WeightedKNNClassifier
 from .registry import HOOKS
 
 
@@ -27,7 +26,8 @@ class SSLMetricHook(Hook):
         dist_mode (bool): Use distributed evaluation or not. Default: True.
         forward_mode (str): Mode of forward to extract features, e.g., SSL
             methods use `extract` mode for backbone features. Default: 'test'.
-        metric_mode (str): Mode of linear classification. Default: 'knn'.
+        metric_mode (str | list): Mode of linear classification in {'knn', 'svm'}.
+            Default: 'knn'.
         metric_args (dict): Dict of arguments for metric tools. Default: None.
         visual_mode (str): Mode of embedding visualization. Default: 'umap'.
         visual_args (dict): Dict of arguments for visualization methods. Notice
@@ -45,8 +45,8 @@ class SSLMetricHook(Hook):
                  train_dataset=None,
                  dist_mode=True,
                  forward_mode='test',
-                 metric_mode="knn",
-                 metric_args=dict(knn=20),
+                 metric_mode=["knn",],
+                 metric_args=dict(knn=20, costs_list=[0.01, 0.1]),
                  visual_mode="tsne",
                  visual_args=dict(n_components=2),
                  initial=True,
@@ -57,8 +57,16 @@ class SSLMetricHook(Hook):
         self.metric_mode = metric_mode
         self.visual_mode = visual_mode
         assert forward_mode in ['test', 'vis', 'extract',]
-        assert metric_mode is None or metric_mode in ["knn",]
-        assert visual_mode is None or visual_mode in ["tsne", "umap",]
+        assert metric_mode is None or isinstance(metric_mode, (str, list))
+        assert visual_mode is None or isinstance(visual_mode, str)
+        if self.metric_mode is not None:
+            if isinstance(metric_mode, str):
+                self.metric_mode = [metric_mode,]
+            for _m in self.metric_mode:
+                assert _m in ["knn", "svm",], f"Got invalid metric mode {_m}."
+        if self.visual_mode is not None:
+            assert visual_mode in ["tsne", "umap",], \
+                f"Got invalid visualization mode {visual_mode}."
         self.dist_mode = dist_mode
         self.initial = initial
         self.interval = interval
@@ -96,14 +104,28 @@ class SSLMetricHook(Hook):
         return dataset, data_loader
 
     def _build_metric_tools(self, metric_args):
-        if self.metric_mode == "knn":
-            self.metric = WeightedKNNClassifier(
-                k=metric_args.get('knn', 20),
-                T=metric_args.get('temperature', 0.07),
-                distance_fx=metric_args.get('metric', 'cosine'),
-                epsilon=metric_args.get('epsilon', 1e-5),
-                chunk_size=metric_args.get('chunk_size', 128),
-            )
+        if self.metric_mode:
+            self.metric = list()
+            for _mode in self.metric_mode:
+                if _mode == "knn":
+                    _metric = WeightedKNNClassifier(
+                        k=metric_args.get('knn', 20),
+                        T=metric_args.get('temperature', 0.07),
+                        distance_fx=metric_args.get('metric', 'cosine'),
+                        epsilon=metric_args.get('epsilon', 1e-5),
+                        chunk_size=metric_args.get('chunk_size', 128),
+                    )
+                    self.metric.append(_metric)
+                elif _mode == "svm":
+                    _metric = LinearSVMClassifier(
+                        dataset=metric_args.get('dataset', 'onehot'),
+                        costs_list=metric_args.get('costs_list', "0.01,0.1,1"),
+                        default_cost=metric_args.get('default_cost', (4,10)),
+                        num_workers=metric_args.get('num_workers', 0),
+                    )
+                    self.metric.append(_metric)
+            if len(self.metric) == 0:
+                self.metric = None
         else:
             self.metric = None
 
@@ -166,18 +188,24 @@ class SSLMetricHook(Hook):
         ax.set(xlabel="", ylabel="", xticklabels=[], yticklabels=[])
         ax.tick_params(left=False, right=False, bottom=False, top=False)
 
-        # manually improve quality of imagenet umaps
+        # manually improve quality of plot in terms of the class number
+        ncol = max(5, math.ceil(num_classes / 10))
+        nrow = num_classes // ncol
         if num_classes > 100:
             anchor = (0.5, 1.8)
         else:
-            anchor = (0.5, 1.35)
-        plt.legend(loc="upper center", bbox_to_anchor=anchor, ncol=math.ceil(num_classes / 10))
+            anchor = (0.5, 1.05 + 0.3 * (nrow / 10))
+        plt.legend(loc="upper center", bbox_to_anchor=anchor, ncol=ncol)
         plt.tight_layout()
         plt.savefig(save_name)
         plt.close()
 
     def before_run(self, runner):
         # save dirs
+        if self.metric is not None:
+            for i in range(len(self.metric)):
+                self.metric[i].model_path = f'{runner.work_dir}/metric/'
+                self.metric[i].save_model = self.save_val
         if self.save_val:
             mmcv.mkdir_or_exist(f'{runner.work_dir}/metric/')
         if self.visualize is not None:
@@ -209,19 +237,18 @@ class SSLMetricHook(Hook):
             # train and evaluate metric
             if self.metric is not None:
                 for name in val_results.keys():
-                    eval_res = self.metric.evaluate(
-                        torch.from_numpy(train_results[name]),
-                        torch.from_numpy(self.train_dataset.targets),
-                        torch.from_numpy(val_results[name]),
-                        torch.from_numpy(self.val_dataset.targets),
-                        keyword=name, logger=runner.logger,
-                        **self.eval_kwargs['eval_param'])
-                    for key, val in eval_res.items():
-                        runner.log_buffer.output[key] = val
-                    runner.log_buffer.ready = True
-                    if self.save_val:
-                        np.save(f"{runner.work_dir}/metric/val_epoch_{runner.epoch+1}.npy",
-                                val_results[name])
+                    for _metric in self.metric:
+                        eval_res = _metric.evaluate(
+                            train_results[name], self.train_dataset.targets,
+                            val_results[name], self.val_dataset.targets,
+                            keyword=name, logger=runner.logger,
+                            **self.eval_kwargs['eval_param'])
+                        for key, val in eval_res.items():
+                            runner.log_buffer.output[key] = val
+                        runner.log_buffer.ready = True
+                        if self.save_val:
+                            np.save(f"{runner.work_dir}/metric/val_epoch_{runner.epoch+1}.npy",
+                                    val_results[name])
             # visualization
             if self.visualize is not None:
                 for name, val in val_results.items():
