@@ -15,6 +15,7 @@ Notice that * denotes open-source arxiv pre-prints reproduced by us, and :book: 
 - [x] [SaliencyMix [ICLR 2021]](https://arxiv.org/abs/1710.09412)
 - [x] [PuzzleMix [ICML 2020]](https://arxiv.org/abs/2009.06962)
 - [ ] [Co-Mixup [ICLR 2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
+- [ ] [GridMix [Pattern Recognition 2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR 2021]](https://arxiv.org/abs/2003.05034)
 - [x] [ResizeMix [Arxiv 2020]](https://arxiv.org/abs/2012.11101)
 - [x] [AutoMix [Arxiv 2021]](https://arxiv.org/abs/2103.13027)
@@ -107,15 +108,16 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 
 | Methods         | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
 |-----------------|:----------:|:---------:|:-------------:|
+| Vanilla         |    73.57   |           |               |
 | DeiT            |    79.80   |   81.28   |     82.10     |
-| MixUp           |            |           |     80.88     |
+| MixUp           |    77.72   |           |     80.88     |
 | CutMix          |    79.54   |           |     81.57     |
 | ManifoldMix     |      -     |     -     |     80.57     |
-| AttentiveMix    |    77.63   |           |     78.19     |
-| SaliencyMix     |    79.32   |           |     81.33     |
-| PuzzleMix       |    79.84   |           |     81.48     |
-| FMix            |    79.21   |           |     81.04     |
-| ResizeMix       |            |           |     81.64     |
+| AttentiveMix+   |    77.63   |           |     81.14     |
+| SaliencyMix     |    78.70   |           |     81.33     |
+| PuzzleMix       |    79.73   |           |     81.48     |
+| FMix            |    77.37   |           |     81.04     |
+| ResizeMix       |    76.79   |           |     81.64     |
 | TransMix :book: |    80.70   |   81.80   |       -       |
 | AutoMix         |    80.78   |           |     82.28     |
 | SAMix           |    80.94   |           |     82.35     |
@@ -136,10 +138,12 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | SaliencyMix        |   64.60   |    66.55   |
 | AttentiveMix+      |   64.85   |    67.42   |
 | FMix*              |   63.47   |    65.08   |
+| GridMix :book:     |     -     |    69.12   |
 | PuzzleMix          |   65.81   |    67.83   |
 | Co-Mixup :book:    |   65.92   |    68.02   |
 | ResizeMix*         |   63.74   |    65.87   |
-| AlignMix :book:    |   66.87   |            |
+| Grafting :book:    |   64.84   |      -     |
+| AlignMix :book:    |   66.87   |      -     |
 | AutoMix*           |   67.33   |    70.72   |
 | SAMix*             |   68.89   |    72.18   |
 

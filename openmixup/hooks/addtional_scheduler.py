@@ -2,6 +2,8 @@ from mmcv.runner import Hook
 from math import cos, pi
 from .registry import HOOKS
 
+from openmixup.utils import print_log
+
 
 class LrAddtionalSchedulerHook(Hook):
     """LR Addtional Scheduler.
@@ -524,7 +526,10 @@ class CustomSchedulerHook(Hook):
         assert hasattr(runner.model.module, self.attr_name), \
                 "The runner must have attribute:"+self.attr_name
         attr = getattr(runner.model.module, self.attr_name)
-        assert isinstance(attr, float) or isinstance(attr, int)
+        assert isinstance(attr, (float, int))
+        if self.attr_base != attr and self.warmup is None:
+            print_log(f"CustomSchedulerHook: overwrite {self.attr_name}={self.attr_base}.")
+        setattr(runner.model.module, self.attr_name, self.attr_base)
 
     def before_train_epoch(self, runner):
         if self.warmup_by_epoch:

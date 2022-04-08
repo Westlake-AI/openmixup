@@ -1,4 +1,4 @@
-_base_ = '../cifar10/byol_sz224_bs256.py'
+_base_ = '../cifar10/mocov3_vit_sz224_bs64.py'
 
 # dataset settings
 data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')

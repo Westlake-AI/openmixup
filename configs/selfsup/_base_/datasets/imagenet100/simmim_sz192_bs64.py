@@ -1,4 +1,4 @@
-_base_ = '../imagenet/mocov3_vit_sz224_bs64.py'
+_base_ = '../imagenet/simmim_sz224_bs64.py'
 
 # dataset settings
 data_source_cfg = dict(type='ImageNet')

@@ -3,7 +3,8 @@ from .convnext import ConvNeXt
 from .deit import DistilledVisionTransformer
 from .efficientnet import EfficientNet
 from .lenet import LeNet5
-from .mim_vit import MAEViT, MIMVisionTransformer
+from .mim_swin import SimMIMSwinTransformer
+from .mim_vit import MAEViT, MIMVisionTransformer, SimMIMViT
 from .mobilenet_v2 import MobileNetV2
 from .mobilenet_v3 import MobileNetV3
 from .resnet_mmcls import ResNet, ResNet_CIFAR, ResNetV1d, ResNet_Mix, ResNet_Mix_CIFAR
@@ -17,7 +18,7 @@ from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
     'AlexNet', 'ConvNeXt', 'DistilledVisionTransformer', 'EfficientNet', 'LeNet5',
-    'MAEViT', 'MIMVisionTransformer',
+    'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer',
     'MobileNetV2', 'MobileNetV3',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',
     'ResNeXt', 'ResNeXt_CIFAR', 'ResNeXt_Mix', 'ResNeXt_CIFAR_Mix',

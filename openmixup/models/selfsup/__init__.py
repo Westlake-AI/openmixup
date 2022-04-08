@@ -12,11 +12,12 @@ from .rotation_pred import RotationPred
 from .relative_loc import RelativeLoc
 from .simclr import SimCLR
 from .simclr_mix import SimCLR_Mix
+from .simmim import SimMIM
 from .simsiam import SimSiam
 from .swav import SwAV
 
 __all__ = [
     'BYOL', 'DeepCluster', 'DenseCL', 'MAE', 'MOCO', 'MOCO_Mix', 'MOCO_AutoMix_V2',
     'MoCoV3', 'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimCLR_Mix',
-    'SimSiam', 'SwAV',
+    'SimMIM', 'SimSiam', 'SwAV',
 ]

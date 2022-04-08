@@ -1,6 +1,7 @@
 import math
 import random
 import inspect
+from typing import Tuple
 import numpy as np
 from numbers import Number
 from typing import Sequence
@@ -285,6 +286,49 @@ class RandomErasing(object):
         repr_str += f'max_area_ratio={self.max_area_ratio}, '
         repr_str += f'count=({self.min_count}, {self.max_count}))'
         return repr_str
+
+
+@PIPELINES.register_module()
+class BlockwiseMaskGenerator(object):
+    """Generate random block mask for each Image.
+
+    Args:
+        input_size (int): Size of input image. Defaults to 192.
+        mask_patch_size (int): Size of each block mask. Defaults to 32.
+        model_patch_size (int): Patch size of each token. Defaults to 4.
+        mask_ratio (float): The mask ratio of image. Defaults to 0.6.
+    """
+
+    def __init__(self,
+                 input_size=192,
+                 mask_patch_size=32,
+                 model_patch_size=4,
+                 mask_ratio=0.6):
+        self.input_size = input_size
+        self.mask_patch_size = mask_patch_size
+        self.model_patch_size = model_patch_size
+        self.mask_ratio = mask_ratio
+
+        assert self.input_size % self.mask_patch_size == 0
+        assert self.mask_patch_size % self.model_patch_size == 0
+
+        self.rand_size = self.input_size // self.mask_patch_size
+        self.scale = self.mask_patch_size // self.model_patch_size
+
+        self.token_count = self.rand_size**2
+        self.mask_count = int(np.ceil(self.token_count * self.mask_ratio))
+
+    def __call__(self, img: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        mask_idx = np.random.permutation(self.token_count)[:self.mask_count]
+        mask = np.zeros(self.token_count, dtype=int)
+        mask[mask_idx] = 1
+
+        mask = mask.reshape((self.rand_size, self.rand_size))
+        mask = mask.repeat(self.scale, axis=0).repeat(self.scale, axis=1)
+
+        mask = torch.from_numpy(mask)  # H X W
+
+        return img, mask
 
 
 # custom transforms

@@ -24,6 +24,7 @@ This repo will be continued to update in the next two months! Please watch us fo
 
 Please refer to [CHANGELOG.md](docs/CHANGELOG.md) for details and release history.
 
+[2020-04-08] Configs reoriganized and new methods supported in `OpenMixup` v0.2.0.
 [2020-03-31] `OpenMixup` v0.2.0 is released.
 
 ## Installation
@@ -37,7 +38,7 @@ Then, see [tutorials](docs/tutorials) for more tech details (based on MMClassifi
 
 ## Benchmark and Model Zoo
 
-[Model Zoos](docs/model_zoos) and list of [Awesome Mixups](docs/awesome_mixups) will be updated in the next two months (before 2022.04)!
+[Model Zoos](docs/model_zoos) and lists of [Awesome Mixups](docs/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon! 
 
 ## License
 
@@ -50,12 +51,12 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Citation
 
-If you find this project useful in your research, please consider cite:
+If you find this project useful in your research, please consider cite our repo:
 
 ```BibTeX
 @misc{2022openmixup,
-    title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation},
-    author={Li, Siyuan and Liu, Zichen and Wu, Di},
+    title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
+    author={Li, Siyuan and Liu, Zichen and Wu, Di, Stan Z. Li},
     howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
     year={2022}
 }

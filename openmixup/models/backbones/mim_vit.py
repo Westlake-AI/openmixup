@@ -258,3 +258,61 @@ class MIMVisionTransformer(VisionTransformer):
         else:
             outs = x[:, 0]
         return [outs]
+
+
+@BACKBONES.register_module()
+class SimMIMViT(VisionTransformer):
+    """Vision Transformer for SimMIM pre-training.
+
+    A PyTorch implement of: `An Image is Worth 16x16 Words: Transformers
+    for Image Recognition at Scale <https://arxiv.org/abs/2010.11929>`_
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        
+        self.mask_token = nn.Parameter(torch.zeros(1, 1, self.embed_dims))
+
+    def init_weights(self, pretrained=None):
+        super(SimMIMViT, self).init_weights(pretrained)
+
+        if pretrained is None:
+            trunc_normal_(self.mask_token, std=0.02, bias=0)
+    
+    def forward(self, x, mask=None):
+        """Generate features for masked images.
+
+        This function generates mask images and get the hidden features for
+        them.
+
+        Args:
+            x (torch.Tensor): Input images.
+            mask (torch.Tensor): Masks used to construct masked images.
+
+        Returns:
+            tuple: A tuple containing features from multi-stages.
+        """
+        x, _ = self.patch_embed(x)
+
+        assert mask is not None
+        B, L, _ = x.shape
+
+        mask_token = self.mask_token.expand(B, L, -1)
+        w = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
+        x = x * (1 - w) + mask_token * w
+
+        cls_tokens = self.cls_token.expand(B, -1, -1)  # stole cls_tokens impl from Phil Wang, thanks
+        x = torch.cat((cls_tokens, x), dim=1)
+        x = x + self.pos_embed
+        x = self.drop_after_pos(x)
+
+        for i, layer in enumerate(self.layers):
+            x = layer(x)
+            if i == len(self.layers) - 1 and self.final_norm:
+                x = self.norm1(x)
+        
+        x = x[:, 1:]
+        B, L, C = x.shape
+        H = W = int(L ** 0.5)
+        x = x.permute(0, 2, 1).reshape(B, C, H, W)
+        return x

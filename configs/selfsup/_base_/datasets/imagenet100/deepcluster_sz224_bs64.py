@@ -1,4 +1,4 @@
-_base_ = '../imagenet/mocov3_vit_sz224_bs64.py'
+_base_ = '../imagenet/deepcluster_sz224_bs64.py'
 
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
@@ -12,4 +12,10 @@ data = dict(
         data_source=dict(
             list_file=data_train_list, root=data_train_root,
             **data_source_cfg),
-    ))
+    ),
+    extract=dict(
+        data_source=dict(
+            list_file=data_train_list, root=data_train_root,
+            **data_source_cfg),
+    ),
+)

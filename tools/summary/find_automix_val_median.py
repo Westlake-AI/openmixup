@@ -23,7 +23,7 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
     assert path.find("json") != -1, \
         "bad json path={}".format(path)
     
-    bias = 1
+    bias = 0 if record_num < 10 else 1
     # read each line
     with open(path, "r") as f:
         for line in f.readlines():

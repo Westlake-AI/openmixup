@@ -8,7 +8,7 @@ from .constructor import DefaultOptimizerConstructor, MAEFtOptimizerConstructor
 from .deepcluster_hook import DeepClusterHook
 from .deepcluster_automix_hook import DeepClusterAutoMixHook
 from .ema_hook import EMAHook
-from .extractor import Extractor
+from .extractor import Extractor, MultiExtractProcess
 from .lr_scheduler import StepFixCosineAnnealingLrUpdaterHook
 from .momentum_hook import CosineHook, StepHook, CosineScheduleHook, StepScheduleHook
 from .odc_hook import ODCHook
@@ -30,6 +30,6 @@ __all__ = [
     'DefaultOptimizerConstructor', 'MAEFtOptimizerConstructor',
     'DeepClusterHook', 'DeepClusterAutoMixHook', 'ODCHook', 'PreciseBNHook', 'SwAVHook',
     'StepFixCosineAnnealingLrUpdaterHook', 'CosineHook', 'StepHook', 'CosineScheduleHook', 'StepScheduleHook',
-    'EMAHook', 'Extractor', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',
+    'EMAHook', 'Extractor', 'MultiExtractProcess', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',
     'DistOptimizerHook', 'Fp16OptimizerHook',
 ]

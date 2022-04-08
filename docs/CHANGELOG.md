@@ -7,7 +7,8 @@
 * Support popular self-supervised methods (e.g., BYOL, MoCo.V3, MAE) on both large-scale and small-scale datasets, and self-supervised benchmarks (merged from MMSelfSup). Config files are available.
 * Support analyzing tools for self-supervised learning (kNN/SVM/linear metrics and t-SNE/UMAP visualization).
 * Convenient usage of configs: fast configs generation by 'auto_train.py' and configs inheriting (MMCV).
-* Support mixed-precision training (NVIDIA Apex or MMCV Apex).
+* Support mixed-precision training (NVIDIA Apex or MMCV Apex) for all methods.
+* [Model Zoos](docs/model_zoos) and lists of [Awesome Mixups](docs/awesome_mixups) have been released.
 
 #### Bug Fixes
 * Done code refactoring follows MMSelfSup and MMClassification.
