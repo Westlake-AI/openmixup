@@ -1,12 +1,8 @@
-_base_ = [
-    '../../_base_/models/byol/r18.py',
-    '../../_base_/datasets/cifar10/byol_sz224_bs256.py',
-    '../../_base_/default_runtime.py',
-]
+_base_ = 'r18_8xb64_accu8_cos_lr4_8_fp16_ep1000.py'
 
 # dataset settings for SSL metrics
-data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
-test_pipeline = [
+val_data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
+val_test_pipeline = [
     dict(type='Resize', size=256),
     dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
@@ -15,14 +11,14 @@ test_pipeline = [
 val_data = dict(
     train=dict(
         type='ClassificationDataset',
-        data_source=dict(split='train', **data_source_cfg),
-        pipeline=test_pipeline,
+        data_source=dict(split='train', **val_data_source_cfg),
+        pipeline=val_test_pipeline,
         prefetch=False,
     ),
     val=dict(
         type='ClassificationDataset',
-        data_source=dict(split='test', **data_source_cfg),
-        pipeline=test_pipeline,
+        data_source=dict(split='test', **val_data_source_cfg),
+        pipeline=val_test_pipeline,
         prefetch=False,
     ))
 
@@ -53,34 +49,3 @@ custom_hooks = [
         workers_per_gpu=4,
         eval_param=dict(topk=(1, 5))),
 ]
-
-# optimizer
-optimizer = dict(
-    type='LARS',
-    lr=4.8,  # lr=4.8 / bs4096 for longer training
-    momentum=0.9, weight_decay=1e-6,
-    paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0., lars_exclude=True),
-        'bias': dict(weight_decay=0., lars_exclude=True),
-    })
-
-# apex
-use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
-# optimizer args
-optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
-
-# lr scheduler
-lr_config = dict(
-    policy='CosineAnnealing',
-    by_epoch=False, min_lr=0.,
-    warmup='linear',
-    warmup_iters=10, warmup_by_epoch=True,
-    warmup_ratio=1e-5,
-)
-
-# log, 50k / 4096
-log_config = dict(interval=10)
-
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=1000)

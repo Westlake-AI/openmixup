@@ -6,6 +6,7 @@ import random
 from numbers import Number
 from typing import Sequence
 from PIL import Image
+from timm.data import create_transform
 import cv2
 import mmcv
 import numpy as np
@@ -233,6 +234,48 @@ class RandAugment(object):
         repr_str += f'num_policies={self.num_policies}, '
         repr_str += f'magnitude_level={self.magnitude_level}, '
         repr_str += f'total_level={self.total_level})'
+        return repr_str
+
+
+@PIPELINES.register_module()
+class RandAugment_timm(object):
+    """RandAugment data augmentation method based on
+    `"RandAugment: Practical automated data augmentation
+    with a reduced search space"
+    <https://arxiv.org/abs/1909.13719>`_.
+
+    This code is borrowed from <https://github.com/pengzhiliang/MAE-pytorch>
+    """
+
+    def __init__(self,
+                 input_size=None,
+                 color_jitter=None,
+                 auto_augment=None,
+                 interpolation=None,
+                 re_prob=None,
+                 re_mode=None,
+                 re_count=None,
+                 mean=None,
+                 std=None):
+
+        self.trans = create_transform(
+            input_size=input_size,
+            is_training=True,
+            color_jitter=color_jitter,
+            auto_augment=auto_augment,
+            interpolation=interpolation,
+            re_prob=re_prob,
+            re_mode=re_mode,
+            re_count=re_count,
+            mean=mean,
+            std=std,
+        )
+
+    def __call__(self, img):
+        return self.trans(img)
+
+    def __repr__(self) -> str:
+        repr_str = self.__class__.__name__
         return repr_str
 
 

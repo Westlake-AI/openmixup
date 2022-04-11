@@ -13,7 +13,7 @@ train_pipeline = [
     dict(type='RandomHorizontalFlip'),
 ]
 test_pipeline = [
-    dict(type='Resize', size=256, interpolation=3),  # 0.85
+    dict(type='Resize', size=256, interpolation=3),
     dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg),

@@ -31,7 +31,9 @@ model = dict(
         in_channels=512, num_classes=1000)
 )
 
+# interval for accumulate gradient
 update_interval = 1  # 512 x 4gpus x 1 accumulates = bs2048
+
 # optimizer
 optimizer = dict(type='LAMB', lr=0.008, weight_decay=0.02,
                  paramwise_options={

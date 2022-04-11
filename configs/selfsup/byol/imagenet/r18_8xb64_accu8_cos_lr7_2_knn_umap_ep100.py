@@ -12,7 +12,7 @@ val_data_train_root = 'data/ImageNet/train'
 val_data_test_list = 'data/meta/ImageNet/val_labeled.txt'
 val_data_test_root = 'data/ImageNet/val/'
 
-test_pipeline = [
+val_test_pipeline = [
     dict(type='Resize', size=256),
     dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
@@ -24,7 +24,7 @@ val_data = dict(
         data_source=dict(
             list_file=val_data_train_list, root=val_data_train_root,
             **val_data_source_cfg),
-        pipeline=test_pipeline,
+        pipeline=val_test_pipeline,
         prefetch=False,
     ),
     val=dict(
@@ -32,7 +32,7 @@ val_data = dict(
         data_source=dict(
             list_file=val_data_test_list, root=val_data_test_root,
             **val_data_source_cfg),
-        pipeline=test_pipeline,
+        pipeline=val_test_pipeline,
         prefetch=False,
     ))
 

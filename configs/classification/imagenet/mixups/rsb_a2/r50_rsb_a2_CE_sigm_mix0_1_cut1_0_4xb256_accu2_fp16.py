@@ -30,7 +30,9 @@ model = dict(
         in_channels=2048, num_classes=1000)
 )
 
+# interval for accumulate gradient
 update_interval = 2  # 256 x 4gpus x 2 accumulates = bs2048
+
 # optimizer
 optimizer = dict(type='LAMB', lr=0.005, weight_decay=0.02,  # RSB A2
                  paramwise_options={

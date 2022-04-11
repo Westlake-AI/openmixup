@@ -1,11 +1,7 @@
-_base_ = [
-    '../../_base_/models/mocov3/vit_small.py',
-    '../../_base_/datasets/cifar10/mocov3_vit_sz224_bs64.py',
-    '../../_base_/default_runtime.py',
-]
+_base_ = 'vit_small_8xb64_accu8_cos_ep1000.py'
 
 # dataset settings for SSL metrics
-data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
+val_data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 test_pipeline = [
     dict(type='Resize', size=256),
     dict(type='CenterCrop', size=224),
@@ -15,13 +11,13 @@ test_pipeline = [
 val_data = dict(
     train=dict(
         type='ClassificationDataset',
-        data_source=dict(split='train', **data_source_cfg),
+        data_source=dict(split='train', **val_data_source_cfg),
         pipeline=test_pipeline,
         prefetch=False,
     ),
     val=dict(
         type='ClassificationDataset',
-        data_source=dict(split='test', **data_source_cfg),
+        data_source=dict(split='test', **val_data_source_cfg),
         pipeline=test_pipeline,
         prefetch=False,
     ))
@@ -40,8 +36,10 @@ custom_hooks = [
         val_dataset=val_data['train'],
         train_dataset=val_data['val'],  # remove it if metric_mode is None
         forward_mode='vis',
-        metric_mode='knn',  # linear metric (take a bit long time on imagenet)
-        metric_args=dict(knn=200, temperature=0.07, chunk_size=256),
+        metric_mode=['knn', 'svm',],  # linear metric (take a bit long time on imagenet)
+        metric_args=dict(
+            knn=200, temperature=0.07, chunk_size=256,
+            dataset='onehot', costs_list="0.01,0.1,1.0,10.0,100.0", default_cost=None, num_workers=8,),
         visual_mode='umap',  # 'tsne' or 'umap'
         visual_args=dict(n_epochs=400, plot_backend='seaborn'),
         save_val=False,  # whether to save results
@@ -51,27 +49,3 @@ custom_hooks = [
         workers_per_gpu=4,
         eval_param=dict(topk=(1, 5))),
 ]
-
-# optimizer
-optimizer = dict(
-    type='AdamW',
-    lr=2.4e-3,  # bs4096
-    betas=(0.9, 0.95), weight_decay=0.1,
-    paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
-        'bias': dict(weight_decay=0.),
-        'pos_embed': dict(weight_decay=0.),
-        'cls_token': dict(weight_decay=0.)
-    })
-
-# apex
-use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
-# optimizer args
-optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
-
-# learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=0.)
-
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=1000)

@@ -108,7 +108,7 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 
 | Methods         | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
 |-----------------|:----------:|:---------:|:-------------:|
-| Vanilla         |    73.57   |           |               |
+| Vanilla         |    73.57   |   78.95   |     79.22     |
 | DeiT            |    79.80   |   81.28   |     82.10     |
 | MixUp           |    77.72   |           |     80.88     |
 | CutMix          |    79.54   |           |     81.57     |

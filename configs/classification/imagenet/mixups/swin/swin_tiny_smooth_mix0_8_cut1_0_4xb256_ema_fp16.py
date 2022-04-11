@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
-    '../../../_base_/default_runtime.py',
+    '../../../../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
+    '../../../../../_base_/default_runtime.py',
 ]
 
 # model settings

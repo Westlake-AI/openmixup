@@ -1,8 +1,4 @@
-_base_ = [
-    '../../_base_/models/mocov3/vit_small.py',
-    '../../_base_/datasets/imagenet100/mocov3_vit_sz224_bs64.py',
-    '../../_base_/default_runtime.py',
-]
+_base_ = 'vit_small_8xb64_accu8_cos_ep400.py'
 
 # dataset settings for SSL metrics
 val_data_source_cfg = dict(type='ImageNet')
@@ -61,27 +57,3 @@ custom_hooks = [
         workers_per_gpu=4,
         eval_param=dict(topk=(1, 5))),
 ]
-
-# optimizer
-optimizer = dict(
-    type='AdamW',
-    lr=2.4e-3,  # bs4096
-    betas=(0.9, 0.95), weight_decay=0.1,
-    paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
-        'bias': dict(weight_decay=0.),
-        'pos_embed': dict(weight_decay=0.),
-        'cls_token': dict(weight_decay=0.)
-    })
-
-# apex
-use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
-# optimizer args
-optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
-
-# learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=0.)
-
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)

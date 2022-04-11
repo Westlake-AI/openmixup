@@ -22,7 +22,7 @@ extract_pipeline = [
 ]
 
 # prefetch
-prefetch = True
+prefetch = False
 if not prefetch:
     train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
     extract_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])

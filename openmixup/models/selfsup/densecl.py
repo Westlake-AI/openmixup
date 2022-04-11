@@ -208,9 +208,6 @@ class DenseCL(BaseModel):
         loss_dense = self.head(l_pos_dense, l_neg_dense)['loss']
 
         losses = dict()
-        #####################
-        print(self.loss_lambda)
-        #####################
         losses['loss_single'] = loss_single * (1 - self.loss_lambda)
         losses['loss_dense'] = loss_dense * self.loss_lambda
 

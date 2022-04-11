@@ -9,7 +9,7 @@ from mmcv.runner import build_runner, DistSamplerSeedHook
 from openmixup.datasets import build_dataloader
 from openmixup.hooks import (build_hook, build_addtional_scheduler, build_optimizer,
                              DistOptimizerHook, Fp16OptimizerHook)
-from openmixup.utils import get_root_logger, print_log
+from openmixup.utils import find_latest_checkpoint, get_root_logger, print_log
 
 # import fp16 supports
 try:
@@ -166,6 +166,12 @@ def train_model(model,
         # executed after `IterTimerHook`, or it will cause a bug if use `IterBasedRunner`.
         runner.register_hook(build_hook(eval_cfg), priority='LOW')
 
+    resume_from = None
+    if cfg.resume_from is None and cfg.get('auto_resume'):
+        resume_from = find_latest_checkpoint(cfg.work_dir)
+    if resume_from is not None:
+        cfg.resume_from = resume_from
+    
     if cfg.resume_from:
         runner.resume(cfg.resume_from)
     elif cfg.load_from:

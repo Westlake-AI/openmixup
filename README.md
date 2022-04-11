@@ -2,9 +2,9 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.2.0 is now released, which supports new features as [#3](https://github.com/Westlake-AI/openmixup/issues/3).
+* OpenMixup v0.2.0 is now released, which supports new features as [#3](https://github.com/Westlake-AI/openmixup/issues/3). We have reorganized configs and fixed bugs.
 * OpenMixup v0.1.3 is now available (finished code refactoring and fixed bugs), which steadily supports ViTs, self-supervised methods (e.g., MoCo.V3 and MAE), and online analysis (kNN metric and visualization). It requires the rebuilding of OpenMixup (install mmcv-full to support ViTs). More results are provided in Model Zoos.
-* OpenMixup v0.1.1 is released, which supports various backbones (ConvNets and ViTs), various mixup methods (e.g., [PuzzleMix](https://arxiv.org/abs/2009.06962), [AutoMix](https://arxiv.org/pdf/2103.13027), [SAMix](https://arxiv.org/pdf/2111.15454), etc.), various classification datasets, benchmarks (model_zoo), config files generation, FP16 training (Apex or MMCV).
+* OpenMixup v0.1.1 is released, which supports various backbones (ConvNets and ViTs), various mixup methods (e.g., [PuzzleMix](https://arxiv.org/abs/2009.06962), [AutoMix](https://arxiv.org/pdf/2103.13027), [SAMix](https://arxiv.org/pdf/2111.15454), [DecoupleMix](https://arxiv.org/abs/2203.10761) etc.), various classification datasets, benchmarks (model_zoo), config files generation, FP16 training (Apex or MMCV).
 
 ## Introduction
 
@@ -25,6 +25,7 @@ This repo will be continued to update in the next two months! Please watch us fo
 Please refer to [CHANGELOG.md](docs/CHANGELOG.md) for details and release history.
 
 [2020-04-08] Configs reoriganized and new methods supported in `OpenMixup` v0.2.0.
+
 [2020-03-31] `OpenMixup` v0.2.0 is released.
 
 ## Installation

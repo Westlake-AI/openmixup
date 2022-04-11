@@ -30,6 +30,7 @@ if not prefetch:
 data = dict(
     imgs_per_gpu=64,  # V100: 64 x 4gpus = bs256
     workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    drop_last=True,
     train=dict(
         type=dataset_type,
         data_source=dict(
