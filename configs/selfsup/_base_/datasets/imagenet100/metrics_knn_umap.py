@@ -1,5 +1,5 @@
 # dataset settings for SSL metrics
-val_data_source_cfg = dict(type='ImageNet')
+val_data_source_cfg = dict(type='ImageNet', return_label=False)
 # ImageNet dataset, 100 class
 val_data_train_list = 'data/meta/ImageNet100/train_labeled.txt'
 val_data_train_root = 'data/ImageNet/train'
@@ -33,8 +33,8 @@ val_data = dict(
 # additional hooks
 custom_hooks = [
     dict(type='SSLMetricHook',
-        val_dataset=val_data['train'],
-        train_dataset=val_data['val'],  # remove it if metric_mode is None
+        val_dataset=val_data['val'],
+        train_dataset=val_data['train'],  # remove it if metric_mode is None
         forward_mode='vis',
         metric_mode=['knn', 'svm',],  # linear metric (take a bit long time on ImageNet-100)
         metric_args=dict(

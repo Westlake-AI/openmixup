@@ -1,5 +1,5 @@
 # dataset settings for SSL metrics
-val_data_source_cfg = dict(type='ImageNet')
+val_data_source_cfg = dict(type='ImageNet', return_label=False)
 # ImageNet dataset, 100 class
 val_data_train_list = 'data/meta/ImageNet100/train_labeled.txt'
 val_data_train_root = 'data/ImageNet/train'

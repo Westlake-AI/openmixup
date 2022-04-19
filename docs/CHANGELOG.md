@@ -1,5 +1,14 @@
 ## Changelog
 
+### v0.2.1 (19/04/2022)
+
+#### Highlight
+* Support masked image modeling (MIM) self-supervised methods (MAE, SimMIM, MaskFeat).
+* Support visualization of reconstruction results in MIM methods.
+
+### Bug Fixes
+* Fix bugs of metric, configs reusing. The MSE and Smooth_L1 losses require FP32 training.
+
 ### v0.2.0 (31/03/2022)
 
 #### Highlight

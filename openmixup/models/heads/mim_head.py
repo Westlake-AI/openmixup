@@ -2,6 +2,7 @@ import torch
 from mmcv.runner import BaseModule
 from torch.nn import functional as F
 
+from ..builder import build_loss
 from ..registry import HEADS
 
 
@@ -52,24 +53,76 @@ class SimMIMHead(BaseModule):
     """Pretrain Head for SimMIM.
 
     Args:
-        patch_size (int): Patch size of each token.
         encoder_in_channels (int): Number of input channels for encoder.
     """
 
-    def __init__(self, patch_size=4, encoder_in_channels=3):
+    def __init__(self, encoder_in_channels=3):
         super(SimMIMHead, self).__init__()
-        self.patch_size = patch_size
         self.encoder_in_channels = encoder_in_channels
 
     def forward(self, x, x_rec, mask):
-        losses = dict()
-
-        mask = mask.repeat_interleave(self.patch_size, 1).repeat_interleave(
-            self.patch_size, 2).unsqueeze(1).contiguous()
+        scale_h, scale_w = x.size(2) / mask.size(1), x.size(3) / mask.size(2)
+        if scale_h > 1:
+            mask = mask.repeat_interleave(int(scale_h), 1).repeat_interleave(
+                int(scale_w), 2).unsqueeze(1).contiguous()
+        else:
+            mask = F.interpolate(mask.type_as(x).unsqueeze(1),
+                                 scale_factor=(scale_h, scale_w), mode="nearest")
+        
         loss_rec = F.l1_loss(x, x_rec, reduction='none')
         loss = (loss_rec * mask).sum() / (mask.sum() +
                                           1e-5) / self.encoder_in_channels
+        losses = dict()
+        losses['loss'] = loss
 
+        return losses
+
+
+@HEADS.register_module
+class MIMHead(BaseModule):
+    """Head for MIM training.
+
+    Args:
+        loss (dict): Config of regression loss.
+        encoder_in_channels (int): Number of input channels for encoder.
+        unmask_weight (float): Loss weight for unmasked patches.
+    """
+
+    def __init__(self,
+                 loss=dict(
+                    type='RegressionLoss', loss_weight=1.0, mode="l1_loss"),
+                 encoder_in_channels=3,
+                 unmask_weight=0,
+                ):
+        super(MIMHead, self).__init__()
+        self.encoder_in_channels = encoder_in_channels
+        self.unmask_weight = unmask_weight
+
+        # loss
+        if loss is not None:
+            assert isinstance(loss, dict)
+            self.criterion = build_loss(loss)
+        else:
+            loss = dict(type='RegressionLoss', loss_weight=1.0, mode="mse_loss")
+            self.criterion = build_loss(loss)
+
+    def forward(self, x, x_rec, mask):
+        # reweight unmasked patches
+        if self.unmask_weight > 0.:
+            mask = mask.type_as(x)
+            mask += (1. - mask) * self.unmask_weight
+        scale_h, scale_w = x.size(2) / mask.size(1), x.size(3) / mask.size(2)
+        if scale_h > 1:
+            mask = mask.repeat_interleave(int(scale_h), 1).repeat_interleave(
+                int(scale_w), 2).unsqueeze(1).contiguous()
+        else:
+            mask = F.interpolate(mask.type_as(x).unsqueeze(1),
+                                 scale_factor=(scale_h, scale_w), mode="nearest")
+        
+        loss_rec = self.criterion(x, x_rec, reduction_override='none')
+        loss = (loss_rec * mask).sum() / (mask.sum() +
+                                          1e-5) / self.encoder_in_channels
+        losses = dict()
         losses['loss'] = loss
 
         return losses

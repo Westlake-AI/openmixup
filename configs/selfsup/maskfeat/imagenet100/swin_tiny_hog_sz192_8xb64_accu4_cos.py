@@ -1,11 +1,31 @@
 _base_ = [
-    '../../_base_/models/simmim/swin_base.py',
-    '../../_base_/datasets/imagenet100/simmim_sz192_bs64.py',
+    '../../_base_/models/maskfeat/swin_tiny.py',
+    '../../_base_/datasets/imagenet100/mim_feat_sz192_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
+# model settings
+model = dict(
+    mim_target='hog',
+    neck=dict(
+        type='NonLinearMIMNeck',
+        decoder_cfg=None,
+        in_channels=768, in_chans=9, encoder_stride=32 // 8),  # hog
+    head=dict(
+        type='MIMHead',
+        loss=dict(type='RegressionLoss', mode='mse_loss', loss_weight=1.0, reduction='none'),
+        encoder_in_channels=9),  # hog
+)
+
 # interval for accumulate gradient
 update_interval = 4  # total: 8 x bs64 x 4 accumulates = bs2048
+
+# additional hooks
+custom_hooks = [
+    dict(type='SAVEHook',
+        save_interval=495 * 20,  # plot every 20ep
+        iter_per_epoch=495),
+]
 
 # optimizer
 optimizer = dict(
@@ -15,6 +35,7 @@ optimizer = dict(
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+        'mask_token': dict(weight_decay=0.),
         'absolute_pos_embed': dict(weight_decay=0.),
         'relative_position_bias_table': dict(weight_decay=0.0)
     })
@@ -38,4 +59,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)
+runner = dict(type='EpochBasedRunner', max_epochs=100)

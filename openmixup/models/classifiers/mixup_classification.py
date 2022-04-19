@@ -1,18 +1,15 @@
-import os
 import random
 import logging
 import numpy as np
-import matplotlib.pyplot as plt
 import torch
 import torch.nn.functional as F
-import torchvision
 
 from mmcv.runner import load_checkpoint
 from openmixup.utils import print_log
 from torch.autograd import Variable
-from torchvision import transforms
 
 from .base_model import BaseModel
+from ..utils import PlotTensor
 from .. import builder
 from ..registry import MODELS
 from ..utils import cutmix, mixup, saliencymix, resizemix, fmix, attentivemix, puzzlemix
@@ -109,12 +106,13 @@ class MixUpClassification(BaseModel):
                 self.mix_prob[i] = self.mix_prob[i] + self.mix_prob[i-1]
         self.mix_repeat = int(mix_repeat) if int(mix_repeat) > 1 else 1
         if self.mix_repeat > 1:
-            print_log("Warning: mix_repeat={} is more than 1!".format(self.mix_repeat))
+            print_log("Warning: mix_repeat={} is more than once.".format(self.mix_repeat))
         if len(self.mix_mode) < self.mix_repeat:
             print_log("Warning: the number of mix_mode={} is less than mix_repeat={}.".format(
                 self.mix_mode, self.mix_repeat))
         self.save_name = str(save_name)
         self.save = False
+        self.ploter = PlotTensor(apply_inv=True)
         self.init_weights(pretrained=pretrained, pretrained_k=pretrained_k)
 
     def init_weights(self, pretrained=None, pretrained_k=None):
@@ -159,7 +157,7 @@ class MixUpClassification(BaseModel):
     def _features(self, img, gt_label=None, cur_mode="puzzlemix", **kwargs):
         """ generating feature maps or gradient maps """
         if cur_mode == "attentivemix":
-            img = F.upsample(img,
+            img = F.interpolate(img,
                 scale_factor=kwargs.get("feat_size", 224) / img.size(2), mode="bilinear")
             features = self.backbone_k(img)[0]
         elif cur_mode == "puzzlemix":
@@ -279,6 +277,8 @@ class MixUpClassification(BaseModel):
         # mixup loss
         outs = self.head(x)
         losses = self.head.loss(outs, gt_label)
+        losses['loss'] /= self.mix_repeat
+        
         return losses, cur_idx
 
     def forward_train(self, img, gt_label, **kwargs):
@@ -296,6 +296,8 @@ class MixUpClassification(BaseModel):
         # before train
         with torch.no_grad():
             self._momentum_update()
+        if isinstance(img, list):
+            img = img[0]
         
         # repeat mixup aug within a mini-batch
         losses = dict()
@@ -312,7 +314,6 @@ class MixUpClassification(BaseModel):
             if self.mix_mode[cur_idx] == "vanilla":
                 remove_idx = cur_idx
         
-        losses["loss"] /= self.mix_repeat
         return losses
 
     def forward_test(self, img, **kwargs):
@@ -324,19 +325,8 @@ class MixUpClassification(BaseModel):
     
     def plot_mix(self, img_mixed, mix_mode="", lam=None):
         """ visualize mixup results """
-        invTrans = transforms.Compose([
-            transforms.Normalize(mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
-            transforms.Normalize(mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
-        # plot mixup results
         img = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)
-        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
-        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
-        fig = plt.figure()
-        plt.imshow(img)
         title_name = "{}, lam={}".format(mix_mode, str(round(lam, 6))) \
             if isinstance(lam, float) else mix_mode
-        plt.title(title_name)
         assert self.save_name.find(".png") != -1
-        if not os.path.exists(self.save_name):
-            plt.savefig(self.save_name)
-        plt.close()
+        self.ploter.plot(img, nrow=4, title_name=title_name, save_name=self.save_name)

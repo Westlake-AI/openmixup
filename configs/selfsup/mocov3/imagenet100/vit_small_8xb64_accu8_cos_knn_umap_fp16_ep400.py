@@ -43,8 +43,8 @@ custom_hooks = [
         warming_up="constant",
         interval=update_interval),
     dict(type='SSLMetricHook',
-        val_dataset=val_data['train'],
-        train_dataset=val_data['val'],  # remove it if metric_mode is None
+        val_dataset=val_data['val'],
+        train_dataset=val_data['train'],  # remove it if metric_mode is None
         forward_mode='vis',
         metric_mode='knn',  # linear metric (take a bit long time on imagenet)
         metric_args=dict(knn=20, temperature=0.07, chunk_size=128),

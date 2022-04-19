@@ -15,6 +15,7 @@ optimizer = dict(
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+        'mask_token': dict(weight_decay=0.),
         'absolute_pos_embed': dict(weight_decay=0.),
         'relative_position_bias_table': dict(weight_decay=0.0)
     })

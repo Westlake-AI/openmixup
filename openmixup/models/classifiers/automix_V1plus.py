@@ -295,6 +295,8 @@ class AutoMixup(BaseModel):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
+        if isinstance(img, list):
+            img = img[0]
         batch_size = img.size()[0]
         self._update_loss_weights()
         
@@ -548,7 +550,8 @@ class AutoMixup(BaseModel):
         
         # mix, apply mask on x and x_
         # img_mix_mb = x * (1 - mask_mb) + x[index[0], :] * mask_mb
-        assert mask_mb.shape[1] == 2 and mask_bb.shape[1] == 2
+        assert mask_mb.shape[1] == 2
+        assert mask_mb.shape[2:] == x.shape[2:], f"Invalid mask shape={mask_mb.shape}"
         results["img_mix_mb"] = \
             x * mask_mb[:, 0, :, :].unsqueeze(1) + x[index[0], :] * mask_mb[:, 1, :, :].unsqueeze(1)
         

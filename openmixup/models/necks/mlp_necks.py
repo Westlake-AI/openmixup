@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from mmcv.cnn import (build_norm_layer,
                       constant_init, kaiming_init, normal_init)
@@ -36,7 +37,38 @@ class AvgPoolNeck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        return [self.avg_pool(x[0])]
+        return [self.avg_pool(x[-1])]
+
+
+@NECKS.register_module
+class MaskPoolNeck(nn.Module):
+    """Average pooling with mask."""
+
+    def __init__(self, use_mask=True, output_size=1):
+        super(MaskPoolNeck, self).__init__()
+        self.use_mask = use_mask
+        self.avg_pool = nn.AdaptiveAvgPool2d((output_size, output_size))
+
+    def init_weights(self, **kwargs):
+        pass
+
+    def forward(self, x, mask=None):
+        assert len(x) == 1
+        if mask is None or not self.use_mask:
+            return [self.avg_pool(x[-1])]
+        else:
+            x = x[-1]
+            B, _, H, W = x.size()
+            if mask.shape[2] > H:
+                mask_h = mask.shape[2]
+                assert mask_h % H == 0
+                mask = mask.view(B, 1, mask_h, -1).type_as(x)
+                mask = F.upsample(mask, scale_factor=H / mask_h, mode="nearest")
+            else:
+                mask = mask.view(B, 1, H, W).type_as(x)
+            # mask should have non-zero elements
+            x = (x * mask).mean(dim=[2, 3]) / mask.mean(dim=[2, 3])
+            return [x]
 
 
 @NECKS.register_module
@@ -66,7 +98,7 @@ class LinearNeck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
         return [self.fc(x)]
 
@@ -104,7 +136,7 @@ class RelativeLocNeck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
         x = self.fc(x)
         x = self.bn(x)
@@ -149,7 +181,7 @@ class ODCNeck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
         x = self.fc0(x)
         x = self.bn0(x)
@@ -189,7 +221,7 @@ class MoCoV2Neck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
         return [self.mlp(x)]
 
@@ -278,7 +310,7 @@ class NonLinearNeck(nn.Module):
 
     def forward(self, x):
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         if self.vit_backbone:  # remove cls_token
             x = x[-1]
         x = self.avgpool(x).view(x.size(0), -1)
@@ -345,7 +377,7 @@ class SwAVNeck(nn.Module):
         # x: list of feature maps, len(x) according to len(num_crops)
         avg_out = []
         for _x in x:
-            _x = _x[0]
+            _x = _x[-1]
             avg_out.append(self.avgpool(_x))
         feat_vec = torch.cat(avg_out)  # [sum(num_crops) * N, C]
         feat_vec = feat_vec.view(feat_vec.size(0), -1)
@@ -397,7 +429,7 @@ class DenseCLNeck(nn.Module):
             x (list[tensor]): feature map of backbone.
         """
         assert len(x) == 1
-        x = x[0]
+        x = x[-1]
         avgpooled_x = self.avgpool(x)
         avgpooled_x = self.mlp(avgpooled_x.view(avgpooled_x.size(0), -1))
 

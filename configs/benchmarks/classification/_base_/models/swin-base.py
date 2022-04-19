@@ -8,9 +8,8 @@ model = dict(
     backbone=dict(
         type='SwinTransformer',
         arch='base',
-        img_size=192,
+        img_size=224,
         drop_path_rate=0.1,
-        stage_cfgs=dict(block_cfgs=dict(window_size=6)),
     ),
     head=dict(
         type='ClsMixupHead',  # mixup CE + label smooth

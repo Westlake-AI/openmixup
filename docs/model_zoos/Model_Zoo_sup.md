@@ -109,15 +109,15 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | Methods         | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
 |-----------------|:----------:|:---------:|:-------------:|
 | Vanilla         |    73.57   |   78.95   |     79.22     |
-| DeiT            |    79.80   |   81.28   |     82.10     |
-| MixUp           |    77.72   |           |     80.88     |
-| CutMix          |    79.54   |           |     81.57     |
+| DeiT            |    79.80   |   81.20   |     82.10     |
+| MixUp           |    77.72   |   80.23   |     80.88     |
+| CutMix          |    79.54   |   80.59   |     81.57     |
 | ManifoldMix     |      -     |     -     |     80.57     |
 | AttentiveMix+   |    77.63   |           |     81.14     |
 | SaliencyMix     |    78.70   |           |     81.33     |
 | PuzzleMix       |    79.73   |           |     81.48     |
 | FMix            |    77.37   |           |     81.04     |
-| ResizeMix       |    76.79   |           |     81.64     |
+| ResizeMix       |    76.79   |   80.73   |     81.64     |
 | TransMix :book: |    80.70   |   81.80   |       -       |
 | AutoMix         |    80.78   |           |     82.28     |
 | SAMix           |    80.94   |           |     82.35     |

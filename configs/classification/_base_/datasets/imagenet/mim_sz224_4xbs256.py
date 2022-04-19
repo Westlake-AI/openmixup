@@ -11,6 +11,10 @@ img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
     dict(type='RandomResizedCrop', size=224, interpolation=3),  # bicubic
     dict(type='RandomHorizontalFlip'),
+    dict(type='ToTensor'),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type='BlockwiseMaskGenerator',
+        input_size=224, mask_patch_size=32, model_patch_size=4, mask_ratio=0.25),
 ]
 test_pipeline = [
     dict(type='Resize', size=256, interpolation=3),  # 0.85
@@ -19,13 +23,11 @@ test_pipeline = [
     dict(type='Normalize', **img_norm_cfg),
 ]
 # prefetch
-prefetch = True
-if not prefetch:
-    train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
+prefetch = False
 
 data = dict(
-    imgs_per_gpu=128,  # V100: 128 x 8gpus = bs1024
-    workers_per_gpu=6,
+    imgs_per_gpu=256,  # V100/A100: 256 x 4gpus x 1 accumulate = bs1024
+    workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(

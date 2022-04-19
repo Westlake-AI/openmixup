@@ -313,7 +313,7 @@ class AutoMixup_V2(BaseModel):
             affine_scale = img.size(3) / random.choices(self.mask_input_size, k=1)[0]
             assert affine_scale >= 1
             feature = self.backbone_k(
-                F.upsample(img, scale_factor=1/affine_scale, mode='bilinear', align_corners=False))[0]
+                F.interpolate(img, scale_factor=1/affine_scale, mode='bilinear', align_corners=False))[0]
             # #########################################
             # print("img_size={}, mask_size={}, feat_size={}".format(img.size(2), img.size(3)/affine_scale, feature.shape))
             # #########################################

@@ -11,6 +11,13 @@ data = dict(imgs_per_gpu=32)
 # interval for accumulate gradient
 update_interval = 8  # total: 8 x bs32 x 8 accumulates = bs2048
 
+# additional hooks
+custom_hooks = [
+    dict(type='SAVEHook',
+        save_interval=495 * 20,  # plot every 20ep
+        iter_per_epoch=495),
+]
+
 # optimizer
 optimizer = dict(
     type='AdamW',
@@ -19,6 +26,7 @@ optimizer = dict(
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+        'mask_token': dict(weight_decay=0.),
         'absolute_pos_embed': dict(weight_decay=0.),
         'relative_position_bias_table': dict(weight_decay=0.0)
     })
@@ -42,4 +50,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)
+runner = dict(type='EpochBasedRunner', max_epochs=800)

@@ -392,6 +392,8 @@ class SwinTransformer(BaseBackbone):
             embed_dims.append(stage.out_channels)
 
         for i in out_indices:
+            if i < 0:
+                continue
             if norm_cfg is not None:
                 norm_layer = build_norm_layer(norm_cfg, embed_dims[i + 1])[1]
             else:
@@ -471,6 +473,8 @@ class SwinTransformer(BaseBackbone):
             for param in m.parameters():
                 param.requires_grad = False
         for i in self.out_indices:
+            if i < 0:
+                continue
             if i <= self.frozen_stages:
                 for param in getattr(self, f'norm{i}').parameters():
                     param.requires_grad = False

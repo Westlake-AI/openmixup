@@ -1,11 +1,11 @@
-# Copyright (c) OpenMMLab. All rights reserved.
-from openmixup.models.utils.weight_init import trunc_normal_
 import torch
 import torch.nn as nn
-from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
 from mmcv.cnn import build_norm_layer, constant_init, trunc_normal_init
 from mmcv.runner.base_module import BaseModule
+from openmixup.models.utils.weight_init import trunc_normal_
+from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
 
+from .. import builder
 from ..registry import NECKS
 from ..utils import build_2d_sincos_position_embedding
 
@@ -97,6 +97,8 @@ class MAEPretrainDecoder(BaseModule):
         return getattr(self, self.decoder_norm_name)
 
     def forward(self, x, ids_restore):
+        if isinstance(x, list):
+            x = x[-1]
         # embed tokens
         x = self.decoder_embed(x)
 
@@ -148,8 +150,114 @@ class SimMIMNeck(BaseModule):
             nn.PixelShuffle(encoder_stride),
         )
 
-    def forward(self, x):
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                trunc_normal_init(m, std=0.02, bias=0)
 
+    def forward(self, x):
+        if isinstance(x, list):
+            x = x[-1]
         x = self.decoder(x)
 
         return x
+
+
+@NECKS.register_module()
+class NonLinearMIMNeck(BaseModule):
+    """Non-linear Neck For MIM Pre-training.
+
+    This neck reconstructs the target image from the shrunk feature map.
+
+    Args:
+        in_channels (int): Channel dimension of the feature map. It should
+            be the decoder output channel if decoder_cfg is not None.
+        in_chans (int): The channel of input image. Defaults to 3.
+        encoder_stride (int): The total stride of the encoder.
+        decoder_cfg (dict): Config dict for non-linear blocks. Defaults to None.
+        norm_token (None or str): Mode of applying denormalization before the
+            decoder_pred. Defaults to False.
+    """
+
+    def __init__(self,
+                 in_channels=128,
+                 in_chans=3,
+                 kernel_size=1,
+                 encoder_stride=32,
+                 decoder_cfg=None,
+                 norm_token=None,
+                ):
+        super(NonLinearMIMNeck, self).__init__()
+        assert decoder_cfg is None or isinstance(decoder_cfg, dict)
+        self.decoder = builder.build_neck(decoder_cfg) \
+            if decoder_cfg is not None else None
+        self.decoder_pred = nn.Sequential(
+            nn.Conv2d(
+                in_channels=in_channels,
+                out_channels=encoder_stride**2 * in_chans,
+                kernel_size=kernel_size,
+                stride=1,
+                padding=kernel_size // 2,
+            ),
+            nn.PixelShuffle(encoder_stride),
+        )
+        self.norm_mode = norm_token
+        assert self.norm_mode in [None, 'AdaLN', 'AdaIN',]
+    
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, (nn.Conv2d, nn.Linear)):
+                trunc_normal_init(m, std=0.02, bias=0)
+            elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
+                constant_init(m, val=1, bias=0)
+
+    @staticmethod
+    def _calc_instance_norm(feat, eps=1e-5):
+        # eps is a small value added to the variance to avoid divide-by-zero.
+        size = feat.size()
+        assert (len(size) == 4)
+        N, C = size[:2]
+        feat_std = feat.view(N, C, -1).var(dim=2) + eps
+        feat_std = feat_std.sqrt().view(N, C, 1, 1)
+        feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
+        return feat_mean, feat_std
+
+    @staticmethod
+    def _calc_layer_norm(feat, eps=1e-5):
+        # eps is a small value added to the variance to avoid divide-by-zero.
+        size = feat.size()
+        assert (len(size) == 4)
+        N = size[0]
+        feat_std = feat.var(dim=[1, 2, 3]) + eps
+        feat_std = feat_std.sqrt().view(N, 1, 1, 1)
+        feat_mean = feat.mean(dim=[1, 2, 3]).view(N, 1, 1, 1)
+        return feat_mean, feat_std
+    
+    def forward(self, x):
+        assert isinstance(x, list)
+
+        if self.decoder is not None:
+            dec = self.decoder([x[-1]])[0]
+        else:
+            dec = x[-1]
+        
+        outs = []
+        if self.norm_mode is not None:
+            assert len(x) >= 2 and (x[0].size()[:2] == dec.size()[:2])
+            size = dec.size()
+            if self.norm_mode == 'AdaIN':
+                feat_mean, feat_std = self._calc_instance_norm(x[0].detach())
+                content_mean, content_std = self._calc_instance_norm(dec)
+                dec = (dec - content_mean.expand(size)) / content_std.expand(size)
+            elif self.norm_mode == 'AdaLN':
+                feat_mean, feat_std = self._calc_layer_norm(x[0].detach())
+                content_mean, content_std = self._calc_layer_norm(dec)
+                dec = (dec - content_mean.expand(size)) / content_std.expand(size)
+            
+            dec = dec * feat_mean.expand(size) + feat_std.expand(size)
+            outs.append(dec)
+
+        dec = self.decoder_pred(dec)
+        outs.append(dec)
+        
+        return outs

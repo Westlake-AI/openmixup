@@ -1,6 +1,3 @@
-# datasets
-sampler = 'DistributedSampler'
-
 train_cfg = {}
 test_cfg = {}
 optimizer_config = dict()  # grad_clip, coalesce, bucket_size_mb

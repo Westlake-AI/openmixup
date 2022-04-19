@@ -1,14 +1,23 @@
 _base_ = [
-    '../_base_/models/swin-base.py',
-    '../_base_/datasets/imagenet_swin_ft_sz192_8xbs128.py',
+    '../_base_/models/swin-tiny.py',
+    '../_base_/datasets/imagenet_sz224_4xbs64.py',
     '../_base_/default_runtime.py',
 ]
 
+# model settings
+model = dict(
+    alpha=1.0,
+    mix_mode="vanilla",
+    backbone=dict(img_size=224, stage_cfgs=dict()),
+    head=dict(
+        loss=dict(type='CrossEntropyLoss', loss_weight=1.0))
+)
+
 # data
-data = dict(imgs_per_gpu=32, workers_per_gpu=6)
+data = dict(imgs_per_gpu=256, workers_per_gpu=8)
 
 # interval for accumulate gradient
-update_interval = 8  # total: 8 x bs32 x 8 accumulates = bs2048
+update_interval = 2  # total: 4 x bs256 x 2 accumulates = bs2048
 
 # optimizer
 optimizer = dict(

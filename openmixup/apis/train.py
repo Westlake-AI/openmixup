@@ -58,7 +58,7 @@ def train_model(model,
             # `num_gpus` will be ignored if distributed
             num_gpus=cfg.gpus,
             dist=distributed,
-            sampler=cfg.sampler,
+            sampler=getattr(cfg, 'sampler', 'DistributedSampler'),
             shuffle=True,
             replace=getattr(cfg.data, 'sampling_replace', False),
             seed=cfg.seed,

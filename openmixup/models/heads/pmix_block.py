@@ -473,7 +473,7 @@ class PixelMixBlock(nn.Module):
                 ).view(n, 1, h, w)
                 mask_lam = torch.where(torch.isnan(mask_lam),
                                        torch.full_like(mask_lam, 1e-4), mask_lam)
-            mask_lam = F.upsample(mask_lam, scale_factor=scale_factor, mode=up_mode)
+            mask_lam = F.interpolate(mask_lam, scale_factor=scale_factor, mode=up_mode)
             # mask for lam in [0, 1], force fp32 in exp
             mask_lam = torch.sigmoid(mask_lam.type(torch.float32))
         if self.mask_mode in ["none_v_", "sum", "softmax"]:
@@ -489,7 +489,7 @@ class PixelMixBlock(nn.Module):
                 ).view(n, 1, h, w)
                 mask_lam_ = torch.where(torch.isnan(mask_lam_),
                                         torch.full_like(mask_lam_, 1e-4), mask_lam_)
-            mask_lam_ = F.upsample(mask_lam_, scale_factor=scale_factor, mode=up_mode)
+            mask_lam_ = F.interpolate(mask_lam_, scale_factor=scale_factor, mode=up_mode)
             # mask for 1-lam in [0, 1], force fp32 in exp (causing NAN in fp16)
             mask_lam_ = torch.sigmoid(mask_lam_.type(torch.float32))
 

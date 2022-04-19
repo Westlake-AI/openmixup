@@ -7,7 +7,7 @@ model = dict(
         depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='BN'),
+        norm_cfg=dict(type='SyncBN'),
         style='pytorch'),
     neck=dict(
         type='NonLinearNeck',

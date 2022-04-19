@@ -13,53 +13,36 @@ class SimMIMSwinTransformer(SwinTransformer):
     """Swin Transformer for SimMIM pre-training.
 
     Args:
-        Args:
-        arch (str | dict): Swin Transformer architecture
-            Defaults to 'T'.
-        img_size (int | tuple): The size of input image.
-            Defaults to 224.
-        in_channels (int): The num of input channels.
-            Defaults to 3.
-        drop_rate (float): Dropout rate after embedding.
+        mask_layer (int): Layer to start MIM (mask img and add mask_token).
             Defaults to 0.
-        drop_path_rate (float): Stochastic depth rate.
-            Defaults to 0.1.
-        out_indices (tuple): Layers to be outputted. Defaults to (3, ).
-        use_abs_pos_embed (bool): If True, add absolute position embedding to
-            the patch embedding. Defaults to False.
-        with_cp (bool): Use checkpoint or not. Using checkpoint
-            will save some memory while slowing down the training speed.
-            Defaults to False.
-        frozen_stages (int): Stages to be frozen (stop grad and set eval mode).
-            -1 means not freezing any parameters. Defaults to -1.
-        norm_eval (bool): Whether to set norm layers to eval mode, namely,
-            freeze running stats (mean and var). Note: Effect on Batch Norm
-            and its variants only. Defaults to False.
-        norm_cfg (dict): Config dict for normalization layer at end
-            of backone. Defaults to dict(type='LN')
-        stage_cfgs (Sequence | dict): Extra config dict for each
-            stage. Defaults to empty dict.
-        patch_cfg (dict): Extra config dict for patch embedding.
-            Defaults to empty dict.
-        init_cfg (dict, optional): The Config for initialization.
-            Defaults to None.
+        mask_token (str): Mode of applying mask token in {None, 'randn', 'zero',
+            'learnable', 'mean'}. Defaults to 'learnable'.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, mask_layer=0, mask_token='learnable', **kwargs):
         super().__init__(**kwargs)
-
-        self.mask_token = nn.Parameter(torch.zeros(1, 1, self.embed_dims))
+        self.mask_layer = mask_layer
+        self.mask_mode = mask_token
+        assert self.mask_layer in [0, 1, 2, 3, 4,]
+        assert self.mask_mode in [None, 'randn', 'zero', 'mean', 'learnable',]
+        if self.mask_mode is not None:
+            self.mask_token = nn.Parameter(
+                torch.zeros(1, 1, self.embed_dims * (2 ** max(0, self.mask_layer-1))))
 
     def init_weights(self, pretrained=None):
         """Initialize weights."""
-        super(SwinTransformer, self).init_weights(pretrained)
+        super(SimMIMSwinTransformer, self).init_weights(pretrained)
 
         if pretrained is not None:
+            # init pos embed
             if self.use_abs_pos_embed:
                 trunc_normal_(self.absolute_pos_embed, std=0.02)
-
-            trunc_normal_(self.mask_token, mean=0, std=.02)
-
+            # init mask token
+            if self.mask_mode != 'zero':
+                trunc_normal_(self.mask_token, mean=0, std=.02)
+            if self.mask_mode != 'learnable':
+                self.mask_token.requires_grad = False
+            
             self.apply(self._init_weights)
 
     def _init_weights(self, m):
@@ -68,7 +51,20 @@ class SimMIMSwinTransformer(SwinTransformer):
         elif isinstance(m, nn.LayerNorm):
             constant_init(m, val=1.0, bias=0)
 
-    def forward(self, x, mask):
+    def forward_mask(self, x, mask):
+        """ perform MIM with mask and mask_token """
+        if self.mask_mode is None:
+            return x
+        B, L, _ = x.shape
+        if self.mask_mode == 'mean':
+            self.mask_token.data = 0.999 * self.mask_token.data + \
+                                   0.001 * x.mean(dim=[0, 1,], keepdim=True)
+        mask_token = self.mask_token.expand(B, L, -1)
+        mask = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
+        x = x * (1. - mask) + mask_token * mask
+        return x
+
+    def forward(self, x, mask=None):
         """Generate features for masked images.
 
         This function generates mask images and get the hidden features for
@@ -82,21 +78,23 @@ class SimMIMSwinTransformer(SwinTransformer):
             tuple: A tuple containing features from multi-stages.
         """
         x, hw_shape = self.patch_embed(x)
-
-        assert mask is not None
-        B, L, _ = x.shape
-
-        mask_token = self.mask_token.expand(B, L, -1)
-        w = mask.flatten(1).unsqueeze(-1).type_as(mask_token)
-        x = x * (1. - w) + mask_token * w
-
+        
+        if self.mask_layer == 0 and mask is not None:
+            x = self.forward_mask(x, mask)
+        
         if self.use_abs_pos_embed:
             x = x + self.absolute_pos_embed
-
         x = self.drop_after_pos(x)
-
+        
         outs = []
+        if -1 in self.out_indices:
+            outs.append(
+                x.view(x.size(0), *hw_shape, -1).permute(0, 3, 1, 2).contiguous())
+        
         for i, stage in enumerate(self.stages):
+            if self.mask_layer == i+1 and mask is not None:
+                x = self.forward_mask(x, mask)
+            
             x, hw_shape = stage(x, hw_shape)
             if i in self.out_indices:
                 norm_layer = getattr(self, f'norm{i}')

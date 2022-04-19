@@ -115,7 +115,8 @@ def arrange_clustering(images_lists):
     return np.asarray(pseudolabels)[indexes]
 
 
-class Kmeans:
+class Kmeans():
+    """Implements of k-mean clustering with faiss-gpu."""
 
     def __init__(self, k, pca_dim=256):
         self.k = k

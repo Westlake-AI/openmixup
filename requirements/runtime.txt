@@ -5,11 +5,12 @@ mmcv-full>=1.4.2,<=1.5.0
 numpy
 packaging
 pandas
-scipy
-six
 terminaltables
-sklearn
+scipy
+scikit-image
 seaborn
+six
+sklearn
 tensorboard
 timm
 tqdm

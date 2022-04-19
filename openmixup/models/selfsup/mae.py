@@ -1,8 +1,10 @@
 # reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
 # modified from mmselfsup mae.py
-from openmixup.utils import print_log
+import torch
 
+from openmixup.utils import force_fp32, print_log
 from ..classifiers import BaseModel
+from ..utils import PlotTensor
 from .. import builder
 from ..registry import MODELS
 
@@ -19,6 +21,7 @@ class MAE(BaseModel):
         neck (dict): Config dict for encoder. Defaults to None.
         head (dict): Config dict for loss functions. Defaults to None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
+        save (bool): Saving reconstruction results. Defaults to False.
         init_cfg (dict): Config dict for weight initialization.
             Defaults to None.
     """
@@ -28,6 +31,7 @@ class MAE(BaseModel):
                  neck=None,
                  head=None,
                  pretrained=None,
+                 save=False,
                  init_cfg=None,
                  **kwargs):
         super(MAE, self).__init__(init_cfg, **kwargs)
@@ -36,6 +40,11 @@ class MAE(BaseModel):
         self.neck = builder.build_neck(neck)
         self.neck.num_patches = self.backbone.num_patches
         self.head = builder.build_head(head)
+
+        self.save = save
+        self.save_name = 'reconstruction'
+        self.ploter = PlotTensor(apply_inv=True)
+
         self.init_weights(pretrained=pretrained)
 
     def init_weights(self, pretrained=None):
@@ -70,6 +79,29 @@ class MAE(BaseModel):
             x = x[0][-1]  # return cls_token
         return [x]
 
+    @force_fp32(apply_to=('img_ori', 'img_rec',))
+    def plot_reconstruction(self, img_ori, img_rec):
+        """ visualize reconstruction results """
+        # reshape patchfied img_rec
+        N, C, H, W = img_ori.size()
+        P = self.head.patch_size
+        h = w = H // P  # h, w after patchfy
+
+        img_rec = img_rec.reshape(shape=(N, h, w, P, P, C))
+        img_rec = torch.einsum('nhwpqc->nchpwq', img_rec)
+        img_rec = img_rec.reshape(shape=(N, C, H, W))
+
+        img_rec = img_rec * (img_ori.var(dim=-1, keepdim=True) + 1e-6)**0.5 + \
+            img_ori.mean(dim=-1, keepdim=True)
+        
+        mask = torch.clamp(img_ori - img_rec - 1e-6, 0, 1).type(torch.bool)
+        img_mask = img_ori * (~mask).type(torch.float32)
+
+        # plot MIM results
+        img = torch.cat((img_ori[:4], img_mask[:4], img_rec[:4]), dim=0)
+        assert self.save_name.find(".png") != -1
+        self.ploter.plot(img, nrow=4, title_name="MAE", save_name=self.save_name)
+
     def forward_train(self, img, **kwargs):
         """Forward computation during training.
 
@@ -82,6 +114,11 @@ class MAE(BaseModel):
         """
         latent, mask, ids_restore = self.backbone(img)
         pred = self.neck(latent, ids_restore)
+        if isinstance(pred, list):
+            pred = pred[-1]
         losses = self.head(img, pred, mask)
+
+        if self.save:
+            self.plot_reconstruction(img, pred)
 
         return losses

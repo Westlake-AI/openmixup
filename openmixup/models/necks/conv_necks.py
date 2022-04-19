@@ -13,6 +13,7 @@ class ConvNeck(nn.Module):
         out_channels (int): Channels of the output feature channel.
         num_layers (int): The number of convolution layers.
         kernel_size (int): Kernel size of the convolution layer.
+        stride (int): Stride of the convolution layer.
         conv_cfg (dict): Config dict for convolution layer.
             Default: None, which means using conv2d.
         norm_cfg (dict): Config dict for normalization layer.
@@ -28,6 +29,8 @@ class ConvNeck(nn.Module):
             Default: 0.0.
         with_residual (bool, optional): Add resudual connection.
             Default: False.
+        with_pixel_shuffle (bool or int): Whether to use nn.PixelShuffle() to
+            upsampling to feature maps. Default: False (0).
     """
 
     def __init__(self,
@@ -36,6 +39,7 @@ class ConvNeck(nn.Module):
                  out_channels,
                  num_layers=2,
                  kernel_size=1,
+                 stride=1,
                  conv_cfg=None,
                  norm_cfg=dict(type='BN', requires_grad=True),
                  act_cfg=dict(type='ELU'),
@@ -43,7 +47,8 @@ class ConvNeck(nn.Module):
                  with_avg_pool=False,
                  with_last_norm=False,
                  with_last_dropout=0.,
-                 with_residual=True,
+                 with_residual=False,
+                 with_pixel_shuffle=False,
                  **kwargs):
         super(ConvNeck, self).__init__()
         # basic args
@@ -52,18 +57,20 @@ class ConvNeck(nn.Module):
         self.out_channels = int(out_channels)
         self.num_layers = int(num_layers)
         self.kernel_size = int(kernel_size)
+        self.stride = int(stride)
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
         self.act_cfg = act_cfg
         assert conv_cfg is None or isinstance(conv_cfg, dict)
         assert norm_cfg is None or isinstance(norm_cfg, dict)
         assert act_cfg is None or isinstance(act_cfg, dict)
-        assert kernel_size in [1, 3]
+        assert kernel_size >= 1 and stride >= 1
         # specific for ssl
         self.with_bias = bool(with_bias)
         self.with_avg_pool = bool(with_avg_pool)
         self.with_last_norm = bool(with_last_norm)
         self.with_residual = bool(with_residual)
+        self.with_pixel_shuffle = int(with_pixel_shuffle)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1)) \
             if with_avg_pool else nn.Identity()
         if isinstance(with_last_dropout, dict):
@@ -86,13 +93,16 @@ class ConvNeck(nn.Module):
                     in_channels=in_channels if i == 0 else hid_channels,
                     out_channels=hid_channels if i != num_layers-1 else out_channels,
                     kernel_size=kernel_size,
-                    stride=1,
-                    padding=1 if kernel_size == 3 else 0,
+                    stride=stride,
+                    padding=kernel_size // 2,
                     bias=with_bias,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg if i != num_layers-1 or with_last_norm else None,
-                    act_cfg=act_cfg if i != num_layers-1 else None
+                    act_cfg=act_cfg if (i != num_layers-1) or (num_layers == 1) else None
                 ))
+        if with_pixel_shuffle >= 2:
+            assert with_pixel_shuffle % 2 == 0
+            layers.append(nn.PixelShuffle(int(with_pixel_shuffle)))
         self.conv = nn.Sequential(*layers)
         self.init_weights()
     
