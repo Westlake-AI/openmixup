@@ -9,7 +9,7 @@
 
 ## Introduction
 
-The master branch works with **PyTorch 1.6** or higher.
+The master branch works with **PyTorch 1.7** or higher.
 
 `OpenMixup` is an open-source supervised, self- and semi-unsupervised representation learning toolbox based on PyTorch, especially for mixup-related methods.
 

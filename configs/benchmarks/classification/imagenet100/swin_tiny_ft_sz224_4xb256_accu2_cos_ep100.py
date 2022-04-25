@@ -1,7 +1,11 @@
 _base_ = '../imagenet/swin_tiny_ft_sz224_4xb256_accu2_cos_ep100.py'
 
 # model settings
-model = dict(head=dict(num_classes=100))
+model = dict(
+    head=dict(
+        loss=dict(type='LabelSmoothLoss',
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        num_classes=100))
 
 # dataset settings
 data_source_cfg = dict(type='ImageNet')

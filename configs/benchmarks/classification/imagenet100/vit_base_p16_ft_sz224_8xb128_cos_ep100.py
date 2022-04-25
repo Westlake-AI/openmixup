@@ -4,6 +4,13 @@ _base_ = [
     '../_base_/default_runtime.py',
 ]
 
+# model settings
+model = dict(
+    head=dict(
+        loss=dict(type='LabelSmoothLoss',
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        num_classes=100))
+
 # optimizer
 optimizer = dict(
     type='AdamW',

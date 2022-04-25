@@ -32,12 +32,15 @@ class MaskedImageDataset(BaseDataset):
                  prefetch=False):
         super(MaskedImageDataset, self).__init__(data_source, pipeline, prefetch)
         self.mask_pipeline = mask_pipeline
-        if self.mask_pipeline is not None:
-            assert prefetch == True, "Feature extraction needs uint8 images."
-            mask_pipeline = [build_from_cfg(p, PIPELINES) for p in mask_pipeline]
-            self.mask_pipeline = Compose(mask_pipeline)
         self.feature_mode = feature_mode
         assert self.feature_mode in [None, 'hog', 'lbp',]
+        if self.mask_pipeline is not None:
+            if self.feature_mode in ['hog', 'lbp']:
+                assert prefetch == True, "Feature extraction needs uint8 images."
+            else:
+                assert prefetch == False, "Turn off `prefetch` when use RGB target."
+            mask_pipeline = [build_from_cfg(p, PIPELINES) for p in mask_pipeline]
+            self.mask_pipeline = Compose(mask_pipeline)
         self.return_label = self.data_source.return_label
         
         if self.feature_mode == 'hog':
@@ -63,12 +66,13 @@ class MaskedImageDataset(BaseDataset):
             img = self.data_source.get_sample(idx)
         # process img
         img = self.pipeline(img)
+        img_mim = None
         
         if self.mask_pipeline is not None:
             # get predefined masks
             mask = self.mask_pipeline(img)
             if isinstance(mask, tuple):
-                mask = mask[-1]
+                img_mim, mask = mask
             # get features with processed img (not ToTensor)
             if self.feature_mode is not None:
                 if self.feature_mode == 'hog':
@@ -80,8 +84,13 @@ class MaskedImageDataset(BaseDataset):
                 # [H, W, 3] -> [C', H', W']
                 feat = torch.from_numpy(feat).type(torch.float32).permute(2, 0, 1)
                 mask = [mask, feat]
+            else:
+                mask = [mask, img]  # raw img as the RGB target
             ret_dict['mask'] = mask
-        
+
+        # update masked img as the input
+        if img_mim is not None:
+            img = img_mim
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))
         ret_dict['img'] = img

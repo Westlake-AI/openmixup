@@ -12,7 +12,7 @@ model = dict(
     neck=dict(
         type='NonLinearNeck',
         in_channels=2048, hid_channels=4096, out_channels=256,
-        num_layers=3,
+        num_layers=2,
         with_bias=False, with_last_bn=True, with_last_bn_affine=False,
         with_last_bias=False, with_avg_pool=True, vit_backbone=False),
     head=dict(

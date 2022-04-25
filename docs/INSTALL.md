@@ -4,8 +4,8 @@
 
 - Linux (Windows is not officially supported)
 - Python 3.6+
-- PyTorch 1.6 or higher
-- CUDA 10.0 or higher
+- PyTorch 1.7 or higher
+- CUDA 10.1 or higher
 - NCCL 2
 - GCC 4.9 or higher
 - [mmcv](https://github.com/open-mmlab/mmcv) 1.2.7 or higher
@@ -30,7 +30,7 @@ b. Install PyTorch and torchvision following the [official instructions](https:/
 
 ```shell
 conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
-# assuming CUDA=10.1, "pip install torch==1.6.0+cu101 torchvision==0.7.0+cu101 -f https://download.pytorch.org/whl/torch_stable.html"
+# assuming CUDA=10.1, "pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html"
 ```
 
 c. Install other third-party libraries (not necessary). Please install [pyGCO](https://github.com/Borda/pyGCO) for PuzzleMix (used for cut_grid_graph, DON'T USE `pip install gco==1.0.1`).

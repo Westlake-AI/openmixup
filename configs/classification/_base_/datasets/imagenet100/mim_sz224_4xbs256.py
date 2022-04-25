@@ -23,3 +23,11 @@ data = dict(
             **data_source_cfg),
     ),
 )
+
+# validation hook
+evaluation = dict(
+    initial=False,
+    interval=1,
+    imgs_per_gpu=100,
+    workers_per_gpu=2,
+    eval_param=dict(topk=(1, 5)))

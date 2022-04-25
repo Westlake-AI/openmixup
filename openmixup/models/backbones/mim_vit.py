@@ -315,4 +315,4 @@ class SimMIMViT(VisionTransformer):
         B, L, C = x.shape
         H = W = int(L ** 0.5)
         x = x.permute(0, 2, 1).reshape(B, C, H, W)
-        return x
+        return [x]

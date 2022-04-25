@@ -5,7 +5,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 from openmixup.utils import force_fp32, print_log
-from openmixup.models.utils import Laplacian, Sobel
+from openmixup.models.utils import Canny, Laplacian, Sobel
 
 from .base_model import BaseModel
 from ..utils import PlotTensor
@@ -93,11 +93,13 @@ class MIMClassification(BaseModel):
         
         # mim targets
         self.mim_target = mim_target
-        assert self.mim_target in [None, 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
-        if self.mim_target == 'sobel':
-            self.feat_layer = Sobel(isotropic=True, out_channels=2)
+        assert self.mim_target in [None, 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
+        if self.mim_target == 'canny':
+            self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
         elif self.mim_target == 'laplacian':
-            self.feat_layer = Laplacian(mode='DoG')
+            self.feat_layer = Laplacian(mode='DoG', use_threshold=True)
+        elif self.mim_target == 'sobel':
+            self.feat_layer = Sobel(isotropic=True, use_threshold=True, out_channels=2)
         
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
@@ -293,13 +295,6 @@ class MIMClassification(BaseModel):
                 img, gt_label = eval(cur_mode)(img, gt_label, **mix_args)
             else:
                 assert cur_mode == "vanilla"
-                # rand_idx = torch.randperm(img.size(0))
-                # rand_img = img[rand_idx]
-                # feat_mean, feat_std = self.neck_mim._calc_instance_norm(rand_img)
-                # content_mean, content_std = self.neck_mim._calc_instance_norm(img)
-                # img = (img - content_mean.expand(img.size())) / content_std.expand(img.size())
-                # img = img * feat_mean.expand(img.size()) + feat_std.expand(img.size())
-                # outputs['img_mim'] = img
             feat = self.backbone(img, mask)
         else:
             # manifoldmix
@@ -348,7 +343,7 @@ class MIMClassification(BaseModel):
             mask, img_mim = mask
         else:
             img_mim = img.clone()
-        if self.mim_target in ['laplacian', 'sobel',]:
+        if self.mim_target in ['canny', 'laplacian', 'sobel',]:
             assert img_mim.size(1) == 3
             img_mim = self.feat_layer(img_mim)
         elif self.mim_target == 'pretrained':
@@ -374,8 +369,7 @@ class MIMClassification(BaseModel):
                 img_rec = self.neck_mim(outputs['feat'])
                 if isinstance(img_rec, list):
                     img_rec = img_rec[-1]
-                img_mim = outputs.get('img_mim', img_mim)
-                losses["mim"] = self.head_mim(img_mim, img_rec, mask)["loss"]
+                losses["mim"] = self.head_mim(x=img_mim, x_rec=img_rec, mask=mask)["loss"]
                 losses["loss"] += (losses["mim"] * self.weight_mim)
                 # save mim
                 if self.save:
@@ -398,7 +392,7 @@ class MIMClassification(BaseModel):
         img_rec = img_rec[:nrow]
         img = img[:nrow]
         img_raw = None
-        plot_args = dict(dpi=None, apply_inv=True)
+        plot_args = dict(dpi=None, apply_inv=True, overwrite=False)
         # plot MIM results
         if self.mim_target == 'hog':
             from ..utils import hog_visualization

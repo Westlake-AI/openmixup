@@ -43,9 +43,8 @@ class DistOptimizerHook(OptimizerHook):
         self.use_fp16 = use_fp16
         # basic args
         if use_fp16 and has_apex == False:
-            print('Optimizer: apex is not installed')
-            raise NotImplementedError('Optimizer: apex is not installed! '
-                                      'Please use Fp16OptimizerHook supported by mmcv=>1.1.4.')
+            print('Optimizer: apex is not installed! '
+                  'Please use Fp16OptimizerHook supported by mmcv=>1.1.4.')
         if cancel_grad is not None:
             assert isinstance(cancel_grad, dict)
             self.cancel_grad = cancel_grad

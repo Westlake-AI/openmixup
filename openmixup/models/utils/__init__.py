@@ -10,7 +10,7 @@ from .inverted_residual import InvertedResidual
 from .multi_pooling import MultiPooling
 from .make_divisible import make_divisible
 from .scale import Scale
-from .sobel import Laplacian, Sobel
+from .sobel import Canny, Laplacian, Sobel
 from .smoothing import Smoothing
 from .se_layer import SELayer
 from .transformer import ConditionalPositionEncoding, MultiheadAttention, ShiftWindowMSA, \
@@ -26,7 +26,7 @@ __all__ = [
    'DropPath', 'GatherLayer', 'concat_all_gather', 'channel_shuffle', 'InvertedResidual',
    'batch_shuffle_ddp', 'batch_unshuffle_ddp', 'grad_batch_shuffle_ddp', 'grad_batch_unshuffle_ddp',
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
-   'MultiPooling', 'make_divisible', 'Laplacian', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
+   'MultiPooling', 'make_divisible', 'Canny', 'Laplacian', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
    'ConditionalPositionEncoding', 'MultiheadAttention', 'ShiftWindowMSA',
    'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'build_2d_sincos_position_embedding',
    'GradWeighter', 'get_grad_norm', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',

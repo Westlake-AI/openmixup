@@ -12,6 +12,7 @@ from torchvision import transforms as _transforms
 
 from openmixup.utils import build_from_cfg
 from ..registry import PIPELINES
+from ..utils import to_numpy, to_tensor
 
 
 # register all existing transforms in torchvision
@@ -296,6 +297,8 @@ class BlockwiseMaskGenerator(object):
         mask_patch_size (int): Size of each block mask. Defaults to 32.
         model_patch_size (int): Patch size of each token. Defaults to 4.
         mask_ratio (float): The mask ratio of image. Defaults to 0.6.
+        mask_color (str): Filling color of the MIM mask in {'mean', 'zero'}.
+            Defaults to 'zero'.
     """
 
     def __init__(self,
@@ -304,12 +307,17 @@ class BlockwiseMaskGenerator(object):
                  model_patch_size=4,
                  mask_ratio=0.6,
                  mask_only=False,
+                 mask_color='zero',
                 ):
         self.input_size = input_size
         self.mask_patch_size = mask_patch_size
         self.model_patch_size = model_patch_size
         self.mask_ratio = mask_ratio
         self.mask_only = mask_only
+        self.mask_color = mask_color
+        assert self.mask_color in ['mean', 'zero', 'rand',]
+        if self.mask_color != 'zero':
+            assert mask_only == False
 
         assert self.input_size % self.mask_patch_size == 0
         assert self.mask_patch_size % self.model_patch_size == 0
@@ -324,10 +332,27 @@ class BlockwiseMaskGenerator(object):
         mask_idx = np.random.permutation(self.token_count)[:self.mask_count]
         mask = np.zeros(self.token_count, dtype=int)
         mask[mask_idx] = 1
-
         mask = mask.reshape((self.rand_size, self.rand_size))
         mask = mask.repeat(self.scale, axis=0).repeat(self.scale, axis=1)
-        mask = torch.from_numpy(mask)  # H X W
+        mask = torch.from_numpy(mask)  # [H, W]
+
+        if self.mask_color == 'mean':
+            if isinstance(img, Image.Image):
+                img = np.array(img)
+                mask_ = to_numpy(mask).reshape((self.rand_size * self.scale, -1, 1))
+                mask_ = mask_.repeat(
+                    self.model_patch_size, axis=0).repeat(self.model_patch_size, axis=1)
+                mean = img.reshape(-1, img.shape[2]).mean(axis=0)
+                img = np.where(mask_ == 1, img, mean)
+                img = Image.fromarray(img.astype(np.uint8))
+            elif isinstance(img, torch.Tensor):
+                mask_ = to_tensor(mask)
+                mask_ = mask_.repeat_interleave(self.model_patch_size, 0).repeat_interleave(
+                    self.model_patch_size, 1).contiguous()
+                img = img.clone()
+                mean = img.mean(dim=[1,2])
+                for i in range(img.size(0)):
+                    img[i, mask_ == 1] = mean[i]
 
         if self.mask_only:
             return mask

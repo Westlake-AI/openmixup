@@ -5,7 +5,12 @@ _base_ = [
 ]
 
 # model settings
-model = dict(backbone=dict(frozen_stages=12, norm_eval=True))
+model = dict(
+    backbone=dict(frozen_stages=12, norm_eval=True),
+    head=dict(
+        loss=dict(type='LabelSmoothLoss',
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        num_classes=100))
 
 use_fp16 = True
 

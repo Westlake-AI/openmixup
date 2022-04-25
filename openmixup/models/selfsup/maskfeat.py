@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from openmixup.utils import force_fp32, print_log
-from openmixup.models.utils import Laplacian, Sobel
+from openmixup.models.utils import Canny, Laplacian, Sobel
 
 from ..classifiers import BaseModel
 from ..utils import PlotTensor
@@ -55,11 +55,13 @@ class MaskFeat(BaseModel):
 
         # mim targets
         self.mim_target = mim_target
-        assert self.mim_target in [None, 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
-        if self.mim_target == 'sobel':
-            self.feat_layer = Sobel(isotropic=True, out_channels=2)
+        assert self.mim_target in [None, 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
+        if self.mim_target == 'canny':
+            self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
         elif self.mim_target == 'laplacian':
             self.feat_layer = Laplacian(mode='DoG')
+        elif self.mim_target == 'sobel':
+            self.feat_layer = Sobel(isotropic=True, use_threshold=True, out_channels=2)
 
         self.save = save
         self.save_name = 'reconstruction'
@@ -172,7 +174,7 @@ class MaskFeat(BaseModel):
         else:
             img_mim = img.clone()
 
-        if self.mim_target in ['laplacian', 'sobel',]:
+        if self.mim_target in ['canny', 'laplacian', 'sobel',]:
             assert img_mim.size(1) == 3
             img_mim = self.feat_layer(img_mim)
         elif self.mim_target == 'pretrained':

@@ -21,12 +21,12 @@ custom_hooks = [
 
 # optimizer
 optimizer = dict(
-    type='AdamW',
-    lr=2.4e-3,  # bs4096
-    betas=(0.9, 0.95), weight_decay=0.1,
+    type='LARS',
+    lr=0.6 * 4096 / 256,  # bs4096
+    momentum=0.9, weight_decay=1e-6,
     paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
-        'bias': dict(weight_decay=0.),
+        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0., lars_exclude=True),
+        'bias': dict(weight_decay=0., lars_exclude=True),
     })
 
 # apex
@@ -36,7 +36,13 @@ fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
 
 # learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=0.)
+lr_config = dict(
+    policy='CosineAnnealing',
+    by_epoch=False, min_lr=0.,
+    warmup='linear',
+    warmup_iters=10, warmup_by_epoch=True,
+    warmup_ratio=1e-5,
+)
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=200)

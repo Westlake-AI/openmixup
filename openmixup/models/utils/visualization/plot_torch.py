@@ -22,10 +22,13 @@ class PlotTensor:
     
     def plot(self,
              img, nrow=4, title_name=None, save_name=None,
-             dpi=None, apply_inv=True):
+             dpi=None, apply_inv=True, overwrite=False):
         assert save_name is not None
         assert img.size(0) % nrow == 0
         ncol = img.size(0) // nrow
+        if ncol > nrow:
+            ncol = nrow
+            nrow = img.size(0) // ncol
         img_grid = torchvision.utils.make_grid(img, nrow=nrow, pad_value=0)
         
         cmap=None
@@ -38,6 +41,6 @@ class PlotTensor:
         plt.imshow(img_grid, cmap=cmap)
         if title_name is not None:
             plt.title(title_name)
-        if not os.path.exists(save_name):
+        if not os.path.exists(save_name) or overwrite:
             plt.savefig(save_name, dpi=dpi)
         plt.close()

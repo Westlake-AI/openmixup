@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 import gzip
 import hashlib
 import os
@@ -8,15 +9,49 @@ import urllib.error
 import urllib.request
 import zipfile
 
+from PIL import Image
+import mmcv
 import numpy as np
+import torch
 
 
-def to_numpy(pil_img):
-    np_img = np.array(pil_img, dtype=np.uint8)
-    if np_img.ndim < 3:
-        np_img = np.expand_dims(np_img, axis=-1)
-    np_img = np.rollaxis(np_img, 2)  # HWC to CHW
-    return np_img
+def to_numpy(data):
+    if isinstance(data, np.ndarray):
+        return data
+    elif isinstance(data, Image.Image):
+        data = np.array(data, dtype=np.uint8)
+        if data.ndim < 3:
+            data = np.expand_dims(data, axis=-1)
+        data = np.rollaxis(data, 2)  # HWC to CHW
+        return data
+    elif isinstance(data, torch.Tensor):
+        return data.cpu().numpy()
+    else:
+        raise TypeError(
+            f'Type {type(data)} cannot be converted to numpy.')
+
+
+def to_tensor(data):
+    """Convert objects of various python types to :obj:`torch.Tensor`.
+
+    Supported types are: :class:`numpy.ndarray`, :class:`torch.Tensor`,
+    :class:`Sequence`, :class:`int` and :class:`float`.
+    """
+    if isinstance(data, torch.Tensor):
+        return data
+    elif isinstance(data, np.ndarray):
+        return torch.from_numpy(data).type(torch.float32)
+    elif isinstance(data, Sequence) and not mmcv.is_str(data):
+        return torch.tensor(data)
+    elif isinstance(data, int):
+        return torch.LongTensor([data])
+    elif isinstance(data, float):
+        return torch.FloatTensor([data])
+    else:
+        raise TypeError(
+            f'Type {type(data)} cannot be converted to tensor.'
+            'Supported types are: `numpy.ndarray`, `torch.Tensor`, '
+            '`Sequence`, `int` and `float`')
 
 
 def rm_suffix(s, suffix=None):
