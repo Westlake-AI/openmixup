@@ -4,11 +4,11 @@
 
 - Linux (Windows is not officially supported)
 - Python 3.6+
-- PyTorch 1.7 or higher
+- PyTorch 1.8 or higher
 - CUDA 10.1 or higher
 - NCCL 2
 - GCC 4.9 or higher
-- [mmcv](https://github.com/open-mmlab/mmcv) 1.2.7 or higher
+- [mmcv-full](https://github.com/open-mmlab/mmcv) 1.4.7 or higher (use `mmcv` for fast installation)
 
 We have tested the following versions of OS and softwares:
 
@@ -30,7 +30,7 @@ b. Install PyTorch and torchvision following the [official instructions](https:/
 
 ```shell
 conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
-# assuming CUDA=10.1, "pip install torch==1.7.1+cu101 torchvision==0.8.2+cu101 torchaudio==0.7.2 -f https://download.pytorch.org/whl/torch_stable.html"
+# assuming CUDA=10.1, "pip install torch==1.8.1+cu101 torchvision==0.9.1+cu101 torchaudio==0.8.1 -f https://download.pytorch.org/whl/torch_stable.html"
 ```
 
 c. Install other third-party libraries (not necessary). Please install [pyGCO](https://github.com/Borda/pyGCO) for PuzzleMix (used for cut_grid_graph, DON'T USE `pip install gco==1.0.1`).
@@ -59,6 +59,7 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
+If some errors occur when you install Apex with pip, you can try `python setup.py install` instead.
 
 Note:
 

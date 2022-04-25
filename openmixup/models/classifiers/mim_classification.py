@@ -97,7 +97,7 @@ class MIMClassification(BaseModel):
         if self.mim_target == 'canny':
             self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
         elif self.mim_target == 'laplacian':
-            self.feat_layer = Laplacian(mode='DoG', use_threshold=True)
+            self.feat_layer = Laplacian(mode='DoG', use_threshold=False)
         elif self.mim_target == 'sobel':
             self.feat_layer = Sobel(isotropic=True, use_threshold=True, out_channels=2)
         

@@ -5,9 +5,11 @@
 #### Highlight
 * Support masked image modeling (MIM) self-supervised methods (MAE, SimMIM, MaskFeat).
 * Support visualization of reconstruction results in MIM methods.
+* Support basic regression losses and metrics.
 
 ### Bug Fixes
-* Fix bugs of metric, configs reusing. The MSE and Smooth_L1 losses require FP32 training.
+* Fix bugs in regression metrics, MIM dataset, and benchmark configs. Notice that only `l1_loss` is supported by FP16 training, other regression losses (e.g., MSE and Smooth_L1 losses) will cause NAN when the target and prediction are not normalized in FP16 training.
+* We suggest you install **PyTorch 1.8** or higher (required by some self-supervised methods) and mmcv-full for better usage of this repo. You can still use **PyTorch 1.6** for supervised classification methods.
 
 ### v0.2.0 (31/03/2022)
 

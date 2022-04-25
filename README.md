@@ -2,14 +2,14 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.2.1 is now available, which supports new methods as [#4](https://github.com/Westlake-AI/openmixup/issues/4). Bugs SSL metrics are fixed.
+* OpenMixup v0.2.1 is now available, which supports new methods as [#4](https://github.com/Westlake-AI/openmixup/issues/4) (bugs fixed).
 * OpenMixup v0.2.0 is released, which supports new features as [#3](https://github.com/Westlake-AI/openmixup/issues/3). We have reorganized configs and fixed bugs.
 * OpenMixup v0.1.3 is released (finished code refactoring and fixed bugs), which steadily supports ViTs, self-supervised methods (e.g., MoCo.V3 and MAE), and online analysis (kNN metric and visualization). It requires the rebuilding of OpenMixup (install mmcv-full to support ViTs). More results are provided in Model Zoos.
 * OpenMixup v0.1.1 is released, which supports various backbones (ConvNets and ViTs), various mixup methods (e.g., [PuzzleMix](https://arxiv.org/abs/2009.06962), [AutoMix](https://arxiv.org/pdf/2103.13027), [SAMix](https://arxiv.org/pdf/2111.15454), [DecoupleMix](https://arxiv.org/abs/2203.10761) etc.), various classification datasets, benchmarks (model_zoo), config files generation, FP16 training (Apex or MMCV).
 
 ## Introduction
 
-The master branch works with **PyTorch 1.7** or higher.
+The master branch works with **PyTorch 1.8** or higher (required by some self-supervised methods). You can still use **PyTorch 1.6** for supervised classification methods.
 
 `OpenMixup` is an open-source supervised, self- and semi-unsupervised representation learning toolbox based on PyTorch, especially for mixup-related methods.
 
