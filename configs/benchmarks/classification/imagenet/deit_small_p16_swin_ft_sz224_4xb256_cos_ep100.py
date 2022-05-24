@@ -1,15 +1,11 @@
 _base_ = [
-    '../_base_/models/vit_base_p16.py',
-    '../_base_/datasets/imagenet_swin_sz224_8xbs128.py',
+    '../_base_/models/deit_small_p16.py',
+    '../_base_/datasets/imagenet_swin_ft_sz224_8xbs128.py',
     '../_base_/default_runtime.py',
 ]
 
-# model settings
-model = dict(
-    head=dict(
-        loss=dict(type='LabelSmoothLoss',
-            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
-        num_classes=100))
+# data
+data = dict(imgs_per_gpu=256, workers_per_gpu=10)  # total 4 x bs256 = bs1024, 4 GPU linear cls
 
 # optimizer
 optimizer = dict(
@@ -21,7 +17,10 @@ optimizer = dict(
         'bias': dict(weight_decay=0.),
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
-    })
+    },
+    constructor='TransformerFinetuneConstructor',
+    model_type='vit',
+    layer_decay=0.65)
 
 # learning policy
 lr_config = dict(

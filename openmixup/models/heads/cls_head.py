@@ -30,12 +30,15 @@ class ClsHead(nn.Module):
                  in_channels=2048,
                  num_classes=1000,
                  multi_label=False,
-                 frozen=False):
+                 frozen=False,
+                 finetune=False,
+                ):
         super(ClsHead, self).__init__()
         self.with_avg_pool = with_avg_pool
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.multi_label = multi_label
+        self.finetune = finetune
 
         # loss
         if loss is not None:
@@ -61,6 +64,9 @@ class ClsHead(nn.Module):
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
         assert init_linear in ['normal', 'kaiming', 'trunc_normal'], \
             "Undefined init_linear: {}".format(init_linear)
+        if self.finetune:  # finetune for ViTs
+            std = 2e-5
+            init_linear = 'trunc_normal'
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 if init_linear == 'normal':

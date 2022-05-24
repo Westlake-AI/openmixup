@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-from mmcv.cnn import build_norm_layer, constant_init, trunc_normal_init
+from mmcv.cnn import (build_activation_layer, build_norm_layer,
+                      constant_init, trunc_normal_init)
 from mmcv.runner.base_module import BaseModule
 from openmixup.models.utils.weight_init import trunc_normal_
 from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
@@ -175,8 +176,7 @@ class NonLinearMIMNeck(BaseModule):
         in_chans (int): The channel of input image. Defaults to 3.
         encoder_stride (int): The total stride of the encoder.
         decoder_cfg (dict): Config dict for non-linear blocks. Defaults to None.
-        norm_token (None or str): Mode of applying denormalization before the
-            decoder_pred. Defaults to False.
+        act_cfg (dict): Whether to use an activation function. Defaults to None.
     """
 
     def __init__(self,
@@ -185,12 +185,15 @@ class NonLinearMIMNeck(BaseModule):
                  kernel_size=1,
                  encoder_stride=32,
                  decoder_cfg=None,
-                 norm_token=None,
+                 act_cfg=None,
                 ):
         super(NonLinearMIMNeck, self).__init__()
         assert decoder_cfg is None or isinstance(decoder_cfg, dict)
+        assert act_cfg is None or isinstance(act_cfg, dict)
         self.decoder = builder.build_neck(decoder_cfg) \
             if decoder_cfg is not None else None
+        self.activate = build_activation_layer(act_cfg) \
+            if act_cfg is not None else None
         self.decoder_pred = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
@@ -201,8 +204,6 @@ class NonLinearMIMNeck(BaseModule):
             ),
             nn.PixelShuffle(encoder_stride),
         )
-        self.norm_mode = norm_token
-        assert self.norm_mode in [None, 'AdaLN', 'AdaIN',]
     
     def init_weights(self):
         for m in self.modules():
@@ -210,28 +211,6 @@ class NonLinearMIMNeck(BaseModule):
                 trunc_normal_init(m, std=0.02, bias=0)
             elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
                 constant_init(m, val=1, bias=0)
-
-    @staticmethod
-    def _calc_instance_norm(feat, eps=1e-5):
-        # eps is a small value added to the variance to avoid divide-by-zero.
-        size = feat.size()
-        assert (len(size) == 4)
-        N, C = size[:2]
-        feat_std = feat.view(N, C, -1).var(dim=2) + eps
-        feat_std = feat_std.sqrt().view(N, C, 1, 1)
-        feat_mean = feat.view(N, C, -1).mean(dim=2).view(N, C, 1, 1)
-        return feat_mean, feat_std
-
-    @staticmethod
-    def _calc_layer_norm(feat, eps=1e-5):
-        # eps is a small value added to the variance to avoid divide-by-zero.
-        size = feat.size()
-        assert (len(size) == 4)
-        N = size[0]
-        feat_std = feat.var(dim=[1, 2, 3]) + eps
-        feat_std = feat_std.sqrt().view(N, 1, 1, 1)
-        feat_mean = feat.mean(dim=[1, 2, 3]).view(N, 1, 1, 1)
-        return feat_mean, feat_std
     
     def forward(self, x):
         assert isinstance(x, list)
@@ -240,24 +219,9 @@ class NonLinearMIMNeck(BaseModule):
             dec = self.decoder([x[-1]])[0]
         else:
             dec = x[-1]
-        
-        outs = []
-        if self.norm_mode is not None:
-            assert len(x) >= 2 and (x[0].size()[:2] == dec.size()[:2])
-            size = dec.size()
-            if self.norm_mode == 'AdaIN':
-                feat_mean, feat_std = self._calc_instance_norm(x[0].detach())
-                content_mean, content_std = self._calc_instance_norm(dec)
-                dec = (dec - content_mean.expand(size)) / content_std.expand(size)
-            elif self.norm_mode == 'AdaLN':
-                feat_mean, feat_std = self._calc_layer_norm(x[0].detach())
-                content_mean, content_std = self._calc_layer_norm(dec)
-                dec = (dec - content_mean.expand(size)) / content_std.expand(size)
-            
-            dec = dec * feat_mean.expand(size) + feat_std.expand(size)
-            outs.append(dec)
 
         dec = self.decoder_pred(dec)
-        outs.append(dec)
+        if self.activate is not None:
+            dec = self.activate(dec)
         
-        return outs
+        return [dec]

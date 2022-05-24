@@ -20,8 +20,11 @@ class MaskedImageDataset(BaseDataset):
     Args:
         data_source (dict): Data source defined in
             `mmselfsup.datasets.data_sources`.
-        pipeline (list[dict]): A list of dict, where each element represents
-            an operation defined in `mmselfsup.datasets.pipelines`.
+        pipeline (list[dict]): A list of basic augmentations dict, where each element
+            represents an operation defined in `mmselfsup.datasets.pipelines`.
+        mask_pipeline (list[dict]): A list of mask generation dict.
+        feature_mode (str): Mode of predefined feature extraction as MIM targets.
+        feature_args (dict): A args dict of feature extraction. Defaults to None.
         prefetch (bool, optional): Whether to prefetch data. Defaults to False.
     """
 

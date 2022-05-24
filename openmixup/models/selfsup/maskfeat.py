@@ -37,6 +37,7 @@ class MaskFeat(BaseModel):
                  head=None,
                  backbone_k=None,
                  mim_target=None,
+                 residual=False,
                  pretrained=None,
                  pretrained_k=None,
                  save=False,
@@ -55,7 +56,8 @@ class MaskFeat(BaseModel):
 
         # mim targets
         self.mim_target = mim_target
-        assert self.mim_target in [None, 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
+        self.residual = residual
+        assert self.mim_target in [None, 'gray', 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
         if self.mim_target == 'canny':
             self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
         elif self.mim_target == 'laplacian':
@@ -177,6 +179,8 @@ class MaskFeat(BaseModel):
         if self.mim_target in ['canny', 'laplacian', 'sobel',]:
             assert img_mim.size(1) == 3
             img_mim = self.feat_layer(img_mim)
+        elif self.mim_target == 'gray':
+            img_mim = img_mim.mean(dim=1, keepdim=True)
         elif self.mim_target == 'pretrained':
             img_mim = self.backbone_k(img_mim)[-1]
 
@@ -184,6 +188,8 @@ class MaskFeat(BaseModel):
         img_rec = self.neck(img_latent)
         if isinstance(img_rec, list):
             img_rec = img_rec[-1]
+        if self.residual:
+            img_rec += img_mim.mean(dim=(2, 3), keepdim=True).expand(img_rec.size())
         losses = self.head(img_mim, img_rec, mask)
 
         if self.save:

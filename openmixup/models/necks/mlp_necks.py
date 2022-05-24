@@ -244,7 +244,8 @@ class NonLinearNeck(nn.Module):
         with_last_bn (bool): Whether to add the last BN layer.
             Defaults to True.
         with_last_bn_affine (bool): Whether to have learnable affine parameters
-            in the last BN layer (set False for SimSiam). Defaults to True.
+            in the last BN layer (set False for SimSiam and BarlowTwins).
+            Defaults to True.
         with_last_bias (bool): Whether to use bias in the last fc layer.
             Defaults to False.
         with_avg_pool (bool): Whether to apply the global average pooling

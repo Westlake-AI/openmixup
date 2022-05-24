@@ -1,3 +1,4 @@
+import copy
 import torch
 import argparse
 
@@ -18,10 +19,27 @@ def main():
     ck = torch.load(args.checkpoint, map_location=torch.device('cpu'))
     output_dict = dict(state_dict=dict(), author="openmixup")
     has_backbone = False
-    for key, value in ck['state_dict'].items():
-        if key.startswith('backbone'):
-            output_dict['state_dict'][key[9:]] = value
-            has_backbone = True
+    if ck.get('state_dict', None) is not None:
+        ck = ck['state_dict']
+    
+    for key, value in ck.items():
+        if key.find('momentum') != -1:
+            continue
+        # remove 'module'
+        if key.startswith('module'):
+            key = key[7:]
+        new_key = copy.copy(key)
+        # remove backbone keys
+        for prefix_k in ['backbone', 'encoder', 'encoder_q', 'base_encoder', 'timm_model',]:
+            if new_key.startswith(prefix_k):
+                has_backbone = True
+                new_key = new_key[len(prefix_k) + 1: ]
+        if new_key == key:
+            print("remove key:", key)
+            continue
+        
+        output_dict['state_dict'][new_key] = value
+        print("keep key {} -> {}".format(key, new_key))
     if not has_backbone:
         raise Exception("Cannot find a backbone module in the checkpoint.")
     torch.save(output_dict, args.output)

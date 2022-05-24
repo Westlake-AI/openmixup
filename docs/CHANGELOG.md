@@ -1,5 +1,16 @@
 ## Changelog
 
+### v0.2.2 (24/05/2022)
+
+#### Highlight
+* Support more self-supervised methods (Barlow Twins and Masked Image Modeling methods).
+* Support popular backbones (ConvMixer, MLPMixer, VAN) based on MMClassification.
+* Support more regression losses (Charbonnier loss and Focal Frequency loss).
+
+### Bug Fixes
+* Fix bugs in self-supervised classification benchmarks (configs and implementations of VisionTransformer).
+* We suggest you install **PyTorch 1.8** or higher and mmcv-full for better usage of this repo. **PyTorch 1.8** has bugs in AdamW optimizer.
+
 ### v0.2.1 (19/04/2022)
 
 #### Highlight

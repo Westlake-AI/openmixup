@@ -49,6 +49,7 @@ class MIMClassification(BaseModel):
                  head_mim=None,
                  backbone_k=None,
                  mim_target=None,
+                 residual=False,
                  alpha=1.0,
                  mix_mode="mixup",
                  mix_args=dict(
@@ -93,13 +94,14 @@ class MIMClassification(BaseModel):
         
         # mim targets
         self.mim_target = mim_target
+        self.residual = residual
         assert self.mim_target in [None, 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
         if self.mim_target == 'canny':
             self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
         elif self.mim_target == 'laplacian':
             self.feat_layer = Laplacian(mode='DoG', use_threshold=False)
         elif self.mim_target == 'sobel':
-            self.feat_layer = Sobel(isotropic=True, use_threshold=True, out_channels=2)
+            self.feat_layer = Sobel(isotropic=True, use_threshold=False, out_channels=2)
         
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
@@ -369,6 +371,8 @@ class MIMClassification(BaseModel):
                 img_rec = self.neck_mim(outputs['feat'])
                 if isinstance(img_rec, list):
                     img_rec = img_rec[-1]
+                if self.residual:
+                    img_rec += img_mim.mean(dim=(2, 3), keepdim=True).expand(img_rec.size())
                 losses["mim"] = self.head_mim(x=img_mim, x_rec=img_rec, mask=mask)["loss"]
                 losses["loss"] += (losses["mim"] * self.weight_mim)
                 # save mim

@@ -1,6 +1,6 @@
 _base_ = [
     '../_base_/models/vit_base_p16.py',
-    '../_base_/datasets/imagenet_swin_sz224_8xbs128.py',
+    '../_base_/datasets/imagenet_swin_ft_sz224_8xbs128.py',
     '../_base_/default_runtime.py',
 ]
 
@@ -14,7 +14,10 @@ optimizer = dict(
         'bias': dict(weight_decay=0.),
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
-    })
+    },
+    constructor='TransformerFinetuneConstructor',
+    model_type='vit',
+    layer_decay=0.65)
 
 # learning policy
 lr_config = dict(

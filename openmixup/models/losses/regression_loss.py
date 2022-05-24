@@ -76,6 +76,33 @@ def fuzzy_ce_loss(pred,
     return loss
 
 
+def charbonnier_loss(pred,
+                     target,
+                     eps=1e-10,
+                     reduction='mean',
+                     **kwargs):
+    """Charbonnier loss (one variant of Robust L1Loss, a differentiable
+    variant of L1Loss).
+
+    Args:
+        pred (Tensor): Prediction Tensor with shape (n, c, h, w).
+        target ([type]): Target Tensor with shape (n, c, h, w).
+        eps (float): A value used to control the curvature near zero.
+            Default: 1e-12.
+
+    Returns:
+        Tensor: Calculated Charbonnier loss.
+    """
+    loss = torch.sqrt((pred - target)**2 + eps)
+
+    if reduction == 'mean':  # 'benchmean'
+        loss = loss.mean()
+    elif reduction == 'sum':
+        loss = loss.sum()
+    
+    return loss
+
+
 @LOSSES.register_module()
 class RegressionLoss(nn.Module):
     r"""Simple Regression Loss.
@@ -84,8 +111,8 @@ class RegressionLoss(nn.Module):
         mode (bool): Type of regression loss. Notice that when using
             FP16 training, {'mse_loss', 'smooth_l1_loss'} should use
             'mmcv' mode. Defaults to "mse_loss".
-        reduction (str): The method used to reduce the loss.
-            Options are "none", "mean" and "sum". Defaults to 'mean'.
+        reduction (str): The method used to reduce the loss. Options
+            are "none", "mean" and "sum". Defaults to 'mean'.
         loss_weight (float):  Weight of the loss. Defaults to 1.0.
     """
 
@@ -98,12 +125,18 @@ class RegressionLoss(nn.Module):
         self.mode = mode
         self.reduction = reduction
         self.loss_weight = loss_weight
-        self.norm_loss_list = ["mse_loss", "l1_loss", "smooth_l1_loss"]
+        self.norm_loss_list = [
+            "mse_loss", "l1_loss", "smooth_l1_loss", "charbonnier_loss",]
         self.div_loss_list = ["kl_loss", "general_kl_loss", "fuzzy_ce_loss",]
         assert mode in self.norm_loss_list + self.div_loss_list
+        assert reduction in [None, 'none', 'mean', 'sum']
+
         # loss func
         if self.mode in self.norm_loss_list:
-            self.criterion = getattr(F, self.mode)
+            if self.mode == "charbonnier_loss":
+                self.criterion = eval(self.mode)
+            else:
+                self.criterion = getattr(F, self.mode)
         else:
             if self.mode == "kl_loss":
                 self.criterion = F.kl_div
@@ -121,7 +154,7 @@ class RegressionLoss(nn.Module):
             pred (tensor): Predicted logits of (N, \*).
             target (tensor): Groundtruth label of (N, \*).
         """
-        assert reduction_override in (None, 'none', 'mean',)
+        assert reduction_override in (None, 'none', 'mean', 'sum',)
         reduction = (
             reduction_override if reduction_override is not None else self.reduction)
         loss_reg = self.loss_weight * self.criterion(

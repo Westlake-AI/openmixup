@@ -1,4 +1,4 @@
-_base_ = '../imagenet/swin_tiny_ft_sz224_4xb256_accu2_cos_ep100.py'
+_base_ = '../imagenet/vit_base_p16_swin_ft_sz224_8xb128_cos_ep100.py'
 
 # model settings
 model = dict(

@@ -1,7 +1,7 @@
-_base_ = 'r18_8xb64_accu8_cos_lr4_8_fp16_ep1000.py'
+_base_ = 'r18_8xb256_accu2_cos_lr4_8_fp16_ep1000.py'
 
 # dataset settings for SSL metrics
-val_data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
+val_data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 val_test_pipeline = [
     dict(type='Resize', size=256),
     dict(type='CenterCrop', size=224),

@@ -45,7 +45,7 @@ class Sobel(nn.Module):
         x = self.sobel(x)
         if self.use_threshold:
             x_thr = torch.quantile(
-                x.view(x.size(0), 1, -1), 0.80, dim=2).view(x.size(0), 1, 1, 1)
+                x.view(x.size(0), 1, -1), 0.85, dim=2).view(x.size(0), 1, 1, 1)
             x[x < x_thr] = 0.
         
         return x
@@ -94,7 +94,7 @@ class Laplacian(nn.Module):
         x = self.laplacian(x)
         if self.use_threshold:
             x_thr = torch.quantile(
-                x.view(x.size(0), 1, -1), 0.80, dim=2).view(x.size(0), 1, 1, 1)
+                x.view(x.size(0), 1, -1), 0.85, dim=2).view(x.size(0), 1, 1, 1)
             x[x < x_thr] = 0.
         
         return x
@@ -192,7 +192,7 @@ class Canny(nn.Module):
             grad_mag[is_max==0] = 0.
         
         grad_mag[grad_mag < img_threshold] = 0.
-
+        
         # binary edge and apply gaussian smooth
         if self.edge_smooth:
             img_threshold = torch.quantile(

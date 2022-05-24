@@ -16,7 +16,7 @@ from ..utils import to_numpy, to_tensor
 
 
 # register all existing transforms in torchvision
-_EXCLUDED_TRANSFORMS = ['GaussianBlur', 'AutoAugment', 'RandomErasing']
+_EXCLUDED_TRANSFORMS = ['GaussianBlur', 'AutoAugment', 'RandAugment', 'RandomErasing']
 for m in inspect.getmembers(_transforms, inspect.isclass):
     if m[0] not in _EXCLUDED_TRANSFORMS:
         PIPELINES.register_module(m[1])
