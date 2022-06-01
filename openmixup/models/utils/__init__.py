@@ -14,8 +14,8 @@ from .sobel import Canny, Laplacian, Sobel
 from .smoothing import MedianPool2d, Smoothing
 from .se_layer import SELayer
 from .transformer import ConditionalPositionEncoding, MultiheadAttention, MultiheadAttentionWithRPE, \
-   ShiftWindowMSA, HybridEmbed, PatchEmbed, PatchMerging, resize_pos_embed, build_2d_sincos_position_embedding, \
-   CAETransformerRegressorLayer, CrossMultiheadAttention
+   ShiftWindowMSA, HybridEmbed, PatchEmbed, PatchMerging, resize_pos_embed, resize_relative_position_bias_table, \
+   build_2d_sincos_position_embedding, CAETransformerRegressorLayer, CrossMultiheadAttention
 from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 
 from .augments import cutmix, mixup, saliencymix, resizemix, fmix, attentivemix, puzzlemix
@@ -29,8 +29,8 @@ __all__ = [
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
    'MedianPool2d', 'MultiPooling', 'make_divisible', 'Canny', 'Laplacian', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
    'ConditionalPositionEncoding', 'MultiheadAttention', 'MultiheadAttentionWithRPE', 'ShiftWindowMSA',
-   'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'build_2d_sincos_position_embedding',
-   'CAETransformerRegressorLayer', 'CrossMultiheadAttention',
+   'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'resize_relative_position_bias_table',
+   'build_2d_sincos_position_embedding', 'CAETransformerRegressorLayer', 'CrossMultiheadAttention',
    'GradWeighter', 'get_grad_norm', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
    'cutmix', 'mixup', 'saliencymix', 'resizemix', 'fmix', 'attentivemix', 'puzzlemix',
 ]

@@ -15,9 +15,16 @@ class MIMResNet(ResNet):
             Defaults to 0.
         mask_token (str): Mode of applying mask token in {None, 'randn', 'zero',
             'learnable', 'mean'}. Defaults to 'learnable'.
+        mask_init (float): The init values of mask_token gamma. Defaults to 0.0.
     """
 
-    def __init__(self, mask_layer=0, mask_token='learnable', replace=True, detach=False, **kwargs):
+    def __init__(self,
+                 mask_layer=0,
+                 mask_token='learnable',
+                 mask_init=0,
+                 replace=True,
+                 detach=False,
+                 **kwargs):
         super(MIMResNet, self).__init__(**kwargs)
         self.mask_layer = mask_layer
         self.mask_mode = mask_token
@@ -37,6 +44,11 @@ class MIMResNet(ResNet):
         self.mask_dims = ARCH_DIMS[str(self.depth)][self.mask_layer]
         if self.mask_mode not in [None, 'instance_mean',]:
             self.mask_token = nn.Parameter(torch.zeros(1, self.mask_dims, 1, 1))
+        if mask_init > 0 and not replace:
+            self.mask_gamma = nn.Parameter(
+                mask_init * torch.ones((1, self.mask_dims, 1, 1)), requires_grad=True)
+        else:
+            self.mask_gamma = None
 
     def init_weights(self, pretrained=None):
         """Initialize weights."""
@@ -67,6 +79,8 @@ class MIMResNet(ResNet):
         else:
             if self.detach:
                 x = x * (1. - mask) + x.clone().detach() * mask
+            if self.mask_gamma is not None:
+                x = x * (1. - mask) + (x * mask) * self.mask_gamma
             x += mask_token * mask  # residual
         return x
 

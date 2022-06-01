@@ -7,6 +7,8 @@ from mmcv.runner import get_dist_info
 from torch.utils.data import DistributedSampler as _DistributedSampler
 from torch.utils.data import Sampler
 
+from openmixup.utils import sync_random_seed
+
 
 class DistributedSampler(_DistributedSampler):
 
@@ -321,9 +323,10 @@ class RepeatAugSampler(Sampler):
         num_replicas=None,
         rank=None,
         shuffle=True,
-        num_repeats=2,
+        num_repeats=3,
         selected_round=256,
         selected_ratio=0,
+        seed=0,
     ):
         default_rank, default_world_size = get_dist_info()
         rank = default_rank if rank is None else rank
@@ -354,12 +357,24 @@ class RepeatAugSampler(Sampler):
             self.num_selected_samples = int(
                 math.ceil(len(self.dataset) / selected_ratio))
 
+        # In distributed sampling, different ranks should sample
+        # non-overlapped data in the dataset. Therefore, this function
+        # is used to make sure that each rank shuffles the data indices
+        # in the same order based on the same seed. Then different ranks
+        # could use different indices to select non-overlapped data from the
+        # same data list.
+        self.seed = sync_random_seed(seed)
+
     def __iter__(self):
         # deterministically shuffle based on epoch
         if self.shuffle:
             if self.num_replicas > 1:  # In distributed environment
                 # deterministically shuffle based on epoch
                 g = torch.Generator()
+                # When :attr:`shuffle=True`, this ensures all replicas
+                # use a different random ordering for each epoch.
+                # Otherwise, the next iteration of this sampler will
+                # yield the same ordering.
                 g.manual_seed(self.epoch)
                 indices = torch.randperm(
                     len(self.dataset), generator=g).tolist()

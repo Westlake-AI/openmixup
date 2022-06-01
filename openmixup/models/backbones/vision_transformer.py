@@ -76,7 +76,6 @@ class TransformerEncoderLayer(BaseModule):
                 num_heads=num_heads,
                 attn_drop=attn_drop_rate,
                 proj_drop=drop_rate,
-                dropout_layer=dict(type='DropPath', drop_prob=drop_path_rate),
                 qkv_bias=qkv_bias)
         else:
             # attention with relative position bias
@@ -185,6 +184,8 @@ class VisionTransformer(BaseBackbone):
             ``with_cls_token`` must be True. Defaults to True.
         interpolate_mode (str): Select the interpolate mode for position
             embeding vector resize. Defaults to "bicubic".
+        init_values (float, optional): The init value of gamma in
+            TransformerEncoderLayer.
         patch_cfg (dict): Configs of patch embeding. Defaults to an empty dict.
         layer_cfgs (Sequence | dict): Configs of each transformer layer in
             encoder. Defaults to an empty dict.
@@ -249,6 +250,7 @@ class VisionTransformer(BaseBackbone):
                  patch_size=16,
                  in_channels=3,
                  out_indices=-1,
+                 use_window=False,
                  drop_rate=0.,
                  drop_path_rate=0.,
                  qkv_bias=True,
@@ -257,6 +259,7 @@ class VisionTransformer(BaseBackbone):
                  with_cls_token=True,
                  output_cls_token=True,
                  interpolate_mode='bicubic',
+                 init_values=0.0,
                  patch_cfg=dict(),
                  layer_cfgs=dict(),
                  stop_grad_conv1=False,
@@ -342,8 +345,10 @@ class VisionTransformer(BaseBackbone):
                 embed_dims=self.embed_dims,
                 num_heads=self.arch_settings['num_heads'],
                 feedforward_channels=self.arch_settings['feedforward_channels'],
+                window_size=self.patch_resolution if use_window else None,
                 drop_rate=drop_rate,
                 drop_path_rate=dpr[i],
+                init_values=init_values,
                 qkv_bias=qkv_bias,
                 norm_cfg=norm_cfg)
             _layer_cfg.update(layer_cfgs[i])

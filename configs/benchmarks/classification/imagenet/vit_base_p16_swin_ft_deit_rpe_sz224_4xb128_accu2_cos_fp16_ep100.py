@@ -1,25 +1,30 @@
 _base_ = [
-    '../_base_/models/deit_small_p16.py',
+    '../_base_/models/vit_base_deit_p16.py',
     '../_base_/datasets/imagenet_swin_ft_sz224_8xbs128.py',
     '../_base_/default_runtime.py',
 ]
 
+# model
+model = dict(
+    backbone=dict(use_window=True, init_values=0.1))  # use relative pos encoding + init value
+
 # data
-data = dict(imgs_per_gpu=256, workers_per_gpu=8)
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
 
 # interval for accumulate gradient
-update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
+update_interval = 2  # total: 4 x bs128 x 2 accumulates = bs1024
 
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3 * 1024 / 256,
+    lr=2e-3 * 1024 / 256,  # 8e-4
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
+        'gamma': dict(weight_decay=0.),
     },
     constructor='TransformerFinetuneConstructor',
     model_type='vit',

@@ -4,6 +4,12 @@ _base_ = [
     '../_base_/default_runtime.py',
 ]
 
+# data
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+
+# interval for accumulate gradient
+update_interval = 2  # total: 4 x bs128 x 2 accumulates = bs1024
+
 # optimizer
 optimizer = dict(
     type='AdamW',
@@ -28,6 +34,18 @@ lr_config = dict(
     warmup_ratio=1e-4,
     warmup_by_epoch=True,
     by_epoch=False)
+
+# apex
+use_fp16 = True
+fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+# optimizer args
+optimizer_config = dict(
+    update_interval=update_interval, use_fp16=use_fp16,
+    grad_clip=dict(max_norm=5.0),
+)
+
+# unused parameters
+find_unused_parameters = True
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=100)

@@ -9,7 +9,8 @@
 
 ### Bug Fixes
 * Fix bugs in self-supervised classification benchmarks (configs and implementations of VisionTransformer).
-* We suggest you install **PyTorch 1.8** or higher and mmcv-full for better usage of this repo. **PyTorch 1.8** has bugs in AdamW optimizer.
+* Update [INSTALL.md](INSTALL.md). We suggest you install **PyTorch 1.8** or higher and mmcv-full for better usage of this repo. **PyTorch 1.8** has bugs in AdamW optimizer.
+* Fix bugs in PreciseBNHook (update all BN stats) and RepeatSampler (set sync_random_seed).
 
 ### v0.2.1 (19/04/2022)
 

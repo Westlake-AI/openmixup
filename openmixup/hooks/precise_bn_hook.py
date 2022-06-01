@@ -10,13 +10,15 @@ import mmcv
 import torch
 import torch.nn as nn
 from mmcv.runner import EpochBasedRunner, get_dist_info
-from mmcv.runner.hooks import HOOKS, Hook
+from mmcv.runner.hooks import Hook
 from mmcv.utils import print_log
 from torch.functional import Tensor
 from torch.nn import GroupNorm
 from torch.nn.modules.batchnorm import _BatchNorm
 from torch.nn.modules.instancenorm import _InstanceNorm
 from torch.utils.data import DataLoader
+
+from .registry import HOOKS
 
 
 def scaled_all_reduce(tensors: List[Tensor], num_gpus: int) -> List[Tensor]:
@@ -53,6 +55,7 @@ def scaled_all_reduce(tensors: List[Tensor], num_gpus: int) -> List[Tensor]:
 def update_bn_stats(model: nn.Module,
                     loader: DataLoader,
                     num_samples: int = 8192,
+                    update_all_stats: bool = False,
                     logger: Optional[logging.Logger] = None) -> None:
     """Computes precise BN stats on training data.
 
@@ -61,6 +64,8 @@ def update_bn_stats(model: nn.Module,
         loader (DataLoader): PyTorch dataloader._dataloader
         num_samples (int): The number of samples to update the bn stats.
             Defaults to 8192.
+        update_all_stats (bool): Whether to update all BN stats in the model, i.e.,
+            both BN.train() and BN.eval(). Defaults to False (only BN.train()).
         logger (:obj:`logging.Logger` | None): Logger for logging.
             Default: None.
     """
@@ -73,7 +78,7 @@ def update_bn_stats(model: nn.Module,
     # Retrieve the BN layers
     bn_layers = [
         m for m in model.modules()
-        if m.training and isinstance(m, (_BatchNorm))
+        if (m.training or update_all_stats) and isinstance(m, (_BatchNorm))
     ]
 
     if len(bn_layers) == 0:
@@ -146,14 +151,21 @@ class PreciseBNHook(Hook):
     Args:
         num_samples (int): The number of samples to update the bn stats.
             Defaults to 8192.
+        update_all_stats (bool): Whether to update all BN stats in the model, i.e.,
+            both BN.train() and BN.eval(). Defaults to False (only BN.train()).
         interval (int): Perform precise bn interval. Defaults to 1.
     """
 
-    def __init__(self, num_samples: int = 8192, interval: int = 1) -> None:
+    def __init__(self,
+                 num_samples=8192,
+                 update_all_stats=False,
+                 interval=1,
+                 **kwargs):
         assert interval > 0 and num_samples > 0
 
         self.interval = interval
         self.num_samples = num_samples
+        self.update_all_stats = update_all_stats
 
     def _perform_precise_bn(self, runner: EpochBasedRunner) -> None:
         print_log(
@@ -163,6 +175,7 @@ class PreciseBNHook(Hook):
             runner.model,
             runner.data_loader,
             self.num_samples,
+            self.update_all_stats,
             logger=runner.logger)
         print_log('Finish Precise BN, BN stats updated.', logger=runner.logger)
 

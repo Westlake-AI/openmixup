@@ -12,7 +12,7 @@
 
 The master branch works with **PyTorch 1.8** or higher (required by some self-supervised methods). You can still use **PyTorch 1.6** for supervised classification methods.
 
-`OpenMixup` is an open-source supervised, self- and semi-unsupervised representation learning toolbox based on PyTorch, especially for mixup-related methods.
+`OpenMixup` is an open-source supervised, self- and semi-supervised representation learning toolbox based on PyTorch, especially for mixup-related methods.
 
 ### What does this repo do?
 

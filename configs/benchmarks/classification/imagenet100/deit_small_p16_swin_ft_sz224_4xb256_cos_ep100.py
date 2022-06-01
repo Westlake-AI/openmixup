@@ -1,4 +1,11 @@
-_base_ = '../imagenet/vit_small_p16_linear_sz224_8xb128_cos_ep90.py'
+_base_ = '../imagenet/deit_small_p16_swin_ft_sz224_4xb256_cos_ep100.py'
+
+# model settings
+model = dict(
+    head=dict(
+        loss=dict(type='LabelSmoothLoss',
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        num_classes=100))
 
 # dataset settings
 data_source_cfg = dict(type='ImageNet')

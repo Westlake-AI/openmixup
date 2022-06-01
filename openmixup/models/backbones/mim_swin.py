@@ -17,18 +17,31 @@ class SimMIMSwinTransformer(SwinTransformer):
             Defaults to 0.
         mask_token (str): Mode of applying mask token in {None, 'randn', 'zero',
             'learnable', 'mean'}. Defaults to 'learnable'.
+        mask_init (float): The init values of mask_token gamma. Defaults to 0.0.
     """
 
-    def __init__(self, mask_layer=0, mask_token='learnable', replace=True, **kwargs):
+    def __init__(self,
+                 mask_layer=0,
+                 mask_token='learnable',
+                 mask_init=0,
+                 replace=True,
+                 detach=False,
+                 **kwargs):
         super().__init__(**kwargs)
         self.mask_layer = mask_layer
         self.mask_mode = mask_token
         self.replace = replace
+        self.detach = detach
         assert self.mask_layer in [0, 1, 2, 3, 4,]
         assert self.mask_mode in [None, 'randn', 'zero', 'mean', 'learnable',]
         if self.mask_mode is not None:
             self.mask_token = nn.Parameter(
                 torch.zeros(1, 1, self.embed_dims * (2 ** max(0, self.mask_layer-1))))
+        if mask_init > 0 and not replace:
+            self.mask_gamma = nn.Parameter(
+                mask_init * torch.ones((self.embed_dims)), requires_grad=True)
+        else:
+            self.mask_gamma = None
 
     def init_weights(self, pretrained=None):
         """Initialize weights."""
@@ -66,6 +79,10 @@ class SimMIMSwinTransformer(SwinTransformer):
         if self.replace:
             x = x * (1. - mask) + mask_token * mask
         else:
+            if self.detach:
+                x = x * (1. - mask) + x.clone().detach() * mask
+            if self.mask_gamma is not None:
+                x = x * (1. - mask) + (x * mask) * self.mask_gamma
             x += mask_token * mask  # residual
         return x
 

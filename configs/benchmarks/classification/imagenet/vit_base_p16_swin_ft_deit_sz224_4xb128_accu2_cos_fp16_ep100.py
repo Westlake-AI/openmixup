@@ -1,14 +1,14 @@
 _base_ = [
-    '../_base_/models/deit_small_p16.py',
+    '../_base_/models/vit_base_deit_p16.py',
     '../_base_/datasets/imagenet_swin_ft_sz224_8xbs128.py',
     '../_base_/default_runtime.py',
 ]
 
 # data
-data = dict(imgs_per_gpu=256, workers_per_gpu=8)
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
 
 # interval for accumulate gradient
-update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
+update_interval = 2  # total: 4 x bs128 x 2 accumulates = bs1024
 
 # optimizer
 optimizer = dict(

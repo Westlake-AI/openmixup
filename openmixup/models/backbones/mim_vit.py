@@ -316,9 +316,16 @@ class SimMIMViT(VisionTransformer):
             Defaults to 0.
         mask_token (str): Mode of applying mask token in {None, 'randn', 'zero',
             'learnable', 'mean'}. Defaults to 'learnable'.
+        mask_init (float): The init values of mask_token gamma. Defaults to 0.0.
     """
 
-    def __init__(self, mask_layer=0, mask_token='learnable', replace=True, detach=False, **kwargs):
+    def __init__(self,
+                 mask_layer=0,
+                 mask_token='learnable',
+                 mask_init=0,
+                 replace=True,
+                 detach=False,
+                 **kwargs):
         super().__init__(**kwargs)
         self.mask_layer = mask_layer
         self.mask_mode = mask_token
@@ -328,6 +335,11 @@ class SimMIMViT(VisionTransformer):
         assert self.mask_mode in [None, 'randn', 'zero', 'mean', 'learnable',]
         if self.mask_mode is not None:
             self.mask_token = nn.Parameter(torch.zeros(1, 1, self.embed_dims))
+        if mask_init > 0 and not replace:
+            self.mask_gamma = nn.Parameter(
+                mask_init * torch.ones((self.embed_dims)), requires_grad=True)
+        else:
+            self.mask_gamma = None
 
     def init_weights(self, pretrained=None):
         super(SimMIMViT, self).init_weights(pretrained)
@@ -355,6 +367,10 @@ class SimMIMViT(VisionTransformer):
             if self.replace:
                 x[:, 1:] = x[:, 1:] * (1. - mask) + mask_token * mask
             else:
+                if self.detach:
+                    x[:, 1:] = x[:, 1:] * (1. - mask) + x[:, 1:].clone().detach() * mask
+                if self.mask_gamma is not None:
+                    x[:, 1:] = x[:, 1:] * (1. - mask) + (x[:, 1:] * mask) * self.mask_gamma
                 x[:, 1:] += mask_token * mask
         elif mask.size(1) == L:
             mask_token = self.mask_token.expand(B, L, -1)
@@ -363,6 +379,8 @@ class SimMIMViT(VisionTransformer):
             else:
                 if self.detach:
                     x = x * (1. - mask) + x.clone().detach() * mask
+                if self.mask_gamma is not None:
+                    x = x * (1. - mask) + (x * mask) * self.mask_gamma
                 x += mask_token * mask  # residual
         else:
             raise NotImplementedError

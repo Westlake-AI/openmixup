@@ -13,6 +13,7 @@ from PIL import Image
 import mmcv
 import numpy as np
 import torch
+import torchvision
 
 
 def to_numpy(data):
@@ -41,6 +42,8 @@ def to_tensor(data):
         return data
     elif isinstance(data, np.ndarray):
         return torch.from_numpy(data).type(torch.float32)
+    elif isinstance(data, Image.Image):
+        return torchvision.transforms.functional.to_tensor(data)
     elif isinstance(data, Sequence) and not mmcv.is_str(data):
         return torch.tensor(data)
     elif isinstance(data, int):
