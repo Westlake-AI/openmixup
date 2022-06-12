@@ -10,11 +10,17 @@ class SAVEHook(Hook):
     """Hook for saving.
 
     Args:
-        save_interval (float): Default: 1.
+        suffix (str): File suffix in {'png', 'pdf'}.
+        save_interval (float): Every iter or epoch to save. Default: 1.
         iter_per_epoch (int): The iter number of each epoch.
     """
 
-    def __init__(self, suffix='.png', save_interval=1., iter_per_epoch=500, update_interval=1, **kwargs):
+    def __init__(self,
+                 suffix='png',
+                 save_interval=1,
+                 iter_per_epoch=500,
+                 update_interval=1,
+                 **kwargs):
         self.suffix = suffix
         self.save_interval = save_interval
         self.iter_per_epoch = iter_per_epoch
@@ -32,6 +38,6 @@ class SAVEHook(Hook):
             if cur_iter % self.save_interval == 0:
                 runner.model.module.save = True
                 runner.model.module.save_name = os.path.join(
-                    self.save_dir, "epoch_{}.png".format(int(cur_iter/self.iter_per_epoch)))
+                    self.save_dir, "epoch_{}.{}".format(int(cur_iter/self.iter_per_epoch), self.suffix))
             else:
                 runner.model.module.save = False

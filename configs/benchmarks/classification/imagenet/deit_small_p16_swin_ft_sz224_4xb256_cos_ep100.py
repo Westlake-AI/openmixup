@@ -4,6 +4,12 @@ _base_ = [
     '../_base_/default_runtime.py',
 ]
 
+# model
+model = dict(
+    backbone=dict(  # for SimMIM & CAE
+        use_window=True, init_values=0.1, qkv_bias=False,  # use relative pos encoding + init value
+))
+
 # data
 data = dict(imgs_per_gpu=256, workers_per_gpu=8)
 
@@ -13,13 +19,14 @@ update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3 * 1024 / 256,
+    lr=2e-3 * 1024 / 256,  # 8e-4
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
+        'gamma': dict(weight_decay=0.),
     },
     constructor='TransformerFinetuneConstructor',
     model_type='vit',

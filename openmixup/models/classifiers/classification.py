@@ -7,13 +7,14 @@ from ..registry import MODELS
 
 @MODELS.register_module
 class Classification(BaseModel):
-    """Simple image classification.
+    """Simple image classification and regression.
 
     Args:
-        backbone (dict): Config dict for module of backbone ConvNet.
-        neck (dict): Config dict for module of deep features to compact feature vectors.
-            Default: None.
-        head (dict): Config dict for module of loss functions. Default: None.
+        backbone (dict): Config dict for module of backbone.
+        neck (dict): Config dict for module of deep features to compact feature
+            vectors. Default: None.
+        head (dict): Config dict for module of classification or regression
+            loss functions. Default: None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
     """
 

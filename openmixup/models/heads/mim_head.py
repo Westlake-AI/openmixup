@@ -1,9 +1,12 @@
 import torch
+import torch.nn as nn
 from mmcv.runner import BaseModule
 from torch.nn import functional as F
+from mmcv.cnn.utils.weight_init import trunc_normal_init
 
 from ..builder import build_loss
 from ..registry import HEADS
+from .cls_head import ClsHead
 from openmixup.utils import print_log
 
 
@@ -49,6 +52,55 @@ class MAEPretrainHead(BaseModule):
         return losses
 
 
+@HEADS.register_module()
+class MAEFinetuneHead(ClsHead):
+    """Fine-tuning head for MAE.
+
+    Args:
+        embed_dim (int): The dim of the feature before the classifier head.
+        num_classes (int): The total classes. Defaults to 1000.
+    """
+
+    def __init__(self, **kwargs):
+        super(MAEFinetuneHead, self).__init__(**kwargs)
+
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                trunc_normal_init(m, std=2e-5, bias=0)
+
+    def forward(self, x):
+        """"Get the logits."""
+        assert isinstance(x, (tuple, list)) and len(x) == 1
+        x = x[0]
+        return [self.fc(x)]
+
+
+@HEADS.register_module()
+class MAELinprobeHead(ClsHead):
+    """Linear probing head for MAE.
+
+    Args:
+        embed_dim (int): The dim of the feature before the classifier head.
+        num_classes (int): The total classes. Defaults to 1000.
+    """
+
+    def __init__(self, in_channels=786, **kwargs):
+        super(MAELinprobeHead, self).__init__(in_channels=in_channels, **kwargs)
+        self.bn = nn.BatchNorm1d(in_channels, affine=False, eps=1e-6)
+
+    def init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                trunc_normal_init(m, std=0.01, bias=0)
+
+    def forward(self, x):
+        """"Get the logits."""
+        assert isinstance(x, (tuple, list)) and len(x) == 1
+        x = self.bn(x[0])
+        return [self.fc(x)]
+
+
 @HEADS.register_module
 class SimMIMHead(BaseModule):
     """Pretrain Head for SimMIM.
@@ -81,20 +133,19 @@ class SimMIMHead(BaseModule):
 
 @HEADS.register_module
 class MIMHead(BaseModule):
-    """Head for MIM training.
-        V05.10 update: add `unmask_replace` and fix `fft_unmask`.
+    """Head for A2MIM training.
 
     Args:
         loss (dict): Config of regression loss.
         encoder_in_channels (int): Number of input channels for encoder.
         unmask_weight (float): Loss weight for unmasked patches.
-        unmask_replace (str): Mode to replace unmask patches (detach) in
-            {None, 'target', 'prediction', 'mean',}. Defaults to None.
-        fft_weight (float): Loss weight for fft reconstruction loss. Default to 0.
+        fft_weight (float): Loss weight for the fft prediction loss. Default to 0.
         fft_reweight (bool): Whether to use the fft reweight loss. Default to False.
         fft_focal (bool): Whether to adopt the focal fft loss. Default to False.
-        fft_unmask (float): Loss weight to caculate fft loss for unmask tokens.
-            Default to 1.
+        fft_unmask_replace (str): Mode to replace (detach) unmask patches for the fft
+            loss, in {None, 'target', 'prediction', 'mean', 'mixed',}.
+        fft_unmask_weight (float): Loss weight to caculate the fft loss on unmask
+            tokens. Default to 0.
     """
 
     def __init__(self,
@@ -102,28 +153,28 @@ class MIMHead(BaseModule):
                     type='RegressionLoss', loss_weight=1.0, mode="l1_loss"),
                  encoder_in_channels=3,
                  unmask_weight=0,
-                 unmask_replace=None,
                  fft_weight=0,
                  fft_reweight=False,
                  fft_focal=False,
-                 fft_unmask=1,
+                 fft_unmask_replace=None,
+                 fft_unmask_weight=0,
                  **kwargs,
                 ):
         super(MIMHead, self).__init__()
         self.encoder_in_channels = encoder_in_channels
         self.unmask_weight = unmask_weight
-        self.unmask_replace = unmask_replace
         self.fft_weight = fft_weight
         self.fft_reweight = fft_reweight
         self.fft_focal = fft_focal
-        self.fft_unmask = fft_unmask
-        assert unmask_replace in [None, 'target', 'prediction', 'mean', 'mixed',]
-        assert 0 <= unmask_weight <= 1 and 0 <= fft_unmask <= 1
+        self.fft_unmask_weight = fft_unmask_weight
+        self.fft_unmask_replace = fft_unmask_replace
+        assert fft_unmask_replace in [None, 'target', 'prediction', 'mean', 'mixed',]
+        assert 0 <= unmask_weight <= 1 and 0 <= fft_unmask_weight <= 1
         if self.unmask_weight < 1:
-            if unmask_replace is None and fft_weight > 0:
-                self.unmask_replace = 'target'
-                print_log("When `unmask_weight<1`, `unmask_replace` should not " + \
-                    "be None. Reset as `unmask_replace='target'`.")
+            if fft_unmask_replace is None and fft_weight > 0:
+                self.fft_unmask_replace = 'target'
+                print_log("When using the fft loss, `fft_unmask_replace` should " + \
+                    "not be None. Reset as `fft_unmask_replace='target'`.")
         
         # spatial loss
         assert loss is None or isinstance(loss, dict)
@@ -138,7 +189,7 @@ class MIMHead(BaseModule):
                 ave_spectrum=True, log_matrix=True, batch_matrix=True)
         else:
             fft_loss = loss
-            if loss["mode"] not in ["l1_loss", "mse_loss",]:
+            if loss["mode"] not in ["l1_loss", "mse_loss", "focal_l1_loss", "focal_mse_loss",]:
                 fft_loss['mode'] = "l1_loss"
         self.fft_loss = build_loss(fft_loss)
 
@@ -153,31 +204,31 @@ class MIMHead(BaseModule):
                                  scale_factor=(scale_h, scale_w), mode="nearest")
         
         # spatial loss
-        loss_rec = self.criterion(x_rec, target=x, reduction_override='none')
-        # reweight unmasked patches
         if self.unmask_weight > 0.:
+            # reweight unmasked patches
             mask_s = mask.clone()
             mask_s = mask_s + (1. - mask_s) * self.unmask_weight
         else:
             mask_s = mask
+        loss_rec = self.criterion(x_rec, target=x, reduction_override='none')
         loss_rec = (loss_rec * mask_s).sum() / (mask_s.sum() + 1e-5) / self.encoder_in_channels
         
         # fourier domain loss
         if self.fft_weight > 0:
             # replace unmask patches (with detach)
             x_replace = None
-            if self.unmask_replace is not None:
-                if self.unmask_replace == 'target':
+            if self.fft_unmask_replace is not None:
+                if self.fft_unmask_replace == 'target':
                     x_replace = x.clone()
-                elif self.unmask_replace == 'prediction':
+                elif self.fft_unmask_replace == 'prediction':
                     x_replace = x_rec.clone().detach()
-                elif self.unmask_replace == 'mean':
+                elif self.fft_unmask_replace == 'mean':
                     x_replace = x.mean(dim=[2, 3], keepdim=True).expand(x.size())
-                elif self.unmask_replace == 'mixed':
+                elif self.fft_unmask_replace == 'mixed':
                     x_replace = 0.5 * x_rec.clone().detach() + 0.5 * x.clone()
-            if self.fft_unmask < 1:
+            if self.fft_unmask_weight < 1:
                 mask_f = mask.clone()
-                mask_f = mask_f + (1. - mask_f) * self.fft_unmask
+                mask_f = mask_f + (1. - mask_f) * self.fft_unmask_weight
                 x_rec = (x_rec * mask_f) + (x_replace * (1. - mask_f))  # replace unmask tokens
             
             # apply fft loss
@@ -188,7 +239,7 @@ class MIMHead(BaseModule):
                 f_x_rec = torch.fft.fftn(x_rec, dim=(2, 3), norm='ortho')
                 if self.fft_reweight:
                     loss_fft = self.fft_loss(f_x_rec, target=f_x, reduction_override='none')
-                    fft_weight = torch.abs(((f_x - f_x_rec) ** 2).sqrt()).detach()
+                    fft_weight = loss_fft.clone().detach()
                     loss_fft = (fft_weight * loss_fft).mean()
                 else:
                     loss_fft = self.fft_loss(f_x_rec, target=f_x, reduction_override='mean')

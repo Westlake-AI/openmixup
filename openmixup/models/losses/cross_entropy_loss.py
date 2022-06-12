@@ -93,6 +93,9 @@ def soft_mix_cross_entropy(pred,
         The label can be float mixup label (class-wise sum to 1, k-mixup, k>=2).
        *** Warnning: this mixup and label-smoothing cannot be set simultaneously ***
 
+    Decoupled Mixup for Data-efficient Learning. In arXiv, 2022.
+    <https://arxiv.org/abs/2203.10761>
+
     Args:
         pred (torch.Tensor): The prediction with shape (N, C), C is the number
             of classes.

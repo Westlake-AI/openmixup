@@ -1,5 +1,14 @@
 ## Changelog
 
+### v0.2.3 (13/06/2022)
+
+#### Highlight
+* Provide README in [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/) for self-supervised learning methods based on MMSelfSup.
+* Support new Masked Image Modeling (MIM) methods ([A2MIM](https://arxiv.org/abs/2205.13943), [CAE](https://arxiv.org/abs/2202.03026)).
+* Support new Fine-tuing method ([HCR](https://arxiv.org/abs/2206.00845)).
+* Support more regression losses (Focal L1/L2 loss, [Balanced MSE](https://arxiv.org/abs/2203.16427)).
+* Support more regression metrics (regression errors and correlations) and the regression dataset.
+
 ### v0.2.2 (24/05/2022)
 
 #### Highlight

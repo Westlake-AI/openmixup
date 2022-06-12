@@ -86,9 +86,9 @@ class MaskedImageDataset(BaseDataset):
                     feat = np.expand_dims(feat, axis=2) / np.max(feat)
                 # [H, W, 3] -> [C', H', W']
                 feat = torch.from_numpy(feat).type(torch.float32).permute(2, 0, 1)
-                mask = [mask, feat]
+                mask = [mask, feat]  # extracted feature as the MIM target
             else:
-                mask = [mask, img]  # raw img as the RGB target
+                mask = [mask, img]  # raw RGB img as the MIM target
             ret_dict['mask'] = mask
 
         # update masked img as the input

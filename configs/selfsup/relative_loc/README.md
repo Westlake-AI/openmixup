@@ -1,0 +1,90 @@
+# Relative Location
+
+> [Unsupervised Visual Representation Learning by Context Prediction](https://arxiv.org/abs/1505.05192)
+
+## Abstract
+
+This work explores the use of spatial context as a source of free and plentiful supervisory signal for training a rich visual representation. Given only a large, unlabeled image collection, we extract random pairs of patches from each image and train a convolutional neural net to predict the position of the second patch relative to the first. We argue that doing well on this task requires the model to learn to recognize objects and their parts. We demonstrate that the feature representation learned using this within-image context indeed captures visual similarity across images. For example, this representation allows us to perform unsupervised visual discovery of objects like cats, people, and even birds from the Pascal VOC 2011 detection dataset. Furthermore, we show that the learned ConvNet can be used in the RCNN framework and provides a significant boost over a randomly-initialized ConvNet, resulting in state-of-the-art performance among algorithms which use only Pascal-provided training set annotations.
+
+<div align="center">
+<img  src="https://user-images.githubusercontent.com/36138628/149723222-76bc89e8-98bf-4ed7-b179-dfe5bc6336ba.png" width="400" />
+</div>
+
+## Results and Models
+
+This page is based on documents in [MMSelfSup](https://github.com/open-mmlab/mmselfsup).
+
+### Classification
+
+The classification benchmarks includes 4 downstream task datasets, **VOC**, **ImageNet**,  **iNaturalist2018** and **Places205**. If not specified, the results are Top-1 (%).
+
+#### VOC SVM / Low-shot SVM
+
+The **Best Layer** indicates that the best results are obtained from which layers feature map. For example, if the **Best Layer** is **feature3**, its best result is obtained from the second stage of ResNet (1 for stem layer, 2-5 for 4 stage layers).
+
+Besides, k=1 to 96 indicates the hyper-parameter of Low-shot SVM.
+
+| Self-Supervised Config                                                                                                                                       | Best Layer | SVM   | k=1   | k=2   | k=4   | k=8   | k=16  | k=32  | k=64  | k=96  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | feature4   | 65.52 | 20.36 | 23.12 | 30.66 | 37.02 | 42.55 | 50.00 | 55.58 | 59.28 |
+
+#### ImageNet Linear Evaluation
+
+The **Feature1 - Feature5** don't have the GlobalAveragePooling, the feature map is pooled to the specific dimensions and then follows a Linear layer to do the classification. Please refer to [r50_mhead_sz224_4xb64_step_ep90.py](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/imagenet/r50_mhead_sz224_4xb64_step_ep90.py) for details of config.
+
+The **AvgPool** result is obtained from Linear Evaluation with GlobalAveragePooling. Please refer to [r50_linear_sz224_4xb64_step_ep100.py](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/imagenet/r50_linear_sz224_4xb64_step_ep100.py) for details of config.
+
+| Self-Supervised Config                                                                                                                                       | Feature1 | Feature2 | Feature3 | Feature4 | Feature5 | AvgPool |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------- | -------- | -------- | -------- | ------- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | 15.11    | 30.47    | 42.83    | 51.20    | 40.96    | 39.65   |
+
+#### Places205 Linear Evaluation
+
+The **Feature1 - Feature5** don't have the GlobalAveragePooling, the feature map is pooled to the specific dimensions and then follows a Linear layer to do the classification. Please refer to [r50_mhead_sz224_4xb64_step_ep28](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/place205/r50_mhead_sz224_4xb64_step_ep28.py) for details of config.
+
+| Self-Supervised Config                                                                                                                                       | Feature1 | Feature2 | Feature3 | Feature4 | Feature5 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------- | -------- | -------- | -------- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | 20.69    | 34.72    | 43.01    | 45.97    | 41.96    |
+
+### Detection
+
+The detection benchmarks includes 2 downstream task datasets, **Pascal VOC 2007 + 2012** and **COCO2017**. This benchmark follows the evluation protocols set up by MoCo.
+
+#### Pascal VOC 2007 + 2012
+
+Please refer to [faster_rcnn_r50_c4_mstrain_24k_voc0712.py](https://github.com/open-mmlab/mmselfsup/blob/master/configs/benchmarks/mmdetection/voc0712/faster_rcnn_r50_c4_mstrain_24k_voc0712.py) for details of config.
+
+| Self-Supervised Config                                                                                                                                       | AP50  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | 79.70 |
+
+#### COCO2017
+
+Please refer to [mask_rcnn_r50_fpn_mstrain_1x_coco.py](https://github.com/open-mmlab/mmselfsup/blob/master/configs/benchmarks/mmdetection/coco/mask_rcnn_r50_fpn_mstrain_1x_coco.py) for details of config.
+
+| Self-Supervised Config                                                                                                                                       | mAP(Box) | AP50(Box) | AP75(Box) | mAP(Mask) | AP50(Mask) | AP75(Mask) |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | --------- | --------- | --------- | ---------- | ---------- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | 37.5     | 56.2      | 41.3      | 33.7      | 53.3       | 36.1       |
+
+### Segmentation
+
+The segmentation benchmarks includes 2 downstream task datasets, **Cityscapes** and **Pascal VOC 2012 + Aug**. It follows the evluation protocols set up by MMSegmentation.
+
+#### Pascal VOC 2012 + Aug
+
+Please refer to [fcn_r50-d8_512x512_20k_voc12aug.py](https://github.com/open-mmlab/mmselfsup/blob/master/configs/benchmarks/mmsegmentation/voc12aug/fcn_r50-d8_512x512_20k_voc12aug.py) for details of config.
+
+| Self-Supervised Config                                                                                                                                       | mIOU  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| [r50_8xb64_step_ep70](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/imagenet/r50_8xb64_step_ep70.py) | 63.49 |
+
+## Citation
+
+```bibtex
+@inproceedings{doersch2015unsupervised,
+  title={Unsupervised visual representation learning by context prediction},
+  author={Doersch, Carl and Gupta, Abhinav and Efros, Alexei A},
+  booktitle={ICCV},
+  year={2015}
+}
+```

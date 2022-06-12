@@ -1,6 +1,7 @@
 # model settings
 model = dict(
     type='MaskFeat',
+    mim_target='hog',
     backbone=dict(
         type='SimMIMSwinTransformer',
         arch='base',

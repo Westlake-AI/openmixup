@@ -100,7 +100,9 @@ class SimMIM(BaseModel):
         """
         mask = kwargs.get('mask', None)
         if isinstance(img, list):
-            mask, img = img
+            img, mask = img
+        if isinstance(mask, list):
+            mask, _ = mask
 
         img_latent = self.backbone(img, mask)
         img_rec = self.neck(img_latent[0])

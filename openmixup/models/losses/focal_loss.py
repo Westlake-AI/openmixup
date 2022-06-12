@@ -54,6 +54,9 @@ def sigmoid_focal_loss(pred,
 class FocalLoss(nn.Module):
     r"""Focal loss.
 
+    Focal Loss for Dense Object Detection. In ICCV 2017.
+    <https://arxiv.org/abs/1708.02002>
+
     Args:
         gamma (float): Focusing parameter in focal loss.
             Defaults to 2.0.

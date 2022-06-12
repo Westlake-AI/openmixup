@@ -24,13 +24,63 @@ def _init_weights(module, init_linear='normal', std=0.01, bias=0.):
             constant_init(m, val=1, bias=0)
 
 
+
+@NECKS.register_module()
+class GeneralizedMeanPooling(nn.Module):
+    """Generalized Mean Pooling neck.
+
+    Note that we use `view` to remove extra channel after pooling. We do not
+    use `squeeze` as it will also remove the batch dimension when the tensor
+    has a batch dimension of size 1, which can lead to unexpected errors.
+
+    Args:
+        p (float): Parameter value. Default: 3.
+        eps (float): Epsilon. Default: 1e-6
+        clamp (bool): Use clamp before pooling. Default: True
+    """
+
+    def __init__(self, p=3., eps=1e-6, clamp=True):
+        assert p >= 1, "'p' must be a value greater then 1"
+        super(GeneralizedMeanPooling, self).__init__()
+        self.p = nn.Parameter(torch.ones(1) * p)
+        self.eps = eps
+        self.clamp = clamp
+
+    def gmp(self, x, p, eps=1e-6, clamp=True):
+        if clamp:
+            x = x.clamp(min=eps)
+        return F.avg_pool2d(x.pow(p), (x.size(-2), x.size(-1))).pow(1. / p)
+
+    def forward(self, x):
+        assert len(x) == 1
+        outs = self.gmp(x, p=self.p, eps=self.eps, clamp=self.clamp)
+        outs = outs.view(x.size(0), -1)
+        return [outs]
+
+
 @NECKS.register_module
 class AvgPoolNeck(nn.Module):
-    """Average pooling 2d neck."""
+    """Global Average Pooling neck.
 
-    def __init__(self, output_size=1):
+    Note that we use `view` to remove extra channel after pooling. We do not
+    use `squeeze` as it will also remove the batch dimension when the tensor
+    has a batch dimension of size 1, which can lead to unexpected errors.
+
+    Args:
+        dim (int): Dimensions of each sample channel, can be one of {1, 2, 3}.
+            Default: 2
+    """
+
+    def __init__(self, dim=2):
         super(AvgPoolNeck, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+        assert dim in [1, 2, 3], 'GlobalAveragePooling dim only support ' \
+            f'{1, 2, 3}, get {dim} instead.'
+        if dim == 1:
+            self.avg_pool = nn.AdaptiveAvgPool1d(1)
+        elif dim == 2:
+            self.avg_pool = nn.AdaptiveAvgPool2d((1, 1))
+        else:
+            self.avg_pool = nn.AdaptiveAvgPool3d((1, 1, 1))
 
     def init_weights(self, **kwargs):
         pass

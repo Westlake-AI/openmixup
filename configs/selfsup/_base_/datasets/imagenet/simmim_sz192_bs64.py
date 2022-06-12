@@ -19,7 +19,8 @@ if not prefetch:
     train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
 train_pipeline.append(
     dict(type='BlockwiseMaskGenerator',
-        input_size=192, mask_patch_size=32, model_patch_size=4, mask_ratio=0.6),
+        input_size=192, mask_patch_size=32, model_patch_size=4, mask_ratio=0.6,
+        mask_color='zero', mask_only=False),
     )
 
 # dataset summary

@@ -58,7 +58,7 @@ class ConfigGenerator(object):
         gm_cbs = self._combinations(gm_var)
 
         # params for global .sh file
-        port = 99999
+        port = 10000
         time = datetime.today().strftime('%Y%m%d_%H%M%S')
         with open('{}_{}.sh'.format(os.path.join(base_dir, base_prefix), time), 'a') as shfile:
             # model setting

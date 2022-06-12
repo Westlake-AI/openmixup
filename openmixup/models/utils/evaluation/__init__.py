@@ -1,11 +1,11 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/core/evaluation
-
 from .eval_metrics import (calculate_confusion_matrix, f1_score, precision,
-                           precision_recall_f1, recall, support)
+                           precision_recall_f1, recall, support,
+                           pearson_correlation, spearman_correlation, regression_error)
 from .mean_ap import average_precision, mAP
 from .multilabel_eval_metrics import average_performance
 
 __all__ = [
-    'precision', 'recall', 'f1_score', 'support', 'average_precision', 'mAP',
-    'average_performance', 'calculate_confusion_matrix', 'precision_recall_f1'
+    'calculate_confusion_matrix', 'f1_score', 'precision', 'recall', 'precision_recall_f1',
+    'support', 'pearson_correlation', 'spearman_correlation', 'regression_error',
+    'average_precision', 'mAP', 'average_performance',
 ]

@@ -1,10 +1,11 @@
 # model settings
 model = dict(
     type='MaskFeat',
+    mim_target='hog',
     backbone=dict(
         type='MIMResNet',
         depth=50,
-        mask_layer=0,
+        mask_layer=0, mask_token='learnable',
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
         norm_cfg=dict(type='SyncBN'),

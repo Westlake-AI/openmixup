@@ -119,12 +119,12 @@ docker build -f ./docker/Dockerfile --rm -t openmixup:torch1.10.0-cuda11.3-cudnn
 
 ## Prepare datasets
 
-It is recommended to symlink your dataset root (assuming $YOUR_DATA_ROOT) to `$OPENMIXUP/data`.
+It is recommended to symlink your dataset root (assuming `$YOUR_DATA_ROOT`) to `$OPENMIXUP/data`.
 If your folder structure is different, you may need to change the corresponding paths in config files.
 
 ### Prepare Classification Datasets
 
-We support following datasets: CIFAR-10/100, [Tiny-ImageNet](https://www.kaggle.com/c/tiny-imagenet), [ImageNet-1k](http://www.image-net.org/challenges/LSVRC/2012/), [Place205](http://places.csail.mit.edu/downloadData.html), [iNaturalist2017/2018](https://github.com/visipedia/inat_comp), [CUB200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html), [FGVC-Aircrafts](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/), [StandordCars](http://ai.stanford.edu/~jkrause/cars/car_dataset.html). Taking ImageNet for example, you need to 1) download ImageNet; 2) create the following list files or download [meta](https://github.com/Westlake-AI/openmixup/releases/download/dataset/meta.zip) under $DATA/meta/: `train.txt` and `val.txt` contains an image file name in each line, `train_labeled.txt` and `val_labeled.txt` contains `filename[space]label\n` in each line; `train_labeled_*percent.txt` are the down-sampled lists for semi-supervised evaluation. 3) create a symlink under `$OPENMIXUP/data/`.
+We support following datasets: CIFAR-10/100, [Tiny-ImageNet](https://www.kaggle.com/c/tiny-imagenet), [ImageNet-1k](http://www.image-net.org/challenges/LSVRC/2012/), [Place205](http://places.csail.mit.edu/downloadData.html), [iNaturalist2017/2018](https://github.com/visipedia/inat_comp), [CUB200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html), [FGVC-Aircrafts](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/), [StandordCars](http://ai.stanford.edu/~jkrause/cars/car_dataset.html). Taking ImageNet for example, you need to 1) download ImageNet; 2) create the following list files or download [meta](https://github.com/Westlake-AI/openmixup/releases/download/dataset/meta.zip) under $DATA/meta/: `train.txt` and `val.txt` contains an image file name in each line, `train_labeled.txt` and `val_labeled.txt` contains `filename label\n` in each line; `train_labeled_*percent.txt` are the down-sampled lists for semi-supervised evaluation. 3) create a symlink under `$OPENMIXUP/data/`.
 
 ### Prepare PASCAL VOC
 

@@ -69,6 +69,9 @@ def asymmetric_loss(pred,
 class AsymmetricLoss(nn.Module):
     """asymmetric loss.
 
+    Asymmetric Loss For Multi-Label Classification. In ICCV, 2021.
+    <https://arxiv.org/abs/2009.14119>
+
     Args:
         gamma_pos (float): positive focusing parameter.
             Defaults to 0.0.
@@ -124,6 +127,9 @@ class AsymmetricLoss(nn.Module):
 class ASLSingleLabel(nn.Module):
     """ ASL exteneded version single-label classification problems
     *** using 'exp' instead of 'sigmoid' ***
+
+    Asymmetric Loss For Multi-Label Classification. In ICCV, 2021.
+    <https://arxiv.org/abs/2009.14119>
 
     Args:
         gamma_pos (float): positive focusing parameter.

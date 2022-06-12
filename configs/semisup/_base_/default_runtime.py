@@ -1,6 +1,3 @@
-# datasets
-sampler = 'DistributedSampler'
-
 train_cfg = {}
 test_cfg = {}
 optimizer_config = dict()  # grad_clip, coalesce, bucket_size_mb
@@ -9,7 +6,7 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        dict(type='TensorboardLoggerHook')
+        dict(type='TensorboardLoggerHook')  # Bug: remove TensorboardLoggerHook in PyTorch1.10
     ])
 # yapf:enable
 # runtime settings

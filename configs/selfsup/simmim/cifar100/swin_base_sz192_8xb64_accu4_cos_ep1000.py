@@ -35,7 +35,7 @@ lr_config = dict(
     by_epoch=False, min_lr=1e-5 * 2048 / 512,
     warmup='linear',
     warmup_iters=10, warmup_by_epoch=True,  # warmup 10ep when training 100ep
-    warmup_ratio=1e-6 / 2e-4,
+    warmup_ratio=1e-6 * 2048 / 512,
 )
 
 # runtime settings

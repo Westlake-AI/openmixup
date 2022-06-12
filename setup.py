@@ -13,7 +13,7 @@ def readme():
 
 MAJOR = 0
 MINOR = 2
-PATCH = 2
+PATCH = 3
 SUFFIX = ''
 if PATCH != '':
     SHORT_VERSION = '{}.{}.{}{}'.format(MAJOR, MINOR, PATCH, SUFFIX)

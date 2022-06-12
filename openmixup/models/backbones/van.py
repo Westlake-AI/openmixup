@@ -295,7 +295,7 @@ class VAN(BaseBackbone):
             Defaults to None.
 
     Examples:
-        >>> from mmcls.models import VAN
+        >>> from openmixup.models import VAN
         >>> import torch
         >>> cfg = dict(arch='tiny')
         >>> model = VAN(**cfg)
