@@ -25,7 +25,7 @@ This repo will be continued to update to support more self-supervised and mixup 
 
 ## Change Log
 
-Please refer to [CHANGELOG.md](docs/CHANGELOG.md) for details and release history.
+Please refer to [Change Log](docs/en/changelog.md) for details and release history.
 
 [2020-06-13] `OpenMixup` v0.2.3 is released.
 
@@ -33,16 +33,16 @@ Please refer to [CHANGELOG.md](docs/CHANGELOG.md) for details and release histor
 
 ## Installation
 
-Please refer to [INSTALL.md](docs/INSTALL.md) for installation and dataset preparation.
+Please refer to [Install](docs/en/install.md) for installation and dataset preparation.
 
 ## Get Started
 
-Please see [Getting Started](docs/GETTING_STARTED.md) for the basic usage of OpenMixup (based on [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
-Then, see [tutorials](docs/tutorials) for more tech details (based on MMClassification), which is similar to most open-source projects in MMLab.
+Please see [Getting Started](docs/en/get_started.md) for the basic usage of OpenMixup (based on [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
+Then, see [tutorials](docs/en/tutorials) for more tech details (based on MMClassification), which is similar to most open-source projects in MMLab.
 
 ## Benchmark and Model Zoo
 
-[Model Zoos](docs/model_zoos) and lists of [Awesome Mixups](docs/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon! 
+[Model Zoos](docs/en/model_zoos) and lists of [Awesome Mixups](docs/en/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon! 
 
 ## License
 

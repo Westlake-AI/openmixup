@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -137,6 +138,50 @@ def huber_loss(pred,
     cond = _loss < beta
     loss = torch.where(cond, 0.5 * _loss ** 2 / beta, _loss - 0.5 * beta)
 
+    if weight is not None:
+        loss *= weight.expand_as(loss)
+    if reduction == 'mean':
+        loss = loss.mean()
+    elif reduction == 'sum':
+        loss = loss.sum()
+    return loss
+
+
+def balanced_l1_loss(pred, target,
+                     alpha=0.5, beta=1.0, gamma=1.5,
+                     weight=None, reduction='mean', **kwargs):
+    r"""Calculate Balanced L1 loss.
+
+    Libra R-CNN: Towards Balanced Learning for Object Detection. In CVPR, 2019.
+    <https://arxiv.org/abs/1904.02701>
+
+    Args:
+        pred (torch.Tensor): The prediction with shape (N, \*).
+        target (torch.Tensor): The regression target with shape (N, \*).
+        beta (float): The loss is a piecewise function of prediction and
+            target and ``beta`` serves as a threshold for the difference
+            between the prediction and target. Defaults to 1.0.
+        alpha (float): The denominator ``alpha`` in the balanced L1 loss.
+            Defaults to 0.5.
+        gamma (float): The ``gamma`` in the balanced L1 loss.
+            Defaults to 1.5.
+        weight (tensor): Sample-wise reweight of (N, \*) or element-wise
+            reweight of (1, \*). Defaults to None.
+        reduction (str): The method used to reduce the loss.
+
+    Returns:
+        torch.Tensor: The calculated loss
+    """
+    assert beta > 0 and alpha > 0
+    if target.numel() == 0:
+        return pred.sum() * 0
+
+    _loss = torch.abs(pred - target)
+    b = math.e ** (gamma / alpha) - 1
+    loss = torch.where(
+        _loss < beta, alpha / b * (b * _loss + 1) * torch.log(b * _loss / beta + 1) - \
+            alpha * _loss, gamma * _loss + gamma / b - alpha * beta)
+    
     if weight is not None:
         loss *= weight.expand_as(loss)
     if reduction == 'mean':
@@ -434,7 +479,7 @@ class RegressionLoss(nn.Module):
         self.norm_loss_list = [
             "mse_loss", "l1_loss", "smooth_l1_loss", "huber_loss",
             "charbonnier_loss", "focal_mse_loss", "focal_l1_loss",
-            "balanced_mse_loss",
+            "balanced_l1_loss", "balanced_mse_loss",
         ]
         self.div_loss_list = [
             "kl_loss", "general_kl_loss", "fuzzy_ce_loss",
@@ -454,6 +499,13 @@ class RegressionLoss(nn.Module):
                 self.criterion = eval(self.mode)
             elif self.mode == "charbonnier_loss":
                 self.loss_kwargs['eps'] = kwargs.get('eps', 1e-10)
+                self.criterion = eval(self.mode)
+            elif self.mode == "balanced_l1_loss":
+                self.loss_kwargs = dict(
+                    beta = kwargs.get('beta', 1.0),
+                    alpha = kwargs.get('alpha', 0.5),
+                    gamma = kwargs.get('gamma', 1.5),
+                )
                 self.criterion = eval(self.mode)
             elif self.mode == "balanced_mse_loss":
                 if kwargs.get("mode", "BMC") == "BMC":

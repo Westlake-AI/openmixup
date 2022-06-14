@@ -28,8 +28,7 @@ data_train_list = 'data/meta/ImageNet/train_labeled_full.txt'
 data_train_root = 'data/ImageNet/train'
 data_test_list = 'data/meta/ImageNet/val_labeled.txt'
 data_test_root = 'data/ImageNet/val/'
-# Notice: Though official RSB A2 uses `RepeatAugment`, we achieve competitive performances using
-#   `RepeatAugment` while better performances without it. Thus, this repo removes `RepeatAugment`.
+# Notice: The official RSB A2 uses `RepeatAugment`,
 # sampler = "DistributedSampler"
 sampler = "RepeatAugSampler"
 

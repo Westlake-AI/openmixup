@@ -1,7 +1,6 @@
 # Getting Started
 
-This page provides basic tutorials about the usage of OpenSelfSup.
-For installation instructions, please see [INSTALL.md](INSTALL.md).
+This page provides basic tutorials about the usage of OpenMixup. For installation instructions, please see [Install](docs/en/install.md).
 
 ## Train existing methods
 

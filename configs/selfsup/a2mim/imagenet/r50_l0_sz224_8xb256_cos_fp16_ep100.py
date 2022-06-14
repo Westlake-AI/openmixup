@@ -1,6 +1,6 @@
 _base_ = [
     '../../_base_/models/a2mim/r50.py',
-    '../../_base_/datasets/imagenet/a2mim_rgb_m_sz224_bs64.py',
+    '../../_base_/datasets/imagenet/a2mim_rgb_m_sz224_rrc08_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
@@ -17,7 +17,7 @@ data = dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
             dict(type='BlockwiseMaskGenerator',
-                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=4,  # layer=0
+                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=4,  # stage 1
                 mask_color='mean', mask_only=False),
         ],
 ))

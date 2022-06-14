@@ -5,6 +5,9 @@ data_train_list = 'data/meta/ImageNet/train_labeled_full.txt'
 data_train_root = 'data/ImageNet/train'
 data_test_list = 'data/meta/ImageNet/val_labeled.txt'
 data_test_root = 'data/ImageNet/val/'
+# Notice: The official RSB A2 uses `RepeatAugment`,
+# sampler = "DistributedSampler"
+sampler = "RepeatAugSampler"
 
 dataset_type = 'MaskedImageDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -31,7 +34,7 @@ if not prefetch:
 
 data = dict(
     imgs_per_gpu=256,  # V100/A100: 256 x 4gpus x 1 accumulate = bs1024
-    workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    workers_per_gpu=10,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(

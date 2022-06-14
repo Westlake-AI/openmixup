@@ -98,7 +98,6 @@ def binarise_mask(mask, lam, in_shape, max_soft=0.0):
     :param lam: Mean value of final mask
     :param in_shape: Shape of inputs
     :param max_soft: Softening value between 0 and 0.5 which smooths hard edges in the mask.
-    :return:
     """
     idx = mask.reshape(-1).argsort()[::-1]
     mask = mask.reshape(-1)
@@ -167,7 +166,7 @@ def sample_and_apply(x, alpha, decay_power, shape, max_soft=0.0, reformulate=Fal
 @torch.no_grad()
 def fmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
         decay_power=3, size=(32,32), max_soft=0., reformulate=False, **kwargs):
-    """ FMix augmentation.
+    r""" FMix augmentation.
 
     "FMix: Enhancing Mixed Sample Data Augmentation (https://arxiv.org/abs/2002.12047)".
         https://github.com/ecs-vlc/FMix/blob/master/fmix.py

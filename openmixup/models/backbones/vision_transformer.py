@@ -169,6 +169,8 @@ class VisionTransformer(BaseBackbone):
         in_channels (int): The num of input channels. Defaults to 3.
         out_indices (Sequence | int): Output from which stages.
             Defaults to -1, means the last stage.
+        use_window (bool): Whether to use relative positional encoding in the
+            self-attention. Defaults to False.
         drop_rate (float): Probability of an element to be zeroed.
             Defaults to 0.
         drop_path_rate (float): stochastic depth rate. Defaults to 0.

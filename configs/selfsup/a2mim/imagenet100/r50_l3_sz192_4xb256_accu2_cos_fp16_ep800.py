@@ -1,14 +1,15 @@
 _base_ = [
     '../../_base_/models/a2mim/r50.py',
-    '../../_base_/datasets/imagenet100/a2mim_rgb_m_sz192_bs64.py',
+    '../../_base_/datasets/imagenet100/a2mim_rgb_m_sz192_rrc08_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
 # model settings
 model = dict(
     backbone=dict(
-        mask_layer=3, mask_token='learnable')
-)
+        mask_layer=3, mask_token="learnable",
+        mask_init=0.1,  # init residual gamma=0.1
+))
 
 # dataset
 data = dict(
@@ -17,7 +18,7 @@ data = dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
             dict(type='BlockwiseMaskGenerator',
-                input_size=192, mask_patch_size=32, mask_ratio=0.6, model_patch_size=16,  # layer=3
+                input_size=192, mask_patch_size=32, mask_ratio=0.6, model_patch_size=16,  # stage 3
                 mask_color='mean', mask_only=False),
         ],
 ))
@@ -41,6 +42,7 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'mask_token': dict(weight_decay=0., lr_mult=1e-1,),
+        'mask_gamma': dict(weight_decay=0., lr_mult=1e-1,),
     })
 
 # apex

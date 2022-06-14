@@ -167,6 +167,8 @@ class VANBlock(BaseModule):
         drop_path_rate (float): Stochastic depth rate. Defaults to 0.1.
         act_cfg (dict, optional): The activation config for FFNs.
             Default: dict(type='GELU').
+        norm_cfg (dict): Config dict for normalization layer.
+            Defaults to ``dict(type='BN')``.
         layer_scale_init_value (float): Init value for Layer Scale.
             Defaults to 1e-2.
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
@@ -390,6 +392,7 @@ class VAN(BaseBackbone):
 
     def init_weights(self, pretrained=None):
         super(VAN, self).init_weights(pretrained)
+        
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):

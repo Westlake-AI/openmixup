@@ -18,7 +18,7 @@ from .transformer import ConditionalPositionEncoding, MultiheadAttention, Multih
    build_2d_sincos_position_embedding, CAETransformerRegressorLayer, CrossMultiheadAttention
 from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 
-from .augments import cutmix, mixup, saliencymix, resizemix, fmix, attentivemix, puzzlemix
+from .augments import cutmix, mixup, fmix, resizemix, saliencymix, smoothmix, attentivemix, puzzlemix
 from .evaluation import *
 from .visualization import *
 
@@ -32,5 +32,5 @@ __all__ = [
    'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'resize_relative_position_bias_table',
    'build_2d_sincos_position_embedding', 'CAETransformerRegressorLayer', 'CrossMultiheadAttention',
    'GradWeighter', 'get_grad_norm', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
-   'cutmix', 'mixup', 'saliencymix', 'resizemix', 'fmix', 'attentivemix', 'puzzlemix',
+   'cutmix', 'mixup', 'fmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
 ]

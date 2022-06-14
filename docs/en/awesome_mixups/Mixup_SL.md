@@ -17,29 +17,31 @@ CutMix: Regularization Strategy to Train Strong Classifiers with Localizable Fea
 Manifold Mixup: Better Representations by Interpolating Hidden States.
 5. **FMix**, [[Arixv 2020](https://arxiv.org/abs/2002.12047)] [[code](https://github.com/ecs-vlc/FMix)]
 FMix: Enhancing Mixed Sample Data Augmentation.
-6. **PatchUp**, [[Arxiv 2020](https://arxiv.org/abs/2006.07794)] [[code](https://github.com/chandar-lab/PatchUp)]
+6. **SmoothMix**, [[CVPRW 2020](https://arxiv.org/abs/2002.12047)] [[code](https://github.com/Westlake-AI/openmixup)]
+SmoothMix: a Simple Yet Effective Data Augmentation to Train Robust Classifiers.
+7. **PatchUp**, [[Arxiv 2020](https://arxiv.org/abs/2006.07794)] [[code](https://github.com/chandar-lab/PatchUp)]
 PatchUp: A Regularization Technique for Convolutional Neural Networks.
-7. **GridMixup**, [[Pattern Recognition 2021](https://www.sciencedirect.com/science/article/pii/S0031320320303976)] [[code](https://github.com/IlyaDobrynin/GridMixup)]
+8. **GridMixup**, [[Pattern Recognition 2021](https://www.sciencedirect.com/science/article/pii/S0031320320303976)] [[code](https://github.com/IlyaDobrynin/GridMixup)]
 GridMix: Strong regularization through local context mapping.
-8. **SmoothMix**, [[CVPRW 2020](https://openaccess.thecvf.com/content_CVPRW_2020/html/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.html)]
+9. **SmoothMix**, [[CVPRW 2020](https://openaccess.thecvf.com/content_CVPRW_2020/html/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.html)]
 SmoothMix: A Simple Yet Effective Data Augmentation to Train Robust Classifiers.
-9. **ResizeMix**, [[Arixv 2020](https://arxiv.org/abs/2012.11101)] [[code](https://github.com/Westlake-AI/openmixup)]
+10. **ResizeMix**, [[Arixv 2020](https://arxiv.org/abs/2012.11101)] [[code](https://github.com/Westlake-AI/openmixup)]
 ResizeMix: Mixing Data with Preserved Object Information and True Labels.
-10. **FocusMix**, [[ICTC 2020](https://ieeexplore.ieee.org/abstract/document/9289404)]
+11. **FocusMix**, [[ICTC 2020](https://ieeexplore.ieee.org/abstract/document/9289404)]
 Where to Cut and Paste: Data Regularization with Selective Features.
-11. **AugMix**, [[ICLR 2020](https://arxiv.org/abs/1912.02781)] [[code](https://github.com/google-research/augmix)]
+12. **AugMix**, [[ICLR 2020](https://arxiv.org/abs/1912.02781)] [[code](https://github.com/google-research/augmix)]
 AugMix: A Simple Data Processing Method to Improve Robustness and Uncertainty.
-12. **DJMix**, [[Arxiv 2021](https://openreview.net/pdf?id=0n3BaVlNsHI)]
+13. **DJMix**, [[Arxiv 2021](https://openreview.net/pdf?id=0n3BaVlNsHI)]
 DJMix: Unsupervised Task-agnostic Augmentation for Improving Robustness.
-13. **PixMix**, [[Arxiv 2021](https://arxiv.org/abs/2112.05135)] [[code](https://github.com/andyzoujm/pixmix)]
+14. **PixMix**, [[Arxiv 2021](https://arxiv.org/abs/2112.05135)] [[code](https://github.com/andyzoujm/pixmix)]
 PixMix: Dreamlike Pictures Comprehensively Improve Safety Measures.
-14. **StyleMix**, [[CVPR 2021](https://openaccess.thecvf.com/content/CVPR2021/papers/Hong_StyleMix_Separating_Content_and_Style_for_Enhanced_Data_Augmentation_CVPR_2021_paper.pdf)] [[code](https://github.com/alsdml/StyleMix)]
+15. **StyleMix**, [[CVPR 2021](https://openaccess.thecvf.com/content/CVPR2021/papers/Hong_StyleMix_Separating_Content_and_Style_for_Enhanced_Data_Augmentation_CVPR_2021_paper.pdf)] [[code](https://github.com/alsdml/StyleMix)]
 StyleMix: Separating Content and Style for Enhanced Data Augmentation.
-15. **MixStyle**, [[ICLR 2021](https://openreview.net/forum?id=6xHJ37MVxxp)] [[code](https://github.com/KaiyangZhou/mixstyle-release)]
+16. **MixStyle**, [[ICLR 2021](https://openreview.net/forum?id=6xHJ37MVxxp)] [[code](https://github.com/KaiyangZhou/mixstyle-release)]
 Domain Generalization with MixStyle.
-16. **MoEx**, [[CVPR 2021](https://arxiv.org/abs/2002.11102)] [[code](https://github.com/Boyiliee/MoEx)]
+17. **MoEx**, [[CVPR 2021](https://arxiv.org/abs/2002.11102)] [[code](https://github.com/Boyiliee/MoEx)]
 On Feature Normalization and Data Augmentation.
-17. **LocalMix**, [[AISTATS 2021](https://arxiv.org/abs/2201.04368)]
+18. **LocalMix**, [[AISTATS 2021](https://arxiv.org/abs/2201.04368)]
 Preventing Manifold Intrusion with Locality: Local Mixup.
 
 ### Saliency-guided Policies
@@ -84,11 +86,13 @@ CutMix: Regularization Strategy to Train Strong Classifiers with Localizable Fea
 Metamixup: Learning adaptive interpolation policy of mixup with metalearning.
 4. **mWH**, [[Arxiv 2021](https://arxiv.org/abs/2101.04342)] [[code](https://github.com/yuhao318/mwh)]
 Mixup Without Hesitation.
-5. **Saliency Grafting**, [[AAAI 2022](https://arxiv.org/abs/2112.08796)]
+5. **CAMixup**, [[ICLR 2021](https://arxiv.org/abs/2010.09875)] [[code](https://github.com/google/edward2/tree/main/experimental/marginalization_mixup)]
+Combining Ensembles and Data Augmentation can Harm your Calibration.
+6. **Saliency Grafting**, [[AAAI 2022](https://arxiv.org/abs/2112.08796)]
 Saliency Grafting: Innocuous Attribution-Guided Mixup with Calibrated Label Mixing.
-6. **TransMix**, [[CVPR 2022](https://arxiv.org/pdf/2111.09833.pdf)] [[code](https://github.com/Beckschen/TransMix)]
+7. **TransMix**, [[CVPR 2022](https://arxiv.org/pdf/2111.09833.pdf)] [[code](https://github.com/Beckschen/TransMix)]
 TransMix: Attend to Mix for Vision Transformers.
-7. **DecoupleMix**, [[Arxiv 2022](https://arxiv.org/abs/2203.10761),] [[code](https://github.com/Westlake-AI/openmixup)]
+8. **DecoupleMix**, [[Arxiv 2022](https://arxiv.org/abs/2203.10761),] [[code](https://github.com/Westlake-AI/openmixup)]
 Decoupled Mixup for Data-efficient Learning.
 
 

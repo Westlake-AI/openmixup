@@ -75,9 +75,13 @@ def plot_curve(log_dicts, args):
                     assert len(iters) > 0, (
                         'The training log is empty, please try to reduce the '
                         'interval of log in config file.')
+                    res = log_dict[epoch][metric][:len(iters)]
+                    if len(iters) > len(res):
+                        iters = iters[-1:]
+                        res = res[-1:]
                     xs.append(
                         np.array(iters) + (epoch - 1) * num_iters_per_epoch)
-                    ys.append(np.array(log_dict[epoch][metric][:len(iters)]))
+                    ys.append(np.array(res))
                 xs = np.concatenate(xs)
                 ys = np.concatenate(ys)
                 plt.xlabel('iter')

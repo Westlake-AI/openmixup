@@ -84,7 +84,7 @@
 **Note**
 * This benchmark follows the evluation protocols set up by MoCo.
 * Config: `benchmarks/detection/configs/pascal_voc_R_50_C4_24k_moco.yaml`.
-* Please follow [here](GETTING_STARTED.md#voc0712--coco17-object-detection) to run the evaluation.
+* Please follow [here](docs/en/get_started.md#voc0712--coco17-object-detection) to run the evaluation.
 
 
 ### COCO2017 Object Detection
@@ -92,4 +92,4 @@
 **Note**
 * This benchmark follows the evluation protocols set up by MoCo.
 * Config: `benchmarks/detection/configs/coco_R_50_C4_2x_moco.yaml`.
-* Please follow [here](GETTING_STARTED.md#voc0712--coco17-object-detection) to run the evaluation.
+* Please follow [here](docs/en/get_started.md#voc0712--coco17-object-detection) to run the evaluation.

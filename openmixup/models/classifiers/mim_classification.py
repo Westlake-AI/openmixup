@@ -11,7 +11,8 @@ from .base_model import BaseModel
 from ..utils import PlotTensor
 from .. import builder
 from ..registry import MODELS
-from ..utils import cutmix, mixup, saliencymix, resizemix, fmix, attentivemix, puzzlemix
+from ..utils import (cutmix, fmix, mixup, resizemix, saliencymix, smoothmix,
+                     attentivemix, puzzlemix)
 
 
 @MODELS.register_module
@@ -107,8 +108,8 @@ class MIMClassification(BaseModel):
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
         for _mode in self.mix_mode:
             assert _mode in [
-                "vanilla",
-                "mixup", "manifoldmix", "cutmix", "saliencymix", "resizemix", "fmix",
+                "vanilla", "mixup", "manifoldmix",
+                "cutmix", "fmix", "saliencymix", "smoothmix", "resizemix",
                 "attentivemix", "puzzlemix", ]
             if _mode == "manifoldmix":
                 assert 0 <= min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
@@ -290,7 +291,7 @@ class MIMClassification(BaseModel):
             feat = self.backbone(img, mask)
         # hand-crafted methods
         elif cur_mode not in ["manifoldmix",]:
-            if cur_mode in ["mixup", "cutmix", "saliencymix"]:
+            if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
                 img, gt_label = eval(cur_mode)(img, gt_label, cur_alpha, dist_mode=False)
             elif cur_mode in ["resizemix", "fmix"]:
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])

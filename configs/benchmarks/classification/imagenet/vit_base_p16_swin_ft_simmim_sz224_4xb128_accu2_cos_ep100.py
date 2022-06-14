@@ -7,7 +7,7 @@ _base_ = [
 # model
 model = dict(
     backbone=dict(  # for SimMIM & CAE
-        use_window=True, init_values=0.1, qkv_bias=False,  # use relative pos encoding + init value
+        use_window=True, init_values=0.1,  # use relative pos encoding + init value
 ))
 
 # data

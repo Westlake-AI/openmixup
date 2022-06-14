@@ -40,7 +40,8 @@ def main():
     # create nested dirs (cannot be none)
     model_var = {
         'model.mix_mode': ["mixup",],
-        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix",],
+        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix",
+        #                    "saliencymix", "smoothmix", "resizemix",],
         # 'model.mix_mode': ["attentivemix", "automix", "puzzlemix", "samix",],
     }
     # adjust sub-attributes (cannot be none)

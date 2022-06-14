@@ -62,7 +62,7 @@ if not prefetch:
 
 data = dict(
     imgs_per_gpu=128,  # V100: 128 x 8gpus x 1 accumulate = bs1024
-    workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(

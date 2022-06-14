@@ -139,10 +139,10 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
               noise=None, adv_mask1=0, adv_mask2=0,
               t_batch_size=None, mp=None,
               **kwargs):
-    """ PuzzleMix augmentation.
+    r""" PuzzleMix augmentation.
 
     "Puzzle Mix: Exploiting Saliency and Local Statistics for Optimal Mixup
-    (https://arxiv.org/abs/2009.06962)".
+    (https://arxiv.org/abs/2009.06962)". In ICML, 2020.
         https://github.com/snu-mllab/PuzzleMix
 
     Args:
@@ -304,11 +304,11 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
                     idx_from = i * t_batch_size
                     idx_to = min((i + 1) * t_batch_size, batch_size)
                     input1[idx_from:idx_to] = transport_image(
-                                                    input1[idx_from:idx_to], plan1[idx_from:idx_to],
-                                                    t_block_num, t_size)
+                                                input1[idx_from:idx_to], plan1[idx_from:idx_to],
+                                                t_block_num, t_size)
                     input2[idx_from:idx_to] = transport_image(
-                                                    input2[idx_from:idx_to], plan2[idx_from:idx_to],
-                                                    t_block_num, t_size)
+                                                input2[idx_from:idx_to], plan2[idx_from:idx_to],
+                                                t_block_num, t_size)
             except:
                 raise ValueError(
                     "*** GPU memory is lacking while transporting. ***" 
@@ -330,10 +330,10 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
 @torch.no_grad()
 def attentivemix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
                  features=None, grid_scale=32, top_k=6, **kwargs):
-    """ AttentiveMix augmentation
+    r""" AttentiveMix augmentation
 
     "Attentive CutMix: An Enhanced Data Augmentation Approach for Deep Learning
-    Based Image Classification (https://arxiv.org/abs/2003.13048)".
+    Based Image Classification (https://arxiv.org/abs/2003.13048)". In ICASSP, 2020.
         https://github.com/xden2331/attentive_cutmix
     
     Args:
@@ -358,8 +358,8 @@ def attentivemix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
         grid_scale = img.size(2) / att_size
     if lam is None:
         lam = np.random.beta(alpha, alpha)
-    # Notice: official attentivemix uses fixed lam by top_k, while attentivemix+ in
-    #   this repo uses lam\in\Beta(a,a) to choose top_k for better preformances.
+    # Notice: official attentivemix uses fixed lam by top_k, while attentivemix+
+    #   in this repo uses lam\in\Beta(a,a) to choose top_k for better preformances.
     if top_k is None:
         top_k = min(max(1, int(att_grid * lam)), att_grid)
     
