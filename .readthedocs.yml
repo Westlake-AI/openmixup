@@ -1,6 +1,6 @@
-version: 1
+version: 2
 
-formats: all
+formats: []
 
 python:
   version: 3.7

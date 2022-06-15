@@ -3,13 +3,14 @@
 ### v0.2.3 (13/06/2022)
 
 #### Highlight
+* Support the online document of OpenMixup (built on Read the Docs).
 * Provide README in [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/) for self-supervised learning methods based on MMSelfSup.
 * Support new Masked Image Modeling (MIM) methods ([A2MIM](https://arxiv.org/abs/2205.13943), [CAE](https://arxiv.org/abs/2202.03026)).
 * Support new Fine-tuing method ([HCR](https://arxiv.org/abs/2206.00845)).
 * Support new mixup augmentation methods ([SmoothMix](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf), [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976)).
 * Support more regression losses ([Focal L1/L2 loss](https://arxiv.org/abs/2102.09554), [Balanced L1 loss](https://arxiv.org/abs/1904.02701), [Balanced MSE loss](https://arxiv.org/abs/2203.16427)).
 * Support more regression metrics (regression errors and correlations) and the regression dataset.
-* Support more reweight classification losses ([Gradient Harmonized loss](https://arxiv.org/abs/1811.05181), [Varifocal Focal Loss](https://arxiv.org/abs/1811.05181)) from [MMDetection](https://github.com/open-mmlab/mmdetection). 
+* Support more reweight classification losses ([Gradient Harmonized loss](https://arxiv.org/abs/1811.05181), [Varifocal Focal Loss](https://arxiv.org/abs/1811.05181)) from [MMDetection](https://github.com/open-mmlab/mmdetection).
 
 ### v0.2.2 (24/05/2022)
 

@@ -2,7 +2,7 @@
 # OpenMixup
 
 **News**
-* OpenMixup v0.2.3 is released, which supports new self-supervised methods ([A2MIM](https://arxiv.org/abs/2205.13943)) and new features (regression) as [#6](https://github.com/Westlake-AI/openmixup/issues/6).
+* OpenMixup v0.2.3 is released, which supports new self-supervised and mixup methods (e.g., [A2MIM](https://arxiv.org/abs/2205.13943)), and adds new features as [#6](https://github.com/Westlake-AI/openmixup/issues/6). The online document is available.
 * OpenMixup v0.2.2 is released, which supports new self-supervised methods ([BarlowTwins](https://arxiv.org/abs/2103.03230), [SimMIM](https://arxiv.org/abs/2111.09886), etc.), backbones ([ConvMixer](https://arxiv.org/pdf/2201.09792.pdf), [MLPMixer](https://arxiv.org/pdf/2105.01601.pdf), [VAN](https://arxiv.org/pdf/2202.09741v2.pdf), etc.), and losses as [#5](https://github.com/Westlake-AI/openmixup/issues/5).
 * OpenMixup v0.2.1 is released, which supports new methods as [#4](https://github.com/Westlake-AI/openmixup/issues/4) (bugs fixed).
 * OpenMixup v0.2.0 is released, which supports new features as [#3](https://github.com/Westlake-AI/openmixup/issues/3). We have reorganized configs and fixed bugs.
@@ -13,7 +13,7 @@
 
 The master branch works with **PyTorch 1.8** or higher (required by some self-supervised methods). You can still use **PyTorch 1.6** for supervised classification methods.
 
-`OpenMixup` is an open-source supervised, self- and semi-supervised visual representation learning toolbox based on PyTorch, especially for mixup-related methods.
+`OpenMixup` is an open-source toolbox for supervised, self-, and semi-supervised visual representation learning with mixup based on PyTorch, especially for mixup-related methods.
 
 ### What does this repo do?
 
