@@ -24,17 +24,17 @@ project = 'OpenMixup'
 copyright = '2021-2022, CAIRI'
 author = 'CAIRI OpenMixup Authors'
 
-# The full version, including alpha/beta/rc tags
-version_file = '../../openmixup/version.py'
+# # The full version, including alpha/beta/rc tags
+# version_file = '../../openmixup/version.py'
 
 
-def get_version():
-    with open(version_file, 'r') as f:
-        exec(compile(f.read(), version_file, 'exec'))
-    return locals()['__version__']
+# def get_version():
+#     with open(version_file, 'r') as f:
+#         exec(compile(f.read(), version_file, 'exec'))
+#     return locals()['__version__']
 
 
-release = get_version()
+# release = get_version()
 
 # -- General configuration ---------------------------------------------------
 
