@@ -40,7 +40,7 @@ class InvertedResidual(nn.Module):
                  act_cfg=dict(type='ReLU'),
                  with_cp=False,
                  init_cfg=None):
-        super(InvertedResidual, self).__init__(init_cfg)
+        super(InvertedResidual, self).__init__()
         self.stride = stride
         self.with_cp = with_cp
 
@@ -133,6 +133,9 @@ class InvertedResidual(nn.Module):
 @BACKBONES.register_module()
 class ShuffleNetV2(BaseBackbone):
     """ShuffleNetV2 backbone.
+
+    A PyTorch implementation of : `Shufflenet v2: Practical guidelines for
+    efficient cnn architecture design <https://arxiv.org/abs/1807.11164>`_
 
     Args:
         widen_factor (float): Width multiplier - adjusts the number of

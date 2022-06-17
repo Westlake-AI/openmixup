@@ -160,6 +160,9 @@ def model_scaling(layer_setting, arch_setting):
 class EfficientNet(BaseBackbone):
     """EfficientNet backbone.
 
+    A PyTorch implementation of : `Rethinking Model Scaling for Convolutional
+    Neural Networks <https://arxiv.org/abs/1905.11946v5>`_
+
     Args:
         arch (str): Architecture of efficientnet. Defaults to b0.
         out_indices (Sequence[int]): Output from which stages.

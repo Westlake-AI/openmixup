@@ -14,6 +14,9 @@ from .base_backbone import BaseBackbone
 class MobileNetV3(BaseBackbone):
     """MobileNetV3 backbone.
 
+    A PyTorch implementation of : `Searching for MobileNetV3
+    <https://arxiv.org/abs/1905.02244>`_
+
     Args:
         arch (str): Architechture of mobilnetv3, from {small, large}.
             Default: small.

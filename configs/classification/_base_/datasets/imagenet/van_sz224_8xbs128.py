@@ -40,7 +40,6 @@ train_pipeline = [
         magnitude_level=9, magnitude_std=0.5,
         hparams=dict(
             pad_val=[104, 116, 124], interpolation='bicubic')),
-    dict(type='ColorJitter', brightness=0.4, contrast=0.4, saturation=0.4),
     dict(
         type='RandomErasing_numpy',  # before ToTensor and Normalize
         erase_prob=0.25,

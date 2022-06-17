@@ -9,11 +9,10 @@ from openmixup.utils import print_log
 from torch.autograd import Variable
 
 from .base_model import BaseModel
-from ..utils import PlotTensor
 from .. import builder
 from ..registry import MODELS
 from ..utils import (cutmix, fmix, mixup, resizemix, saliencymix, smoothmix,
-                     attentivemix, puzzlemix)
+                     attentivemix, puzzlemix, PlotTensor)
 
 
 @MODELS.register_module

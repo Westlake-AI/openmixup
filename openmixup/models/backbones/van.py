@@ -1,5 +1,4 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# modified from mmclassification van.py
+import math
 import torch
 import torch.nn as nn
 from mmcv.cnn import Conv2d, build_activation_layer, build_norm_layer
@@ -7,7 +6,7 @@ from mmcv.cnn.bricks import DropPath
 from mmcv.cnn.bricks.transformer import PatchEmbed
 from mmcv.runner import BaseModule
 from mmcv.utils.parrots_wrapper import _BatchNorm
-from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init, xavier_init
+from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
@@ -263,8 +262,8 @@ class VAN(BaseBackbone):
     A PyTorch implement of : `Visual Attention Network
     <https://arxiv.org/pdf/2202.09741v2.pdf>`_
 
-    Inspiration from
-    https://github.com/Visual-Attention-Network/VAN-Classification
+    Modified from the `official repo
+    <https://github.com/Visual-Attention-Network/VAN-Classification>`_
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -396,9 +395,13 @@ class VAN(BaseBackbone):
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                    fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                    fan_out //= m.groups
+                    m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
+                    if m.bias is not None:
+                        m.bias.data.zero_()
                 elif isinstance(m, (nn.Linear)):
-                    xavier_init(m, distribution='uniform')
+                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)

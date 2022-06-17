@@ -1,36 +1,38 @@
 from .accuracy import Accuracy, accuracy, accuracy_mixup
-from .conv_ws import ConvWS2d, conv_ws_2d
-from .channel_shuffle import channel_shuffle
-from .drop import DropPath
 from .gather_layer import GatherLayer, concat_all_gather, \
    batch_shuffle_ddp, batch_unshuffle_ddp, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 from .grad_weight import GradWeighter, get_grad_norm
 from .helpers import is_tracing, to_2tuple, to_3tuple, to_4tuple, to_ntuple
-from .inverted_residual import InvertedResidual
-from .multi_pooling import MultiPooling
-from .make_divisible import make_divisible
-from .scale import Scale
-from .sobel import Canny, Laplacian, Sobel
-from .smoothing import MedianPool2d, Smoothing
-from .se_layer import SELayer
-from .transformer import ConditionalPositionEncoding, MultiheadAttention, MultiheadAttentionWithRPE, \
-   ShiftWindowMSA, HybridEmbed, PatchEmbed, PatchMerging, resize_pos_embed, resize_relative_position_bias_table, \
-   build_2d_sincos_position_embedding, CAETransformerRegressorLayer, CrossMultiheadAttention
-from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
-
 from .augments import cutmix, mixup, fmix, resizemix, saliencymix, smoothmix, attentivemix, puzzlemix
-from .evaluation import *
-from .visualization import *
+from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedResidual, make_divisible, \
+   AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
+   Scale, SELayer, Canny, Laplacian, Sobel, Smoothing, \
+   ConditionalPositionEncoding, MultiheadAttention, MultiheadAttentionWithRPE, ShiftWindowMSA, \
+   HybridEmbed, PatchEmbed, PatchMerging, resize_pos_embed, resize_relative_position_bias_table, \
+   build_2d_sincos_position_embedding, CAETransformerRegressorLayer, CrossMultiheadAttention, \
+   lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
+from .evaluation import calculate_confusion_matrix, f1_score, precision, recall, precision_recall_f1, \
+   support, pearson_correlation, spearman_correlation, regression_error, \
+   average_precision, mAP, average_performance
+from .visualization import BaseFigureContextManager, ImshowInfosContextManager, imshow_infos, \
+   color_val_matplotlib, hog_visualization, PlotTensor
 
 __all__ = [
-   'accuracy', 'accuracy_mixup', 'Accuracy', 'conv_ws_2d', 'ConvWS2d',
-   'DropPath', 'GatherLayer', 'concat_all_gather', 'channel_shuffle', 'InvertedResidual',
-   'batch_shuffle_ddp', 'batch_unshuffle_ddp', 'grad_batch_shuffle_ddp', 'grad_batch_unshuffle_ddp',
+   'accuracy', 'accuracy_mixup', 'Accuracy',
+   'GatherLayer', 'concat_all_gather', 'batch_shuffle_ddp', 'batch_unshuffle_ddp',
+   'grad_batch_shuffle_ddp', 'grad_batch_unshuffle_ddp', 'GradWeighter', 'get_grad_norm',
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
-   'MedianPool2d', 'MultiPooling', 'make_divisible', 'Canny', 'Laplacian', 'Scale', 'Sobel', 'Smoothing', 'SELayer',
+   'cutmix', 'mixup', 'fmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
+   'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual', 'make_divisible',
+   'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
+   'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
    'ConditionalPositionEncoding', 'MultiheadAttention', 'MultiheadAttentionWithRPE', 'ShiftWindowMSA',
    'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'resize_relative_position_bias_table',
    'build_2d_sincos_position_embedding', 'CAETransformerRegressorLayer', 'CrossMultiheadAttention',
-   'GradWeighter', 'get_grad_norm', 'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
-   'cutmix', 'mixup', 'fmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
+   'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
+   'calculate_confusion_matrix', 'f1_score', 'precision', 'recall', 'precision_recall_f1', 'support',
+   'pearson_correlation', 'spearman_correlation', 'regression_error',
+   'average_precision', 'mAP', 'average_performance',
+   'BaseFigureContextManager', 'ImshowInfosContextManager', 'imshow_infos', 'color_val_matplotlib',
+   'hog_visualization', 'PlotTensor',
 ]

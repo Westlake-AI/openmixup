@@ -89,9 +89,6 @@ class ClsMixupHead(nn.Module):
             0 <= self.neg_weight <= 1, "the weight of negative parts should not be \
                 larger than the postive part."
             assert multi_label == True and loss['type'] == 'CrossEntropyLoss'
-        # global pooling
-        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1)) \
-            if self.with_avg_pool else nn.Identity()
         # fc layer
         self.fc = nn.Linear(in_channels, num_classes)
         if frozen:
@@ -118,9 +115,13 @@ class ClsMixupHead(nn.Module):
         assert isinstance(x, (tuple, list)) and len(x) == 1
         x = x[0]
         if self.with_avg_pool:
-            assert x.dim() == 4, \
-                "Tensor must has 4 dims, got: {}".format(x.dim())
-        x = self.avg_pool(x).view(x.size(0), -1)
+            if x.dim() == 3:
+                x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
+            elif x.dim() == 4:
+                x = F.adaptive_avg_pool2d(x, 1).view(x.size(0), -1)
+            else:
+                assert x.dim() in [2, 3, 4], \
+                    "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
         return [self.fc(x)]
     
     def lambda_adjust(self, lam, mode="pow", thr=1, idx=1):

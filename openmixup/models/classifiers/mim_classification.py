@@ -8,11 +8,10 @@ from openmixup.utils import force_fp32, print_log
 from openmixup.models.utils import Canny, Laplacian, Sobel
 
 from .base_model import BaseModel
-from ..utils import PlotTensor
 from .. import builder
 from ..registry import MODELS
 from ..utils import (cutmix, fmix, mixup, resizemix, saliencymix, smoothmix,
-                     attentivemix, puzzlemix)
+                     attentivemix, puzzlemix, PlotTensor)
 
 
 @MODELS.register_module

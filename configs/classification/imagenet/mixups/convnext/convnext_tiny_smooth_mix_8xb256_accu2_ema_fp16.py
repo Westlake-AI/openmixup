@@ -45,7 +45,7 @@ custom_hooks = [
     dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
         momentum=0.9999,
         warmup='linear',
-        warmup_iters=20 * 2503, warmup_ratio=0.9,  # warmup 20 epochs.
+        warmup_iters=20 * 626, warmup_ratio=0.9,  # warmup 20 epochs.
         update_interval=update_interval,
     ),
 ]
@@ -65,13 +65,13 @@ use_fp16 = True
 fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 optimizer_config = dict(grad_clip=None, update_interval=update_interval, use_fp16=use_fp16)
 
-# lr scheduler: Swim for DeiT
+# lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5,  # 1e-5 yields better performances than 1e-6
+    by_epoch=False, min_lr=1e-5,
     warmup='linear',
     warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
-    warmup_ratio=1e-5,
+    warmup_ratio=1e-6,
 )
 
 # runtime settings

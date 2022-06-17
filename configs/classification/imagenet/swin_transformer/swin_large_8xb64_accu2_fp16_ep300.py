@@ -1,0 +1,49 @@
+_base_ = [
+    '../../_base_/models/swin_transformer/swin_large_sz224.py',
+    '../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
+    '../../_base_/default_runtime.py',
+]
+
+# data
+data = dict(imgs_per_gpu=64, workers_per_gpu=6)
+
+# additional hooks
+update_interval = 2  # 64 x 8gpus x 2 accumulates = bs1024
+custom_hooks = [
+    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
+        momentum=0.99996,
+        warmup='linear',
+        warmup_iters=20 * 1252, warmup_ratio=0.9,  # 20 ep
+        update_interval=update_interval,
+    ),
+]
+
+# optimizer
+optimizer = dict(
+    type='AdamW',
+    lr=1e-3,  # lr = 5e-4 * (256 * 4) * 1 accumulate / 512 = 1e-3 / bs1024
+    weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
+    paramwise_options={
+        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+        'bias': dict(weight_decay=0.),
+        'relative_position_bias_table': dict(weight_decay=0.),
+        'absolute_pos_embed': dict(weight_decay=0.),
+    })
+# apex
+use_fp16 = True
+fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+optimizer_config = dict(
+    grad_clip=dict(max_norm=5.0),
+    update_interval=update_interval, use_fp16=use_fp16)
+
+# lr scheduler
+lr_config = dict(
+    policy='CosineAnnealing',
+    by_epoch=False, min_lr=1e-5,
+    warmup='linear',
+    warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
+    warmup_ratio=1e-5,
+)
+
+# runtime settings
+runner = dict(type='EpochBasedRunner', max_epochs=300)

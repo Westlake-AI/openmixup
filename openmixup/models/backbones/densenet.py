@@ -220,7 +220,7 @@ class DenseNet(BaseBackbone):
                  norm_cfg=dict(type='BN'),
                  act_cfg=dict(type='ReLU'),
                  out_indices=-1,
-                 frozen_stages=0,
+                 frozen_stages=-1,
                  init_cfg=None):
         super().__init__(init_cfg=init_cfg)
 
@@ -319,6 +319,11 @@ class DenseNet(BaseBackbone):
         return outs
 
     def _freeze_stages(self):
+        if self.frozen_stages >= 0:
+            self.stem.eval()
+            for param in self.stem.parameters():
+                param.requires_grad = False
+        
         for i in range(self.frozen_stages):
             downsample_layer = self.transitions[i]
             stage = self.stages[i]

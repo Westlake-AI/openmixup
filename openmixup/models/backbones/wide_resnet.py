@@ -83,9 +83,11 @@ class NetworkBlock(nn.Module):
 class WideResNet(BaseBackbone):
     """Wide Residual Networks backbone.
 
-    Please refer to the `paper <https://arxiv.org/pdf/1605.07146.pdf>`_ for
-    details.
-        https://github.com/szagoruyko/wide-residual-networks
+    A PyTorch implement of : `Wide Residual Networks
+    <https://arxiv.org/abs/1605.07146>`_
+
+    Modified from the `official repo
+    https://github.com/szagoruyko/wide-residual-networks`_
 
     Args:
         first_stride (int): Stride of the first 3x3 conv. Default: 1.

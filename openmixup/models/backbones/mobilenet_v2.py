@@ -100,6 +100,9 @@ class InvertedResidual(nn.Module):
 class MobileNetV2(BaseBackbone):
     """MobileNetV2 backbone.
 
+    A PyTorch implementation of : `MobileNetV2: Inverted Residuals and
+    Linear Bottlenecks <https://arxiv.org/abs/1801.04381>`_
+
     Args:
         widen_factor (float): Width multiplier, multiply number of
             channels in each layer by this amount. Default: 1.0.

@@ -1,5 +1,3 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# modified from mmclassification mlp_mixer.py
 from typing import Sequence
 
 import torch.nn as nn
@@ -106,6 +104,9 @@ class MlpMixer(BaseBackbone):
     Pytorch implementation of `MLP-Mixer: An all-MLP Architecture for Vision
     <https://arxiv.org/pdf/2105.01601.pdf>`_
 
+    Modified from the `official repo
+    <https://github.com/google-research/vision_transformer>`_
+
     Args:
         arch (str | dict): MLP Mixer architecture. If use string, choose from
             'small', 'base' and 'large'. If use dict, it should have below
@@ -132,6 +133,8 @@ class MlpMixer(BaseBackbone):
         patch_cfg (dict): Configs of patch embeding. Defaults to an empty dict.
         layer_cfgs (Sequence | dict): Configs of each mixer block layer.
             Defaults to an empty dict.
+        frozen_stages (int): Stages to be frozen (all param fixed).
+            Defaults to 0, which means not freezing any parameters.
         init_cfg (dict, optional): Initialization config dict.
             Defaults to None.
     """
@@ -171,7 +174,9 @@ class MlpMixer(BaseBackbone):
                  act_cfg=dict(type='GELU'),
                  patch_cfg=dict(),
                  layer_cfgs=dict(),
-                 init_cfg=None):
+                 frozen_stages=-1,
+                 init_cfg=None,
+                 **kwargs):
         super(MlpMixer, self).__init__(init_cfg)
 
         if isinstance(arch, str):
@@ -219,6 +224,7 @@ class MlpMixer(BaseBackbone):
             else:
                 assert index >= self.num_layers, f'Invalid out_indices {index}'
         self.out_indices = out_indices
+        self.frozen_stages = frozen_stages
 
         self.layers = nn.ModuleList()
         if isinstance(layer_cfgs, dict):
@@ -257,6 +263,21 @@ class MlpMixer(BaseBackbone):
     def norm1(self):
         return getattr(self, self.norm1_name)
 
+    def _freeze_stages(self):
+        if self.frozen_stages >= 0:
+            self.patch_embed.eval()
+            for param in self.patch_embed.parameters():
+                param.requires_grad = False
+        for i, layer in enumerate(self.layers):
+            if self.frozen_stages >= i:
+                layer.eval()
+                for param in layer.parameters():
+                    param.requires_grad = False
+        if self.frozen_stages == len(self.layers) - 1:
+            self.norm1.eval()
+            for param in self.norm1.parameters():
+                param.requires_grad = False
+    
     def forward(self, x):
         assert x.shape[2:] == self.img_size, \
             "The MLP-Mixer doesn't support dynamic input shape. " \

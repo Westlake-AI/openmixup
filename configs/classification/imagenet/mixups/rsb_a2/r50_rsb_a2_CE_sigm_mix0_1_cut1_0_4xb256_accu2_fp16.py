@@ -21,6 +21,7 @@ model = dict(
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
         norm_cfg=dict(type='SyncBN'),
+        drop_path_rate=0.05,
         style='pytorch'),
     head=dict(
         type='ClsMixupHead',

@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch.nn.functional as F
-from mmcv.cnn import kaiming_init, normal_init
+from mmcv.cnn import build_activation_layer, kaiming_init, normal_init
 
 from ..utils import regression_error, trunc_normal_init
 from ..registry import HEADS
@@ -15,6 +15,8 @@ class RegHead(nn.Module):
         with_avg_pool (bool): Whether to use GAP before this head.
         loss (list or dict): Config or List of configs for the regression loss.
         in_channels (int): Number of channels in the input feature map.
+        out_channels (int): Number of channels in the output result.
+        act_cfg (None | str): Whether to use the activate function.
         frozen (bool): Whether to freeze the parameters.
     """
 
@@ -23,16 +25,18 @@ class RegHead(nn.Module):
                  loss=dict(type='RegressionLoss', loss_weight=1.0, mode="mse_loss"),
                  in_channels=2048,
                  out_channels=1,
+                 act_cfg=None,
                  frozen=False):
         super(RegHead, self).__init__()
         self.with_avg_pool = with_avg_pool
         self.in_channels = in_channels
         self.out_channels = out_channels
         assert loss is None or isinstance(loss, (dict, list))
+        assert act_cfg is None or isinstance(act_cfg, dict)
 
         # loss
         if loss is None:
-            loss = [dict(type='RegressionLoss', loss_weight=1.0, mode="mse_loss")]
+            loss = [dict(type="RegressionLoss", loss_weight=1.0, mode="mse_loss")]
         elif isinstance(loss, dict):
             loss = [loss]
         self.criterion_num = 0
@@ -41,6 +45,11 @@ class RegHead(nn.Module):
             _criterion = build_loss(loss[i])
             self.add_module(str(i), _criterion)
             self.criterion_num += 1
+        # activate
+        self.act = None
+        if act_cfg is not None:
+            self.act = build_activation_layer(act_cfg)
+        
         # fc layer
         self.fc = nn.Linear(in_channels, out_channels)
         if frozen:
@@ -74,6 +83,8 @@ class RegHead(nn.Module):
         else:
             x = x.reshape(x.size(0), -1)
         x = self.fc(x).squeeze()
+        if self.act is not None:
+            x = self.act(x)
         return [x]
 
     def loss(self, score, labels, **kwargs):

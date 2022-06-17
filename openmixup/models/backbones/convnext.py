@@ -1,5 +1,3 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# modified from mmclassification convnext.py
 from functools import partial
 from itertools import chain
 from typing import Sequence

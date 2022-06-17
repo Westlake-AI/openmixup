@@ -48,20 +48,23 @@ class ClsHead(nn.Module):
             assert multi_label == False
             loss = dict(type='CrossEntropyLoss', loss_weight=1.0)
             self.criterion = build_loss(loss)
-        # pooling
-        self.avg_pool = nn.AdaptiveAvgPool2d((1, 1)) \
-            if self.with_avg_pool else nn.Identity()
         # fc layer
-        self.fc = nn.Linear(in_channels, num_classes)
+        self.fc = None
+        if num_classes is not None:
+            self.fc = nn.Linear(in_channels, num_classes)
         if frozen:
             self.frozen()
 
     def frozen(self):
+        if self.fc is None:
+            return
         self.fc.eval()
         for param in self.fc.parameters():
             param.requires_grad = False
 
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
+        if self.fc is None:
+            return
         assert init_linear in ['normal', 'kaiming', 'trunc_normal'], \
             "Undefined init_linear: {}".format(init_linear)
         if self.finetune:  # finetune for ViTs
@@ -78,11 +81,17 @@ class ClsHead(nn.Module):
 
     def forward(self, x):
         assert isinstance(x, (tuple, list)) and len(x) == 1
+        if self.fc is None:
+            return x
         x = x[0]
         if self.with_avg_pool:
-            assert x.dim() == 4, \
-                "Tensor must has 4 dims, got: {}".format(x.dim())
-        x = self.avg_pool(x).view(x.size(0), -1)
+            if x.dim() == 3:
+                x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
+            elif x.dim() == 4:
+                x = F.adaptive_avg_pool2d(x, 1).view(x.size(0), -1)
+            else:
+                assert x.dim() in [2, 3, 4], \
+                    "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
         return [self.fc(x)]
 
     def loss(self, cls_score, labels, **kwargs):

@@ -3,12 +3,11 @@ import torch.nn as nn
 from mmcv.cnn import (build_activation_layer, build_norm_layer,
                       constant_init, trunc_normal_init)
 from mmcv.runner.base_module import BaseModule
-from openmixup.models.utils.weight_init import trunc_normal_
 from openmixup.models.backbones.vision_transformer import TransformerEncoderLayer
 
 from .. import builder
 from ..registry import NECKS
-from ..utils import build_2d_sincos_position_embedding
+from ..utils import build_2d_sincos_position_embedding, trunc_normal_
 
 
 @NECKS.register_module()

@@ -93,10 +93,9 @@ class Bottleneck(_Bottleneck):
 @BACKBONES.register_module()
 class ResNeXt(ResNet):
     """ResNeXt backbone.
-    mmclassification version
 
-    Please refer to the `paper <https://arxiv.org/abs/1611.05431>`_ for
-    details.
+    Pytorch implementation of `Aggregated Residual Transformations for Deep
+    Neural Networks <https://arxiv.org/abs/1611.05431>`_
 
     Args:
         depth (int): Network depth, from {50, 101, 152}.

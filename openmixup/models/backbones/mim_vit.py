@@ -4,11 +4,9 @@ import torch
 from torch import nn
 from mmcv.cnn import build_norm_layer, xavier_init, constant_init
 
-from openmixup.models.utils.weight_init import trunc_normal_
-
 from ..builder import BACKBONES
 from .vision_transformer import TransformerEncoderLayer, VisionTransformer
-from ..utils import build_2d_sincos_position_embedding
+from ..utils import build_2d_sincos_position_embedding, trunc_normal_
 
 
 @BACKBONES.register_module()

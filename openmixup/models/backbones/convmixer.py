@@ -1,5 +1,3 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# modified from mmclassification convmixer.py
 from typing import Sequence
 
 import torch

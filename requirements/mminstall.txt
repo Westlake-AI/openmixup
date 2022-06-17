@@ -1,4 +1,4 @@
 mmcls >= 0.21.0
-mmcv-full>=1.4.2,<=1.5.0
+mmcv-full>=1.4.7
 mmdet >= 2.16.0
 mmsegmentation >= 0.20.2

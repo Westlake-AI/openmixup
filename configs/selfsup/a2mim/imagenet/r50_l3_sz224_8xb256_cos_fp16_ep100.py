@@ -8,7 +8,6 @@ _base_ = [
 model = dict(
     backbone=dict(
         mask_layer=3, mask_token="learnable",
-        mask_init=0.1,  # init residual gamma=0.1
 ))
 
 # dataset
@@ -42,7 +41,6 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'mask_token': dict(weight_decay=0., lr_mult=1e-1,),
-        'mask_gamma': dict(weight_decay=0., lr_mult=1e-1,),
     })
 
 # apex

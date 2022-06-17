@@ -1,5 +1,3 @@
-# reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
-# modified from mmclassification deit.py
 import torch
 import torch.nn as nn
 from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init

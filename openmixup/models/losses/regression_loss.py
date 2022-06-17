@@ -244,17 +244,18 @@ def general_kl_loss(pred,
         torch.Tensor: The calculated loss
     """
     EPS = 1e-10
-    # element-wise losses    
+    # remove negative target
     if (target < 0.).any() == True:  # min-max normalization
-        B, C, _, _ = target.size()
+        B, C = target.shape[:2]
         t_min, _ = torch.min(target.view(B, C, -1), dim=2)
         t_max, _ = torch.max(target.view(B, C, -1), dim=2)
-        target = (target - t_min.view(B, C, 1, 1)) / \
-            (t_max.view(B, C, 1, 1) - t_min.view(B, C, 1, 1))
+        target = (target - t_min.view(B, C, 1)) / \
+            (t_max.view(B, C, 1) - t_min.view(B, C, 1))
 
+    # element-wise losses
     sum1 = - (pred * torch.log(target + EPS))
     sum2 = F.l1_loss(pred, target)
-    loss = (1 - alpha) * sum1 + alpha * sum2
+    loss = sum1 + alpha * sum2
 
     if weight is not None:
         loss *= weight.expand_as(loss)
@@ -288,14 +289,16 @@ def fuzzy_ce_loss(pred,
         torch.Tensor: The calculated loss
     """
     EPS = 1e-10
-    # element-wise losses    
+    # remove negative target
     if (target < 0.).any() == True:  # min-max normalization
-        B, C, _, _ = target.size()
+        B, C = target.shape[:2]
         t_min, _ = torch.min(target.view(B, C, -1), dim=2)
         t_max, _ = torch.max(target.view(B, C, -1), dim=2)
-        target = (target - t_min.view(B, C, 1, 1)) / \
-            (t_max.view(B, C, 1, 1) - t_min.view(B, C, 1, 1))
-    sum1 = - (pred * torch.log(target + EPS))
+        target = (target - t_min.view(B, C, 1)) / \
+            (t_max.view(B, C, 1) - t_min.view(B, C, 1))
+    
+    # element-wise losses
+    sum1 = (pred * torch.log(target + EPS))
     sum2 = ((1 - pred) * torch.log(1 - target + EPS))
     loss = -1 * (sum1 + sum2)
 

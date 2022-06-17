@@ -1,15 +1,17 @@
 # reference: https://github.com/open-mmlab/mmclassification/tree/master/mmcls/models/backbones
 # modified from mmclassification resnet.py, resnet_cifar.py
 import random
+import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
+from mmcv.cnn.bricks import DropPath
 from mmcv.cnn import (ConvModule, build_conv_layer, build_norm_layer,
                       constant_init, kaiming_init)
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import DropPath, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
+from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 
 
 class BasicBlock(nn.Module):
@@ -33,8 +35,8 @@ class BasicBlock(nn.Module):
             Default: None
         norm_cfg (dict): dictionary to construct and config norm layer.
             Default: dict(type='BN')
-        drop_path_rate (float): Additional DropPath in residual_block RSB A1/A2.
-            Default to 0.
+        drop_path_rate (float): Additional Stochastic DropPath in each basic_block
+            for RSB A1/A2. Default to 0.
     """
 
     def __init__(self,
@@ -152,8 +154,8 @@ class Bottleneck(nn.Module):
             Default: None
         norm_cfg (dict): dictionary to construct and config norm layer.
             Default: dict(type='BN')
-        drop_path_rate (float): Additional DropPath in residual_block RSB A1/A2.
-            Default to 0.
+        drop_path_rate (float): Additional Stochastic DropPath in each residual_block
+            for RSB A1/A2. Default to 0.
     """
 
     def __init__(self,
@@ -330,7 +332,9 @@ class ResLayer(nn.Sequential):
         conv_cfg (dict): dictionary to construct and config conv layer.
             Default: None
         norm_cfg (dict): dictionary to construct and config norm layer.
-            Default: dict(type='BN')
+            Default: dict(type='BN').
+        drop_path_rate (float | list): Additional Stochastic DropPath in each
+            block for RSB A1/A2. Default to 0.
     """
 
     def __init__(self,
@@ -343,6 +347,7 @@ class ResLayer(nn.Sequential):
                  avg_down=False,
                  conv_cfg=None,
                  norm_cfg=dict(type='BN'),
+                 drop_path_rate=0.0,
                  **kwargs):
         self.block = block
         self.expansion = get_expansion(block, expansion)
@@ -371,6 +376,9 @@ class ResLayer(nn.Sequential):
             ])
             downsample = nn.Sequential(*downsample)
 
+        if isinstance(drop_path_rate, float):
+            drop_path_rate = [drop_path_rate for _ in range(num_blocks)]
+
         layers = []
         layers.append(
             block(
@@ -381,9 +389,10 @@ class ResLayer(nn.Sequential):
                 downsample=downsample,
                 conv_cfg=conv_cfg,
                 norm_cfg=norm_cfg,
+                drop_path_rate=drop_path_rate[0],
                 **kwargs))
         in_channels = out_channels
-        for _ in range(1, num_blocks):
+        for i in range(1, num_blocks):
             layers.append(
                 block(
                     in_channels=in_channels,
@@ -392,6 +401,7 @@ class ResLayer(nn.Sequential):
                     stride=1,
                     conv_cfg=conv_cfg,
                     norm_cfg=norm_cfg,
+                    drop_path_rate=drop_path_rate[i],
                     **kwargs))
         super(ResLayer, self).__init__(*layers)
 
@@ -507,6 +517,12 @@ class ResNet(BaseBackbone):
 
         self._make_stem_layer(in_channels, stem_channels)
 
+        # stochastic depth
+        total_block = sum(self.stage_blocks)
+        block_dpr = [
+            x.item() for x in torch.linspace(0, drop_path_rate, total_block)
+        ]  # stochastic depth linear decay rule
+
         self.res_layers = []
         _in_channels = stem_channels
         _out_channels = base_channels * self.expansion
@@ -526,10 +542,11 @@ class ResNet(BaseBackbone):
                 with_cp=with_cp,
                 conv_cfg=conv_cfg,
                 norm_cfg=norm_cfg,
-                drop_path_rate=drop_path_rate)
+                drop_path_rate=block_dpr[:num_blocks])
             _in_channels = _out_channels
             _out_channels *= 2
             layer_name = f'layer{i + 1}'
+            block_dpr = block_dpr[num_blocks:]
             self.add_module(layer_name, res_layer)
             self.res_layers.append(layer_name)
 

@@ -28,9 +28,6 @@ data_train_list = 'data/meta/ImageNet/train_labeled_full.txt'
 data_train_root = 'data/ImageNet/train'
 data_test_list = 'data/meta/ImageNet/val_labeled.txt'
 data_test_root = 'data/ImageNet/val/'
-# Notice: Though official DeiT settings use `RepeatAugment`, we achieve competitive performances
-#   without it. This repo removes `RepeatAugment`.
-sampler = "DistributedSampler"
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
