@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torch.nn.modules.utils import _pair, _quadruple
 import numpy as np
 
-from .transformer import apply_rot_embed
+from .pos_embed import apply_rot_embed
 from .weight_init import trunc_normal_
 from ..helpers import to_2tuple
 

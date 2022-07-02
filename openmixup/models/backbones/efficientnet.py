@@ -382,13 +382,16 @@ class EfficientNet(BaseBackbone):
 
     def init_weights(self, pretrained=None):
         super(EfficientNet, self).init_weights(pretrained)
+
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d):
                     kaiming_init(m, mode='fan_out', nonlinearity='relu')
                 elif isinstance(m, (nn.Linear)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
-                elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                    if not self.is_init:
+                        trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                elif isinstance(m, (
+                    nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):

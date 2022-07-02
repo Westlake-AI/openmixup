@@ -1,6 +1,7 @@
 import random
-import torch
+
 import torch.nn as nn
+import torch.utils.checkpoint as cp
 from mmcv.cnn import kaiming_init, constant_init
 
 from ..registry import BACKBONES
@@ -19,6 +20,8 @@ class BasicBlock(nn.Module):
         activate_before_residual (bool): Since the first conv in WRN doesn't
             have bn-relu behind, we use the bn1 and relu1 in the block1 to
             make up the ``conv1-bn1-relu1`` structure. Default: False.
+        with_cp (bool): Use checkpoint or not. Using checkpoint will save some
+            memory while slowing down the training speed.
     """
 
     def __init__(self,
@@ -26,7 +29,8 @@ class BasicBlock(nn.Module):
                  out_channels,
                  stride,
                  drop_rate=0.0,
-                 activate_before_residual=False):
+                 activate_before_residual=False,
+                 with_cp=False):
         super(BasicBlock, self).__init__()
         self.bn1 = nn.BatchNorm2d(in_channels, momentum=0.001, eps=0.001)
         self.relu1 = nn.LeakyReLU(negative_slope=0.1, inplace=False)
@@ -38,6 +42,7 @@ class BasicBlock(nn.Module):
                                padding=1, bias=True)
         self.dropout = nn.Dropout(float(drop_rate)) \
             if float(drop_rate) > 0 else nn.Identity()
+        self.with_cp = with_cp
         self.equalInOut = (in_channels == out_channels)
         self.convShortcut = None
         if stride != 1 or not self.equalInOut:
@@ -46,15 +51,28 @@ class BasicBlock(nn.Module):
         self.activate_before_residual = activate_before_residual
 
     def forward(self, x):
-        if not self.equalInOut and self.activate_before_residual == True:
-            x = self.relu1(self.bn1(x))
-            out = self.relu2(self.bn2(self.conv1(x)))
+
+        def _inner_forward(x):
+            if not self.equalInOut and self.activate_before_residual == True:
+                x = self.relu1(self.bn1(x))
+                out = self.relu2(self.bn2(self.conv1(x)))
+            else:
+                out = self.relu1(self.bn1(x))
+                out = self.relu2(self.bn2(self.conv1(out)))
+            out = self.dropout(out)
+            out = self.conv2(out)
+            if self.equalInOut:
+                out += x
+            else:
+                out += self.convShortcut(x)
+
+            return out
+
+        if self.with_cp and x.requires_grad:
+            x = cp.checkpoint(_inner_forward, x)
         else:
-            out = self.relu1(self.bn1(x))
-            out = self.relu2(self.bn2(self.conv1(out)))
-        out = self.dropout(out)
-        out = self.conv2(out)
-        return torch.add(x if self.equalInOut else self.convShortcut(x), out)
+            x = _inner_forward(x)
+        return x
 
 
 class NetworkBlock(nn.Module):
@@ -67,12 +85,14 @@ class NetworkBlock(nn.Module):
                  block,
                  stride,
                  drop_rate=0.0,
-                 activate_before_residual=False):
+                 activate_before_residual=False,
+                 with_cp=False):
         super(NetworkBlock, self).__init__()
         layers = []
         for i in range(int(num_layers)):
             layers.append(block(i == 0 and in_channels or out_channels, out_channels,
-                                i == 0 and stride or 1, drop_rate, activate_before_residual))
+                                i == 0 and stride or 1, drop_rate,
+                                activate_before_residual, with_cp))
         self.layer = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -104,6 +124,8 @@ class WideResNet(BaseBackbone):
         norm_eval (bool): Whether to set norm layers to eval mode, namely,
             freeze running stats (mean and var). Note: Effect on Batch Norm
             and its variants only. Default: False.
+        with_cp (bool): Use checkpoint or not. Using checkpoint will save some
+            memory while slowing down the training speed. Default: False.
     """
 
     def __init__(self,
@@ -114,7 +136,8 @@ class WideResNet(BaseBackbone):
                  drop_rate=0.0,
                  out_indices=(0, 1, 2,),
                  frozen_stages=-1,
-                 norm_eval=False):
+                 norm_eval=False,
+                 with_cp=False):
         super(WideResNet, self).__init__()
         channels = [16, 16 * widen_factor, 32 * widen_factor, 64 * widen_factor]
         assert ((depth - 4) % 6 == 0)
@@ -126,13 +149,15 @@ class WideResNet(BaseBackbone):
         # 1st block
         self.block1 = NetworkBlock(
             n, channels[0], channels[1], BasicBlock, first_stride,
-            drop_rate, activate_before_residual=True)
+            drop_rate, activate_before_residual=True, with_cp=with_cp)
         # 2nd block
         self.block2 = NetworkBlock(
-            n, channels[1], channels[2], BasicBlock, 2, drop_rate)
+            n, channels[1], channels[2], BasicBlock, 2, drop_rate,
+            activate_before_residual=False, with_cp=with_cp)
         # 3rd block
         self.block3 = NetworkBlock(
-            n, channels[2], channels[3], BasicBlock, 2, drop_rate)
+            n, channels[2], channels[3], BasicBlock, 2, drop_rate,
+            activate_before_residual=False, with_cp=with_cp)
         # original: global average pooling and classifier (in head)
         self.bn1 = nn.BatchNorm2d(channels[3], momentum=0.001, eps=0.001)
         self.relu = nn.LeakyReLU(negative_slope=0.1, inplace=False)
@@ -140,6 +165,7 @@ class WideResNet(BaseBackbone):
         self.out_indices = out_indices
         self.frozen_stages = frozen_stages
         self.norm_eval = norm_eval
+        self.with_cp = with_cp
         
         self._freeze_stages()
     
@@ -180,8 +206,8 @@ class WideResNet(BaseBackbone):
             if i in self.out_indices:
                 outs.append(x)
                 if len(self.out_indices) == 1:
-                    return tuple(outs)
-        return tuple(outs)
+                    return outs
+        return outs
 
     def train(self, mode=True):
         super(WideResNet, self).train(mode)
@@ -291,7 +317,7 @@ class WideResNet_Mix(WideResNet):
             if i in self.out_indices:
                 outs.append(x)
                 if len(self.out_indices) == 1:
-                    return tuple(outs)
+                    return outs
             if i+1 == mix_layer:
                 x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
-        return tuple(outs)
+        return outs

@@ -81,7 +81,7 @@ class MIMResNet(ResNet):
                 x = x * (1. - mask) + x.clone().detach() * mask
             if self.mask_gamma is not None:
                 x = x * (1. - mask) + (x * mask) * self.mask_gamma
-            x += mask_token * mask  # residual
+            x = x + mask_token * mask  # residual
         return x
 
     def forward(self, x, mask=None):

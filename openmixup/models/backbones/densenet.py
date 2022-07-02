@@ -8,7 +8,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.utils.checkpoint as cp
-from mmcv.cnn.bricks import build_activation_layer, build_norm_layer
+from mmcv.cnn import (build_activation_layer, build_norm_layer,
+                      constant_init, kaiming_init)
+from mmcv.utils.parrots_wrapper import _BatchNorm
 from torch.jit.annotations import List
 
 from ..builder import BACKBONES
@@ -306,6 +308,16 @@ class DenseNet(BaseBackbone):
             self.transitions.append(transition)
 
         self._freeze_stages()
+
+    def init_weights(self, pretrained=None):
+        super(DenseNet, self).init_weights(pretrained)
+
+        if pretrained is None:
+            for m in self.modules():
+                if isinstance(m, nn.Conv2d):
+                    kaiming_init(m)
+                elif isinstance(m, (_BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                    constant_init(m, val=1, bias=0)
 
     def forward(self, x):
         x = self.stem(x)

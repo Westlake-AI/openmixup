@@ -7,8 +7,8 @@ _base_ = [
 # model settings
 model = dict(
     backbone=dict(
-        mask_layer=0, mask_token='learnable')
-)
+        mask_layer=3, mask_token="learnable",
+))
 
 # dataset
 data = dict(
@@ -17,7 +17,7 @@ data = dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
             dict(type='BlockwiseMaskGenerator',
-                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=4,  # stage 1
+                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=16,  # stage 3
                 mask_color='mean', mask_only=False),
         ],
 ))
@@ -44,7 +44,7 @@ optimizer = dict(
     })
 
 # apex
-use_fp16 = True
+use_fp16 = False
 fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
 # optimizer args
 optimizer_config = dict(

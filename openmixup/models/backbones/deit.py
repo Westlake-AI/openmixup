@@ -45,10 +45,12 @@ class DistilledVisionTransformer(VisionTransformer):
 
     def init_weights(self, pretrained=None):
         super(DistilledVisionTransformer, self).init_weights(pretrained)
+
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d, nn.Linear)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                    if not self.is_init:
+                        trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
@@ -57,7 +59,7 @@ class DistilledVisionTransformer(VisionTransformer):
             trunc_normal_init(self.cls_token, mean=0., std=0.02)
             # DeiT dist_token
             trunc_normal_init(self.dist_token, mean=0., std=0.02)
-    
+
     def forward(self, x):
         B = x.shape[0]
         x = self.patch_embed(x)

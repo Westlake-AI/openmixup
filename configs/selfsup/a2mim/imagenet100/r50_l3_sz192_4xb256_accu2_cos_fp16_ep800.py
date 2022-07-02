@@ -8,7 +8,7 @@ _base_ = [
 model = dict(
     backbone=dict(
         mask_layer=3, mask_token="learnable",
-        mask_init=0.1,  # init residual gamma=0.1
+        mask_init=1e-6,  # init residual gamma
 ))
 
 # dataset

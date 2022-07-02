@@ -203,17 +203,16 @@ class NonLinearMIMNeck(BaseModule):
             ),
             nn.PixelShuffle(encoder_stride),
         )
-    
+
     def init_weights(self):
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.Linear)):
                 trunc_normal_init(m, std=0.02, bias=0)
             elif isinstance(m, (nn.LayerNorm, nn.BatchNorm2d)):
                 constant_init(m, val=1, bias=0)
-    
+
     def forward(self, x):
         assert isinstance(x, list)
-
         if self.decoder is not None:
             dec = self.decoder([x[-1]])[0]
         else:
@@ -222,5 +221,5 @@ class NonLinearMIMNeck(BaseModule):
         dec = self.decoder_pred(dec)
         if self.activate is not None:
             dec = self.activate(dec)
-        
+
         return [dec]

@@ -261,6 +261,7 @@ class ShuffleNetV2(BaseBackbone):
 
     def init_weights(self, pretrained=None):
         super(ShuffleNetV2, self).init_weights(pretrained)
+
         if pretrained is None:
             for name, m in self.named_modules():
                 if isinstance(m, nn.Conv2d):

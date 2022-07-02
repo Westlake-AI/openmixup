@@ -393,7 +393,7 @@ class SwinTransformer(BaseBackbone):
             dpr = dpr[depth:]
             embed_dims.append(stage.out_channels)
 
-        for i in out_indices:
+        for i in self.out_indices:
             if i < 0:
                 continue
             if norm_cfg is not None:
@@ -411,7 +411,8 @@ class SwinTransformer(BaseBackbone):
                 if isinstance(m, (nn.Conv2d)):
                     lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')
                 elif isinstance(m, (nn.Linear)):
-                    trunc_normal_init(m, std=0.02)
+                    if not self.is_init:
+                        trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)

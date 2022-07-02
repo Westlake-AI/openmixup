@@ -4,11 +4,12 @@ import torch
 import torch.nn as nn
 from mmcv.cnn.bricks import (Conv2dAdaptivePadding, build_activation_layer,
                              build_norm_layer)
-from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init, xavier_init
-from mmcv.utils import digit_version
+from mmcv.cnn.utils.weight_init import constant_init, xavier_init
+from mmcv.utils import _BatchNorm, digit_version
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
+from ..utils import lecun_normal_init
 
 
 class Residual(nn.Module):
@@ -162,14 +163,15 @@ class ConvMixer(BaseBackbone):
 
     def init_weights(self, pretrained=None):
         super(ConvMixer, self).init_weights(pretrained)
+
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                    lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')
                 elif isinstance(m, (nn.Linear)):
                     xavier_init(m, gain=1, bias=1e-6, distribution='uniform')
                 elif isinstance(m, (
-                    nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                    nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
 
     def forward(self, x):

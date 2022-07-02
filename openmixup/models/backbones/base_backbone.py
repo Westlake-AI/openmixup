@@ -1,11 +1,10 @@
 import logging
 from abc import ABCMeta, abstractmethod
 
-import torch.nn as nn
-from mmcv.runner import load_checkpoint
+from mmcv.runner import BaseModule, load_checkpoint
 
 
-class BaseBackbone(nn.Module, metaclass=ABCMeta):
+class BaseBackbone(BaseModule, metaclass=ABCMeta):
     """Base backbone.
 
     This class defines the basic functions of a backbone.
@@ -15,8 +14,7 @@ class BaseBackbone(nn.Module, metaclass=ABCMeta):
     """
 
     def __init__(self, init_cfg=None):
-        super(BaseBackbone, self).__init__()
-        self.init_cfg = init_cfg
+        super(BaseBackbone, self).__init__(init_cfg=init_cfg)
 
     def init_weights(self, pretrained=None):
         """Init backbone weights
@@ -32,7 +30,7 @@ class BaseBackbone(nn.Module, metaclass=ABCMeta):
             load_checkpoint(self, pretrained, strict=False, logger=logger)
         elif pretrained is None:
             # use default initializer or customized initializer in subclasses
-            pass
+            super(BaseBackbone, self).init_weights()
         else:
             raise TypeError('pretrained must be a str or None.'
                             f' But received {type(pretrained)}.')

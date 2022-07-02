@@ -269,7 +269,7 @@ class VisionTransformer(BaseBackbone):
                  norm_eval=False,
                  init_cfg=None,
                  **kwargs):
-        super(VisionTransformer, self).__init__(init_cfg)
+        super(VisionTransformer, self).__init__(init_cfg=init_cfg)
 
         if isinstance(arch, str):
             arch = arch.lower()
@@ -368,18 +368,21 @@ class VisionTransformer(BaseBackbone):
                 self.patch_embed.projection.weight.requires_grad = False
                 self.patch_embed.projection.bias.requires_grad = False
         self._freeze_stages()
-    
+
     @property
     def norm1(self):
         return getattr(self, self.norm1_name)
-    
+
     def init_weights(self, pretrained=None):
         super(VisionTransformer, self).init_weights(pretrained)
 
         if pretrained is None:
             if self.arch != "mocov3":  # normal ViT
                 for m in self.modules():
-                    if isinstance(m, (nn.Conv2d, nn.Linear)):
+                    if isinstance(m, (nn.Linear)):
+                        if not self.is_init:
+                            trunc_normal_init(m, std=0.02, bias=0)
+                    elif isinstance(m, (nn.Conv2d)):
                         trunc_normal_init(m, std=0.02, bias=0)
                     elif isinstance(m, (
                         nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
@@ -411,7 +414,7 @@ class VisionTransformer(BaseBackbone):
                         else:
                             xavier_init(m, distribution='uniform')
                 nn.init.normal_(self.cls_token, std=1e-6)
-    
+
     def _prepare_pos_embed(self, state_dict, prefix, *args, **kwargs):
         name = prefix + 'pos_embed'
         if name not in state_dict.keys():
@@ -470,11 +473,11 @@ class VisionTransformer(BaseBackbone):
                 B, _, C = x.shape
                 if self.with_cls_token:
                     patch_token = x[:, 1:].reshape(B, *patch_resolution, C)
-                    patch_token = patch_token.permute(0, 3, 1, 2)
+                    patch_token = patch_token.permute(0, 3, 1, 2).contiguous()
                     cls_token = x[:, 0]
                 else:
                     patch_token = x.reshape(B, *patch_resolution, C)
-                    patch_token = patch_token.permute(0, 3, 1, 2)
+                    patch_token = patch_token.permute(0, 3, 1, 2).contiguous()
                     cls_token = None
                 if self.output_cls_token:
                     out = [patch_token, cls_token]

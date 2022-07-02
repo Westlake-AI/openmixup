@@ -65,7 +65,8 @@ class MAEViT(VisionTransformer):
                  patch_cfg=dict(),
                  layer_cfgs=dict(),
                  mask_ratio=0.75,
-                 init_cfg=None):
+                 init_cfg=None,
+                 **kwargs):
         super().__init__(arch=arch,
                          img_size=img_size,
                          patch_size=patch_size,
@@ -81,7 +82,8 @@ class MAEViT(VisionTransformer):
                          interpolate_mode=interpolate_mode,
                          patch_cfg=patch_cfg,
                          layer_cfgs=layer_cfgs,
-                         init_cfg=init_cfg)
+                         init_cfg=init_cfg,
+                         **kwargs)
 
         self.pos_embed.requires_grad = False
         self.mask_ratio = mask_ratio
@@ -226,57 +228,33 @@ class MIMVisionTransformer(VisionTransformer):
                  patch_cfg=dict(),
                  layer_cfgs=dict(),
                  finetune=True,
-                 init_cfg=None):
+                 init_cfg=None,
+                 **kwargs):
         super().__init__(arch,
                          img_size=img_size,
                          patch_size=patch_size,
                          out_indices=out_indices,
+                         use_window=use_window,
                          drop_rate=drop_rate,
                          drop_path_rate=drop_path_rate,
+                         qkv_bias=qkv_bias,
                          norm_cfg=norm_cfg,
                          final_norm=final_norm,
                          output_cls_token=output_cls_token,
                          interpolate_mode=interpolate_mode,
+                         init_values=init_values,
                          patch_cfg=patch_cfg,
                          layer_cfgs=layer_cfgs,
-                         init_cfg=init_cfg)
-        dpr = np.linspace(0, drop_path_rate, self.num_layers)
-        self.layers = nn.ModuleList()
-        if isinstance(layer_cfgs, dict):
-            layer_cfgs = [layer_cfgs] * self.num_layers
-        for i in range(self.num_layers):
-            _layer_cfg = dict(
-                embed_dims=self.embed_dims,
-                num_heads=self.arch_settings['num_heads'],
-                feedforward_channels=self.arch_settings['feedforward_channels'],
-                window_size=self.patch_resolution if use_window else None,
-                drop_rate=drop_rate,
-                drop_path_rate=dpr[i],
-                init_values=init_values,
-                qkv_bias=qkv_bias,
-                norm_cfg=norm_cfg)
-            _layer_cfg.update(layer_cfgs[i])
-            self.layers.append(TransformerEncoderLayer(**_layer_cfg))
-
-        self.embed_dims = self.arch_settings['embed_dims']
-        self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
+                         init_cfg=init_cfg,
+                         **kwargs)
         if not self.final_norm:
             _, self.fc_norm = build_norm_layer(
                 norm_cfg, self.embed_dims, postfix=1)
 
         self.finetune = finetune
         if not self.finetune:
+            self.frozen_stages = self.num_layers - 1  # all layers
             self._freeze_stages()
-
-    def train(self, mode=True):
-        super(MIMVisionTransformer, self).train(mode)
-        if not self.finetune:
-            self._freeze_stages()
-
-    def _freeze_stages(self):
-        """Freeze params in backbone when linear probing."""
-        for _, param in self.named_parameters():
-            param.requires_grad = False
 
     def forward(self, x):
         B = x.shape[0]
@@ -293,7 +271,7 @@ class MIMVisionTransformer(VisionTransformer):
 
             if i == len(self.layers) - 1 and self.final_norm:
                 x = self.norm1(x)
-        
+
         if not self.final_norm:
             x = x[:, 1:, :].mean(dim=1)
             outs = self.fc_norm(x)
@@ -369,7 +347,7 @@ class SimMIMViT(VisionTransformer):
                     x[:, 1:] = x[:, 1:] * (1. - mask) + x[:, 1:].clone().detach() * mask
                 if self.mask_gamma is not None:
                     x[:, 1:] = x[:, 1:] * (1. - mask) + (x[:, 1:] * mask) * self.mask_gamma
-                x[:, 1:] += mask_token * mask
+                x[:, 1:] = x[:, 1:] + mask_token * mask
         elif mask.size(1) == L:
             mask_token = self.mask_token.expand(B, L, -1)
             if self.replace:
@@ -379,7 +357,7 @@ class SimMIMViT(VisionTransformer):
                     x = x * (1. - mask) + x.clone().detach() * mask
                 if self.mask_gamma is not None:
                     x = x * (1. - mask) + (x * mask) * self.mask_gamma
-                x += mask_token * mask  # residual
+                x = x + mask_token * mask  # residual
         else:
             raise NotImplementedError
         return x
@@ -425,7 +403,7 @@ class SimMIMViT(VisionTransformer):
                     x = x[:, 1:]
                 B, L, C = x.shape
                 H = W = int(L ** 0.5)
-                x = x.permute(0, 2, 1).reshape(B, C, H, W)
+                x = x.permute(0, 2, 1).contiguous().reshape(B, C, H, W)
                 outs.append(x)
         
         return outs

@@ -7,9 +7,12 @@ from .augments import cutmix, mixup, fmix, resizemix, saliencymix, smoothmix, at
 from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedResidual, make_divisible, \
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
    Scale, SELayer, Canny, Laplacian, Sobel, Smoothing, \
-   ConditionalPositionEncoding, MultiheadAttention, MultiheadAttentionWithRPE, ShiftWindowMSA, \
-   HybridEmbed, PatchEmbed, PatchMerging, resize_pos_embed, resize_relative_position_bias_table, \
-   build_2d_sincos_position_embedding, CAETransformerRegressorLayer, CrossMultiheadAttention, \
+   CrossMultiheadAttention, HiLoAttention, MultiheadAttention, MultiheadAttentionWithRPE, \
+   MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
+   HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
+   build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
+   ConditionalPositionEncoding, resize_pos_embed, resize_relative_position_bias_table, \
+   FourierEmbed, RotaryEmbed, CAETransformerRegressorLayer, \
    lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 from .evaluation import calculate_confusion_matrix, f1_score, precision, recall, precision_recall_f1, \
    support, pearson_correlation, spearman_correlation, regression_error, \
@@ -26,9 +29,12 @@ __all__ = [
    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual', 'make_divisible',
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
    'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
-   'ConditionalPositionEncoding', 'MultiheadAttention', 'MultiheadAttentionWithRPE', 'ShiftWindowMSA',
-   'HybridEmbed', 'PatchEmbed', 'PatchMerging', 'resize_pos_embed', 'resize_relative_position_bias_table',
-   'build_2d_sincos_position_embedding', 'CAETransformerRegressorLayer', 'CrossMultiheadAttention',
+   'CrossMultiheadAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
+   'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
+   'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
+   'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',
+   'ConditionalPositionEncoding', 'resize_pos_embed', 'resize_relative_position_bias_table',
+   'FourierEmbed', 'RotaryEmbed', 'CAETransformerRegressorLayer',
    'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
    'calculate_confusion_matrix', 'f1_score', 'precision', 'recall', 'precision_recall_f1', 'support',
    'pearson_correlation', 'spearman_correlation', 'regression_error',

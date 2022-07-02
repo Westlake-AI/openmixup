@@ -249,6 +249,7 @@ class MlpMixer(BaseBackbone):
 
     def init_weights(self, pretrained=None):
         super(MlpMixer, self).init_weights(pretrained)
+
         if pretrained is None:
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
@@ -258,7 +259,7 @@ class MlpMixer(BaseBackbone):
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)
-    
+
     @property
     def norm1(self):
         return getattr(self, self.norm1_name)

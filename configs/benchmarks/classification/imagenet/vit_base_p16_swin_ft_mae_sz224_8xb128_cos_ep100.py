@@ -8,7 +8,7 @@ _base_ = [
 data = dict(imgs_per_gpu=128, workers_per_gpu=8)
 
 # interval for accumulate gradient
-update_interval = 2  # total: 4 x bs128 x 2 accumulates = bs1024
+update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
 
 # optimizer
 optimizer = dict(
@@ -43,9 +43,6 @@ optimizer_config = dict(
     update_interval=update_interval, use_fp16=use_fp16,
     grad_clip=dict(max_norm=5.0),
 )
-
-# unused parameters
-find_unused_parameters = True
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=100)

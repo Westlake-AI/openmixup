@@ -1,4 +1,4 @@
-_base_ = './van_small_8xb128_fp16_ep300.py'
+_base_ = './van_small_8xb128_ep300.py'
 
 # model settings
 model = dict(

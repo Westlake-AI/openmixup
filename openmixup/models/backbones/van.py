@@ -13,8 +13,7 @@ from .base_backbone import BaseBackbone
 
 
 class MixFFN(BaseModule):
-    """An implementation of MixFFN of VAN. Refer to
-    mmdetection/mmdet/models/backbones/pvt.py.
+    """An implementation of MixFFN of VAN.
 
     The differences between MixFFN & FFN:
         1. Use 1X1 Conv to replace Linear layer.
@@ -24,6 +23,8 @@ class MixFFN(BaseModule):
         embed_dims (int): The feature dimension. Same as
             `MultiheadAttention`.
         feedforward_channels (int): The hidden dimension of FFNs.
+        kernel_size (int): The depth-wise conv kernel size as the
+            depth-wise convolution. Defaults to 3.
         act_cfg (dict, optional): The activation config for FFNs.
             Default: dict(type='GELU').
         ffn_drop (float, optional): Probability of an element to be
@@ -35,6 +36,7 @@ class MixFFN(BaseModule):
     def __init__(self,
                  embed_dims,
                  feedforward_channels,
+                 kernel_size=3,
                  act_cfg=dict(type='GELU'),
                  ffn_drop=0.,
                  init_cfg=None):
@@ -51,7 +53,7 @@ class MixFFN(BaseModule):
         self.dwconv = Conv2d(
             in_channels=feedforward_channels,
             out_channels=feedforward_channels,
-            kernel_size=3,
+            kernel_size=kernel_size,
             stride=1,
             padding=1,
             bias=True,
@@ -281,6 +283,7 @@ class VAN(BaseBackbone):
         in_channels (int): The num of input channels. Defaults to 3.
         drop_rate (float): Dropout rate after embedding. Defaults to 0.
         drop_path_rate (float): Stochastic depth rate. Defaults to 0.1.
+        init_value (float): Init value for Layer Scale. Defaults to 1e-2.
         out_indices (Sequence[int]): Output from which stages.
             Default: ``(3, )``.
         frozen_stages (int): Stages to be frozen (stop grad and set eval mode).
@@ -289,7 +292,9 @@ class VAN(BaseBackbone):
             freeze running stats (mean and var). Note: Effect on Batch Norm
             and its variants only. Defaults to False.
         norm_cfg (dict): Config dict for normalization layer for all output
-            features. Defaults to ``dict(type='LN')``
+            features. Defaults to ``dict(type='LN')``.
+        conv_norm_cfg (dict): Config dict for convolution normalization layer.
+            Defaults to ``dict(type='BN')``.
         block_cfgs (Sequence[dict] | dict): The extra config of each block.
             Defaults to empty dicts.
         init_cfg (dict, optional): The Config for initialization.
@@ -331,10 +336,12 @@ class VAN(BaseBackbone):
                  in_channels=3,
                  drop_rate=0.,
                  drop_path_rate=0.,
+                 init_values=1e-2,
                  out_indices=(3, ),
                  frozen_stages=-1,
                  norm_eval=False,
-                 norm_cfg=dict(type='LN'),
+                 norm_cfg=dict(type='LN', eps=1e-6),
+                 conv_norm_cfg=dict(type='BN', eps=1e-5),
                  block_cfgs=dict(),
                  init_cfg=None):
         super(VAN, self).__init__(init_cfg=init_cfg)
@@ -372,7 +379,7 @@ class VAN(BaseBackbone):
                 kernel_size=patch_sizes[i],
                 stride=patch_sizes[i] // 2 + 1,
                 padding=(patch_sizes[i] // 2, patch_sizes[i] // 2),
-                norm_cfg=dict(type='BN'))
+                norm_cfg=conv_norm_cfg)
 
             blocks = nn.ModuleList([
                 VANBlock(
@@ -380,6 +387,8 @@ class VAN(BaseBackbone):
                     ffn_ratio=self.ffn_ratios[i],
                     drop_rate=drop_rate,
                     drop_path_rate=dpr[cur_block_idx + j],
+                    norm_cfg=conv_norm_cfg,
+                    layer_scale_init_value=init_values,
                     **block_cfgs) for j in range(depth)
             ])
             cur_block_idx += depth
@@ -401,7 +410,8 @@ class VAN(BaseBackbone):
                     if m.bias is not None:
                         m.bias.data.zero_()
                 elif isinstance(m, (nn.Linear)):
-                    trunc_normal_init(m, mean=0., std=0.02, bias=0)
+                    if not self.is_init:
+                        trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)

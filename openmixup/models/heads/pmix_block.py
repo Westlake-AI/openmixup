@@ -1,12 +1,13 @@
 import math
+import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import random
-from ..registry import HEADS
-from mmcv.cnn import build_norm_layer, ConvModule, NonLocal2d, kaiming_init, normal_init
+from mmcv.cnn import build_norm_layer, constant_init, kaiming_init, normal_init, \
+    ConvModule, NonLocal2d
 
 from openmixup.utils import force_fp32, print_log
+from ..registry import HEADS
 from ..necks import ConvNeck
 from .. import builder
 
@@ -14,26 +15,19 @@ from .. import builder
 @HEADS.register_module
 class PixelMixBlock(nn.Module):
     """Pixel-wise MixBlock.
-        version v08.24 (pre_conv, etc), v10.09 (lam_mult)
-        version v01.07 (random choices)
-    
+
     Official implementation of
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
         "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
             Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
     *** Warning: FP16 training might result in inf or nan, please try a smaller
         batch size when FP16 overflow occur! ***
-    
+
     Args:
         in_channels (int): Channels of the input feature map.
         reduction (int): Channel reduction ratio. Default: 2.
-        use_scale (bool): Whether to scale pairwise_weight by
-            `1/sqrt(inter_channels)` when the mode is `embedded_gaussian`.
-            Default: True.
-        double_norm (bool): Whether to scale pairwise_weight again by L1 norm.
-            Default: False
-        attention_mode (str): Options (non-local) are `gaussian`, `concatenation`,
-            `embedded_gaussian` and `dot_product`. Default: embedded_gaussian.
+        use_scale (bool): Whether to scale pairwise_weight by `1/sqrt(inter_channels)`
+            when the mode is `embedded_gaussian`. Default: True.
         unsampling_mode (str or list): Unsampling mode {'nearest', 'bilinear', etc}. Build a
             list for various upsampling mode. Default: 'nearest'.
         pre_norm_cfg (dict): Config dict for a norm before q,k,v input of MixBlock.
@@ -62,8 +56,8 @@ class PixelMixBlock(nn.Module):
         lam_mul (bool or float): Whether to mult lam in x_lam and mult (1-lam) in x_lam_
             to get pair-wise weight.
             Default: False.
-        lam_mul_k (float or list): Rescale lambda before multipling to x, which is adjusted by k.
-            Build a list for various adjusting k. Default: -1.
+        lam_mul_k (float or list): Rescale lambda before multipling to x, which is adjusted
+            by k. Build a list for various adjusting k. Default: -1.
         lam_residual (bool): Whether to use residual addition for lam_mult.
             Default: False.
         value_neck_cfg (dict): Config dict for a non-linear value embedding network.
@@ -78,18 +72,16 @@ class PixelMixBlock(nn.Module):
             Default: False.
         att_norm_cfg (dict): Config dict for normalization layer in Attention. Default: None.
         att_act_cfg (dict): Config dict for activation layer in Attention. Default: None.
-        mask_loss_mode (str): Which mode in {'L1', 'L2', 'none', 'Variance'} to caculate loss.
-            Default: "none".
+        mask_loss_mode (str): Loss mode in {"none", "L2", "L1", "Variance", "L1+Variance",
+            "L2+Variance", "Sparsity"} to caculate loss. Default: "none".
         mask_loss_margin (int): Margine loss for the grid mask pattens. Default: 0.
         mask_mode (str): Which mode to normalize mixup masks to sum=1. Default: "none".
     """
-    
+
     def __init__(self,
             in_channels,
             reduction=2,
             use_scale=True,
-            double_norm=False,
-            attention_mode='embedded_gaussian',
             unsampling_mode='bilinear',
             pre_norm_cfg=None,
             pre_conv_cfg=None,
@@ -116,15 +108,12 @@ class PixelMixBlock(nn.Module):
         self.in_channels = int(in_channels)
         self.reduction = int(reduction)
         self.use_scale = bool(use_scale)
-        self.double_norm = bool(double_norm)
         self.inter_channels = max(in_channels // reduction, 1)
-        self.attention_mode = str(attention_mode)
         self.unsampling_mode = [unsampling_mode] if isinstance(unsampling_mode, str) \
             else list(unsampling_mode)
-        assert self.attention_mode in ['gaussian', 'embedded_gaussian']
         for m in self.unsampling_mode:
             assert m in ['nearest', 'bilinear', 'bicubic',]
-        
+
         # pre MixBlock or parallel to MixBlock
         assert pre_norm_cfg is None or isinstance(pre_norm_cfg, dict)
         assert pre_conv_cfg is None or isinstance(pre_conv_cfg, dict)
@@ -191,7 +180,7 @@ class PixelMixBlock(nn.Module):
             self.qk_in_channels = int(2 * self.in_channels)
         if self.x_v_concat:
             self.v_in_channels = int(2 * self.in_channels)
-        
+
         # MixBlock, conv value
         if value_neck_cfg is None:
             self.value = nn.Conv2d(
@@ -203,28 +192,27 @@ class PixelMixBlock(nn.Module):
             value_neck_cfg["in_channels"] = self.v_in_channels
             self.value = builder.build_neck(value_neck_cfg)
         # MixBlock, conv q,k
-        if self.attention_mode == 'embedded_gaussian':
-            self.key = None
-            if self.x_qk_concat:  # sym conv q and k
-                # conv key
-                self.key = ConvModule(
-                    in_channels=self.qk_in_channels,
-                    out_channels=self.inter_channels,
-                    kernel_size=1, stride=1, padding=0,
-                    groups=1, bias='auto', 
-                    norm_cfg=att_norm_cfg,
-                    act_cfg=att_act_cfg,
-                )
-            # conv query
-            self.query = ConvModule(
+        self.key = None
+        if self.x_qk_concat:  # sym conv q and k
+            # conv key
+            self.key = ConvModule(
                 in_channels=self.qk_in_channels,
                 out_channels=self.inter_channels,
                 kernel_size=1, stride=1, padding=0,
-                groups=1, bias='auto',
+                groups=1, bias='auto', 
                 norm_cfg=att_norm_cfg,
                 act_cfg=att_act_cfg,
             )
-        
+        # conv query
+        self.query = ConvModule(
+            in_channels=self.qk_in_channels,
+            out_channels=self.inter_channels,
+            kernel_size=1, stride=1, padding=0,
+            groups=1, bias='auto',
+            norm_cfg=att_norm_cfg,
+            act_cfg=att_act_cfg,
+        )
+
         self.init_weights()
         if self.frozen:
             self._freeze()
@@ -240,13 +228,9 @@ class PixelMixBlock(nn.Module):
                 else:
                     kaiming_init(m, mode='fan_in', nonlinearity='relu')
             elif isinstance(m, (nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                if m.weight is not None:
-                    nn.init.constant_(m.weight, 1)
-                if m.bias is not None:
-                    nn.init.constant_(m.bias, 0)
+                constant_init(m, val=1, bias=0)
 
     def _freeze(self):
-        # detach
         if self.frozen:
             # before mixblock
             if self.pre_norm is not None:
@@ -265,47 +249,22 @@ class PixelMixBlock(nn.Module):
                 for param in self.pre_head.parameters():
                     param.requires_grad = False
             # mixblock
-            if self.attention_mode == 'embedded_gaussian':
-                for param in self.query.parameters():
+            for param in self.query.parameters():
+                param.requires_grad = False
+            if self.key is not None:
+                for param in self.key.parameters():
                     param.requires_grad = False
-                if self.key is not None:
-                    for param in self.key.parameters():
-                        param.requires_grad = False
             for param in self.value.parameters():
                 param.requires_grad = False
 
     @force_fp32(apply_to=('q_x', 'k_x',))
-    def gaussian(self, q_x, k_x):
-        """ non-local similarity func """
-        # Notice: force fp32 before and after matmul in attention, since
-        #   fp16 will cause inf or nan without any pre-normalization.
-        # NonLocal2d pairwise_weight: [N, HxW, HxW]
-        pairwise_weight = torch.matmul(
-            q_x.type(torch.float32), k_x.type(torch.float32)
-        ).type(torch.float32)
-        if torch.any(torch.isnan(pairwise_weight)):
-            print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
-                pairwise_weight), logger='root')
-            raise ValueError
-        if torch.any(torch.isinf(pairwise_weight)):
-            print_log("Warming attention map is inf, P: {}, climp!".format(
-                pairwise_weight), logger='root')
-            pairwise_weight = pairwise_weight.type(torch.float32).clamp(min=-1e25, max=1e25)
-            self.overflow += 1
-            if self.overflow > 10:
-                raise ValueError("Precision overflow in MixBlock, try fp32 training.")
-        if self.use_scale:
-            pairwise_weight /= q_x.shape[-1]**0.5
-        # force fp32 in exp
-        pairwise_weight = pairwise_weight.type(torch.float32).softmax(dim=-1)
-        return pairwise_weight
-    
-    @force_fp32(apply_to=('q_x', 'k_x',))
     def embedded_gaussian(self, q_x, k_x):
-        """ learnable non-local similarity func """
-        # Notice: force fp32 before and after matmul in attention, since
-        #   fp16 will cause inf or nan without any pre-normalization.
-        # NonLocal2d pairwise_weight: [N, HxW, HxW]
+        """Caculate learnable non-local similarity.
+
+        Notice: force fp32 before and after matmul in attention, since
+            fp16 will cause inf or nan without any pre-normalization.
+            NonLocal2d pairwise_weight: [N, HxW, HxW].
+        """
         pairwise_weight = torch.matmul(
             q_x.type(torch.float32), k_x.type(torch.float32)
         ).type(torch.float32)
@@ -325,11 +284,8 @@ class PixelMixBlock(nn.Module):
             pairwise_weight /= q_x.shape[-1]**0.5
         # force fp32 in exp
         pairwise_weight = pairwise_weight.type(torch.float32).softmax(dim=-1)
-        if self.double_norm:
-            pairwise_weight = \
-                pairwise_weight / (1e-8 + pairwise_weight.sum(dim=1, keepdim=True))
         return pairwise_weight
-    
+
     def rescale_lam_mult(self, lam, k=1):
         """ adjust lam against y=x in terms of k """
         assert k >= 0
@@ -371,7 +327,7 @@ class PixelMixBlock(nn.Module):
             x_lam  = x
             x_lam_ = x[index, :]  # shuffle within a gpu
         results = dict(x_lam=x_lam, x_lam_=x_lam_)
-        
+
         # pre-step 2: lambda encoding
         if self.lam_mul > 0:  # multiply lam to x_lam
             assert self.lam_concat == False
@@ -394,7 +350,7 @@ class PixelMixBlock(nn.Module):
             lam_block[:] = lam
             x_lam  = torch.cat([x_lam, lam_block], dim=1)
             x_lam_ = torch.cat([x_lam_, 1-lam_block], dim=1)
-        
+
         # **** step 1: conpute 1x1 conv value, v: [N, HxW, 1] ****
         v, v_ = x_lam, x_lam_
         if self.x_v_concat:
@@ -419,28 +375,22 @@ class PixelMixBlock(nn.Module):
         # debug mode
         if debug:
             debug_plot = dict(value=v_.view(n, h, -1).clone().detach())
-        
+
         # **** step 2: compute 1x1 conv q & k, q_x: [N, HxW, C], k_x: [N, C, HxW] ****
         if self.x_qk_concat:
             x_lam = torch.cat([x_lam, x_lam_], dim=1)
             x_lam_ = x_lam
-        if self.attention_mode == 'gaussian':
-            q_x = x_lam.view(  # q for lam: [N, HxW, C]
-                n, self.qk_in_channels, -1).permute(0, 2, 1)
-            k_x = x_lam_.view(n, self.qk_in_channels, -1)  # k for 1-lam: [N, C, HxW]
+        # query
+        q_x = self.query(x_lam).view(  # q for lam: [N, HxW, C/r]
+            n, self.inter_channels, -1).permute(0, 2, 1)
+        # key
+        if self.key is not None:
+            k_x = self.key(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
         else:
-            # query
-            q_x = self.query(x_lam).view(  # q for lam: [N, HxW, C/r]
-                n, self.inter_channels, -1).permute(0, 2, 1)
-            # key
-            if self.key is not None:
-                k_x = self.key(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
-            else:
-                k_x = self.query(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
+            k_x = self.query(x_lam_).view(n, self.inter_channels, -1)  # [N, C/r, HxW]
 
         # **** step 3: 2d pairwise_weight: [N, HxW, HxW] ****
-        pairwise_func = getattr(self, self.attention_mode)
-        pairwise_weight = pairwise_func(q_x, k_x)  # x_lam [N, HxW, C/r] x [N, C/r, HxW] x_lam_
+        pairwise_weight = self.embedded_gaussian(q_x, k_x)  # x_lam [N, HxW, C/r] x [N, C/r, HxW] x_lam_
 
         # debug mode
         if debug:
@@ -508,7 +458,7 @@ class PixelMixBlock(nn.Module):
             mask = mask.softmax(dim=1)  # sum to 1 by softmax
         else:
             raise NotImplementedError
-        
+
         results["mask"] = mask
         return results
 
@@ -520,22 +470,27 @@ class PixelMixBlock(nn.Module):
         if k > 1:  # the second mask has no grad!
             mask = mask[:, 1, :, :].unsqueeze(1)
         m_mean = mask.sum() / (n * h * w)  # mask mean in [0, 1]
-        zero = torch.tensor(0.).cuda()
 
         if self.mask_loss_mode == "L1":  # [0, 1-m]
-            losses['loss'] = torch.max(torch.abs(1 - m_mean - lam) - self.mask_loss_margin, zero).mean()
+            losses['loss'] = torch.clamp(
+                torch.abs(1 - m_mean - lam) - self.mask_loss_margin, min=0.).mean()
         elif self.mask_loss_mode == "L2":  # [0, 1-m^2]
-            losses['loss'] = torch.max((1 - m_mean - lam) ** 2 - self.mask_loss_margin ** 2, zero).mean()
+            losses['loss'] = torch.clamp(
+                (1 - m_mean - lam) ** 2 - self.mask_loss_margin ** 2, min=0.).mean()
         elif self.mask_loss_mode == "Variance":  # [0, 0.5]
-            losses['loss'] = -torch.max((torch.sum((mask - m_mean)**2) / (n * h * w)), zero)
+            losses['loss'] = -torch.clamp(
+                (torch.sum((mask - m_mean)**2) / (n * h * w)), min=0.)
         elif self.mask_loss_mode == "Sparsity":  # [0, 0.25-m]
-            losses['loss'] = torch.max(torch.abs(mask * (mask - 1)).sum() / (n * h * w) - self.mask_loss_margin, zero)
+            losses['loss'] = torch.clamp(
+                torch.abs(mask * (mask - 1)).sum() / (n * h * w) - self.mask_loss_margin, min=0.)
         elif self.mask_loss_mode == "L1+Variance":  # [0, 1-m] + [0, 1]
-            losses['loss'] = torch.max(torch.abs(1 - m_mean - lam) - self.mask_loss_margin, zero).mean() - \
-                2 * torch.max((torch.sum((mask - m_mean)**2) / (n * h * w)), zero)
+            losses['loss'] = torch.clamp(
+                torch.abs(1 - m_mean - lam) - self.mask_loss_margin, min=0.).mean() - \
+                2 * torch.clamp((torch.sum((mask - m_mean)**2) / (n * h * w)), min=0.)
         elif self.mask_loss_mode == "L2+Variance":  # [0, 1-m^2] + [0, 1]
-            losses['loss'] = torch.max((1 - m_mean - lam) ** 2 - self.mask_loss_margin ** 2, zero).mean() - \
-                2 * torch.max((torch.sum((mask - m_mean)**2) / (n * h * w)), zero)
+            losses['loss'] = torch.clamp(
+                (1 - m_mean - lam) ** 2 - self.mask_loss_margin ** 2, min=0.).mean() - \
+                2 * torch.clamp((torch.sum((mask - m_mean)**2) / (n * h * w)), min=0.)
         else:
             raise NotImplementedError
         if torch.isnan(losses['loss']):
