@@ -35,7 +35,10 @@ model = dict(
 
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=None)
+
+fp16 = dict(type='apex', loss_scale='dynamic')
+# optimizer args
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)

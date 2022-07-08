@@ -8,7 +8,7 @@ _base_ = [
 data = dict(imgs_per_gpu=32, workers_per_gpu=4)
 
 # additional hooks
-update_interval = 4  # 128 x 8gpus x 1 accumulates = bs1024
+update_interval = 4  # 32 x 8gpus x 4 accumulates = bs1024
 
 # optimizer
 optimizer = dict(
@@ -23,10 +23,9 @@ optimizer = dict(
 
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
-    grad_clip=dict(max_norm=5.0),
-    update_interval=update_interval, use_fp16=use_fp16)
+    grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(

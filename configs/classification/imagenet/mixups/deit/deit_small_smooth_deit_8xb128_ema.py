@@ -58,12 +58,9 @@ optimizer = dict(
     })
 # apex
 use_fp16 = False
-# Notice: official ViT (DeiT or Swim) settings don't apply use_fp16=True. This repo use
-#   use_fp16=True for fast training and better performances (around +0.1%).
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='apex', loss_scale='dynamic')
 optimizer_config = dict(
-    grad_clip=dict(max_norm=5.0),  # DeiT and Swim repos suggest max_norm=5.0
-    update_interval=update_interval, use_fp16=use_fp16)
+    grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # lr scheduler: Swim for DeiT
 lr_config = dict(

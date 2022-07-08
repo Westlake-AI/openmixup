@@ -38,9 +38,9 @@ optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
 
 # fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='apex', loss_scale='dynamic')
 # optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)

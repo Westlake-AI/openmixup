@@ -2,15 +2,14 @@ import numpy as np
 from sklearn.cluster import KMeans
 
 import torch
-import torch.nn as nn
 import torch.distributed as dist
-from mmcv.runner import get_dist_info
+from mmcv.runner import BaseModule, get_dist_info
 
 from ..registry import MEMORIES
 
 
 @MEMORIES.register_module
-class ODCMemory(nn.Module):
+class ODCMemory(BaseModule):
     """Memory modules for ODC.
 
     Args:

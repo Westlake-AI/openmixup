@@ -2,6 +2,7 @@ from .attention import CrossMultiheadAttention, HiLoAttention, MultiheadAttentio
     MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA
 from .channel_shuffle import channel_shuffle
 from .conv_ws import ConvWS2d, conv_ws_2d
+from .dall_e import Decoder, Encoder
 from .drop import DropPath
 from .inverted_residual import InvertedResidual
 from .make_divisible import make_divisible
@@ -18,7 +19,7 @@ from .transformer import CAETransformerRegressorLayer
 from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 
 __all__ = [
-    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual', 'make_divisible',
+    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual', 'make_divisible',
     'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
     'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
     'CrossMultiheadAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',

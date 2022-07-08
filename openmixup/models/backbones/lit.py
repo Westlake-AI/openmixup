@@ -514,18 +514,20 @@ class LIT(BaseBackbone):
             for k, m in self.named_modules():
                 if isinstance(m, (nn.Conv2d)):
                     if "offset" in k:  # skip `conv_offset` in DConv
-                        continue
-                    fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                    fan_out //= m.groups
-                    m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
-                    if m.bias is not None:
-                        m.bias.data.zero_()
-                elif isinstance(m, (nn.Linear)):
-                    if not self.is_init:
+                        if self.init_cfg is not None:
+                            m.weight.data.zero_()
+                    elif self.init_cfg is not None:
+                        fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                        fan_out //= m.groups
+                        m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
+                        if m.bias is not None:
+                            m.bias.data.zero_()
+                if self.init_cfg is None:
+                    if isinstance(m, (nn.Linear)):
                         trunc_normal_init(m, mean=0., std=0.02, bias=0)
-                elif isinstance(m, (
-                    nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
-                    constant_init(m, val=1, bias=0)
+                    elif isinstance(m, (
+                        nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                        constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):
         for i in range(0, self.frozen_stages + 1):

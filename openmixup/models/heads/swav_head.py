@@ -5,12 +5,13 @@ import torch.distributed as dist
 import torch.nn as nn
 
 from mmcv.cnn import normal_init
+from mmcv.runner import BaseModule
 
 from openmixup.third_party import distributed_sinkhorn
 from ..registry import HEADS
 
 
-class MultiPrototypes(nn.Module):
+class MultiPrototypes(BaseModule):
     """Multi-prototypes for SwAV head.
 
     Args:
@@ -18,8 +19,8 @@ class MultiPrototypes(nn.Module):
         num_prototypes (list[int]): The number of prototypes needed.
     """
 
-    def __init__(self, output_dim, num_prototypes):
-        super(MultiPrototypes, self).__init__()
+    def __init__(self, output_dim, num_prototypes, init_cfg=None):
+        super(MultiPrototypes, self).__init__(init_cfg)
         assert isinstance(num_prototypes, list)
         self.num_heads = len(num_prototypes)
         for i, k in enumerate(num_prototypes):
@@ -34,7 +35,7 @@ class MultiPrototypes(nn.Module):
 
 
 @HEADS.register_module()
-class SwAVHead(nn.Module):
+class SwAVHead(BaseModule):
     """The head for SwAV.
 
     This head contains clustering and sinkhorn algorithms to compute Q codes.
@@ -66,8 +67,9 @@ class SwAVHead(nn.Module):
                  crops_for_assign=[0, 1],
                  num_crops=[2],
                  num_prototypes=3000,
+                 init_cfg=None,
                  **kwargs):
-        super(SwAVHead, self).__init__()
+        super(SwAVHead, self).__init__(init_cfg)
         self.sinkhorn_iterations = sinkhorn_iterations
         self.epsilon = epsilon
         self.temperature = temperature
@@ -86,8 +88,11 @@ class SwAVHead(nn.Module):
         assert self.prototypes is not None
 
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
-        if init_linear == 'normal':
-            normal_init(self.prototypes, std=std, bias=bias)
+        if self.init_cfg is not None:
+            super(SwAVHead, self).init_weights()
+        else:
+            if init_linear == 'normal':
+                normal_init(self.prototypes, std=std, bias=bias)
 
     def forward(self, x):
         """Forward head of swav to compute the loss.

@@ -1,5 +1,6 @@
 import os
 from PIL import Image
+import mmcv
 
 from ..registry import DATASOURCES
 
@@ -19,6 +20,7 @@ class ImageList(object):
                  root,
                  list_file,
                  splitor=" ",
+                 backend='pillow',
                  return_label=True):
         with open(list_file, 'r') as fp:
             lines = fp.readlines()
@@ -34,13 +36,20 @@ class ImageList(object):
             self.labels = None
             self.fns = [l.strip() for l in lines]
         self.fns = [os.path.join(root, fn) for fn in self.fns]
+        self.backend = backend
+        if self.backend == 'cv2':
+            self.file_client = mmcv.FileClient(backend='disk')
 
     def get_length(self):
         return len(self.fns)
 
     def get_sample(self, idx):
-        img = Image.open(self.fns[idx])
-        img = img.convert('RGB')
+        if self.backend == 'pillow':
+            img = Image.open(self.fns[idx])
+            img = img.convert('RGB')
+        else:
+            img_bytes = self.file_client.get(self.fns[idx])
+            img = mmcv.imfrombytes(img_bytes, flag='color')
         if self.has_labels and self.return_label:
             target = self.labels[idx]
             return img, target

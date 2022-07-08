@@ -1,7 +1,8 @@
-
 # OpenMixup
 
 **News**
+
+* OpenMixup v0.2.4 is released, which fixs bugs [#7](https://github.com/Westlake-AI/openmixup/issues/7), e.g., weight initialization, fine-tuning.
 * OpenMixup v0.2.3 is released, which supports new self-supervised and mixup methods (e.g., [A2MIM](https://arxiv.org/abs/2205.13943)) and backbones (e.g., [UniFormer](https://arxiv.org/abs/2201.09450)), update the [online document](https://westlake-ai.github.io/openmixup/) and config files, and adds new features as [#6](https://github.com/Westlake-AI/openmixup/issues/6).
 * OpenMixup v0.2.2 is released, which supports new self-supervised methods ([BarlowTwins](https://arxiv.org/abs/2103.03230), [SimMIM](https://arxiv.org/abs/2111.09886), etc.), backbones ([ConvMixer](https://arxiv.org/pdf/2201.09792.pdf), [MLPMixer](https://arxiv.org/pdf/2105.01601.pdf), [VAN](https://arxiv.org/pdf/2202.09741v2.pdf), etc.), and losses as [#5](https://github.com/Westlake-AI/openmixup/issues/5).
 * OpenMixup v0.2.1 is released, which supports new methods as [#4](https://github.com/Westlake-AI/openmixup/issues/4) (bugs fixed).
@@ -27,9 +28,9 @@ This repo will be continued to update to support more self-supervised and mixup 
 
 Please refer to [Change Log](docs/en/changelog.md) for details and release history.
 
-[2020-06-13] `OpenMixup` v0.2.3 is released.
+[2020-07-07] `OpenMixup` v0.2.4 is released.
 
-[2020-05-24] `OpenMixup` v0.2.2 is released.
+[2020-06-13] `OpenMixup` v0.2.3 is released.
 
 ## Installation
 
@@ -42,7 +43,7 @@ Then, see [tutorials](docs/en/tutorials) for more tech details (based on MMClass
 
 ## Benchmark and Model Zoo
 
-[Model Zoos](docs/en/model_zoos) and lists of [Awesome Mixups](docs/en/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon! 
+[Model Zoos](docs/en/model_zoos) and lists of [Awesome Mixups](docs/en/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon!
 
 ## License
 

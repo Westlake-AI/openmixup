@@ -156,6 +156,7 @@ class RandAugment(object):
                  magnitude_level,
                  magnitude_std=0.,
                  total_level=30,
+                 use_numpy=False,
                  hparams=_HPARAMS_DEFAULT):
         assert isinstance(num_policies, int), 'Number of policies must be ' \
             f'of int type, got {type(num_policies)} instead.'
@@ -184,6 +185,7 @@ class RandAugment(object):
         self.magnitude_std = magnitude_std
         self.total_level = total_level
         self.hparams = hparams
+        self.use_numpy = use_numpy
         policies = copy.deepcopy(policies)
         self._check_policies(policies)
         self.policies = [merge_hparams(policy, hparams) for policy in policies]
@@ -233,8 +235,12 @@ class RandAugment(object):
         sub_policy = random.choices(self.policies, k=self.num_policies)
         sub_policy = self._process_policies(sub_policy)
         sub_policy = BuildCompose(sub_policy)
-        img = sub_policy(np.array(img))
-        return Image.fromarray(img.astype(np.uint8))
+        if self.use_numpy:
+            img = sub_policy(img)
+            return img
+        else:
+            img = sub_policy(np.array(img))
+            return Image.fromarray(img.astype(np.uint8))
 
     def __repr__(self):
         repr_str = self.__class__.__name__

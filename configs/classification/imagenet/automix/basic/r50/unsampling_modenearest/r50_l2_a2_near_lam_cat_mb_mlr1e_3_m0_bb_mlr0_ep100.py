@@ -69,7 +69,7 @@ optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                     'mix_block': dict(lr=0.1, momentum=0.)},)  # required parawise_option
 # apex
 use_fp16 = False
-optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

@@ -21,27 +21,23 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='SwinTransformer',
-        arch='tiny',
-        img_size=224, drop_path_rate=0.2,
+        type='TIMMBackbone',
+        model_name='swin_tiny_patch4_window7_224',
+        features_only=True,  # remove head in timm
+        pretrained=False,
+        checkpoint_path=None,
+        in_channels=3,
     ),
     head=dict(
         type='ClsMixupHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        with_avg_pool=True, in_channels=768, num_classes=1000)
+        with_avg_pool=False,  # no gap in ViT
+        in_channels=768, num_classes=1000)
 )
 
 # additional hooks
 update_interval = 1  # interval for accumulate gradient
-custom_hooks = [
-    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
-        momentum=0.99996,
-        warmup='linear',
-        warmup_iters=20 * 2503, warmup_ratio=0.9,  # warmup 20 epochs.
-        update_interval=update_interval,
-    ),
-]
 
 # optimizer
 optimizer = dict(
@@ -51,17 +47,14 @@ optimizer = dict(
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'cls_token': dict(weight_decay=0.),
-        'pos_embed': dict(weight_decay=0.),
+        'relative_position_bias_table': dict(weight_decay=0.),
+        'absolute_pos_embed': dict(weight_decay=0.),
     })
 # apex
-use_fp16 = True
-# Notice: official ViT (DeiT or Swim) settings don't apply use_fp16=True. This repo use
-#   use_fp16=True for fast training and better performances (around +0.1%).
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+use_fp16 = False
+fp16 = dict(type='apex', loss_scale='dynamic')
 optimizer_config = dict(
-    grad_clip=dict(max_norm=5.0),  # DeiT and Swim repos suggest max_norm=5.0
-    update_interval=update_interval, use_fp16=use_fp16)
+    grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # lr scheduler: Swim for DeiT
 lr_config = dict(

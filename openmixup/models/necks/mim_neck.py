@@ -52,8 +52,9 @@ class MAEPretrainDecoder(BaseModule):
                  decoder_depth=8,
                  decoder_num_heads=16,
                  mlp_ratio=4.,
-                 norm_cfg=dict(type='LN', eps=1e-6)):
-        super(MAEPretrainDecoder, self).__init__()
+                 norm_cfg=dict(type='LN', eps=1e-6),
+                 init_cfg=None):
+        super(MAEPretrainDecoder, self).__init__(init_cfg)
         self.num_patches = num_patches
         self.decoder_embed = nn.Linear(embed_dim, decoder_embed_dim, bias=True)
 
@@ -79,6 +80,9 @@ class MAEPretrainDecoder(BaseModule):
             decoder_embed_dim, patch_size**2 * in_chans, bias=True)
 
     def init_weights(self):
+        if self.init_cfg is not None:
+            super(MAEPretrainDecoder, self).init_weights()
+            return
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 trunc_normal_init(m, std=0.02, bias=0)
@@ -140,8 +144,8 @@ class SimMIMNeck(BaseModule):
         encoder_stride (int): The total stride of the encoder.
     """
 
-    def __init__(self, in_channels=128, encoder_stride=32):
-        super(SimMIMNeck, self).__init__()
+    def __init__(self, in_channels=128, encoder_stride=32, init_cfg=None):
+        super(SimMIMNeck, self).__init__(init_cfg)
         self.decoder = nn.Sequential(
             nn.Conv2d(
                 in_channels=in_channels,
@@ -185,8 +189,8 @@ class NonLinearMIMNeck(BaseModule):
                  encoder_stride=32,
                  decoder_cfg=None,
                  act_cfg=None,
-                ):
-        super(NonLinearMIMNeck, self).__init__()
+                 init_cfg=None):
+        super(NonLinearMIMNeck, self).__init__(init_cfg)
         assert decoder_cfg is None or isinstance(decoder_cfg, dict)
         assert act_cfg is None or isinstance(act_cfg, dict)
         self.decoder = builder.build_neck(decoder_cfg) \
@@ -205,6 +209,9 @@ class NonLinearMIMNeck(BaseModule):
         )
 
     def init_weights(self):
+        if self.init_cfg is not None:
+            super(NonLinearMIMNeck, self).init_weights()
+            return
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.Linear)):
                 trunc_normal_init(m, std=0.02, bias=0)

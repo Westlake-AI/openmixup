@@ -251,6 +251,8 @@ class MlpMixer(BaseBackbone):
         super(MlpMixer, self).init_weights(pretrained)
 
         if pretrained is None:
+            if self.init_cfg is not None:
+                return
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
                     trunc_normal_init(m, mean=0., std=0.02, bias=0)

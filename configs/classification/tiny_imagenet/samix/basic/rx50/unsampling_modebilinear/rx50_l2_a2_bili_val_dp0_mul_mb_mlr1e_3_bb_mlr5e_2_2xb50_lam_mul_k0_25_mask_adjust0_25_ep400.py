@@ -79,9 +79,9 @@ optimizer = dict(type='SGD', lr=0.2, momentum=0.9, weight_decay=0.0001,
             paramwise_options={'mix_block': dict(lr=0.1)})  # required parawise_option
 # fp16
 use_fp16 = False
-fp16 = dict(type='mmcv', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=use_fp16, grad_clip=None)
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # learning policy
 lr_config = dict(

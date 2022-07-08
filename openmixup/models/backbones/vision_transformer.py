@@ -378,15 +378,13 @@ class VisionTransformer(BaseBackbone):
 
         if pretrained is None:
             if self.arch != "mocov3":  # normal ViT
-                for m in self.modules():
-                    if isinstance(m, (nn.Linear)):
-                        if not self.is_init:
+                if self.init_cfg is None:
+                    for m in self.modules():
+                        if isinstance(m, (nn.Linear)):
                             trunc_normal_init(m, std=0.02, bias=0)
-                    elif isinstance(m, (nn.Conv2d)):
-                        trunc_normal_init(m, std=0.02, bias=0)
-                    elif isinstance(m, (
-                        nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                        constant_init(m, val=1, bias=0)
+                        elif isinstance(m, (
+                            nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                            constant_init(m, val=1, bias=0)
                 # ViT pos_embed & cls_token
                 nn.init.trunc_normal_(self.pos_embed, mean=0, std=.02)
                 nn.init.trunc_normal_(self.cls_token, mean=0, std=.02)

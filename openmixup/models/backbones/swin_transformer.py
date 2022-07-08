@@ -407,15 +407,13 @@ class SwinTransformer(BaseBackbone):
         super(SwinTransformer, self).init_weights(pretrained)
 
         if pretrained is None:
-            for m in self.modules():
-                if isinstance(m, (nn.Conv2d)):
-                    lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')
-                elif isinstance(m, (nn.Linear)):
-                    if not self.is_init:
-                        trunc_normal_init(m, mean=0., std=0.02, bias=0)
-                elif isinstance(m, (
-                    nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                    constant_init(m, val=1, bias=0)
+            if self.init_cfg is None:
+                for m in self.modules():
+                    if isinstance(m, (nn.Linear)):
+                        trunc_normal_init(m, std=0.02)
+                    elif isinstance(m, (
+                        nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                        constant_init(m, val=1, bias=0)
             # pos_embed & cls_token
             if self.use_abs_pos_embed:
                 trunc_normal_(self.absolute_pos_embed, std=0.02)

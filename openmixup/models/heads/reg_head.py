@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import build_activation_layer, kaiming_init, normal_init
+from mmcv.runner import BaseModule
 
 from ..utils import regression_error, trunc_normal_init
 from ..registry import HEADS
@@ -8,7 +9,7 @@ from ..builder import build_loss
 
 
 @HEADS.register_module
-class RegHead(nn.Module):
+class RegHead(BaseModule):
     r"""Simplest regression head, with only one fc layer.
     
     Args:
@@ -26,7 +27,8 @@ class RegHead(nn.Module):
                  in_channels=2048,
                  out_channels=1,
                  act_cfg=None,
-                 frozen=False):
+                 frozen=False,
+                 init_cfg=None):
         super(RegHead, self).__init__()
         self.with_avg_pool = with_avg_pool
         self.in_channels = in_channels
@@ -61,6 +63,9 @@ class RegHead(nn.Module):
             param.requires_grad = False
 
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
+        if self.init_cfg is not None:
+            super(RegHead, self).init_weights()
+            return
         assert init_linear in ['normal', 'kaiming', 'trunc_normal'], \
             "Undefined init_linear: {}".format(init_linear)
         for m in self.modules():

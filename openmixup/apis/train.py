@@ -88,14 +88,14 @@ def train_model(model,
             cfg.data.imgs_per_gpu,
             cfg.data.workers_per_gpu,
             # `num_gpus` will be ignored if distributed
-            num_gpus=cfg.gpus,
+            num_gpus=len(cfg.gpu_ids),
             dist=distributed,
             sampler=getattr(cfg, 'sampler', 'DistributedSampler'),
             shuffle=True,
             replace=getattr(cfg.data, 'sampling_replace', False),
             seed=cfg.seed,
             drop_last=getattr(cfg.data, 'drop_last', False),
-            prefetch=cfg.prefetch,
+            prefetch=getattr(cfg, 'prefetch', False),
             persistent_workers=getattr(cfg, 'persistent_workers', True),
             img_norm_cfg=cfg.img_norm_cfg) for ds in dataset
     ]
@@ -104,29 +104,7 @@ def train_model(model,
     if cfg.get('addtional_scheduler', None) is not None:
         param_names = dict(model.named_parameters()).keys()
         assert isinstance(cfg.optimizer.get('paramwise_options', False), dict)
-    
-    # build optimizer
-    optimizer = build_optimizer(model, cfg.optimizer)
 
-    # fp16 and optimizer
-    if distributed:
-        optimizer_config = DistOptimizerHook(**cfg.optimizer_config)
-        if cfg.get('use_fp16', False):
-            # fp16 settings
-            fp16_cfg = cfg.get('fp16', dict(type=None))
-            fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)
-            fp16_cfg['loss_scale'] = fp16_cfg.get(
-                'loss_scale', dict(init_scale=512., mode='dynamic'))
-            if fp16_cfg['type'] == 'apex':
-                model, optimizer = apex.amp.initialize(model.cuda(), optimizer, opt_level="O1")
-                print_log('**** Initializing mixed precision apex done. ****')
-            elif fp16_cfg['type'] == 'mmcv':
-                optimizer_config = Fp16OptimizerHook(
-                    **cfg.optimizer_config, **fp16_cfg, distributed=True)
-                print_log('**** Initializing mixed precision mmcv done. ****')
-    else:
-        optimizer_config = cfg.optimizer_config
-    
     # put model on gpus
     if distributed:
         find_unused_parameters = cfg.get('find_unused_parameters', False)
@@ -138,7 +116,30 @@ def train_model(model,
             broadcast_buffers=False,
             find_unused_parameters=find_unused_parameters)
     else:
-        model = MMDataParallel(model, device_ids=range(cfg.gpus)).cuda()
+        model = MMDataParallel(model, device_ids=cfg.gpu_ids).cuda()
+
+    # build optimizer
+    optimizer = build_optimizer(model, cfg.optimizer)
+
+    # fp16 and optimizer
+    if distributed:
+        if cfg.get('use_fp16', False):
+            # fp16 settings
+            fp16_cfg = cfg.get('fp16', dict(type='apex'))
+            fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)
+            if fp16_cfg['type'] == 'apex':
+                model, optimizer = apex.amp.initialize(model, optimizer, opt_level="O1")
+                optimizer_config = DistOptimizerHook(**cfg.optimizer_config, use_fp16=True)
+                print_log('**** Initializing mixed precision apex done. ****')
+            elif fp16_cfg['type'] == 'mmcv':
+                loss_scale = fp16_cfg.get('loss_scale', 'dynamic')
+                optimizer_config = Fp16OptimizerHook(
+                    **cfg.optimizer_config, loss_scale=loss_scale, distributed=True)
+                print_log('**** Initializing mixed precision mmcv done. ****')
+        else:
+            optimizer_config = DistOptimizerHook(**cfg.optimizer_config, use_fp16=False)
+    else:
+        optimizer_config = cfg.optimizer_config
 
     # build runner
     runner = build_runner(
@@ -149,7 +150,7 @@ def train_model(model,
             work_dir=cfg.work_dir,
             logger=logger,
             meta=meta))
-    
+
     # an ugly walkaround to make the .log and .log.json filenames the same
     runner.timestamp = timestamp
 
@@ -158,13 +159,16 @@ def train_model(model,
         if hook.type == "EMAHook":
             common_params = dict(dist_mode=True)
             runner.register_hook(build_hook(hook, common_params), priority='NORMAL')
-    
+
     # register basic hooks
-    runner.register_training_hooks(cfg.lr_config, optimizer_config,
-                                   cfg.checkpoint_config, cfg.log_config)
+    runner.register_training_hooks(cfg.lr_config,
+                                   optimizer_config,
+                                   cfg.checkpoint_config,
+                                   cfg.log_config,
+                                   cfg.get('momentum_config', None))
     if distributed:
         runner.register_hook(DistSamplerSeedHook())
-    
+
     # register custom hooks
     for hook in cfg.get('custom_hooks', list()):
         common_params = dict(dist_mode=distributed)
@@ -172,7 +176,9 @@ def train_model(model,
             common_params = dict(dist_mode=distributed, data_loaders=data_loaders)
         elif hook.type == "EMAHook":
             continue
-        runner.register_hook(build_hook(hook, common_params), priority='NORMAL')
+        hook_cfg = hook_cfg.copy()
+        priority = hook_cfg.pop('priority', 'NORMAL')
+        runner.register_hook(build_hook(hook, common_params), priority=priority)
     # register custom optional_scheduler hook
     if cfg.get('addtional_scheduler', None) is not None:
         runner.register_hook(
@@ -203,7 +209,7 @@ def train_model(model,
         resume_from = find_latest_checkpoint(cfg.work_dir)
     if resume_from is not None:
         cfg.resume_from = resume_from
-    
+
     if cfg.resume_from:
         runner.resume(cfg.resume_from)
     elif cfg.load_from:

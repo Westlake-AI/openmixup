@@ -1,7 +1,7 @@
 import warnings
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from mmcv.cnn import initialize
+from mmcv.runner import BaseModule
 
 import torch
 import torch.nn as nn
@@ -11,27 +11,20 @@ from openmixup.models.utils import Sobel
 from openmixup.utils import auto_fp16
 
 
-class BaseModel(nn.Module, metaclass=ABCMeta):
+class BaseModel(BaseModule, metaclass=ABCMeta):
     """Base model class for supervised, semi- and self-supervised learning."""
 
     def __init__(self,
                  init_cfg=None,
                  with_sobel=False,
                  **kwargs):
-        super(BaseModel, self).__init__()
+        super(BaseModel, self).__init__(init_cfg)
         self.fp16_enabled = False
-        self._is_init = False
-        if init_cfg is not None:
-            self.init_cfg = init_cfg
         self.backbone = nn.Identity()
         self.neck = None
         self.head = nn.Identity()
         self.with_sobel = with_sobel
         self.sobel_layer = Sobel() if with_sobel else nn.Identity()
-
-    @property
-    def is_init(self):
-        return self._is_init
 
     @property
     def with_neck(self):
@@ -44,12 +37,7 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
     def init_weights(self, pretrained=None):
         """Initialize the weights."""
         if not self._is_init:
-            if hasattr(self, 'init_cfg'):
-                initialize(self, self.init_cfg)
-                self._is_init = True
-            for module in self.children():
-                if 'init_weights' in dir(module):
-                    module.init_weights()
+            super(BaseModel, self).init_weights()
         else:
             warnings.warn('This module has bee initialized, \
                 please call initialize(module, init_cfg) to reinitialize it')
@@ -216,7 +204,10 @@ class BaseModel(nn.Module, metaclass=ABCMeta):
         losses = self(**data)
         loss, log_vars = self._parse_losses(losses)
 
-        outputs = dict(
-            loss=loss, log_vars=log_vars, num_samples=len(data['img'].data))
+        if isinstance(data['img'], list):
+            num_samples = len(data['img'][0].data)
+        else:
+            num_samples = len(data['img'].data)
+        outputs = dict(loss=loss, log_vars=log_vars, num_samples=num_samples)
 
         return outputs

@@ -9,14 +9,6 @@ data = dict(imgs_per_gpu=64, workers_per_gpu=6)
 
 # additional hooks
 update_interval = 2  # 64 x 8gpus x 2 accumulates = bs1024
-custom_hooks = [
-    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
-        momentum=0.99996,
-        warmup='linear',
-        warmup_iters=20 * 1252, warmup_ratio=0.9,  # 20 ep
-        update_interval=update_interval,
-    ),
-]
 
 # optimizer
 optimizer = dict(
@@ -31,10 +23,9 @@ optimizer = dict(
     })
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
-    grad_clip=dict(max_norm=5.0),
-    update_interval=update_interval, use_fp16=use_fp16)
+    grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(
@@ -42,7 +33,7 @@ lr_config = dict(
     by_epoch=False, min_lr=1e-5,
     warmup='linear',
     warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
-    warmup_ratio=1e-5,
+    warmup_ratio=1e-6,
 )
 
 # runtime settings

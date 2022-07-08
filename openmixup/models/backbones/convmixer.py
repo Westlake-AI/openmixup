@@ -165,6 +165,8 @@ class ConvMixer(BaseBackbone):
         super(ConvMixer, self).init_weights(pretrained)
 
         if pretrained is None:
+            if self.init_cfg is not None:
+                return
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
                     lecun_normal_init(m, mode='fan_in', distribution='truncated_normal')

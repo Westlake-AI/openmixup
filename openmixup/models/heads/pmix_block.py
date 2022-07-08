@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import build_norm_layer, constant_init, kaiming_init, normal_init, \
     ConvModule, NonLocal2d
+from mmcv.runner import BaseModule
 
 from openmixup.utils import force_fp32, print_log
 from ..registry import HEADS
@@ -13,7 +14,7 @@ from .. import builder
 
 
 @HEADS.register_module
-class PixelMixBlock(nn.Module):
+class PixelMixBlock(BaseModule):
     """Pixel-wise MixBlock.
 
     Official implementation of
@@ -102,8 +103,9 @@ class PixelMixBlock(nn.Module):
             mask_loss_margin=0,
             mask_mode="none",
             frozen=False,
+            init_cfg=None,
             **kwargs):
-        super(PixelMixBlock, self).__init__()
+        super(PixelMixBlock, self).__init__(init_cfg)
         # non-local args
         self.in_channels = int(in_channels)
         self.reduction = int(reduction)
@@ -218,6 +220,9 @@ class PixelMixBlock(nn.Module):
             self._freeze()
 
     def init_weights(self, init_linear='normal', std=0.01, bias=0.):
+        if self.init_cfg is not None:
+            super(PixelMixBlock, self).init_weights()
+            return
         assert init_linear in ['normal', 'kaiming'], \
             "Undefined init_linear: {}".format(init_linear)
         # init mixblock

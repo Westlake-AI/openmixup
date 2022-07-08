@@ -1,12 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from mmcv.runner import BaseModule
 
 from ..registry import HEADS
 
 
 @HEADS.register_module
-class ContrastiveHead(nn.Module):
+class ContrastiveHead(BaseModule):
     r"""Head for contrastive learning.
 
     Implementation of infoNCE loss based on "A Simple Framework for
@@ -43,7 +44,7 @@ class ContrastiveHead(nn.Module):
 
 
 @HEADS.register_module
-class HCRHead(nn.Module):
+class HCRHead(BaseModule):
     r"""Head for contrastive learning.
 
     Implementation of infoNCE loss based on "Hyperspherical

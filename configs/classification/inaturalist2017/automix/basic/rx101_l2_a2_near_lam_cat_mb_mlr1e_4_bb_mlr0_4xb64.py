@@ -68,7 +68,7 @@ optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
                     'mix_block': dict(lr=0.1, momentum=0.9)},)  # required parawise_option
 # optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=False, grad_clip=None)
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

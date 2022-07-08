@@ -402,6 +402,8 @@ class VAN(BaseBackbone):
         super(VAN, self).init_weights(pretrained)
         
         if pretrained is None:
+            if self.init_cfg is not None:
+                return
             for m in self.modules():
                 if isinstance(m, (nn.Conv2d)):
                     fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels

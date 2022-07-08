@@ -634,10 +634,11 @@ class UniFormer(BaseBackbone):
         super(UniFormer, self).init_weights(pretrained)
 
         if pretrained is None:
+            if self.init_cfg is not None:
+                return
             for m in self.modules():
                 if isinstance(m, nn.Linear):
-                    if not self.is_init:
-                        trunc_normal_init(m, std=0.02, bias=0)
+                    trunc_normal_init(m, std=0.02, bias=0)
                 elif isinstance(m, (
                     nn.LayerNorm, nn.BatchNorm2d, nn.SyncBatchNorm)):
                     constant_init(m, val=1, bias=0)

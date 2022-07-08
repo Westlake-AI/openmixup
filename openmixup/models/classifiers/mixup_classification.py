@@ -86,11 +86,15 @@ class MixUpClassification(BaseModel):
 
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
+        self.dynamic_mode = {
+            "attentivemix": attentivemix, "puzzlemix": puzzlemix,
+            "automix": self._mixblock, "samix": self._mixblock}
+        self.static_mode = {
+            "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "manifoldmix": self._manifoldmix,
+            "saliencymix": saliencymix, "smoothmix": smoothmix, "resizemix": resizemix,
+        }
         for _mode in self.mix_mode:
-            assert _mode in [
-                "vanilla", "mixup", "manifoldmix",
-                "cutmix", "fmix", "saliencymix", "smoothmix", "resizemix",
-                "attentivemix", "automix", "puzzlemix", "samix",]
+            assert _mode in ["vanilla"] + list(self.dynamic_mode.keys()) + list(self.static_mode.keys())
             if _mode == "manifoldmix":
                 assert 0 <= min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
             if _mode == "resizemix":
@@ -103,8 +107,6 @@ class MixUpClassification(BaseModel):
         if self.mix_prob is not None:
             assert len(self.mix_prob) == len(self.alpha) and abs(sum(self.mix_prob)-1e-10) <= 1, \
                 "mix_prob={}, sum={}, alpha={}".format(self.mix_prob, sum(self.mix_prob), self.alpha)
-            for i in range(1, len(self.mix_prob)):
-                self.mix_prob[i] = self.mix_prob[i] + self.mix_prob[i-1]
         self.mix_repeat = int(mix_repeat) if int(mix_repeat) > 1 else 1
         if self.mix_repeat > 1:
             print_log("Warning: mix_repeat={} is more than once.".format(self.mix_repeat))
@@ -124,6 +126,9 @@ class MixUpClassification(BaseModel):
             pretrained_k (str, optional): Path to pre-trained weights for encoder_k.
                 Default: None.
         """
+        if self.init_cfg is not None:
+            super(MixUpClassification, self).init_weights()
+            return
         # init pre-trained params
         if pretrained_k is not None:
             print_log('load pre-training from: {}'.format(pretrained_k), logger='root')
@@ -228,15 +233,11 @@ class MixUpClassification(BaseModel):
                 candidate_list.remove(int(remove_idx))
             cur_idx = random.choices(candidate_list, k=1)[0]
         else:
-            rand_n = random.random()
-            for i in range(len(self.idx_list)):
-                if self.mix_prob[i] > rand_n:
-                    cur_idx = self.idx_list[i]
-                    if cur_idx == remove_idx:  # randomly choose one among the rest
-                        candidate_list = self.idx_list.copy()
-                        candidate_list.remove(int(remove_idx))
-                        cur_idx = random.choices(candidate_list, k=1)[0]
-                    break
+            candidate_list = self.idx_list.copy()
+            if 0 <= remove_idx <= len(self.idx_list):
+                candidate_list.remove(int(remove_idx))
+            random_state = np.random.RandomState(random.randint(0, 2**32 - 1))
+            cur_idx = random_state.choice(candidate_list, p=self.mix_prob)
         cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
         
         # applying dynamic methods
@@ -246,7 +247,7 @@ class MixUpClassification(BaseModel):
                     img, gt_label=gt_label, cur_mode=cur_mode, **self.mix_args[cur_mode])
                 mix_args = dict(alpha=cur_alpha, dist_mode=False,
                                 features=features, **self.mix_args[cur_mode])
-                img, gt_label = eval(cur_mode)(img, gt_label, **mix_args)
+                img, gt_label = self.dynamic_mode[cur_mode](img, gt_label, **mix_args)
             elif cur_mode in ["automix", "samix"]:
                 img = self._mixblock()
                 raise NotImplementedError
@@ -254,10 +255,10 @@ class MixUpClassification(BaseModel):
         # hand-crafted methods
         elif cur_mode not in ["manifoldmix",]:
             if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
-                img, gt_label = eval(cur_mode)(img, gt_label, cur_alpha, dist_mode=False)
+                img, gt_label = self.static_mode[cur_mode](img, gt_label, cur_alpha, dist_mode=False)
             elif cur_mode in ["resizemix", "fmix"]:
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
-                img, gt_label = eval(cur_mode)(img, gt_label, **mix_args)
+                img, gt_label = self.static_mode[cur_mode](img, gt_label, **mix_args)
             else:
                 assert cur_mode == "vanilla"
             x = self.backbone(img)
@@ -303,7 +304,7 @@ class MixUpClassification(BaseModel):
         # repeat mixup aug within a mini-batch
         losses = dict()
         remove_idx = -1
-        for i in range(int(self.mix_repeat)):
+        for i in range(self.mix_repeat):
             # Notice: cutmix related methods need 'inplace operation' on Variable img,
             #   thus we use 'img.clone()' for each iteration.
             if i == 0:

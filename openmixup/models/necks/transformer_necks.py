@@ -74,6 +74,9 @@ class TransformerNeck(BaseModule):
         self.add_module(self.norm1_name, norm1)
 
     def init_weights(self):
+        if self.init_cfg is not None:
+            super(TransformerNeck, self).init_weights()
+            return
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 trunc_normal_init(m, std=0.02, bias=0)

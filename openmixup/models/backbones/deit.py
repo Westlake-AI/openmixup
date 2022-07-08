@@ -47,13 +47,13 @@ class DistilledVisionTransformer(VisionTransformer):
         super(DistilledVisionTransformer, self).init_weights(pretrained)
 
         if pretrained is None:
-            for m in self.modules():
-                if isinstance(m, (nn.Conv2d, nn.Linear)):
-                    if not self.is_init:
+            if self.init_cfg is None:
+                for m in self.modules():
+                    if isinstance(m, (nn.Linear)):
                         trunc_normal_init(m, mean=0., std=0.02, bias=0)
-                elif isinstance(m, (
-                    nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
-                    constant_init(m, val=1, bias=0)
+                    elif isinstance(m, (
+                        nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+                        constant_init(m, val=1, bias=0)
             # ViT pos_embed & cls_token
             trunc_normal_init(self.pos_embed, mean=0., std=0.02)
             trunc_normal_init(self.cls_token, mean=0., std=0.02)

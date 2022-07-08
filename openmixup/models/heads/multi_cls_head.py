@@ -1,5 +1,6 @@
 import torch.nn as nn
 from mmcv.cnn import build_norm_layer
+from mmcv.runner import BaseModule
 
 from ..utils import accuracy
 from ..registry import HEADS
@@ -7,7 +8,7 @@ from ..utils import MultiPooling
 
 
 @HEADS.register_module
-class MultiClsHead(nn.Module):
+class MultiClsHead(BaseModule):
     """Multiple classifier heads.
 
     This head inputs feature maps from different stages of backbone, average
@@ -40,8 +41,12 @@ class MultiClsHead(nn.Module):
                  with_last_layer_unpool=False,
                  backbone='resnet50',
                  norm_cfg=dict(type='BN'),
-                 num_classes=1000):
-        super(MultiClsHead, self).__init__()
+                 num_classes=1000,
+                 init_cfg=[
+                    dict(type='Normal', std=0.01, layer='Linear'),
+                    dict(type='Constant', val=1, layer=['_BatchNorm', 'GroupNorm'])
+                 ]):
+        super(MultiClsHead, self).__init__(init_cfg)
         assert norm_cfg['type'] in ['BN', 'SyncBN', 'GN', 'null']
 
         self.with_last_layer_unpool = with_last_layer_unpool
@@ -66,6 +71,9 @@ class MultiClsHead(nn.Module):
                 nn.Linear(self.FEAT_LAST_UNPOOL[backbone], num_classes))
 
     def init_weights(self):
+        if self.init_cfg is not None:
+            super(MultiClsHead, self).init_weights()
+            return
         for m in self.modules():
             if isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, 0, 0.01)

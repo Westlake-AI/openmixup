@@ -1,14 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.distributed as dist
-from mmcv.runner import get_dist_info
+from mmcv.runner import BaseModule, get_dist_info
 from openmixup.utils import AliasMethod
 
 from ..registry import MEMORIES
 
 
 @MEMORIES.register_module
-class SimpleMemory(nn.Module):
+class SimpleMemory(BaseModule):
     """Simple memory bank for NPID.
 
     Args:

@@ -62,8 +62,9 @@ optimizer = dict(
 
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
-optimizer_config = dict(grad_clip=None, update_interval=update_interval, use_fp16=use_fp16)
+fp16 = dict(type='apex', loss_scale='dynamic')
+optimizer_config = dict(
+    grad_clip=None, update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(

@@ -18,9 +18,9 @@ optimizer = dict(
 
 # apex
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='apex', loss_scale='dynamic')
 # optimizer args
-optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16, grad_clip=None)
+optimizer_config = dict(update_interval=update_interval, grad_clip=None)
 
 # additional lr scheduler (parawise_options required in optimizer)
 addtional_scheduler = dict(

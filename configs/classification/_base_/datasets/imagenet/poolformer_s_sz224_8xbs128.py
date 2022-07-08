@@ -44,7 +44,8 @@ train_pipeline = [
         type='RandomErasing_numpy',  # before ToTensor and Normalize
         erase_prob=0.25,
         mode='rand', min_area_ratio=0.02, max_area_ratio=1 / 3,
-        fill_color=[104, 116, 124], fill_std=[58, 57, 57]),  # RGB
+        fill_color=[104, 116, 124],
+        fill_std=[58, 57, 58]),
 ]
 test_pipeline = [
     dict(type='Resize', size=248, interpolation=3),  # 0.90

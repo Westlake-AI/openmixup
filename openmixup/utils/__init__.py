@@ -9,7 +9,6 @@ from .flops_counter import get_model_complexity_info
 from .logger import get_root_logger, print_log, load_json_log
 from .misc import find_latest_checkpoint, multi_apply, tensor2imgs, unmap
 from .registry import Registry, build_from_cfg
-from .optimizers import LARS, LAMB
 from .setup_env import setup_multi_processes
 
 
@@ -21,5 +20,4 @@ __all__ = [
     'get_model_complexity_info', 'get_root_logger', 'print_log', 'load_json_log',
     'find_latest_checkpoint', 'multi_apply', 'tensor2imgs', 'unmap',
     'Registry', 'build_from_cfg', 'setup_multi_processes',
-    'LARS', 'LAMB',
 ]

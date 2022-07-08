@@ -130,6 +130,7 @@ benchmarks/detection/datasets
 benchmarks/detection/output
 
 # temp ignore path during updating:
+configs_EXP
 configs/classification/imagenet100
 configs/classification_IP89
 configs/selfsup_IP89

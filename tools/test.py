@@ -48,6 +48,12 @@ def parse_args():
         choices=['none', 'pytorch', 'slurm', 'mpi'],
         default='none',
         help='job launcher')
+    parser.add_argument(
+        '--gpu-id',
+        type=int,
+        default=0,
+        help='id of gpu to use '
+        '(only applicable to non-distributed testing)')
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--port', type=int, default=29500,
         help='port only works when launcher=="slurm"')
@@ -74,16 +80,23 @@ def main():
     cfg = mmcv.Config.fromfile(args.config)
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
-    
+
     # set multi-process settings
     setup_multi_processes(cfg)
 
     # set cudnn_benchmark
     if cfg.get('cudnn_benchmark', False):
         torch.backends.cudnn.benchmark = True
-    # update configs according to CLI args
+    # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
+        # update configs according to CLI args if args.work_dir is not None
         cfg.work_dir = args.work_dir
+    elif cfg.get('work_dir', None) is None:
+        # use config filename as default work_dir if cfg.work_dir is None
+        work_type = args.config.split('/')[1]
+        cfg.work_dir = osp.join('./work_dirs', work_type,
+                                osp.splitext(osp.basename(args.config))[0])
+    cfg.gpu_ids = [args.gpu_id]
 
     cfg.model.pretrained = None  # ensure to use checkpoint rather than pretraining
 
@@ -99,6 +112,9 @@ def main():
         if args.launcher == 'slurm':
             cfg.dist_params['port'] = args.port
         init_dist(args.launcher, **cfg.dist_params)
+
+    # create work_dir
+    mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
 
     # logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())

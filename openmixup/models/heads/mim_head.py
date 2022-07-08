@@ -20,8 +20,8 @@ class MAEPretrainHead(BaseModule):
         patch_size (int): Patch size. Defaults to 16.
     """
 
-    def __init__(self, norm_pix=False, patch_size=16):
-        super(MAEPretrainHead, self).__init__()
+    def __init__(self, norm_pix=False, patch_size=16, init_cfg=None):
+        super(MAEPretrainHead, self).__init__(init_cfg)
         self.norm_pix = norm_pix
         self.patch_size = patch_size
 
@@ -109,8 +109,8 @@ class SimMIMHead(BaseModule):
         encoder_in_channels (int): Number of input channels for encoder.
     """
 
-    def __init__(self, encoder_in_channels=3):
-        super(SimMIMHead, self).__init__()
+    def __init__(self, encoder_in_channels=3, init_cfg=None):
+        super(SimMIMHead, self).__init__(init_cfg)
         self.encoder_in_channels = encoder_in_channels
 
     def forward(self, x, x_rec, mask):
@@ -158,9 +158,9 @@ class MIMHead(BaseModule):
                  fft_focal=False,
                  fft_unmask_replace=None,
                  fft_unmask_weight=0,
-                 **kwargs,
-                ):
-        super(MIMHead, self).__init__()
+                 init_cfg=None,
+                 **kwargs):
+        super(MIMHead, self).__init__(init_cfg)
         self.encoder_in_channels = encoder_in_channels
         self.unmask_weight = unmask_weight
         self.fft_weight = fft_weight
