@@ -20,6 +20,7 @@ optimizer = dict(
     weight_decay=0.3,
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+        'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),

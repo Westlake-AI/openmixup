@@ -1,9 +1,7 @@
 import re
-from mmcv.runner import OptimizerHook
+from mmcv.runner import allreduce_grads, OptimizerHook
 from mmcv.runner import Fp16OptimizerHook as _Fp16OptimizerHook
 from mmcv.utils import TORCH_VERSION, _BatchNorm, digit_version
-
-from openmixup.utils import allreduce_grads
 
 try:
     import apex
@@ -20,7 +18,8 @@ class DistOptimizerHook(OptimizerHook):
         cancel_grad (dict): Config dict for cancelling gradients for selected parameters,
             e.g., cancel_grad=dict(regexp=cancel_iter), 'regexp' stands for param_name.
             Default: None.
-        grad_clip (dict): Gradient clip tricks. Default: None.
+        grad_clip (dict, optional): Dict to config the value of grad clip.
+            E.g., grad_clip = dict(max_norm=10). Defaults to None.
         coalesce (bool, optional): Whether allreduce parameters as a whole.
             Defaults to True.
         bucket_size_mb (int, optional): Size of bucket, the unit is MB.
@@ -41,8 +40,6 @@ class DistOptimizerHook(OptimizerHook):
         self.bucket_size_mb = bucket_size_mb
         self.update_interval = update_interval
         self.use_fp16 = use_fp16
-        self.divisible_iters = 0
-        self.remainder_iters = 0
         self.initialized = False
 
         # basic args
@@ -98,14 +95,14 @@ class DistOptimizerHook(OptimizerHook):
             loss_factor = self.update_interval
         else:
             loss_factor = self.remainder_iters
-        loss = runner.outputs['loss']
-        loss = loss / loss_factor
+        runner.outputs['loss'] /= loss_factor
 
         if self.use_fp16 and has_apex:
-            with apex.amp.scale_loss(loss, runner.optimizer) as scaled_loss:
+            with apex.amp.scale_loss(
+                runner.outputs['loss'], runner.optimizer) as scaled_loss:
                 scaled_loss.backward()
         else:
-            loss.backward()
+            runner.outputs['loss'].backward()
 
         if (self.every_n_iters(runner, self.update_interval)
                 or self.is_last_iter(runner)):

@@ -13,7 +13,7 @@
 * Fix bugs that cause degenerate performances of pure Transformer backbones (DeiT and Swin) in `OpenMixup`. The main reason might be the old version of `auto_fp16` and `DistOptimizerHook` implementations, since `PyTorch=>1.6.0` has better support of fp16 training than `mmcv`.
 * Fix the bug of ViT fine-tuning for MIM methods (e.g., MAE, SimMIM). The original `MIMVisionTransformer` in `openmixup.models.mim_vit` has frozen all the backbone parameters during fine-tuning.
 * Fix the initialization of Transformer-based architectures (e.g., ViT, Swin) to reproduce the train-from-scratch performances.
-* Fix the weight initialization of Transformer-based architectures (e.g., ViT, Swin) to reproduce the train-from-scratch performance. Update weight initialization and fp16 settings in relevant config files.
+* Fix the weight initialization of Transformer-based architectures (e.g., ViT, Swin) to reproduce the train-from-scratch performance. Update weight initialization, parameter-wise weight decay, and fp16 settings in relevant config files.
 
 ### v0.2.3 (17/06/2022)
 

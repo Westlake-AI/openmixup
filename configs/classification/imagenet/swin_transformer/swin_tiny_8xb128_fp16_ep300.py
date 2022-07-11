@@ -16,10 +16,10 @@ optimizer = dict(
     lr=1e-3,  # lr = 5e-4 * (256 * 4) * 1 accumulate / 512 = 1e-3 / bs1024
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+        'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'relative_position_bias_table': dict(weight_decay=0.),
         'absolute_pos_embed': dict(weight_decay=0.),
+        'relative_position_bias_table': dict(weight_decay=0.),
     })
 # apex
 use_fp16 = True

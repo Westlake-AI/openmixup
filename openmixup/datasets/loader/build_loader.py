@@ -9,7 +9,6 @@ from mmcv.runner import get_dist_info
 from mmcv.utils import digit_version
 from torch.utils.data import DataLoader
 
-#from .sampler import DistributedGroupSampler, DistributedSampler, GroupSampler
 from .sampler import DistributedSampler, DistributedGivenIterationSampler, RepeatAugSampler
 from torch.utils.data import RandomSampler
 
@@ -88,6 +87,14 @@ def build_dataloader(dataset,
         batch_size = num_gpus * imgs_per_gpu
         num_workers = num_gpus * workers_per_gpu
 
+    # If sampler exists, turn off dataloader shuffle
+    if data_sampler is not None:
+        shuffle = False
+
+    init_fn = partial(
+        worker_init_fn, num_workers=num_workers, rank=rank,
+        seed=seed) if seed is not None else None
+
     if digit_version(torch.__version__) >= digit_version('1.8.0'):
         kwargs['persistent_workers'] = persistent_workers
 
@@ -104,7 +111,8 @@ def build_dataloader(dataset,
         num_workers=num_workers,
         collate_fn=partial(collate, samples_per_gpu=imgs_per_gpu),
         pin_memory=pin_memory,
-        worker_init_fn=worker_init_fn if seed is not None else None,
+        shuffle=shuffle,
+        worker_init_fn=init_fn,
         **kwargs)
 
     if prefetch:
@@ -113,14 +121,28 @@ def build_dataloader(dataset,
     return data_loader
 
 
-def worker_init_fn(seed):
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.manual_seed(seed)
+def worker_init_fn(worker_id, num_workers, rank, seed):
+    """Function to initialize each worker.
+
+    The seed of each worker equals to
+    ``num_worker * rank + worker_id + user_seed``.
+
+    Args:
+        worker_id (int): Id for each worker.
+        num_workers (int): Number of workers.
+        rank (int): Rank in distributed training.
+        seed (int): Random seed.
+    """
+
+    worker_seed = num_workers * rank + worker_id + seed
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
+    torch.manual_seed(worker_seed)
 
 
 class PrefetchLoader:
     """A data loader wrapper for prefetching data."""
+
     def __init__(self, loader, mean, std):
         self.loader = loader
         self._mean = mean
@@ -151,6 +173,8 @@ class PrefetchLoader:
             torch.cuda.current_stream().wait_stream(stream)
             input = next_input_dict
 
+        next_input_dict = None
+        torch.cuda.empty_cache()
         yield input
 
     def __len__(self):

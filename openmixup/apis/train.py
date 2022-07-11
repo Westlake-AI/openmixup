@@ -105,6 +105,31 @@ def train_model(model,
         param_names = dict(model.named_parameters()).keys()
         assert isinstance(cfg.optimizer.get('paramwise_options', False), dict)
 
+    # build optimizer
+    optimizer = build_optimizer(model, cfg.optimizer)
+
+    # fp16 and optimizer
+    if distributed:
+        if cfg.get('use_fp16', False):
+            # fp16 settings
+            fp16_cfg = cfg.get('fp16', dict(type='apex'))
+            fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)
+            if fp16_cfg['type'] == 'apex':
+                model, optimizer = apex.amp.initialize(
+                    model.cuda(), optimizer, opt_level="O1")
+                optimizer_config = DistOptimizerHook(
+                    **cfg.optimizer_config, use_fp16=True)
+                print_log('**** Initializing mixed precision apex done. ****')
+            elif fp16_cfg['type'] == 'mmcv':
+                loss_scale = fp16_cfg.get('loss_scale', 'dynamic')
+                optimizer_config = Fp16OptimizerHook(
+                    **cfg.optimizer_config, loss_scale=loss_scale, distributed=True)
+                print_log('**** Initializing mixed precision mmcv done. ****')
+        else:
+            optimizer_config = DistOptimizerHook(**cfg.optimizer_config, use_fp16=False)
+    else:
+        optimizer_config = cfg.optimizer_config
+
     # put model on gpus
     if distributed:
         find_unused_parameters = cfg.get('find_unused_parameters', False)
@@ -118,34 +143,21 @@ def train_model(model,
     else:
         model = MMDataParallel(model, device_ids=cfg.gpu_ids).cuda()
 
-    # build optimizer
-    optimizer = build_optimizer(model, cfg.optimizer)
-
-    # fp16 and optimizer
-    if distributed:
-        if cfg.get('use_fp16', False):
-            # fp16 settings
-            fp16_cfg = cfg.get('fp16', dict(type='apex'))
-            fp16_cfg['type'] = fp16_cfg.get('type', default_fp16)
-            if fp16_cfg['type'] == 'apex':
-                model, optimizer = apex.amp.initialize(model, optimizer, opt_level="O1")
-                optimizer_config = DistOptimizerHook(**cfg.optimizer_config, use_fp16=True)
-                print_log('**** Initializing mixed precision apex done. ****')
-            elif fp16_cfg['type'] == 'mmcv':
-                loss_scale = fp16_cfg.get('loss_scale', 'dynamic')
-                optimizer_config = Fp16OptimizerHook(
-                    **cfg.optimizer_config, loss_scale=loss_scale, distributed=True)
-                print_log('**** Initializing mixed precision mmcv done. ****')
-        else:
-            optimizer_config = DistOptimizerHook(**cfg.optimizer_config, use_fp16=False)
-    else:
-        optimizer_config = cfg.optimizer_config
+    if cfg.get('runner') is None:
+        cfg.runner = {
+            'type': 'EpochBasedRunner',
+            'max_epochs': cfg.total_epochs
+        }
+        warnings.warn(
+            'config is now expected to have a `runner` section, '
+            'please set `runner` in your config.', UserWarning)
 
     # build runner
     runner = build_runner(
         cfg.runner,
         default_args=dict(
             model=model,
+            batch_processor=None,
             optimizer=optimizer,
             work_dir=cfg.work_dir,
             logger=logger,
@@ -176,7 +188,7 @@ def train_model(model,
             common_params = dict(dist_mode=distributed, data_loaders=data_loaders)
         elif hook.type == "EMAHook":
             continue
-        hook_cfg = hook_cfg.copy()
+        hook_cfg = hook.copy()
         priority = hook_cfg.pop('priority', 'NORMAL')
         runner.register_hook(build_hook(hook, common_params), priority=priority)
     # register custom optional_scheduler hook

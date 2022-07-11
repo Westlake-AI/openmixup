@@ -21,7 +21,7 @@ persistent_workers = True
 
 # fp16
 use_fp16 = False
-fp16 = dict(loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(loss_scale='dynamic')
 
 # Sets `find_unused_parameters` in torch.nn.parallel.DistributedDataParallel if necessary
 find_unused_parameters = False

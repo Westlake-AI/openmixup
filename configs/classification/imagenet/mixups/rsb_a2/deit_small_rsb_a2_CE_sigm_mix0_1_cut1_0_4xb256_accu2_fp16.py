@@ -38,7 +38,8 @@ update_interval = 2  # 256 x 4gpus x 2 accumulates = bs2048
 # optimizer
 optimizer = dict(type='LAMB', lr=0.005, weight_decay=0.02,  # RSB A2
                  paramwise_options={
-                    '(bn|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+                    '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+                    'norm': dict(weight_decay=0.),
                     'bias': dict(weight_decay=0.),
                     'cls_token': dict(weight_decay=0.),
                     'pos_embed': dict(weight_decay=0.),

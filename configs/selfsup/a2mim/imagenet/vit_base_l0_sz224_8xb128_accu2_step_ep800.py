@@ -38,7 +38,7 @@ optimizer = dict(
     lr=1e-4 * 2048 / 512,  # 4e-4 for bs2048
     betas=(0.9, 0.999), weight_decay=0.05, eps=1e-8,
     paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+        'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'mask_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),

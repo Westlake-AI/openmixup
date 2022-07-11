@@ -10,8 +10,9 @@ class GatherLayer(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
-        output = [torch.zeros_like(input) \
-            for _ in range(dist.get_world_size())]
+        output = [
+            torch.zeros_like(input) for _ in range(dist.get_world_size())
+        ]
         dist.all_gather(output, input)
         return tuple(output)
 

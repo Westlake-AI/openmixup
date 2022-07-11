@@ -13,7 +13,7 @@ optimizer = dict(
     lr=1.5e-4 * 4096 / 256,  # bs4096
     betas=(0.9, 0.95), weight_decay=0.05,
     paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
+        'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
         'mask_token': dict(weight_decay=0.),

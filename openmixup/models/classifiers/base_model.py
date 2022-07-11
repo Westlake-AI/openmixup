@@ -1,14 +1,13 @@
 import warnings
 from abc import ABCMeta, abstractmethod
 from collections import OrderedDict
-from mmcv.runner import BaseModule
+from mmcv.runner import BaseModule, auto_fp16
 
 import torch
 import torch.nn as nn
 import torch.distributed as dist
 
 from openmixup.models.utils import Sobel
-from openmixup.utils import auto_fp16
 
 
 class BaseModel(BaseModule, metaclass=ABCMeta):
