@@ -25,9 +25,9 @@ lr_config = dict(policy='step', step=[60, 80])
 
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
-optimizer_config = dict(update_interval=1, use_fp16=use_fp16)
+optimizer_config = dict(update_interval=1)
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=90)

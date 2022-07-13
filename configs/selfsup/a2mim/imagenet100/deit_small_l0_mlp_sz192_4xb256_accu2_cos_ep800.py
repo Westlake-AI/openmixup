@@ -7,7 +7,17 @@ _base_ = [
 # model settings
 model = dict(
     backbone=dict(
-        mask_layer=8, mask_token='learnable')
+        mask_layer=0, mask_token='learnable'),
+    neck=dict(
+        type='NonLinearMIMNeck',
+        decoder_cfg=dict(
+            type="ConvNeck",
+            in_channels=384, hid_channels=384, out_channels=384,
+            num_layers=1, kernel_size=5,
+            norm_cfg=dict(type='LN2d'), act_cfg=dict(type='GELU'),  # default
+            conv_depthwise=True, with_last_norm=True,
+            with_last_dropout=0, with_avg_pool=False, with_residual=False),
+    ),
 )
 
 # dataset

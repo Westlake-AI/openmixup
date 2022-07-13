@@ -17,8 +17,9 @@ optimizer = dict(type='LAMB', lr=0.008, weight_decay=0.02,
                     'bias': dict(weight_decay=0.)})
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale=dict(init_scale=512., mode='dynamic'))
-optimizer_config = dict(update_interval=update_interval, use_fp16=use_fp16)
+fp16 = dict(type='mmcv', loss_scale='dynamic')
+# optimizer args
+optimizer_config = dict(update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(

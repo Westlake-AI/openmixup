@@ -1,14 +1,14 @@
 _base_ = [
-    '../../_base_/models/lit_v2/lit_v2_small.py',
+    '../../_base_/models/lit_v2/lit_v2_medium.py',
     '../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
     '../../_base_/default_runtime.py',
 ]
 
 # data
-data = dict(imgs_per_gpu=32, workers_per_gpu=4)
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # additional hooks
-update_interval = 4  # 32 x 8gpus x 4 accumulates = bs1024
+update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
 
 # optimizer
 optimizer = dict(

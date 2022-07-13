@@ -7,31 +7,31 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 <details open>
 <summary>Supported sample mixing policies</summary>
 
-- [x] [Mixup [ICLR 2018]](https://arxiv.org/abs/1710.09412)
-- [x] [CutMix [ICCV 2019]](https://arxiv.org/abs/1905.04899)
-- [x] [ManifoldMix [ICML 2019]](https://arxiv.org/abs/1806.05236)
-- [x] [FMix [Arxiv 2020]](https://arxiv.org/abs/2002.12047)
-- [x] [AttentiveMix [ICASSP 2020]](https://arxiv.org/abs/2003.13048)
-- [x] [SmoothMix [CVPRW 2020]](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)
-- [x] [SaliencyMix [ICLR 2021]](https://arxiv.org/abs/1710.09412)
-- [x] [PuzzleMix [ICML 2020]](https://arxiv.org/abs/2009.06962)
-- [ ] [Co-Mixup [ICLR 2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
-- [x] [GridMix [Pattern Recognition 2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
-- [ ] [SuperMix [CVPR 2021]](https://arxiv.org/abs/2003.05034)
-- [x] [ResizeMix [Arxiv 2020]](https://arxiv.org/abs/2012.11101)
-- [x] [AutoMix [Arxiv 2021]](https://arxiv.org/abs/2103.13027)
-- [x] [SAMix [Arxiv 2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [AlignMix [CVPR2022]](https://arxiv.org/abs/2103.15375)
-- [ ] [RecursiveMix [Arxiv 2022]](https://arxiv.org/abs/2203.06844)
+- [x] [Mixup [ICLR'2018]](https://arxiv.org/abs/1710.09412)
+- [x] [CutMix [ICCV'2019]](https://arxiv.org/abs/1905.04899)
+- [x] [ManifoldMix [ICML'2019]](https://arxiv.org/abs/1806.05236)
+- [x] [FMix [ArXiv'2020]](https://arxiv.org/abs/2002.12047)
+- [x] [AttentiveMix [ICASSP'2020]](https://arxiv.org/abs/2003.13048)
+- [x] [SmoothMix [CVPRW'2020]](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)
+- [x] [SaliencyMix [ICLR'2021]](https://arxiv.org/abs/1710.09412)
+- [x] [PuzzleMix [ICML'2020]](https://arxiv.org/abs/2009.06962)
+- [ ] [Co-Mixup [ICLR'2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
+- [x] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
+- [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
+- [x] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [x] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
+- [x] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
+- [ ] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
+- [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
 
 </details>
 
 <details open>
 <summary>Supported label mixing policies</summary>
 
-- [ ] [Saliency Grafting [AAAI2022]](https://arxiv.org/abs/2112.08796v1)
-- [ ] [TransMix [CVPR2022]](https://arxiv.org/abs/2111.09833)
-- [x] [DecoupleMix [Arxiv2022]](https://arxiv.org/abs/2203.10761)
+- [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796v1)
+- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
+- [x] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 
 </details>
 

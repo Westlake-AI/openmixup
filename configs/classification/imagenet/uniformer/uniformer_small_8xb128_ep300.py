@@ -13,6 +13,7 @@ update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
 custom_hooks = [
     dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
         momentum=0.99996,  # 0.99992 when using TokenLabeling
+        warmup_iters=5 * 1252, warmup_ratio=0.9,  # warmup 5 epochs.
         update_interval=update_interval,
     ),
 ]
@@ -31,7 +32,7 @@ optimizer = dict(
 
 # apex
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 

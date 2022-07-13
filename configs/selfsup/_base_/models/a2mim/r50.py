@@ -24,7 +24,7 @@ model = dict(
         fft_weight=0.5,
         fft_focal=True,
         fft_unmask_weight=1e-3,  # unmask patches in the fft loss
-        fft_unmask_replace='target',
+        fft_unmask_replace='mixed',
         fft_reweight=False,
         encoder_in_channels=3,
     ))

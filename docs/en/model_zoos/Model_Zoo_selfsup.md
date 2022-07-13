@@ -5,20 +5,24 @@
 <details open>
 <summary>Supported sample mixing policies</summary>
 
-- [x] [Relative-Loc [ICCV 2015]](https://arxiv.org/abs/1505.05192)
-- [x] [Rotation-Pred [ICLR 2018]](https://arxiv.org/abs/1803.07728)
-- [x] [DeepCluster [ECCV 2018]](https://arxiv.org/abs/1807.05520)
-- [x] [NPID [CVPR 2018]](https://arxiv.org/abs/1805.01978)
-- [x] [ODC [CVPR 2020]](https://arxiv.org/abs/2006.10645)
-- [x] [MoCo [CVPR 2020]](https://arxiv.org/abs/1911.05722)
-- [x] [MoCo.V2 [Arxiv 2020]](https://arxiv.org/abs/2003.04297)
-- [x] [MoCo.V3 [Arxiv 2021]](https://arxiv.org/abs/2104.02057)
-- [x] [SimCLR [ICML 2020]](https://arxiv.org/abs/2002.05709)
-- [x] [BYOL [NIPS 2020]](https://arxiv.org/abs/2006.07733)
-- [x] [SwAV [NIPS 2020]](https://arxiv.org/abs/2006.09882)
-- [x] [DenseCL [CVPR 2021]](https://arxiv.org/abs/2011.09157)
-- [x] [SimSiam [CVPR 2021]](https://arxiv.org/abs/2011.10566)
-- [x] [MAE [CVPR 2022]](https://arxiv.org/abs/2111.06377)
+- [x] [Relative Location [ICCV'2015]](https://arxiv.org/abs/1505.05192)
+- [x] [Rotation Prediction [ICLR'2018]](https://arxiv.org/abs/1803.07728)
+- [x] [DeepCluster [ECCV'2018]](https://arxiv.org/abs/1807.05520)
+- [x] [NPID [CVPR'2018]](https://arxiv.org/abs/1805.01978)
+- [x] [ODC [CVPR'2020]](https://arxiv.org/abs/2006.10645)
+- [x] [MoCov1 [CVPR'2020]](https://arxiv.org/abs/1911.05722)
+- [x] [SimCLR [ICML'2020]](https://arxiv.org/abs/2002.05709)
+- [x] [MoCov2 [ArXiv'2020]](https://arxiv.org/abs/2003.04297)
+- [x] [BYOL [NIPS'2020]](https://arxiv.org/abs/2006.07733)
+- [x] [SwAV [NIPS'2020]](https://arxiv.org/abs/2006.09882)
+- [x] [DenseCL [CVPR'2021]](https://arxiv.org/abs/2011.09157)
+- [x] [SimSiam [CVPR'2021]](https://arxiv.org/abs/2011.10566)
+- [x] [Barlow Twins [ICML'2021]](https://arxiv.org/abs/2103.03230)
+- [x] [MoCo v3 [ICCV'2021]](https://arxiv.org/abs/2104.02057)
+- [x] [MAE [CVPR'2022]](https://arxiv.org/abs/2111.06377)
+- [x] [SimMIM [CVPR'2022]](https://arxiv.org/abs/2111.09886)
+- [x] [CAE [ArXiv'2022]](https://arxiv.org/abs/2202.03026)
+- [x] [A2MIM [ArXiv'2022]](https://arxiv.org/abs/2205.13943)
 
 </details>
 

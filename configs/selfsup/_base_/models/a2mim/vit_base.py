@@ -19,7 +19,7 @@ model = dict(
         loss=dict(type='RegressionLoss', mode='l1_loss',
             loss_weight=1.0, reduction='none'),
         unmask_weight=0.,
-        fft_weight=0.5,
+        fft_weight=0.1,
         fft_focal=True,
         fft_unmask_weight=0.,  # unmask patches in the fft loss
         fft_unmask_replace='mixed',

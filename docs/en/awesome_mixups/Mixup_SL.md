@@ -61,7 +61,7 @@ Co-Mixup: Saliency Guided Joint Mixup with Supermodular Diversity.
 SuperMix: Supervising the Mixing Data Augmentation.
 8. **PatchMix**, [[Arxiv 2021](https://arxiv.org/pdf/2106.09011.pdf)]
 Evolving Image Compositions for Feature Representation Learning.
-9. **AutoMix**, [[Arxiv 2021](https://arxiv.org/abs/2103.13027)] [[code](https://github.com/Westlake-AI/openmixup)]
+9. **AutoMix**, [[ECCV 2022](https://arxiv.org/abs/2103.13027)] [[code](https://github.com/Westlake-AI/openmixup)]
 Unveiling the Power of Mixup for Stronger Classifiers.
 10. **AlignMix**, [[Arxiv 2021](https://arxiv.org/abs/2103.15375)] [[code](https://github.com/shashankvkt/AlignMixup_CVPR22)]
 AlignMix: Improving representation by interpolating aligned features.
