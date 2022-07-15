@@ -33,14 +33,14 @@ optimizer = dict(
 
 # apex
 use_fp16 = True
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=None, update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5,
+    by_epoch=False, min_lr=1e-6,
     warmup='linear',
     warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
     warmup_ratio=1e-6,

@@ -1,6 +1,7 @@
 import torch
 import torch.nn.functional as F
 import torch.nn as nn
+from torch._six import inf
 
 from mmcv.cnn.bricks.conv_module import ConvModule
 from mmcv.cnn import kaiming_init, normal_init
@@ -64,9 +65,14 @@ def get_grad_norm(parameters, norm_type=2):
         parameters = [parameters]
     parameters = list(filter(lambda p: p.grad is not None, parameters))
     norm_type = float(norm_type)
+    if len(parameters) == 0:
+        return torch.tensor(0.)
     total_norm = 0
-    for p in parameters:
-        param_norm = p.grad.data.norm(norm_type)
-        total_norm += param_norm.item() ** norm_type
+    if norm_type == inf:
+        total_norm = max(p.grad.detach().abs().max() for p in parameters)
+    else:
+        for p in parameters:
+            param_norm = p.grad.data.norm(norm_type)
+            total_norm += param_norm.item() ** norm_type
     total_norm = total_norm ** (1. / norm_type)
     return total_norm

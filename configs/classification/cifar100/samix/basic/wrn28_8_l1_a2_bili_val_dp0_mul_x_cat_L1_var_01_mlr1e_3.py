@@ -33,8 +33,7 @@ model = dict(
     ),
     mix_block = dict(  # SAMix
         type='PixelMixBlock',
-        in_channels=256, reduction=2, use_scale=True, double_norm=False,
-        attention_mode='embedded_gaussian',
+        in_channels=256, reduction=2, use_scale=True,
         unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
         lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
         lam_mul=True, lam_residual=True, lam_mul_k=0.25,  # SAMix lam: mult + k (0.25 for CIFAR)

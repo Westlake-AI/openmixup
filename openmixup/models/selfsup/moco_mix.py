@@ -17,7 +17,7 @@ from ..utils import (concat_all_gather, batch_shuffle_ddp, batch_unshuffle_ddp, 
 
 
 @MODELS.register_module
-class MOCO_Mix(BaseModel):
+class MoCoMix(BaseModel):
     """MOCO mixup baseline V0721 (fixed by 09.13)
 
     Implementation of "Momentum Contrast for Unsupervised Visual
@@ -74,7 +74,7 @@ class MOCO_Mix(BaseModel):
                  save_name="MixedSamples",
                  init_cfg=None,
                  **kwargs):
-        super(MOCO_Mix, self).__init__(init_cfg, **kwargs)
+        super(MoCoMix, self).__init__(init_cfg, **kwargs)
         assert isinstance(neck, dict) and isinstance(head, dict)
         self.encoder_q = builder.build_backbone(backbone)
         self.encoder_k = builder.build_backbone(backbone)
@@ -124,7 +124,7 @@ class MOCO_Mix(BaseModel):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
-        super(MOCO_Mix, self).init_weights()
+        super(MoCoMix, self).init_weights()
 
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')

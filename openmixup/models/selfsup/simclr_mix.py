@@ -15,7 +15,7 @@ from ..utils import (GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp, \
 
 
 @MODELS.register_module
-class SimCLR_Mix(BaseModel):
+class SimCLRMix(BaseModel):
     """SimCLR mixup baseline V0913 (update 09.17)
 
     Implementation of "A Simple Framework for Contrastive Learning
@@ -64,7 +64,7 @@ class SimCLR_Mix(BaseModel):
                 save_name='MixedSamples',
                 init_cfg=None,
                 **kwargs):
-        super(SimCLR_Mix, self).__init__(init_cfg, **kwargs)
+        super(SimCLRMix, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
         assert isinstance(neck, dict) and isinstance(head, dict)
         self.neck = builder.build_neck(neck)
@@ -113,7 +113,7 @@ class SimCLR_Mix(BaseModel):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
-        super(SimCLR_Mix, self).init_weights()
+        super(SimCLRMix, self).init_weights()
 
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')

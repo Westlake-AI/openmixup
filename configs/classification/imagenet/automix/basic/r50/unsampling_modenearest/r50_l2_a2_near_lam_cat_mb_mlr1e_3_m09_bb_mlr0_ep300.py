@@ -23,8 +23,7 @@ model = dict(
         style='pytorch'),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
-        in_channels=1024, reduction=2, use_scale=True, double_norm=False,
-        attention_mode='embedded_gaussian',
+        in_channels=1024, reduction=2, use_scale=True,
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none

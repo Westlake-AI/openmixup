@@ -100,8 +100,7 @@ train = dict(
 
 ## Customize datasets by mixing dataset
 
-MMClassification also supports to mix dataset for training.
-Currently it supports to concat and repeat datasets.
+OpenMixup also supports to mix dataset for training. Currently it supports to concat and repeat datasets.
 
 ### Repeat dataset
 

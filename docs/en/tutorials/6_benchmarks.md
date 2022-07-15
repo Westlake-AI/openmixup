@@ -1,6 +1,6 @@
 # Tutorial 6: Run Benchmarks
 
-In MMSelfSup, we provide many benchmarks, thus the models can be evaluated on different downstream tasks. Here are comprehensive tutorials and examples to explain how to run all benchmarks with MMSelfSup.
+The benchmarks of downstream tasks are based on [MMSelfSup](https://github.com/open-mmlab/mmselfsup). We provide many benchmarks to evaluate models on following downstream tasks. Here are comprehensive tutorials and examples to explain how to run all benchmarks with OpenMixup.
 
 - [Tutorial 6: Run Benchmarks](#tutorial-6-run-benchmarks)
   - [Classification](#classification)

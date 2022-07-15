@@ -23,8 +23,7 @@ model = dict(
         style='pytorch'),
     mix_block = dict(  # AutoMix+, using tricks in SAMix
         type='PixelMixBlock',
-        in_channels=1024, reduction=2, use_scale=True, double_norm=False,
-        attention_mode='embedded_gaussian',
+        in_channels=1024, reduction=2, use_scale=True,
         unsampling_mode=['bilinear',],  # str or list, tricks from SAMix
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
@@ -66,8 +65,7 @@ custom_hooks = [
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
-                    'mix_block': dict(lr=0.1,
-                                      momentum=0.9)})  # set momentum to 0 performs better in 100ep
+                    'mix_block': dict(lr=0.1, momentum=0.9)})  # set momentum to 0 performs better in 100ep
 # apex
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)

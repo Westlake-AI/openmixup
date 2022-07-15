@@ -5,32 +5,33 @@
 [👀Awesome Mixup](https://openmixup.readthedocs.io/en/latest/awesome_mixups/Mixup_SL.html) |
 [🆕News](https://openmixup.readthedocs.io/en/latest/changelog.html)
 
-**News**
-
-* OpenMixup v0.2.4 is released, which fixs bugs [#7](https://github.com/Westlake-AI/openmixup/issues/7), e.g., weight initialization, fine-tuning.
-* OpenMixup v0.2.3 is released, which supports new self-supervised and mixup methods (e.g., [A2MIM](https://arxiv.org/abs/2205.13943)) and backbones (e.g., [UniFormer](https://arxiv.org/abs/2201.09450)), update the [online document](https://westlake-ai.github.io/openmixup/) and config files, and adds new features as [#6](https://github.com/Westlake-AI/openmixup/issues/6).
-
 ## Introduction
 
 The main branch works with **PyTorch 1.8** (required by some self-supervised methods) or higher (we recommend **PyTorch 1.10**). You can still use **PyTorch 1.6** for supervised classification methods.
 
 `OpenMixup` is an open-source toolbox for supervised, self-, and semi-supervised visual representation learning with mixup based on PyTorch, especially for mixup-related methods.
 
-### What does this repo do?
+<div align="center">
+  <img src="https://user-images.githubusercontent.com/44519745/179018883-a166f0fa-4d51-4ef1-aed1-d0d4643bcffd.jpg" width="100%"/>
+</div>
 
-Learning discriminative visual representation efficiently that facilitates downstream tasks is one of the fundamental problems in computer vision. Data mixing techniques largely improve the quality of deep neural networks (DNNs) in various scenarios. Since mixup techniques are used as augmentations or auxiliary tasks in a wide range of cases, this repo focuses on mixup-related methods for Supervised, Self- and Semi-Supervised Representation Learning. Thus, we name this repo `OpenMixp`.
+<details open>
+<summary>Major Features</summary>
 
-### Major features
+- **Modular Design.**
+  OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplatable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
 
-This repo will be continued to update to support more self-supervised and mixup methods. Please watch us for latest update!
+- **All in One.**
+  OpenMixup provides popular backbones, mixup methods, and self-supervised algorithms. Users can perform supervised training or self-supervised pre-training under the same setting.
 
-## Change Log
+- **Standard Benchmarks.**
+  OpenMixup supports standard benchmarks of image classification, mixup classification, self-supervised evaluation, and provides smooth evaluation on downstream tasks with open-source projects (e.g., object detection and segmentation on [Detectron2](https://github.com/facebookresearch/maskrcnn-benchmark) and [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)).
 
-Please refer to [Change Log](docs/en/changelog.md) for details and release history.
+</details>
 
-[2020-07-07] `OpenMixup` v0.2.4 is released.
+## What's New
 
-[2020-06-13] `OpenMixup` v0.2.3 is released.
+[2020-07-07] `OpenMixup` v0.2.4 is released (issue [#7](https://github.com/Westlake-AI/openmixup/issues/7)), which fixs bugs of weight initialization and fine-tuning, updates docs, etc.
 
 ## Installation
 
@@ -46,79 +47,115 @@ cd openmixup
 python setup.py develop
 ```
 
-Please refer to [Install](docs/en/install.md) for more detailed installation and dataset preparation.
+Please refer to [install.md](docs/en/install.md) for more detailed installation and dataset preparation.
 
-## Get Started
+## Getting Started
 
-Please see [Getting Started](docs/en/get_started.md) for the basic usage of OpenMixup (based on [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
-Then, see [tutorials](docs/en/tutorials) for more tech details (based on MMClassification), which is similar to most open-source projects in MMLab.
+Please see [get_started.md](docs/en/get_started.md) for the basic usage of OpenMixup. You can start a multiple GPUs training with `CONFIG_FILE` using the following script. An example, 
+```shell
+bash tools/dist_train.sh ${CONFIG_FILE} ${GPUS} [optional arguments]
+```
+Please Then, see [Tutorials](docs/en/tutorials) for more tech details:
 
-## Benchmark and Model Zoo
+- [config files](docs/en/tutorials/0_config.md)
+- [add new dataset](docs/en/tutorials/1_new_dataset.md)
+- [data pipeline](docs/en/tutorials/2_data_pipeline.md)
+- [add new modules](docs/en/tutorials/3_new_module.md)
+- [customize schedules](docs/en/tutorials/4_schedule.md)
+- [customize runtime](docs/en/tutorials/5_runtime.md)
+- [benchmarks](docs/en/tutorials/6_benchmarks.md)
 
-[Model Zoos](docs/en/model_zoos) and lists of [Awesome Mixups](docs/en/awesome_mixups) have been released, and will be updated in the next two months. Checkpoints and traning logs will be updated soon!
+## Overview of Model Zoo
 
-<details close>
-<summary>Currently supported backbone architectures</summary>
+Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup methods, and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) for your reference. Checkpoints and traning logs will be updated soon!
 
-- [x] [VGG [ICLR'2015]](https://arxiv.org/abs/1409.1556)
-- [x] [ResNet [CVPR'2016]](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html)
-- [x] [ResNeXt [CVPR'2017]](https://arxiv.org/abs/1611.05431)
-- [x] [SE-ResNet [CVPR'2018]](https://arxiv.org/abs/1709.01507)
-- [x] [SE-ResNeXt [CVPR'2018]](https://arxiv.org/abs/1709.01507)
-- [x] [ShuffleNetV2 [ECCV'2018]](https://arxiv.org/abs/1807.11164)
-- [x] [MobileNetV2 [CVPR'2018]](https://arxiv.org/abs/1801.04381)
-- [x] [MobileNetV3 [ICCV'2019]](https://arxiv.org/abs/1905.02244)
-- [x] [EfficientNet [ICML'2019]](https://arxiv.org/abs/1905.11946)
-- [x] [Swin-Transformer [ICCV'2021]](https://arxiv.org/pdf/2103.14030.pdf)
-- [x] [RepVGG [CVPR'2021]](https://arxiv.org/abs/2101.03697)
-- [x] [Vision-Transformer [ICLR'2021]](https://arxiv.org/pdf/2010.11929.pdf)
-- [x] [MLP-Mixer [NIPS'2021]](https://arxiv.org/abs/2105.01601)
-- [x] [DeiT [ICML'2021]](https://arxiv.org/abs/2012.12877)
-- [x] [ConvMixer [Openreview'2021]](https://arxiv.org/abs/2201.09792)
-- [x] [PoolFormer [CVPR'2022]](https://arxiv.org/abs/2111.11418)
-- [x] [ConvNeXt [CVPR'2022]](https://arxiv.org/abs/2201.03545)
-- [x] [VAN [ArXiv'2022]](https://arxiv.org/abs/2202.09741)
-</details>
+* Backbone architectures for supervised image classification on ImageNet.
 
-<details close>
-<summary>Currently supported mixup methods for supervised learning</summary>
+    <details open>
+    <summary>Currently supported backbones</summary>
 
-- [x] [Mixup [ICLR'2018]](https://arxiv.org/abs/1710.09412)
-- [x] [CutMix [ICCV'2019]](https://arxiv.org/abs/1905.04899)
-- [x] [ManifoldMix [ICML'2019]](https://arxiv.org/abs/1806.05236)
-- [x] [FMix [ArXiv'2020]](https://arxiv.org/abs/2002.12047)
-- [x] [AttentiveMix [ICASSP'2020]](https://arxiv.org/abs/2003.13048)
-- [x] [SmoothMix [CVPRW'2020]](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)
-- [x] [SaliencyMix [ICLR'2021]](https://arxiv.org/abs/1710.09412)
-- [x] [PuzzleMix [ICML'2020]](https://arxiv.org/abs/2009.06962)
-- [x] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
-- [x] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
-- [x] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
-- [x] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-</details>
+    - [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
+    - [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
+    - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
+    - [x] [MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV'2019)
+    - [x] [EfficientNet](https://arxiv.org/abs/1905.11946) (ICML'2019) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/)]
+    - [x] [Swin-Transformer](https://arxiv.org/abs/2103.14030) (ICCV'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/)]
+    - [x] [RepVGG](https://arxiv.org/abs/2101.03697) (CVPR'2021)
+    - [x] [Vision-Transformer](https://arxiv.org/pdf/2010.11929.pdf) (ICLR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/)]
+    - [x] [MLP-Mixer](https://arxiv.org/abs/2105.01601) (NIPS'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/)]
+    - [x] [DeiT](https://arxiv.org/abs/2012.12877) (ICML'2021)
+    - [x] [ConvMixer](https://arxiv.org/abs/2201.09792) (Openreview'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/)]
+    - [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
+    - [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
+    - [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
+    - [x] [VAN](https://arxiv.org/abs/2202.09741) (ArXiv'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/)]
+    </details>
 
-<details close>
-<summary>Currently supported self-supervised algorithms</summary>
+* Mixup methods for supervised image classification.
 
-- [x] [Relative Location [ICCV'2015]](https://arxiv.org/abs/1505.05192)
-- [x] [Rotation Prediction [ICLR'2018]](https://arxiv.org/abs/1803.07728)
-- [x] [DeepCluster [ECCV'2018]](https://arxiv.org/abs/1807.05520)
-- [x] [NPID [CVPR'2018]](https://arxiv.org/abs/1805.01978)
-- [x] [ODC [CVPR'2020]](https://arxiv.org/abs/2006.10645)
-- [x] [MoCov1 [CVPR'2020]](https://arxiv.org/abs/1911.05722)
-- [x] [SimCLR [ICML'2020]](https://arxiv.org/abs/2002.05709)
-- [x] [MoCov2 [ArXiv'2020]](https://arxiv.org/abs/2003.04297)
-- [x] [BYOL [NIPS'2020]](https://arxiv.org/abs/2006.07733)
-- [x] [SwAV [NIPS'2020]](https://arxiv.org/abs/2006.09882)
-- [x] [DenseCL [CVPR'2021]](https://arxiv.org/abs/2011.09157)
-- [x] [SimSiam [CVPR'2021]](https://arxiv.org/abs/2011.10566)
-- [x] [Barlow Twins [ICML'2021]](https://arxiv.org/abs/2103.03230)
-- [x] [MoCo v3 [ICCV'2021]](https://arxiv.org/abs/2104.02057)
-- [x] [MAE [CVPR'2022]](https://arxiv.org/abs/2111.06377)
-- [x] [SimMIM [CVPR'2022]](https://arxiv.org/abs/2111.09886)
-- [x] [CAE [ArXiv'2022]](https://arxiv.org/abs/2202.03026)
-- [x] [A2MIM [ArXiv'2022]](https://arxiv.org/abs/2205.13943)
-</details>
+    <details open>
+    <summary>Currently supported mixup methods</summary>
+
+    - [x] [Mixup](https://arxiv.org/abs/1710.09412) (ICLR'2018)
+    - [x] [CutMix](https://arxiv.org/abs/1905.04899) (ICCV'2019)
+    - [x] [ManifoldMix](https://arxiv.org/abs/1806.05236) (ICML'2019)
+    - [x] [FMix](https://arxiv.org/abs/2002.12047) (ArXiv'2020)
+    - [x] [AttentiveMix](https://arxiv.org/abs/2003.13048) (ICASSP'2020)
+    - [x] [SmoothMix](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf) (CVPRW'2020)
+    - [x] [SaliencyMix](https://arxiv.org/abs/1710.09412) (ICLR'2021)
+    - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020)
+    - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021)
+    - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (ArXiv'2020)
+    - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
+    - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
+    </details>
+
+    <details open>
+    <summary>Currently supported datasets for mixups</summary>
+
+    - [x] [ImageNet](https://dl.acm.org/doi/10.1145/3065386) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
+    - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
+    - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](https://www.kaggle.com/c/tiny-imagenet)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]
+    - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
+    - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
+    - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
+    - [x] [Place205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
+    - [x] [iNaturalist-2017/2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
+    </details>
+
+* Self-supervised algorithms for visual representation.
+
+    <details open>
+    <summary>Currently supported self-supervised algorithms</summary>
+
+    - [x] [Relative Location](https://arxiv.org/abs/1505.05192) (ICCV'2015) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/)]
+    - [x] [Rotation Prediction](https://arxiv.org/abs/1803.07728) (ICLR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/rotation_pred/)]
+    - [x] [DeepCluster](https://arxiv.org/abs/1807.05520) (ECCV'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/deepcluster/)]
+    - [x] [NPID](https://arxiv.org/abs/1805.01978) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/npid/)]
+    - [x] [ODC](https://arxiv.org/abs/2006.10645) (CVPR'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/odc/)]
+    - [x] [MoCov1](https://arxiv.org/abs/1911.05722) (CVPR'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov1/)]
+    - [x] [SimCLR](https://arxiv.org/abs/2002.05709) (ICML'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simclr/)]
+    - [x] [MoCoV2](https://arxiv.org/abs/2003.04297) (ArXiv'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov2/)]
+    - [x] [BYOL](https://arxiv.org/abs/2006.07733) (NIPS'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/byol/)]
+    - [x] [SwAV](https://arxiv.org/abs/2006.09882) (NIPS'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/swav/)]
+    - [x] [DenseCL](https://arxiv.org/abs/2011.09157) (CVPR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/densecl/)]
+    - [x] [SimSiam](https://arxiv.org/abs/2011.10566) (CVPR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simsiam/)]
+    - [x] [Barlow Twins](https://arxiv.org/abs/2103.03230) (ICML'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/barlowtwins/)]
+    - [x] [MoCoV3](https://arxiv.org/abs/2104.02057) (ICCV'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov3/)]
+    - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
+    - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
+    - [x] [CAE](https://arxiv.org/abs/2202.03026) (ArXiv'2022)
+    - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
+    </details>
+
+## Change Log
+
+Please refer to [changelog.md](docs/en/changelog.md) for details and release history.
 
 ## License
 
@@ -126,7 +163,7 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Acknowledgement
 
-- OpenMixup is an open-source project for mixup methods created by researchers in CAIRI AI LAB. We encourage researchers interested in visual representation learning and mixup methods to contribute to OpenMixup!
+- OpenMixup is an open-source project for mixup methods created by researchers in **CAIRI AI LAB**. We encourage researchers interested in visual representation learning and mixup methods to contribute to OpenMixup!
 - This repo borrows the architecture design and part of the code from [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [MMClassification](https://github.com/open-mmlab/mmclassification).
 
 ## Citation

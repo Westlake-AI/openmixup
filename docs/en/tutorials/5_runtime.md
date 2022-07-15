@@ -149,12 +149,12 @@ evaluation = dict(interval=1, start=200, metric='accuracy', metric_options={'top
 This indicates that, before the 200th epoch, evaluations would not be executed. Since the 200th epoch, evaluations would be executed after the training process.
 
 ```{note}
-In the default configuration files of MMClassification, the evaluation field is generally placed in the datasets configs.
+In the default configuration files of OpenMixup, the evaluation field is generally placed in the datasets configs.
 ```
 
 ### Use other implemented hooks
 
-Some hooks have been already implemented in MMCV and MMClassification, they are:
+Some hooks have been already implemented in MMCV and OpenMixup, they are:
 
 - [EMAHook](https://github.com/open-mmlab/mmcv/blob/master/mmcv/runner/hooks/ema.py)
 - [SyncBuffersHook](https://github.com/open-mmlab/mmcv/blob/master/mmcv/runner/hooks/sync_buffer.py)
@@ -183,7 +183,7 @@ custom_hooks = [
 
 ### 1. Implement a new hook
 
-Here we give an example of creating a new hook in MMClassification and using it in training.
+Here we give an example of creating a new hook in OpenMixup and using it in training.
 
 ```python
 from mmcv.runner import HOOKS, Hook

@@ -17,10 +17,6 @@ from ..registry import MODELS
 @MODELS.register_module
 class AutoMixup(BaseModel):
     """ AutoMix and SAMix
-        V0824 version (based on V1plus v0707)
-        V1219 version (adding freezed backbone_k and mixblock)
-        V0109 version (adding up_mode override and latent space mixup)
-        v0224 version (fix FP16 NAN loss)
 
     Official implementation of
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"

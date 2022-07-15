@@ -79,7 +79,7 @@ In the early stage, training is easy to be volatile, and warmup is a technique
 to reduce volatility. With warmup, the learning rate will increase gradually
 from a minor value to the expected value.
 
-In MMClassification, we use `lr_config` to configure the warmup strategy, the main parameters are as follows：
+In OpenMixup, we use `lr_config` to configure the warmup strategy, the main parameters are as follows：
 
 - `warmup`: The warmup curve type. Please choose one from 'constant', 'linear', 'exp' and `None`, and `None` means disable warmup.
 - `warmup_by_epoch` : if warmup by epoch or not, default to be True, if set to be False, warmup by iter.

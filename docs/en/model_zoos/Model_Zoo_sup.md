@@ -1,8 +1,8 @@
 # Model Zoo of Supervised Learning
 
-**OpenMixup provides mixup benchmarks on supervised learning on various tasks. Configs, experiments results, training logs will be updated as soon as possible. More mixup variants will be supported!**
+**OpenMixup provides mixup benchmarks on supervised learning on various tasks. Configs, experiment results, and training logs will be updated as soon as possible. More mixup variants will be supported!**
 
-Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arxiv pre-prints reproduced by us, and :book: denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 and sampling $\lambda$ from $\Beta(\alpha,8)$ as AttentiveMix+. Moreover, you can summary experiment results (json files) by tools in `openmixup/tools/summary/`.
+Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 and sampling $\lambda$ from $\Beta(\alpha,8)$ as AttentiveMix+. Moreover, you can summarize experiment results (json files) by tools in `openmixup/tools/summary/`.
 
 <details open>
 <summary>Supported sample mixing policies</summary>
@@ -42,9 +42,10 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 ### PyTorch-style Training Settings on ImageNet-1k
 
 **Note**
+
 * These benchmarks follow PyTorch-style settings, training 100 and 300 epochs on ImageNet-1k.
 * Please run configs in `configs/classification/imagenet/mixups/basic`, and modify epochs and mix_mode in `auto_train_in_mixups.py` to generate proper configs by yourself.
-* Notice that :book: denotes original results reproduced by official implementations.
+* Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones       |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 | ResNeXt-101 |
 |-----------------|:----------:|:----------:|:----------:|:----------:|:-----------:|
@@ -57,11 +58,11 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | AttentiveMix+   |    68.57   |      -     |    77.28   |      -     |      -      |
 | FMix*           |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
 | PuzzleMix       |    70.12   |    74.26   |    77.54   |    79.43   |    80.53    |
-| Co-Mixup :book: |      -     |      -     |    77.60   |      -     |      -      |
-| SuperMix :book: |      -     |      -     |    77.63   |      -     |      -      |
+| Co-Mixup📖     |      -     |      -     |    77.60   |      -     |      -      |
+| SuperMix📖     |      -     |      -     |    77.63   |      -     |      -      |
 | ResizeMix*      |    69.50   |    73.88   |    77.42   |    79.27   |    80.55    |
-| AlignMix :book: |      -     |      -     |    78.00   |      -     |      -      |
-| Grafting :book: |      -     |      -     |    77.74   |      -     |      -      |
+| AlignMix📖     |      -     |      -     |    78.00   |      -     |      -      |
+| Grafting📖     |      -     |      -     |    77.74   |      -     |      -      |
 | AutoMix*        |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
 | SAMix*          |    70.83   |    74.95   |    78.06   |    80.05   |    80.98    |
 
@@ -76,13 +77,14 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | FMix*           |    70.30   |    75.12   |    78.51   |    80.20   |
 | PuzzleMix       |    71.64   |    75.84   |    78.86   |    80.67   |
 | ResizeMix*      |    71.32   |    75.64   |    78.91   |    80.52   |
-| AlignMix :book: |      -     |      -     |    79.32   |      -     |
+| AlignMix📖     |      -     |      -     |    79.32   |      -     |
 | AutoMix*        |    72.05   |    76.10   |    79.25   |    80.98   |
 | SAMix*          |    72.27   |    76.28   |    79.39   |    81.10   |
 
 ### Timm RSB A2/A3 Training Settings on ImageNet-1k
 
 **Note**
+
 * This benchmark follows timm RSB A2/A3 settings, training 300/100 epochs with the BCE loss on ImageNet-1k. RSB A3 is a fast
 * Please run configs in `configs/classification/imagenet/mixups/rsb_a2` and `configs/classification/imagenet/mixups/rsb_a3`.
 
@@ -103,9 +105,10 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 ### DeiT Training Settings on ImageNet-1k
 
 **Note**
+
 * Since recently proposed transformer-based archetectures adopt mixups as parts of enssential augmentations, we report the mean of the best performance in trivals as their original paper. Notice that the performances of transformer-based archetectures are more difficult to reproduce than ResNet variants.
 * Please run configs in `configs/classification/imagenet/deit/`, `configs/classification/imagenet/swin/`, and `configs/classification/imagenet/convnext/`.
-* Notice that :book: denotes original results reproduced by official implementations.
+* Notice that 📖 denotes original results reproduced by official implementations.
 
 | Methods         | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
 |-----------------|:----------:|:---------:|:-------------:|
@@ -119,16 +122,17 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | PuzzleMix       |    79.73   |           |     81.48     |
 | FMix            |    77.37   |           |     81.04     |
 | ResizeMix       |    76.79   |   80.73   |     81.64     |
-| TransMix :book: |    80.70   |   81.80   |       -       |
+| TransMix📖     |    80.70   |   81.80   |       -       |
 | AutoMix         |    80.78   |           |     82.28     |
 | SAMix           |    80.94   |           |     82.35     |
 
 ### TinyImageNet-200
 
 **Note**
+
 * This benchmark largely based on CIFAR settings, training 400 epochs on TinyImageNet-200.
 * Please run configs in `configs/classification/tiny_imagenet/mixups/`.
-* Notice that :book: denotes original results reproduced by official implementations.
+* Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones          | ResNet-18 | ResNeXt-50 |
 |--------------------|:---------:|:----------:|
@@ -139,12 +143,12 @@ We provide three popular benchmarks on ImageNet-1k based on various backbones. W
 | SaliencyMix        |   64.60   |    66.55   |
 | AttentiveMix+      |   64.85   |    67.42   |
 | FMix*              |   63.47   |    65.08   |
-| GridMix :book:     |     -     |    69.12   |
+| GridMix📖         |     -     |    69.12   |
 | PuzzleMix          |   65.81   |    67.83   |
-| Co-Mixup :book:    |   65.92   |    68.02   |
+| Co-Mixup📖        |   65.92   |    68.02   |
 | ResizeMix*         |   63.74   |    65.87   |
-| Grafting :book:    |   64.84   |      -     |
-| AlignMix :book:    |   66.87   |      -     |
+| Grafting📖        |   64.84   |      -     |
+| AlignMix📖        |   66.87   |      -     |
 | AutoMix*           |   67.33   |    70.72   |
 | SAMix*             |   68.89   |    72.18   |
 
@@ -156,9 +160,10 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 ### CIFAR-10
 
 **Note**
+
 * This benchmark follows CutMix settings, training 200/400/800/1200 epochs on CIFAR-10.
 * Please run configs in `configs/classification/cifar10/mixups/`.
-* Notice that :book: denotes original results reproduced by official implementations.
+* Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones       |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
 |-----------------|:----------:|:----------:|:----------:|:-----------:|
@@ -172,7 +177,7 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | FMix*           |    96.17   |    96.53   |    96.18   |    96.01    |
 | PuzzleMix       |    96.42   |    96.87   |    97.10   |    97.13    |
 | ResizeMix*      |    96.16   |    96.91   |    96.76   |    97.04    |
-| AlignMix :book: |            |            |            |    97.05    |
+| AlignMix📖     |            |            |            |    97.05    |
 | AutoMix*        |    96.59   |    97.08   |    97.34   |    97.30    |
 | SAMix*          |    96.67   |    97.16   |    97.50   |    97.41    |
 
@@ -188,16 +193,17 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | FMix*           |    96.72   |    96.76   |    96.76   |    96.10    |
 | PuzzleMix       |    97.05   |    97.24   |    97.37   |    97.34    |
 | ResizeMix*      |    97.02   |    97.38   |    97.21   |    97.36    |
-| AlignMix :book: |            |            |            |             |
+| AlignMix📖     |            |            |            |             |
 | AutoMix*        |    97.19   |    97.42   |    97.65   |    97.51    |
 | SAMix*          |    97.23   |    97.51   |    97.93   |    97.74    |
 
 ### CIFAR-100
 
 **Note**
+
 * This benchmark follows CutMix settings, training 200/400/800/1200 epochs on CIFAR-100. Please use wd=5e-4 for cutting-based methods (CutMix, AttributeMix+, SaliencyMix, FMix, ResizeMix) based on ResNeXt-50 for better performances.
 * Please run configs in `configs/classification/cifar100/mixups/`.
-* Notice that :book: denotes original results reproduced by official implementations.
+* Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones       |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
 |-----------------|:----------:|:----------:|:----------:|:-----------:|
@@ -210,9 +216,9 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | AttentiveMix+   |    79.62   |    80.14   |    78.91   |    78.41    |
 | FMix*           |    78.91   |    79.91   |    79.69   |    79.50    |
 | PuzzleMix       |    79.96   |    80.82   |    81.13   |    81.10    |
-| Co-Mixup :book: |    80.01   |    80.87   |    81.17   |    81.18    |
+| Co-Mixup📖     |    80.01   |    80.87   |    81.17   |    81.18    |
 | ResizeMix*      |    79.56   |    79.19   |    80.01   |    79.23    |
-| AlignMix :book: |            |            |            |    81.71    |
+| AlignMix📖     |            |            |            |    81.71    |
 | AutoMix*        |    80.12   |    81.78   |    82.04   |    81.95    |
 | SAMix*          |    81.21   |    81.97   |    82.30   |    82.41    |
 
@@ -227,9 +233,9 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 | AttentiveMix+   |    81.69   |    81.53   |    80.54   |    79.60    |    84.34   |
 | FMix*           |    79.87   |    78.99   |    79.02   |    78.24    |    84.21   |
 | PuzzleMix       |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
-| Co-Mixup :book: |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
+| Co-Mixup📖     |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
 | ResizeMix*      |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
-| AlignMix :book: |            |            |            |             |            |
+| AlignMix📖     |            |            |            |             |            |
 | AutoMix*        |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
 | SAMix*          |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
 
@@ -239,7 +245,9 @@ CIFAR benchmarks based on ResNet variants. We report the median of top-1 accurac
 We further provide benchmarks on downstream classification scenarios. We report the median of top-1 accuracy in the last 5/10 training epochs for 100/200 epochs.
 
 ### Transfer Learning on Small-scale Datasets
+
 **Note**
+
 * These benchmarks follow transfer learning settings on fine-grained datasets. use PyTorch pre-trained models as initialization and train 200 epochs on CUB-200 and FGVC-Aircraft.
 * Please run configs in `configs/classification/aircrafts/` and `configs/classification/cub200/`.
 
@@ -258,12 +266,14 @@ We further provide benchmarks on downstream classification scenarios. We report 
 | SAMix*      |   81.11   |    86.83   |   82.15   |    86.80   |
 
 ### Large-scale Datasets
+
 **Note**
+
 * These benchmarks largely based on PyTorch-style ImageNet-1k training settings, training 100 epochs from stretch on iNat2017/2018 and Place205.
 * Please run configs in `configs/classification/inaturalist2017/`, `configs/classification/inaturalist2018/`, and `configs/classification/place205/`.
 
 | Datasets    |  iNat2017 |   iNat2017  |  iNat2018 |   iNat2018  |
-|-------------|:---------:|:-----------:|:---------:|:-----------:|
+| ----------- | :-------: | :---------: | :-------: | :---------: |
 | Backbones   | ResNet-50 | ResNeXt-101 | ResNet-50 | ResNeXt-101 |
 | Vanilla     |   60.23   |    63.70    |   62.53   |    66.94    |
 | MixUp       |   61.22   |    66.27    |   62.69   |    67.56    |
@@ -277,7 +287,7 @@ We further provide benchmarks on downstream classification scenarios. We report 
 | SAMix*      |   63.32   |    68.26    |   64.84   |    70.54    |
 
 | Datasets    |  Place205 |  Place205 |
-|-------------|:---------:|:---------:|
+| ----------- | :-------: | :-------: |
 | Backbones   | ResNet-18 | ResNet-50 |
 | Vanilla     |   59.63   |   63.10   |
 | MixUp       |   59.33   |   63.01   |

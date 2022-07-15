@@ -5,9 +5,9 @@ import torch.nn as nn
 import torch.nn.functional as F
 from mmcv.cnn import build_norm_layer, constant_init, kaiming_init, normal_init, \
     ConvModule, NonLocal2d
-from mmcv.runner import BaseModule
+from mmcv.runner import BaseModule, force_fp32
 
-from openmixup.utils import force_fp32, print_log
+from openmixup.utils import print_log
 from ..registry import HEADS
 from ..necks import ConvNeck
 from .. import builder
@@ -21,8 +21,9 @@ class PixelMixBlock(BaseModule):
         "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
         "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
             Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
-    *** Warning: FP16 training might result in inf or nan, please try a smaller
-        batch size when FP16 overflow occur! ***
+
+    *** Warning: FP16 training might result in `inf` or `nan`, please try a smaller
+        batch size with FP32 when FP16 overflow occurs! ***
 
     Args:
         in_channels (int): Channels of the input feature map.

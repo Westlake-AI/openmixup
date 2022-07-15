@@ -30,7 +30,7 @@ model = dict(
     head=dict(
         type='ClsHead',  # mixup head, normal CE loss
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=1000)
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089)
 )
 
 # optimizer

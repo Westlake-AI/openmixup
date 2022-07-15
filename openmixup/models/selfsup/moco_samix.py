@@ -15,20 +15,14 @@ from ..utils import concat_all_gather, GatherLayer, Smoothing
 
 
 @MODELS.register_module
-class MOCO_AutoMix_V2(BaseModel):
-    """MOCO + AutoMix.V2 V0824 (OK version 09.21)
-        pre mixblock conv and loss (08.24 update)
-        'no_repeat'  and 'mask_smooth' (09.22 update)
-        'feat_pos_extend' (09.24 update)
-        'auxi_mb_loss' with feat extension and descent (09.23 update)
-        'pretrained_labels' for clustering. (10.17 update)
+class MoCoSAMix(BaseModel):
+    """MOCO + SAMix
 
-        *** this version is current sota, but has infomation leaky in mix_idx_shuffle ***
+    *** this version is current sota, but has infomation leaky in mix_idx_shuffle ***
 
-    Implementation of "Momentum Contrast for Unsupervised Visual
-    Representation Learning (https://arxiv.org/abs/1911.05722)".
-    Part of the code is borrowed from:
-    "https://github.com/facebookresearch/moco/blob/master/moco/builder.py".
+    Official implementation of
+        "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
+            Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.
@@ -120,7 +114,7 @@ class MOCO_AutoMix_V2(BaseModel):
                  debug=False,
                  init_cfg=None,
                  **kwargs):
-        super(MOCO_AutoMix_V2, self).__init__(init_cfg, **kwargs)
+        super(MoCoSAMix, self).__init__(init_cfg, **kwargs)
         # build basic networks
         assert isinstance(neck, dict) and isinstance(head, dict)
         self.encoder_q = builder.build_backbone(backbone)
@@ -232,7 +226,7 @@ class MOCO_AutoMix_V2(BaseModel):
             pretrained (str, optional): Path to pre-trained weights.
                 Default: None.
         """
-        super(MOCO_AutoMix_V2, self).init_weights()
+        super(MoCoSAMix, self).init_weights()
 
         if pretrained is not None:
             print_log('load encoder_q from: {}'.format(pretrained), logger='root')

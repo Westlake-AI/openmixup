@@ -1,10 +1,8 @@
-# Tutorial 1: Learn about Configs
+# Tutorial 0: Learn about Configs
 
-MMClassification mainly uses python files as configs. The design of our configuration file system integrates modularity and inheritance, facilitating users to conduct various experiments. All configuration files are placed in the `configs` folder, which mainly contains the primitive configuration folder of `_base_` and many algorithm folders such as `resnet`, `swin_transformer`, `vision_transformer`, etc.
+OpenMixup mainly uses python files as configs. The design of our configuration file system integrates modularity and inheritance, facilitating users to conduct various experiments. All configuration files are placed in the `configs` folder, which mainly contains the primitive configuration folder of `_base_` and many algorithm folders such as `resnet`, `swin_transformer`, `vision_transformer`, etc.
 
 If you wish to inspect the config file, you may run `python tools/misc/print_config.py /PATH/TO/CONFIG` to see the complete config.
-
-<!-- TOC -->
 
 - [Config  File and Checkpoint Naming Convention](#config-file-and-checkpoint-naming-convention)
 - [Config File Structure](#config-file-structure)
@@ -15,8 +13,6 @@ If you wish to inspect the config file, you may run `python tools/misc/print_con
 - [Modify config through script arguments](#modify-config-through-script-arguments)
 - [Import user-defined modules](#import-ser-defined-modules)
 - [FAQ](#faq)
-
-<!-- TOC -->
 
 ## Config File and Checkpoint Naming Convention
 
@@ -383,7 +379,7 @@ When users use the script "tools/train.py" or "tools/test.py" to submit tasks or
 ## Import user-defined modules
 
 ```{note}
-This part may only be used when using MMClassification as a third party library to build your own project, and beginners can skip it.
+This part may only be used when using OpenMixup as a third party library to build your own project, and beginners can skip it.
 ```
 
 After studying the follow-up tutorials [ADDING NEW DATASET](https://mmclassification.readthedocs.io/en/latest/tutorials/new_dataset.html), [CUSTOM DATA PIPELINES](https://mmclassification.readthedocs.io/en/latest/tutorials/data_pipeline.html), [ADDING NEW MODULES](https://mmclassification.readthedocs.io/en/latest/tutorials/new_modules.html). You may use MMClassification to complete your project and create new classes of datasets, models, data enhancements, etc. in the project. In order to streamline the code, you can use MMClassification as a third-party library, you just need to keep your own extra code and import your own custom module in the configuration files. For examples, you may refer to [OpenMMLab Algorithm Competition Project](https://github.com/zhangrui-wolf/openmmlab-competition-2021) .

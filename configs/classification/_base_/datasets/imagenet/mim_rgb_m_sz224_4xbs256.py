@@ -63,4 +63,4 @@ evaluation = dict(
     eval_param=dict(topk=(1, 5)))
 
 # checkpoint
-checkpoint_config = dict(interval=10, max_keep_ckpts=1)
+checkpoint_config = dict(interval=1, max_keep_ckpts=1)
