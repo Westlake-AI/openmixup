@@ -3,11 +3,11 @@ from .gather_layer import GatherLayer, concat_all_gather, \
    batch_shuffle_ddp, batch_unshuffle_ddp, grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp
 from .grad_weight import GradWeighter, get_grad_norm
 from .helpers import is_tracing, to_2tuple, to_3tuple, to_4tuple, to_ntuple
-from .augments import cutmix, mixup, fmix, resizemix, saliencymix, smoothmix, attentivemix, puzzlemix
+from .augments import cutmix, mixup, fmix, gridmix, resizemix, saliencymix, smoothmix, attentivemix, puzzlemix
 from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, Decoder, DropPath, Encoder, InvertedResidual, make_divisible, \
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
    Scale, SELayer, Canny, Laplacian, Sobel, Smoothing, \
-   CrossMultiheadAttention, HiLoAttention, MultiheadAttention, MultiheadAttentionWithRPE, \
+   CrossMultiheadAttention, FlowAttention, HiLoAttention, MultiheadAttention, MultiheadAttentionWithRPE, \
    MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
    build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
@@ -25,11 +25,11 @@ __all__ = [
    'GatherLayer', 'concat_all_gather', 'batch_shuffle_ddp', 'batch_unshuffle_ddp',
    'grad_batch_shuffle_ddp', 'grad_batch_unshuffle_ddp', 'GradWeighter', 'get_grad_norm',
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
-   'cutmix', 'mixup', 'fmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
+   'cutmix', 'mixup', 'fmix', 'gridmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual', 'make_divisible',
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
    'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
-   'CrossMultiheadAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
+   'CrossMultiheadAttention', 'FlowAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
    'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
    'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
    'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',

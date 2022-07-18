@@ -14,27 +14,17 @@ It is a challenging task to learn discriminative representation from images and 
 
 ### ImageNet-1k
 
-<!-- |    Model    |   Pretrain   | resolution | Params(M) | Flops(G) | Top-1 (%) | Top-5 (%) |                               Config                                |                               Download                                |
-| :---------: | :----------: | :--------: | :-------: | :------: | :-------: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
-| UniFormer-S | From scratch |  224x224   |   4.11    |   0.88   |   75.35   |   92.79   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_tiny_8xb128_fp16_ep300.py) | model / log |
-| UniFormer-S | From scratch |  224x224   |   22.86   |   2.52   |   82.90   |   95.63   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_small_8xb128_fp16_ep310.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-small_8xb128_in1k_20220501-17bc91aa.pth) | -->
+|       Model       |   Pretrain   | resolution | Params(M) | Flops(G) | Top-1 (%) |                               Config                                |                               Download                                |
+| :---------------: | :----------: | :--------: | :-------: | :------: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
+| UniFormer-T       | From scratch |  224x224   |   5.55    |   0.88   |   78.02   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | model / log |
+| UniFormer-S       | From scratch |  224x224   |   21.5    |   3.44   |   82.56   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | model / log |
+| UniFormer-S\*     | From scratch |  224x224   |   21.5    |   3.44   |   82.90   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-S†\*    | From scratch |  224x224   |   24.0    |   4.21   |   83.40   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-B\*     | From scratch |  224x224   |   49.8    |   8.27   |   83.90   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-S+TL\*  | From scratch |  224x224   |   21.5    |   3.44   |   83.40   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-B+TL\*  | From scratch |  224x224   |   49.8    |   8.27   |   85.10   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
 
-We follow the original training setting provided by the [official repo](https://github.com/Sense-X/UniFormer). *Note that models with * are converted from [the official repo](https://github.com/Sense-X/UniFormer/blob/main/image_classification).* Based on VAN, we also design and reproduce UniFormer-Tiny.
-
-
-| Model           | Pretrain    | Resolution | Top-1 | #Param. | FLOPs |
-| --------------- | ----------- | ---------- | ----- | ------- | ----- |
-| UniFormer-S     | ImageNet-1K | 224x224    | 82.9  | 22M     | 3.6G  |
-| UniFormer-S†    | ImageNet-1K | 224x224    | 83.4  | 24M     | 4.2G  |
-| UniFormer-B     | ImageNet-1K | 224x224    | 83.9  | 50M     | 8.3G  |
-| UniFormer-S+TL  | ImageNet-1K | 224x224    | 83.4  | 22M     | 3.6G  |
-| UniFormer-S†+TL | ImageNet-1K | 224x224    | 83.9  | 24M     | 4.2G  |
-| UniFormer-B+TL  | ImageNet-1K | 224x224    | 85.1  | 50M     | 8.3G  |
-| UniFormer-L+TL  | ImageNet-1K | 224x224    | 85.6  | 100M    | 12.6G |
-| UniFormer-S+TL  | ImageNet-1K | 384x384    | 84.6  | 22M     | 11.9G |
-| UniFormer-S†+TL | ImageNet-1K | 384x384    | 84.9  | 24M     | 13.7G |
-| UniFormer-B+TL  | ImageNet-1K | 384x384    | 86.0  | 50M     | 27.2G |
-| UniFormer-L+TL  | ImageNet-1K | 384x384    | 86.3  | 100M    | 39.2G |
+We follow the original training setting provided by the [official repo](https://github.com/Sense-X/UniFormer). *Note that models with \* are converted from [the official repo](https://github.com/Sense-X/UniFormer/blob/main/image_classification), † denotes using `ConvStem` in UniFormer. TL denotes training the model with [Token Labeling](https://arxiv.org/abs/2104.10858) as [LV-ViT](https://github.com/zihangJiang/TokenLabeling).* We reproduce the performances of UniFormer-T and UniFormer-S training 300 epochs, and UniFormer-T is designed according to VAN-T.
 
 ## Citation
 

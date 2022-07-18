@@ -11,7 +11,7 @@ from torch.autograd import Variable
 from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import (cutmix, fmix, mixup, resizemix, saliencymix, smoothmix,
+from ..utils import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
                      attentivemix, puzzlemix, PlotTensor)
 
 
@@ -52,6 +52,8 @@ class MixUpClassification(BaseModel):
                     attentivemix=dict(grid_size=32, top_k=6, beta=8),
                     automix=dict(mask_adjust=0, lam_margin=0),
                     fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
+                    gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+                        cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
                     manifoldmix=dict(layer=(0, 3)),
                     puzzlemix=dict(transport=True, t_batch_size=None, block_num=5, beta=1.2,
                         gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=4),
@@ -90,8 +92,9 @@ class MixUpClassification(BaseModel):
             "attentivemix": attentivemix, "puzzlemix": puzzlemix,
             "automix": self._mixblock, "samix": self._mixblock}
         self.static_mode = {
-            "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "manifoldmix": self._manifoldmix,
-            "saliencymix": saliencymix, "smoothmix": smoothmix, "resizemix": resizemix,
+            "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "gridmix": gridmix,
+            "manifoldmix": self._manifoldmix, "saliencymix": saliencymix,
+            "smoothmix": smoothmix, "resizemix": resizemix,
         }
         for _mode in self.mix_mode:
             assert _mode in ["vanilla"] + list(self.dynamic_mode.keys()) + list(self.static_mode.keys())
@@ -256,7 +259,7 @@ class MixUpClassification(BaseModel):
         elif cur_mode not in ["manifoldmix",]:
             if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
                 img, gt_label = self.static_mode[cur_mode](img, gt_label, cur_alpha, dist_mode=False)
-            elif cur_mode in ["resizemix", "fmix"]:
+            elif cur_mode in ["resizemix", "fmix", "gridmix",]:
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
                 img, gt_label = self.static_mode[cur_mode](img, gt_label, **mix_args)
             else:

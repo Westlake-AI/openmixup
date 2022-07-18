@@ -37,7 +37,7 @@ def main():
     # base_path = "configs/classification/imagenet/mixups/decouple/r50_mixups_CE_soft_decouple_4xb64.py"
 
     # *** DeiT (Swim) ***
-    # base_path = "configs/classification/imagenet/mixups/deit/deit_s_timm_smooth_mix0_8_cut1_0_4xb256_ema.py"
+    # base_path = "configs/classification/imagenet/mixups/deit/deit_s_timm_smooth_mix0_8_cut1_0_4xb256.py"
 
     # *** RSB A2 ***
     # base_path = "configs/classification/imagenet/mixups/rsb_a2/r50_rsb_a2_CE_sigm_mix0_1_cut1_0_4xb256_accu2_fp16.py"

@@ -1,6 +1,6 @@
 # ConvNeXt
 
-> [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545v1)
+> [A ConvNet for the 2020s](https://arxiv.org/abs/2201.03545)
 
 ## Abstract
 
@@ -18,13 +18,14 @@ This page is based on documents in [MMClassification](https://github.com/open-mm
 
 |     Model     |   Pretrain   | Params(M) | Flops(G) | Top-1 (%) | Top-5 (%) |                                Config                                 |                                Download                                 |
 | :-----------: | :----------: | :-------: | :------: | :-------: | :-------: | :-------------------------------------------------------------------: | :---------------------------------------------------------------------: |
+| ConvNeXt-T    | From scratch |   28.59   |   4.46   |   82.16   |   95.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_tiny_8xb256_accu2_fp16_ep300.py) | model | log |
 | ConvNeXt-T\*  | From scratch |   28.59   |   4.46   |   82.05   |   95.86   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_tiny_8xb256_accu2_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-tiny_3rdparty_32xb128_in1k_20220124-18abde00.pth) |
 | ConvNeXt-S\*  | From scratch |   50.22   |   8.69   |   83.13   |   96.44   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_small_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-small_3rdparty_32xb128_in1k_20220124-d39b5192.pth) |
 | ConvNeXt-B\*  | From scratch |   88.59   |  15.36   |   83.85   |   96.74   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_base_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-base_3rdparty_32xb128_in1k_20220124-d0915162.pth) |
 | ConvNeXt-L\*  | From scratch |  197.77   |  34.37   |   84.30   |   96.89   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_large_8xb64_accu8_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-large_3rdparty_64xb64_in1k_20220124-f8a0ded0.pth) |
 | ConvNeXt-XL\* | ImageNet-21k |  350.20   |  60.93   |   86.97   |   98.20   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_xlarge_8xb64_accu8_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-xlarge_in21k-pre-3rdparty_64xb64_in1k_20220124-76b6863d.pth) |
 
-We follow the original training setting provided by the [official repo](https://github.com/facebookresearch/ConvNeXt). *Models with * are converted from the [official repo](https://github.com/facebookresearch/ConvNeXt).* We also reproduce the performance of ConvNeXt-Tiny in [mixup](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/).
+We follow the original training setting provided by the [official repo](https://github.com/facebookresearch/ConvNeXt). *Models with * are converted from the [official repo](https://github.com/facebookresearch/ConvNeXt).* We also reproduce the performance of ConvNeXt-T in [mixup](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/).
 
 ### Pre-trained Models (Evaluation Only)
 

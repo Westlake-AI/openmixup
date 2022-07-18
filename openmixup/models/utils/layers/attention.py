@@ -949,6 +949,97 @@ class HiLoAttention(BaseModule):
         return x
 
 
+class FlowAttention(BaseModule):
+    """Multi-head Attention Module.
+
+    Modified from `Flowformer: Linearizing Transformers with Conservation
+    Flows <https://arxiv.org/abs/2202.06258>`_
+
+    Args:
+        embed_dims (int): The embedding dimension.
+        num_heads (int): Parallel attention heads.
+        input_dims (int, optional): The input dimension, and if None,
+            use ``embed_dims``. Defaults to None.
+        attn_drop (float): Dropout rate of the dropout layer after the
+            attention calculation of query and key. Defaults to 0.
+        proj_drop (float): Dropout rate of the dropout layer after the
+            output projection. Defaults to 0.
+        qkv_bias (bool): If True, add a learnable bias to q, k, v.
+            Defaults to True.
+        proj_bias (bool) If True, add a learnable bias to output projection.
+            Defaults to True.
+        init_cfg (dict, optional): The Config for initialization.
+            Defaults to None.
+    """
+    def __init__(self,
+                 embed_dims,
+                 num_heads,
+                 input_dims=None,
+                 attn_drop=0.,
+                 proj_drop=0.,
+                 qkv_bias=True,
+                 proj_bias=True,
+                 init_cfg=None,
+                 **kwargs):
+        super(FlowAttention).__init__(init_cfg=init_cfg)
+
+        self.input_dims = input_dims or embed_dims
+        self.embed_dims = embed_dims
+        self.num_heads = num_heads
+        self.head_dims = embed_dims // num_heads
+
+        self.qkv = nn.Linear(self.input_dims, embed_dims * 3, bias=qkv_bias)
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(embed_dims, embed_dims, bias=proj_bias)
+        self.proj_drop = nn.Dropout(proj_drop)
+
+    def kernel(self, x):
+        """ non-neg of the in/output flow """
+        x = torch.sigmoid(x)
+        return x
+
+    def my_sum(self, a, b):
+        # "nhld,nhd->nhl"
+        return torch.sum(a * b[:, :, None, :], dim=-1)
+
+    def forward(self, x):
+        B, N, C = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads,
+                                  C // self.num_heads).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]
+        # kernel for non-neg
+        q, k = self.kernel(q), self.kernel(k)
+        # normalizer
+        sink_incoming = 1.0 / (
+            self.my_sum(q + 1e-6, k.sum(dim=2) + 1e-6) + 1e-6)
+        source_outgoing = 1.0 / (
+            self.my_sum(k + 1e-6, q.sum(dim=2) + 1e-6) + 1e-6)
+        conserved_sink = self.my_sum(
+            q + 1e-6, (k * source_outgoing[:, :, :, None]).sum(dim=2) + 1e-6) + 1e-6
+        conserved_source = self.my_sum(
+            k + 1e-6, (q * sink_incoming[:, :, :, None]).sum(dim=2) + 1e-6) + 1e-6
+        conserved_source = torch.clamp(
+            conserved_source, min=-1.0, max=1.0)  # for stability
+
+        # allocation
+        sink_allocation = torch.sigmoid(
+            conserved_sink * (float(q.shape[2]) / float(k.shape[2])))
+        sink_allocation = self.attn_drop(sink_allocation)
+        # competition
+        source_competition = torch.softmax(
+            conserved_source, dim=-1) * float(k.shape[2])
+        source_competition = self.attn_drop(source_competition)
+        # multiply
+        kv = k.transpose(-2, -1) @ (v * source_competition[:, :, :, None])
+        x_update = ((q @ kv) * \
+            sink_incoming[:, :, :, None]) * sink_allocation[:, :, :, None]
+        x = (x_update).transpose(1, 2).reshape(B, N, C)
+        x = self.proj(x)
+        x = self.proj_drop(x)
+
+        return x
+
+
 class CrossMultiheadAttention(BaseModule):
     """Cross attention between queries and the union of keys and values.
 

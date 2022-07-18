@@ -1,5 +1,5 @@
 _base_ = [
-    '../../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
+    '../../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
     '../../../_base_/default_runtime.py',
 ]
 
@@ -7,12 +7,14 @@ _base_ = [
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    alpha=[0.8, 1.0,],
+    alpha=[0.8, 1.0,],  # deit setting
     mix_mode=["mixup", "cutmix",],
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
         fmix=dict(decay_power=3, size=(224,224), max_soft=0., reformulate=False),
+        gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+            cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
         manifoldmix=dict(layer=(0, 3)),
         puzzlemix=dict(transport=True, t_batch_size=32, t_size=-1,  # adjust t_batch_size if CUDA out of memory
             mp=None, block_num=4,  # block_num<=4 and mp=2/4 for fast training
@@ -22,32 +24,18 @@ model = dict(
     ),
     backbone=dict(
         type='VisionTransformer',
-        arch='deit-tiny',
+        arch='deit-small',
         img_size=224, patch_size=16,
     ),
-    init_cfg=[
-        dict(type='TruncNormal', layer='Linear', std=.02),
-        dict(type='Constant', layer='LayerNorm', val=1., bias=0.),
-    ],
     head=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=192, num_classes=1000)
+        in_channels=384, num_classes=1000)
 )
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
-
-# additional hooks
-custom_hooks = [
-    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
-        momentum=0.99996,
-        warmup='linear',
-        warmup_iters=20 * 2503, warmup_ratio=0.9,  # warmup 20 epochs.
-        update_interval=update_interval,
-    ),
-]
 
 # optimizer
 optimizer = dict(

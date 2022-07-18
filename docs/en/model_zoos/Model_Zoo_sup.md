@@ -19,9 +19,9 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [x] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
 - [x] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [ ] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [x] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [x] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
 
 </details>

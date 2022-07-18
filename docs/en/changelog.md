@@ -6,7 +6,7 @@ Update new features and fix bugs as [#7](https://github.com/Westlake-AI/openmixu
 
 #### New Features
 
-- Support new backbone architectures.
+- Support new backbone architectures ([LITv2](https://arxiv.org/abs/2205.13213)).
 - Refactor code structures weight initialization in various network modules (using `BaseModule` in `mmcv`).
 - Refactor code structures of `openmixup.models.utils.layers` to support more network structures.
 

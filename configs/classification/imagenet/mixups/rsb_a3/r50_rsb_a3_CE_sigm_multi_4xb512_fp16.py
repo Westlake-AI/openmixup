@@ -1,7 +1,4 @@
-_base_ = [
-    '../../../_base_/datasets/imagenet/rsb_a3_sz160_4xbs512.py',
-    '../../../_base_/default_runtime.py',
-]
+_base_ = "r50_rsb_a3_CE_none_4xb512_fp16.py"
 
 # model settings
 model = dict(
@@ -11,19 +8,6 @@ model = dict(
     mix_mode=["mixup", "cutmix", "manifoldmix"],  # list of chosen mixup modes
     mix_prob=[1/3, 1/3, 1/3],  # list of applying probs (sum=1), None for random applying
     mix_repeat=1,  # times of repeating mixup aug
-    mix_args=dict(
-        manifoldmix=dict(layer=(0, 3)),
-        resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
-        fmix=dict(decay_power=3, size=(160,160), max_soft=0., reformulate=False)
-    ),
-    backbone=dict(
-        # type='ResNet',  # normal
-        type='ResNet_Mix',  # required by 'manifoldmix'
-        depth=50,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        norm_cfg=dict(type='SyncBN'),
-        style='pytorch'),
     head=dict(
         type='ClsMixupHead',
         loss=dict(type='CrossEntropyLoss',  # mixup BCE loss (one-hot encoding)
@@ -31,29 +15,3 @@ model = dict(
         with_avg_pool=True, multi_label=True, two_hot=False,
         in_channels=2048, num_classes=1000)
 )
-
-# interval for accumulate gradient
-update_interval = 1  # 512 x 4gpus x 1 accumulates = bs2048
-
-# optimizer
-optimizer = dict(type='LAMB', lr=0.008, weight_decay=0.02,
-                 paramwise_options={
-                    '(bn|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
-                    'bias': dict(weight_decay=0.)})
-# apex
-use_fp16 = True
-fp16 = dict(type='apex', loss_scale='dynamic')
-optimizer_config = dict(
-    grad_clip=None, update_interval=update_interval)
-
-# lr scheduler
-lr_config = dict(
-    policy='CosineAnnealing',
-    min_lr=1.0e-6,
-    warmup='linear',
-    warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
-    warmup_ratio=1e-5,
-)
-
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=100)

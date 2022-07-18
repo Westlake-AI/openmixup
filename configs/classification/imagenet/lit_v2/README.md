@@ -14,13 +14,15 @@ Vision Transformers (ViTs) have triggered the most recent and significant breakt
 
 ### ImageNet-1k
 
-|  Model  |   Pretrain   | resolution | Params(M) | Flops(G) | Top-1 (%) |                               Config                                |                               Download                                |
-| :-----: | :----------: | :--------: | :-------: | :------: | :-------: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
-| LITv2-S | From scratch |  224x224   |     28    |    3.7   |    82.0   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_small_swin_8xb128_cos_fp16_ep300.py) | model / log |
-| LITv2-M | From scratch |  224x224   |     49    |    7.5   |    83.3   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_medium_swin_8xb128_cos_fp16_ep300.py) | model / log |
+|   Model   |   Pretrain   | resolution | Params(M) | Flops(G) | Throughput (imgs/s) | Top-1 (%) |                               Config                                |                               Download                                |
+| :-------: | :----------: | :--------: | :-------: | :------: | :-------: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
+|  LITv2-S  | From scratch |  224x224   |     28    |    3.7   | 1,471               |    81.7   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_small_8xb128_cos_fp16_ep300.py) | model / log |
+| LITv2-S\* | From scratch |  224x224   |     28    |    3.7   | 1,471               |    82.0   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_small_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_s.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m_log.txt) |
+| LITv2-M\* | From scratch |  224x224   |     49    |    7.5   | 812                 |    83.3   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_medium_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m_log.txt) |
+| LITv2-B\* | From scratch |  224x224   |     87    |   13.2   | 602                 |    84.7   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_base_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_b.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_b_log.txt) |
 
 
-We follow the original training setting provided by the [official repo](https://github.com/ziplab/LITv2).
+We follow the original training setting provided by the [official repo](https://github.com/ziplab/LITv2) and throughput is averaged over 30 runs. *Note that models with \* are converted from the [official repo](https://github.com/ziplab/LITv2).* We reproduce LITv2-S training 300 epochs.
 
 ## Citation
 

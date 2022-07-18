@@ -2,7 +2,7 @@
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    alpha=[0.8, 1.0,],  # deit setting
+    alpha=[0.8, 1.0,],
     mix_mode=["mixup", "cutmix",],
     mix_args=dict(),
     backbone=dict(

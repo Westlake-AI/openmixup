@@ -13,6 +13,8 @@ model = dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
         fmix=dict(decay_power=3, size=(224,224), max_soft=0., reformulate=False),
+        gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+            cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
         manifoldmix=dict(layer=(0, 3)),
         puzzlemix=dict(transport=True, t_batch_size=32, t_size=-1,  # adjust t_batch_size if CUDA out of memory
             mp=None, block_num=4,  # block_num<=4 and mp=2/4 for fast training
@@ -35,7 +37,12 @@ model = dict(
 
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=None)
+
+# fp16
+use_fp16 = False
+fp16 = dict(type='apex', loss_scale='dynamic')
+# optimizer args
+optimizer_config = dict(update_interval=1, grad_clip=None)
 
 # lr scheduler
 lr_config = dict(policy='CosineAnnealing', min_lr=0)

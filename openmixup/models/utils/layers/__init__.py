@@ -1,4 +1,4 @@
-from .attention import CrossMultiheadAttention, HiLoAttention, MultiheadAttention, \
+from .attention import CrossMultiheadAttention, FlowAttention, HiLoAttention, MultiheadAttention, \
     MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA
 from .channel_shuffle import channel_shuffle
 from .conv_ws import ConvWS2d, conv_ws_2d
@@ -22,7 +22,7 @@ __all__ = [
     'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual', 'make_divisible',
     'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
     'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
-    'CrossMultiheadAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
+    'CrossMultiheadAttention', 'FlowAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
     'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
     'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
     'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',

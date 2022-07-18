@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/models/lit_v2/lit_v2_small.py',
+    '../../_base_/models/lit_v2/lit_v2_medium.py',
     '../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
     '../../_base_/default_runtime.py',
 ]
@@ -19,7 +19,8 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'offset': dict(lr_mul=0.01),
+        'gamma': dict(weight_decay=0.),
+        'offset': dict(weight_decay=0., lr_mul=0.01),
     })
 
 # apex

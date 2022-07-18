@@ -22,7 +22,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
   OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplatable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
 
 - **All in One.**
-  OpenMixup provides popular backbones, mixup methods, and self-supervised algorithms. Users can perform supervised training or self-supervised pre-training under the same setting.
+  OpenMixup provides popular backbones, mixup methods, semi-supervised, and self-supervised algorithms. Users can perform image classification (CNN & Transformer) and self-supervised pre-training (contrastive and autoregressive) under the same setting.
 
 - **Standard Benchmarks.**
   OpenMixup supports standard benchmarks of image classification, mixup classification, self-supervised evaluation, and provides smooth evaluation on downstream tasks with open-source projects (e.g., object detection and segmentation on [Detectron2](https://github.com/facebookresearch/maskrcnn-benchmark) and [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)).
@@ -74,25 +74,26 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <details open>
     <summary>Currently supported backbones</summary>
 
-    - [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
-    - [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
-    - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
-    - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
-    - [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
-    - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
-    - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
+    - [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
+    - [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
+    - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
     - [x] [MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV'2019)
-    - [x] [EfficientNet](https://arxiv.org/abs/1905.11946) (ICML'2019) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/)]
-    - [x] [Swin-Transformer](https://arxiv.org/abs/2103.14030) (ICCV'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/)]
+    - [x] [EfficientNet](https://arxiv.org/abs/1905.11946) (ICML'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/)]
+    - [x] [Swin-Transformer](https://arxiv.org/abs/2103.14030) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/)]
     - [x] [RepVGG](https://arxiv.org/abs/2101.03697) (CVPR'2021)
-    - [x] [Vision-Transformer](https://arxiv.org/pdf/2010.11929.pdf) (ICLR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/)]
-    - [x] [MLP-Mixer](https://arxiv.org/abs/2105.01601) (NIPS'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/)]
-    - [x] [DeiT](https://arxiv.org/abs/2012.12877) (ICML'2021)
-    - [x] [ConvMixer](https://arxiv.org/abs/2201.09792) (Openreview'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/)]
-    - [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
-    - [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
-    - [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
-    - [x] [VAN](https://arxiv.org/abs/2202.09741) (ArXiv'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/)]
+    - [x] [Vision-Transformer](https://arxiv.org/pdf/2010.11929.pdf) (ICLR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/)]
+    - [x] [MLP-Mixer](https://arxiv.org/abs/2105.01601) (NIPS'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/)]
+    - [x] [DeiT](https://arxiv.org/abs/2012.12877) (ICML'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/)]
+    - [x] [ConvMixer](https://arxiv.org/abs/2201.09792) (Openreview'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/)]
+    - [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
+    - [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
+    - [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
+    - [x] [VAN](https://arxiv.org/abs/2202.09741) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/)]
+    - [x] [LITv2](https://arxiv.org/abs/2205.13213) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/)]
     </details>
 
 * Mixup methods for supervised image classification.
@@ -110,22 +111,22 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020)
     - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021)
     - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (ArXiv'2020)
-    - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
-    - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
+    - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
+    - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
     </details>
 
     <details open>
     <summary>Currently supported datasets for mixups</summary>
 
-    - [x] [ImageNet](https://dl.acm.org/doi/10.1145/3065386) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
-    - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
-    - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
-    - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](https://www.kaggle.com/c/tiny-imagenet)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]
-    - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
-    - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
+    - [x] [ImageNet](https://dl.acm.org/doi/10.1145/3065386) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
+    - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
+    - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](https://www.kaggle.com/c/tiny-imagenet)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]
+    - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
+    - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
     - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
-    - [x] [Place205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
-    - [x] [iNaturalist-2017/2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp)] [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
+    - [x] [Place205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
+    - [x] [iNaturalist-2017/2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
     </details>
 
 * Self-supervised algorithms for visual representation.
@@ -133,24 +134,24 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <details open>
     <summary>Currently supported self-supervised algorithms</summary>
 
-    - [x] [Relative Location](https://arxiv.org/abs/1505.05192) (ICCV'2015) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/)]
-    - [x] [Rotation Prediction](https://arxiv.org/abs/1803.07728) (ICLR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/rotation_pred/)]
-    - [x] [DeepCluster](https://arxiv.org/abs/1807.05520) (ECCV'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/deepcluster/)]
-    - [x] [NPID](https://arxiv.org/abs/1805.01978) (CVPR'2018) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/npid/)]
-    - [x] [ODC](https://arxiv.org/abs/2006.10645) (CVPR'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/odc/)]
-    - [x] [MoCov1](https://arxiv.org/abs/1911.05722) (CVPR'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov1/)]
-    - [x] [SimCLR](https://arxiv.org/abs/2002.05709) (ICML'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simclr/)]
-    - [x] [MoCoV2](https://arxiv.org/abs/2003.04297) (ArXiv'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov2/)]
-    - [x] [BYOL](https://arxiv.org/abs/2006.07733) (NIPS'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/byol/)]
-    - [x] [SwAV](https://arxiv.org/abs/2006.09882) (NIPS'2020) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/swav/)]
-    - [x] [DenseCL](https://arxiv.org/abs/2011.09157) (CVPR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/densecl/)]
-    - [x] [SimSiam](https://arxiv.org/abs/2011.10566) (CVPR'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simsiam/)]
-    - [x] [Barlow Twins](https://arxiv.org/abs/2103.03230) (ICML'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/barlowtwins/)]
-    - [x] [MoCoV3](https://arxiv.org/abs/2104.02057) (ICCV'2021) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov3/)]
-    - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
-    - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
+    - [x] [Relative Location](https://arxiv.org/abs/1505.05192) (ICCV'2015) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/relative_loc/)]
+    - [x] [Rotation Prediction](https://arxiv.org/abs/1803.07728) (ICLR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/rotation_pred/)]
+    - [x] [DeepCluster](https://arxiv.org/abs/1807.05520) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/deepcluster/)]
+    - [x] [NPID](https://arxiv.org/abs/1805.01978) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/npid/)]
+    - [x] [ODC](https://arxiv.org/abs/2006.10645) (CVPR'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/odc/)]
+    - [x] [MoCov1](https://arxiv.org/abs/1911.05722) (CVPR'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov1/)]
+    - [x] [SimCLR](https://arxiv.org/abs/2002.05709) (ICML'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simclr/)]
+    - [x] [MoCoV2](https://arxiv.org/abs/2003.04297) (ArXiv'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov2/)]
+    - [x] [BYOL](https://arxiv.org/abs/2006.07733) (NIPS'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/byol/)]
+    - [x] [SwAV](https://arxiv.org/abs/2006.09882) (NIPS'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/swav/)]
+    - [x] [DenseCL](https://arxiv.org/abs/2011.09157) (CVPR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/densecl/)]
+    - [x] [SimSiam](https://arxiv.org/abs/2011.10566) (CVPR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simsiam/)]
+    - [x] [Barlow Twins](https://arxiv.org/abs/2103.03230) (ICML'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/barlowtwins/)]
+    - [x] [MoCoV3](https://arxiv.org/abs/2104.02057) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov3/)]
+    - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
+    - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
     - [x] [CAE](https://arxiv.org/abs/2202.03026) (ArXiv'2022)
-    - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[readme](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
+    - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
     </details>
 
 ## Change Log
