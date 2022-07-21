@@ -8,7 +8,7 @@ Welcome to OpenMixup's documentation!
 
 .. toctree::
    :maxdepth: 1
-   :caption: Get Started
+   :caption: Getting Started
 
    install.md
    get_started.md
@@ -39,6 +39,12 @@ Welcome to OpenMixup's documentation!
 
    awesome_mixups/Mixup_SL.md
    awesome_mixups/Mixup_SSL.md
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Awesome Self-supervised Learning Methods
+
+   awesome_selfsup/MIM.md
 
 .. toctree::
    :maxdepth: 1

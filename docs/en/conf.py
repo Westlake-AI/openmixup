@@ -1,4 +1,3 @@
-# Copyright (c) OpenMMLab. All rights reserved.
 # Configuration file for the Sphinx documentation builder.
 #
 # This file only contains a selection of the most common options. For a full
@@ -72,12 +71,48 @@ source_suffix = {
 html_theme = 'pytorch_sphinx_theme'
 html_theme_path = [pytorch_sphinx_theme.get_html_theme_path()]
 html_theme_options = {
+    # The target url that the logo directs to. Unset to do nothing
+    'logo_url': 'https://openmixup.readthedocs.io/en/latest/',
+    # "menu" is a list of dictionaries where you can specify the content and the 
+    # behavior of each item in the menu. Each item can either be a link or a
+    # dropdown menu containing a list of links.
     'menu': [
         {
             'name': 'GitHub',
             'url': 'https://github.com/Westlake-AI/openmixup'
         },
+        {
+            'name':
+            'Upstream',
+            'children': [
+                {
+                    'name': 'MMCV',
+                    'url': 'https://github.com/open-mmlab/mmcv',
+                    'description': 'Foundational library for computer vision'
+                },
+                {
+                    'name': 'MMDetection',
+                    'url': 'https://github.com/open-mmlab/mmdetection',
+                    'description': 'Object detection toolbox and benchmark'
+                },
+                {
+                    'name': 'MMClassification',
+                    'url': 'https://github.com/open-mmlab/mmclassification',
+                    'description': 'OpenMMLab Image Classification Toolbox and Benchmark'
+                },
+                {
+                    'name': 'MMSelfSup',
+                    'url': 'https://github.com/open-mmlab/mmselfsup',
+                    'description': 'OpenMMLab Self-Supervised Learning Toolbox and Benchmark'
+                },
+            ]
+        },
     ],
+    # For shared menu: If your project is a part of OpenMMLab's project and 
+    # you would like to append Docs and OpenMMLab section to the right
+    # of the menu, you can specify menu_lang to choose the language of
+    # shared contents. Available options are 'en' and 'cn'. Any other
+    # strings will fall back to 'en'.
     'menu_lang': 'en'
 }
 
