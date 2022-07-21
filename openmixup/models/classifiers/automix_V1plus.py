@@ -6,8 +6,8 @@ import torchvision
 from torchvision import transforms
 
 import logging
-from mmcv.runner import load_checkpoint
-from openmixup.utils import auto_fp16, force_fp32, print_log
+from mmcv.runner import auto_fp16, force_fp32, load_checkpoint
+from openmixup.utils import print_log
 
 from .base_model import BaseModel
 from .. import builder

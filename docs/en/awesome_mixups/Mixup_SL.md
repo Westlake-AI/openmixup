@@ -97,6 +97,8 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    TransMix: Attend to Mix for Vision Transformers.
 8. **DecoupleMix**, [[Arxiv'2022](https://arxiv.org/abs/2203.10761),] [[code](https://github.com/Westlake-AI/openmixup)]
    Decoupled Mixup for Data-efficient Learning.
+9. **TokenMix**, [[ECCV'2022](https://arxiv.org/abs/2207.08409),] [[code](https://github.com/Sense-X/TokenMix)]
+   TokenMix: Rethinking Image Mixing for Data Augmentation in Vision Transformers.
 
 ## Contribution
 

@@ -1,5 +1,5 @@
 _base_ = [
-    '../../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
+    '../../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
     '../../../_base_/default_runtime.py',
 ]
 
@@ -7,8 +7,8 @@ _base_ = [
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    alpha=[0.8, 1.0,],  # deit setting
-    mix_mode=["mixup", "cutmix",],
+    alpha=0.2,
+    mix_mode="cutmix",
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
@@ -23,18 +23,14 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='TIMMBackbone',
-        model_name='deit_small_patch16_224',
-        features_only=True,  # remove head in timm
-        pretrained=False,
-        checkpoint_path=None,
-        in_channels=3,
+        type='VisionTransformer',
+        arch='deit-small',
+        img_size=224, patch_size=16,
     ),
     head=dict(
-        type='ClsMixupHead',  # mixup CE + label smooth
+        type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        with_avg_pool=False,  # no gap in ViT from timm, but merge cls_token in output features
         in_channels=384, num_classes=1000)
 )
 
@@ -55,7 +51,7 @@ optimizer = dict(
     })
 # apex
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 

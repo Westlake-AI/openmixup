@@ -1,6 +1,6 @@
 # AutoMix
 
-> [Unveiling the Power of Mixup for Stronger Classifiers](https://arxiv.org/abs/2103.13027)
+> [AutoMix: Unveiling the Power of Mixup for Stronger Classifiers](https://arxiv.org/abs/2103.13027)
 
 ## Abstract
 
@@ -14,13 +14,27 @@ Data mixing augmentation have proved to be effective in improving the generaliza
 
 ### ImageNet-1k
 
+|     Model     |  Mixup  | resolution | Params(M) | Epochs | Top-1 (%) |                               Config                                |                               Download                                |
+| :-----------: | :-----: | :--------: | :-------: | :----: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
+|  ResNet-18    | AutoMix |  224x224   |   11.17   |  100   |   70.50   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r18_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-18    | AutoMix |  224x224   |   11.17   |  300   |   72.05   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r18_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-34    | AutoMix |  224x224   |   21.28   |  100   |   74.52   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r34_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-34    | AutoMix |  224x224   |   21.28   |  300   |   76.10   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r34_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-50    | AutoMix |  224x224   |   23.52   |  100   |   77.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r50_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-50    | AutoMix |  224x224   |   23.52   |  300   |   79.25   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r50_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-101   | AutoMix |  224x224   |   42.51   |  100   |   79.87   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r101_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNet-101   | AutoMix |  224x224   |   42.51   |  300   |   80.98   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/r101_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+|  ResNeXt-101  | AutoMix |  224x224   |   44.18   |  100   |   80.89   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/rx101_l2_a2_near_lam_cat_mb_mlr1e_3_bb_mlr0.py) | model / log |
+
+
 We will update configs and models for AutoMix soon. Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
+
 
 ## Citation
 
 ```bibtex
 @misc{liu2021automix,
-      title={Unveiling the Power of Mixup for Stronger Classifiers},
+      title={AutoMix: Unveiling the Power of Mixup for Stronger Classifiers},
       author={Zicheng Liu and Siyuan Li and Di Wu and Zhiyuan Chen and Lirong Wu and Jianzhu Guo and Stan Z. Li},
       year={2021},
       eprint={2103.13027},

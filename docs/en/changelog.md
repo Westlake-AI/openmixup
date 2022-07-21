@@ -1,6 +1,20 @@
 ## Changelog
 
-### v0.2.4 (30/07/2022)
+### v0.2.5 (21/07/2022)
+
+Support new features and update documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10).
+
+#### New Features
+
+- Support new attention mechanisms in backbone architectures ([Anti-Oversmoothing](https://arxiv.org/abs/2203.05962), `FlowAttention` in [FlowFormer](https://arxiv.org/abs/2202.06258) and `PoolAttention` in [MViTv2](https://arxiv.org/abs/2112.01526)).
+
+### Update Documents
+
+- Recognizing `README` and `README` for various methods.
+- Updating [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
+- Updating [get_started.md](docs/en/get_started.md) and [Tutorials](docs/en/tutorials) for better usage of `OpenMixup`.
+
+### v0.2.4 (07/07/2022)
 
 Update new features and fix bugs as [#7](https://github.com/Westlake-AI/openmixup/issues/7).
 

@@ -20,6 +20,13 @@ class WindowMSA(BaseModule):
     """Window based multi-head self-attention (W-MSA) module with relative
     position bias.
 
+    A PyTorch implement of : `Swin Transformer: Hierarchical Vision Transformer
+    using Shifted Windows <https://arxiv.org/abs/2103.14030>`_
+
+    `attn_scale` is modified from : `Anti-Oversmoothing in Deep Vision
+    Transformers via the Fourier Domain Analysis: From Theory to Practice
+    <https://arxiv.org/abs/2203.05962>`_
+
     Args:
         embed_dims (int): Number of input channels.
         window_size (tuple[int]): The height and width of the window.
@@ -31,6 +38,11 @@ class WindowMSA(BaseModule):
         attn_drop (float, optional): Dropout ratio of attention weight.
             Defaults to 0.
         proj_drop (float, optional): Dropout ratio of output. Defaults to 0.
+        attn_scale (bool): If True, use AttnScale (anti-oversmoothing).
+            AttnScale decomposes a self-attention block into low-pass and
+            high-pass components, then rescales and combines these two filters
+            to produce an all-pass self-attention matrix.
+            Defaults to False.
         init_cfg (dict, optional): The extra config for initialization.
             Defaults to None.
     """
@@ -43,6 +55,7 @@ class WindowMSA(BaseModule):
                  qk_scale=None,
                  attn_drop=0.,
                  proj_drop=0.,
+                 attn_scale=False,
                  init_cfg=None):
 
         super().__init__(init_cfg)
@@ -68,6 +81,11 @@ class WindowMSA(BaseModule):
         self.attn_drop = nn.Dropout(attn_drop)
         self.proj = nn.Linear(embed_dims, embed_dims)
         self.proj_drop = nn.Dropout(proj_drop)
+
+        self.attn_scale = attn_scale
+        if self.attn_scale:
+            self.lamb = nn.Parameter(
+                torch.zeros(num_heads), requires_grad=True)
 
         self.softmax = nn.Softmax(dim=-1)
 
@@ -111,6 +129,15 @@ class WindowMSA(BaseModule):
         else:
             attn = self.softmax(attn)
 
+        if self.attn_scale:
+            attn_d = torch.ones(
+                attn.shape[-2:], device=attn.device) / N  # [l, l]
+            attn_d = attn_d[None, None, ...]  # [B, N, l, l]
+            attn_h = attn - attn_d  # [B, N, l, l]
+            attn_h = attn_h * (1. + self.lamb[None, :, None, None]
+                               )  # [B, N, l, l]
+            attn = attn_d + attn_h  # [B, N, l, l]
+
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
@@ -128,6 +155,13 @@ class WindowMSA(BaseModule):
 class ShiftWindowMSA(BaseModule):
     """Shift Window Multihead Self-Attention Module.
 
+    A PyTorch implement of : `Swin Transformer: Hierarchical Vision Transformer
+    using Shifted Windows <https://arxiv.org/abs/2103.14030>`_
+
+    `attn_scale` is modified from : `Anti-Oversmoothing in Deep Vision
+    Transformers via the Fourier Domain Analysis: From Theory to Practice
+    <https://arxiv.org/abs/2203.05962>`_
+
     Args:
         embed_dims (int): Number of input channels.
         num_heads (int): Number of attention heads.
@@ -143,6 +177,11 @@ class ShiftWindowMSA(BaseModule):
         proj_drop (float, optional): Dropout ratio of output. Defaults to 0.
         dropout_layer (dict, optional): The dropout_layer used before output.
             Defaults to dict(type='DropPath', drop_prob=0.).
+        attn_scale (bool): If True, use AttnScale (anti-oversmoothing).
+            AttnScale decomposes a self-attention block into low-pass and
+            high-pass components, then rescales and combines these two filters
+            to produce an all-pass self-attention matrix.
+            Defaults to False.
         pad_small_map (bool): If True, pad the small feature map to the window
             size, which is common used in detection and segmentation. If False,
             avoid shifting window and shrink the window size to the size of
@@ -161,6 +200,7 @@ class ShiftWindowMSA(BaseModule):
                  qk_scale=None,
                  attn_drop=0,
                  proj_drop=0,
+                 attn_scale=False,
                  dropout_layer=dict(type='DropPath', drop_prob=0.),
                  pad_small_map=False,
                  input_resolution=None,
@@ -187,6 +227,7 @@ class ShiftWindowMSA(BaseModule):
             qk_scale=qk_scale,
             attn_drop=attn_drop,
             proj_drop=proj_drop,
+            attn_scale=attn_scale,
         )
 
         self.drop = build_dropout(dropout_layer)
@@ -315,6 +356,10 @@ class MultiheadAttention(BaseModule):
     dims and embed dims. And it also supports a shortcut from ``value``, which
     is useful if input dims is not the same with embed dims.
 
+    `attn_scale` is modified from : `Anti-Oversmoothing in Deep Vision
+    Transformers via the Fourier Domain Analysis: From Theory to Practice
+    <https://arxiv.org/abs/2203.05962>`_
+
     Args:
         embed_dims (int): The embedding dimension.
         num_heads (int): Parallel attention heads.
@@ -332,6 +377,11 @@ class MultiheadAttention(BaseModule):
             ``head_dim ** -0.5`` if set. Defaults to None.
         proj_bias (bool) If True, add a learnable bias to output projection.
             Defaults to True.
+        attn_scale (bool): If True, use AttnScale (anti-oversmoothing).
+            AttnScale decomposes a self-attention block into low-pass and
+            high-pass components, then rescales and combines these two filters
+            to produce an all-pass self-attention matrix.
+            Defaults to False.
         v_shortcut (bool): Add a shortcut from value to output. It's usually
             used if ``input_dims`` is different from ``embed_dims``.
             Defaults to False.
@@ -349,6 +399,7 @@ class MultiheadAttention(BaseModule):
                  qkv_bias=True,
                  qk_scale=None,
                  proj_bias=True,
+                 attn_scale=False,
                  v_shortcut=False,
                  init_cfg=None):
         super(MultiheadAttention, self).__init__(init_cfg=init_cfg)
@@ -366,6 +417,11 @@ class MultiheadAttention(BaseModule):
         self.proj = nn.Linear(embed_dims, embed_dims, bias=proj_bias)
         self.proj_drop = nn.Dropout(proj_drop)
 
+        self.attn_scale = attn_scale
+        if self.attn_scale:
+            self.lamb = nn.Parameter(
+                torch.zeros(num_heads), requires_grad=True)
+
         self.out_drop = DROPOUT_LAYERS.build(dropout_layer)
 
     def forward(self, x):
@@ -376,6 +432,16 @@ class MultiheadAttention(BaseModule):
 
         attn = (q @ k.transpose(-2, -1)) * self.scale
         attn = attn.softmax(dim=-1)
+
+        if self.attn_scale:
+            attn_d = torch.ones(
+                attn.shape[-2:], device=attn.device) / N  # [l, l]
+            attn_d = attn_d[None, None, ...]  # [B, N, l, l]
+            attn_h = attn - attn_d  # [B, N, l, l]
+            attn_h = attn_h * (1. + self.lamb[None, :, None, None]
+                               )  # [B, N, l, l]
+            attn = attn_d + attn_h  # [B, N, l, l]
+
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B, N, self.embed_dims)
@@ -392,6 +458,10 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
 
     This module rewrite the MultiheadAttention in MMSelfSup by adding the
     relative position bias.
+
+    `attn_scale` is modified from : `Anti-Oversmoothing in Deep Vision
+    Transformers via the Fourier Domain Analysis: From Theory to Practice
+    <https://arxiv.org/abs/2203.05962>`_
 
     Args:
         embed_dims (int): The embedding dimension.
@@ -411,6 +481,11 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             ``head_dim ** -0.5`` if set. Defaults to None.
         proj_bias (bool) If True, add a learnable bias to output projection.
             Defaults to True.
+        attn_scale (bool): If True, use AttnScale (anti-oversmoothing).
+            AttnScale decomposes a self-attention block into low-pass and
+            high-pass components, then rescales and combines these two filters
+            to produce an all-pass self-attention matrix.
+            Defaults to False.
         init_cfg (dict, optional): The Config for initialization.
             Defaults to None.
     """
@@ -425,6 +500,7 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
                  qkv_bias: bool = True,
                  qk_scale: float = None,
                  proj_bias: bool = True,
+                 attn_scale: bool = False,
                  init_cfg: dict = None) -> None:
         super().__init__(
             embed_dims=embed_dims,
@@ -435,6 +511,7 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             qkv_bias=qkv_bias,
             qk_scale=qk_scale,
             proj_bias=proj_bias,
+            attn_scale=attn_scale,
             init_cfg=init_cfg)
 
         self.qkv = nn.Linear(self.input_dims, embed_dims * 3, bias=False)
@@ -483,6 +560,11 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
         self.register_buffer('relative_position_index',
                              relative_position_index)
 
+        self.attn_scale = attn_scale
+        if self.attn_scale:
+            self.lamb = nn.Parameter(
+                torch.zeros(num_heads), requires_grad=True)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         qkv_bias = None
         if self.q_bias is not None:
@@ -511,6 +593,16 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             attn = attn + relative_position_bias.unsqueeze(0)
 
         attn = attn.softmax(dim=-1)
+
+        if self.attn_scale:
+            attn_d = torch.ones(
+                attn.shape[-2:], device=attn.device) / N  # [l, l]
+            attn_d = attn_d[None, None, ...]  # [B, N, l, l]
+            attn_h = attn - attn_d  # [B, N, l, l]
+            attn_h = attn_h * (1. + self.lamb[None, :, None, None]
+                               )  # [B, N, l, l]
+            attn = attn_d + attn_h  # [B, N, l, l]
+
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B, N, self.embed_dims)
@@ -981,7 +1073,7 @@ class FlowAttention(BaseModule):
                  proj_bias=True,
                  init_cfg=None,
                  **kwargs):
-        super(FlowAttention).__init__(init_cfg=init_cfg)
+        super().__init__(init_cfg=init_cfg)
 
         self.input_dims = input_dims or embed_dims
         self.embed_dims = embed_dims

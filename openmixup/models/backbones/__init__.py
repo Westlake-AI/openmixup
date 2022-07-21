@@ -4,6 +4,7 @@ from .convnext import ConvNeXt
 from .deit import DistilledVisionTransformer
 from .densenet import DenseNet
 from .efficientnet import EfficientNet
+from .lan import LAN
 from .lenet import LeNet5
 from .lit import LIT
 from .mim_resnet import MIMResNet
@@ -28,7 +29,7 @@ from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
     'AlexNet', 'ConvNeXt', 'ConvMixer', 'DistilledVisionTransformer', 'DenseNet', 'EfficientNet', 'LeNet5',
-    'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
+    'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet', 'LAN',
     'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'PoolFormer',
     'ResNeSt', 'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',
     'ResNeXt', 'ResNeXt_CIFAR', 'ResNeXt_Mix', 'ResNeXt_CIFAR_Mix',

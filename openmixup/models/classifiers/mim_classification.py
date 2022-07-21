@@ -4,7 +4,8 @@ import torch
 from torch.autograd import Variable
 import torch.nn.functional as F
 
-from openmixup.utils import force_fp32, print_log
+from mmcv.runner import force_fp32
+from openmixup.utils import print_log
 from openmixup.models.utils import Canny, Laplacian, Sobel
 
 from .base_model import BaseModel

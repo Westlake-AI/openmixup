@@ -1,12 +1,7 @@
-_base_ = [
-    '../../../_base_/datasets/tiny_imagenet/sz64_bs100.py',
-    '../../../_base_/default_runtime.py',
-]
+_base_ = "r18_mixups_CE_none.py"
 
 # model settings
 model = dict(
-    type='MixUpClassification',
-    pretrained=None,
     alpha=[0.1, 1, 1,],  # list of alpha
     mix_mode=["mixup", "cutmix", "vanilla",],  # list of chosen mixup modes
     mix_prob=None,  # list of applying probs (sum=1), None for random applying
@@ -21,25 +16,12 @@ model = dict(
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
-    backbone=dict(
-        type='ResNet_CIFAR',  # CIFAR version
-        # type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
-        depth=18,
-        num_stages=4,
-        out_indices=(3,),  # no conv-1, x-1: stage-x
-        style='pytorch'),
-    head=dict(
-        type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
-        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=200)
 )
 
-# optimizer
-optimizer = dict(type='SGD', lr=0.2, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=None)
-
-# lr scheduler
-lr_config = dict(policy='CosineAnnealing', min_lr=0)
-
-# runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)
+# additional hooks
+custom_hooks = [
+    dict(type='SAVEHook',
+        iter_per_epoch=1000,
+        save_interval=1000 * 25,  # plot every 25 ep
+    )
+]

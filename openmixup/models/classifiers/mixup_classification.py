@@ -4,7 +4,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from mmcv.runner import load_checkpoint
+from mmcv.runner import force_fp32, load_checkpoint
 from openmixup.utils import print_log
 from torch.autograd import Variable
 
@@ -327,7 +327,8 @@ class MixUpClassification(BaseModel):
         keys = ['head{}'.format(i) for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
-    
+
+    @force_fp32(apply_to=('img_mixed', ))
     def plot_mix(self, img_mixed, mix_mode="", lam=None):
         """ visualize mixup results """
         img = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)

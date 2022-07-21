@@ -55,7 +55,7 @@ optimizer = dict(
     })
 # apex
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 

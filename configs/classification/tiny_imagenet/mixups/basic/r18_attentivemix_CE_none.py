@@ -14,6 +14,8 @@ model = dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
         fmix=dict(decay_power=3, size=(64,64), max_soft=0., reformulate=False),
+        gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+            cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
         manifoldmix=dict(layer=(0, 3)),
         puzzlemix=dict(transport=True, t_batch_size=None, t_size=4,  # t_size for small-scale datasets
             block_num=5, beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),

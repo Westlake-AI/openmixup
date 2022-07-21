@@ -14,6 +14,18 @@ Mixup is a popular data-dependent augmentation technique for deep neural network
 
 ### ImageNet-1k
 
+|     Model     |  Mixup  | resolution | Params(M) | Epochs | Top-1 (%) |                               Config                                |                               Download                                |
+| :-----------: | :-----: | :--------: | :-------: | :----: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
+|  ResNet-18    |  SAMix  |  224x224   |   11.17   |  100   |   70.50   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r18_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-18    |  SAMix  |  224x224   |   11.17   |  300   |   72.05   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r18_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-34    |  SAMix  |  224x224   |   21.28   |  100   |   74.52   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r34_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-34    |  SAMix  |  224x224   |   21.28   |  300   |   76.10   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r34_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-50    |  SAMix  |  224x224   |   23.52   |  100   |   77.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r50_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-50    |  SAMix  |  224x224   |   23.52   |  300   |   79.25   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r50_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-101   |  SAMix  |  224x224   |   42.51   |  100   |   79.87   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNet-101   |  SAMix  |  224x224   |   42.51   |  300   |   80.98   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+|  ResNeXt-101  |  SAMix  |  224x224   |   44.18   |  100   |   80.89   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/rx101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
+
 We will update configs and models for SAMix soon. Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
 
 ## Citation

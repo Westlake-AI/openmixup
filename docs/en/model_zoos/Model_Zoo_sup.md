@@ -32,6 +32,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796v1)
 - [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [x] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
+- [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
 
 </details>
 
