@@ -3,6 +3,7 @@
 [🛠️Installation](https://openmixup.readthedocs.io/en/latest/install.html) |
 [🚀Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos) |
 [👀Awesome Mixup](https://openmixup.readthedocs.io/en/latest/awesome_mixups/Mixup_SL.html) |
+[🔍Awesome MIM](https://openmixup.readthedocs.io/en/latest/awesome_selfsup/MIM.html) |
 [🆕News](https://openmixup.readthedocs.io/en/latest/changelog.html)
 
 ## Introduction
@@ -31,7 +32,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## What's New
 
-[2020-07-07] `OpenMixup` v0.2.4 is released (issue [#7](https://github.com/Westlake-AI/openmixup/issues/7)), which fixs bugs of weight initialization and fine-tuning, updates docs, etc.
+[2020-07-30] `OpenMixup` v0.2.5 is released (issue [#10](https://github.com/Westlake-AI/openmixup/issues/10)).
 
 ## Installation
 

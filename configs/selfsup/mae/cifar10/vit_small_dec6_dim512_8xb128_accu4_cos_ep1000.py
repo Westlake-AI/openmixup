@@ -4,8 +4,11 @@ _base_ = [
     '../../_base_/default_runtime.py',
 ]
 
+# dataset
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+
 # interval for accumulate gradient
-update_interval = 8  # total: 8 x bs64 x 8 accumulates = bs4096
+update_interval = 8  # total: 8 x bs128 x 4 accumulates = bs4096
 
 # optimizer
 optimizer = dict(

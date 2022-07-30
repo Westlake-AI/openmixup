@@ -1,11 +1,21 @@
 _base_ = [
     '../../_base_/models/mae/vit_small.py',
-    '../../_base_/datasets/imagenet/mae_sz224_bs64.py',
+    '../../_base_/datasets/imagenet100/mae_sz224_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
+# dataset
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+
 # interval for accumulate gradient
-update_interval = 8  # total: 8 x bs64 x 8 accumulates = bs4096
+update_interval = 8  # total: 8 x bs128 x 4 accumulates = bs4096
+
+# additional hooks
+custom_hooks = [
+    dict(type='SAVEHook',
+        save_interval=124 * 100,  # plot every 100 ep
+        iter_per_epoch=124),
+]
 
 # optimizer
 optimizer = dict(
@@ -13,6 +23,7 @@ optimizer = dict(
     lr=1.5e-4 * 4096 / 256,  # bs4096
     betas=(0.9, 0.95), weight_decay=0.05,
     paramwise_options={
+        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
@@ -21,7 +32,7 @@ optimizer = dict(
     })
 
 # apex
-use_fp16 = False
+use_fp16 = False  # Notice that MAE get NAN loss when using fp16 on CIAFR-100
 fp16 = dict(type='apex', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, grad_clip=None)

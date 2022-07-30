@@ -26,7 +26,12 @@ class MAEPretrainHead(BaseModule):
         self.patch_size = patch_size
 
     def patchify(self, imgs):
-
+        """
+        Args:
+            x (torch.Tensor): The shape is (N, L, patch_size**2 * 3)
+        Returns:
+            imgs (torch.Tensor): The shape is (N, 3, H, W)
+        """
         p = self.patch_size
         assert imgs.shape[2] == imgs.shape[3] and imgs.shape[2] % p == 0
 
@@ -35,6 +40,22 @@ class MAEPretrainHead(BaseModule):
         x = torch.einsum('nchpwq->nhwpqc', x)
         x = x.reshape(shape=(imgs.shape[0], h * w, p**2 * 3))
         return x
+
+    def unpatchify(self, x):
+        """
+        Args:
+            x (torch.Tensor): The shape is (N, L, patch_size**2 *3)
+        Returns:
+            imgs (torch.Tensor): The shape is (N, 3, H, W)
+        """
+        p = self.patch_size
+        h = w = int(x.shape[1]**0.5)
+        assert h * w == x.shape[1]
+
+        x = x.reshape(shape=(x.shape[0], h, w, p, p, 3))
+        x = torch.einsum('nhwpqc->nchpwq', x)
+        imgs = x.reshape(shape=(x.shape[0], 3, h * p, h * p))
+        return imgs
 
     def forward(self, x, x_rec, mask):
         losses = dict()

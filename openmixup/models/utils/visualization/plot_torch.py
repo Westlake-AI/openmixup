@@ -1,4 +1,5 @@
 import os
+import torch
 import torchvision
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,7 +20,7 @@ class PlotTensor:
                     torchvision.transforms.Normalize(
                         mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])]
         self.invTrans = torchvision.transforms.Compose(trans)
-    
+
     def plot(self,
              img, nrow=4, title_name=None, save_name=None,
              dpi=None, apply_inv=True, overwrite=False):
@@ -36,6 +37,7 @@ class PlotTensor:
             cmap = plt.cm.gray
         if apply_inv:
             img_grid = self.invTrans(img_grid)
+        img_grid = torch.clip(img_grid * 255, 0, 255).int()
         img_grid = np.transpose(img_grid.detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure(figsize=(nrow * 2, ncol * 2))
         plt.imshow(img_grid, cmap=cmap)

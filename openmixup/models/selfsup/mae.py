@@ -79,23 +79,15 @@ class MAE(BaseModel):
             x = x[0][-1]  # return cls_token
         return [x]
 
-    @force_fp32(apply_to=('img_ori', 'img_rec',))
-    def plot_reconstruction(self, img_ori, img_rec):
+    @force_fp32(apply_to=('img_ori', 'img_rec', 'mask',))
+    def plot_reconstruction(self, img_ori, img_rec, mask):
         """ visualize reconstruction results """
-        # reshape patchfied img_rec
-        N, C, H, W = img_ori.size()
-        P = self.head.patch_size
-        h = w = H // P  # h, w after patchfy
-
-        img_rec = img_rec.reshape(shape=(N, h, w, P, P, C))
-        img_rec = torch.einsum('nhwpqc->nchpwq', img_rec)
-        img_rec = img_rec.reshape(shape=(N, C, H, W))
-
-        img_rec = img_rec * (img_ori.var(dim=-1, keepdim=True) + 1e-6)**0.5 + \
-            img_ori.mean(dim=-1, keepdim=True)
-        
-        mask = torch.clamp(img_ori - img_rec - 1e-6, 0, 1).type(torch.bool)
-        img_mask = img_ori * (~mask).type(torch.float32)
+        # unpatchify reconstructed imgs
+        img_rec = self.head.unpatchify(img_rec)
+        mask = mask.detach()
+        mask = mask.unsqueeze(-1).repeat(1, 1, self.head.patch_size**2 * 3)
+        mask = self.head.unpatchify(mask)  # 1 is removing, 0 is keeping
+        img_mask = img_ori * (1 - mask)
 
         # plot MIM results
         img = torch.cat((img_ori[:4], img_mask[:4], img_rec[:4]), dim=0)
@@ -119,6 +111,6 @@ class MAE(BaseModel):
         losses = self.head(img, pred, mask)
 
         if self.save:
-            self.plot_reconstruction(img, pred)
+            self.plot_reconstruction(img, pred, mask)
 
         return losses

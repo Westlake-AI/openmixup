@@ -1,11 +1,14 @@
 _base_ = [
-    '../../_base_/models/mae/vit_base.py',
-    '../../_base_/datasets/imagenet/mae_sz224_bs64.py',
+    '../../_base_/models/mae/vit_small.py',
+    '../../_base_/datasets/cifar100/mae_sz224_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
+# dataset
+data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+
 # interval for accumulate gradient
-update_interval = 8  # total: 8 x bs64 x 8 accumulates = bs4096
+update_interval = 8  # total: 8 x bs128 x 4 accumulates = bs4096
 
 # optimizer
 optimizer = dict(
@@ -22,10 +25,11 @@ optimizer = dict(
     })
 
 # apex
-use_fp16 = True
+use_fp16 = False  # Notice that MAE get NAN loss when using fp16 on CIAFR-100
 fp16 = dict(type='apex', loss_scale='dynamic')
 # optimizer args
-optimizer_config = dict(update_interval=update_interval, grad_clip=None)
+optimizer_config = dict(
+    update_interval=update_interval, grad_clip=None)
 
 # lr scheduler
 lr_config = dict(
@@ -37,4 +41,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=1600)
+runner = dict(type='EpochBasedRunner', max_epochs=1000)

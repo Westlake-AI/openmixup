@@ -19,10 +19,11 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+        'layer_scale': dict(weight_decay=0.),
     })
 
 # apex
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(update_interval=update_interval)
 

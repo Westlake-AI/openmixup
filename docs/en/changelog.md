@@ -10,9 +10,13 @@ Support new features and update documents as [#10](https://github.com/Westlake-A
 
 ### Update Documents
 
-- Recognizing `README` and `README` for various methods.
-- Updating [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
-- Updating [get_started.md](docs/en/get_started.md) and [Tutorials](docs/en/tutorials) for better usage of `OpenMixup`.
+- Recognize `README` and `README` for various methods.
+- Update [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
+- Update [get_started.md](docs/en/get_started.md) and [Tutorials](docs/en/tutorials) for better usage of `OpenMixup`.
+
+### Bug Fixes
+
+- Fix visualization of the reconstruction results in `MAE`.
 
 ### v0.2.4 (07/07/2022)
 

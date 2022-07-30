@@ -37,6 +37,9 @@ model = dict(
         in_channels=1280, num_classes=1000)
 )
 
+# data
+data = dict(imgs_per_gpu=512, workers_per_gpu=10)
+
 # interval for accumulate gradient
 update_interval = 1  # 512 x 4gpus x 1 accumulates = bs2048
 
