@@ -9,8 +9,43 @@ from mmcv.runner import BaseModule
 from mmcv.utils.parrots_wrapper import _BatchNorm
 from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 
+from ..utils import channel_shuffle
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
+
+
+def custom_build_activation_layer(cfg):
+    """Build activation layer.
+
+    Args:
+        cfg (dict): The activation layer config, which should contain:
+
+            - type (str): Layer type.
+            - layer args: Args needed to instantiate an activation layer.
+
+    Returns:
+        nn.Module: Created activation layer.
+    """
+    if cfg is None:
+        return nn.Identity()
+    if cfg['type'] == 'SiLU':
+        return nn.SiLU()
+    else:
+        return build_activation_layer(cfg)
+
+
+class ElementScale(nn.Module):
+    """A learnable element-wise scaler."""
+
+    def __init__(self, embed_dims=128, init_value=0., requires_grad=True):
+        super(ElementScale, self).__init__()
+        self.scale = nn.Parameter(
+            init_value * torch.ones((1, embed_dims, 1, 1)),
+            requires_grad=requires_grad
+        )
+
+    def forward(self, x):
+        return x * self.scale
 
 
 class MixFFN(BaseModule):
@@ -56,7 +91,7 @@ class MixFFN(BaseModule):
             out_channels=feedforward_channels,
             kernel_size=kernel_size,
             stride=1,
-            padding=1,
+            padding=kernel_size // 2,
             bias=True,
             groups=feedforward_channels)
         self.act = build_activation_layer(act_cfg)
@@ -112,8 +147,8 @@ class ConvFFN(BaseModule):
         return x
 
 
-class GLUFFN(BaseModule):
-    """An implementation of FFN with GLU.
+class DecomposeFFN(BaseModule):
+    """An implementation of FFN with Feature Decomposing.
 
     Args:
         embed_dims (int): The feature dimension. Same as
@@ -132,88 +167,67 @@ class GLUFFN(BaseModule):
                  feedforward_channels,
                  kernel_size=3,
                  act_cfg=dict(type='GELU'),
-                 pre_glu=True,
-                 glu_balanced_param=False,
-                 glu_act_cfg=None,
                  ffn_drop=0.,
+                 decompose_repeat=2,
+                 decompose_method='learn',
+                 decompose_reweight='learn',
+                 decompose_init_value=1e-2,
+                 decompose_act_cfg=None,
                  init_cfg=None):
-        super(GLUFFN, self).__init__(init_cfg=init_cfg)
+        super(DecomposeFFN, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
         self.feedforward_channels = feedforward_channels
+        self.decompose_repeat = decompose_repeat
+        self.decompose_channels = int(feedforward_channels / decompose_repeat)
+        assert self.feedforward_channels % self.decompose_channels == 0
         self.act_cfg = act_cfg
-        self.pre_glu = pre_glu
 
-        if self.pre_glu:  # glu before the FFN activation
-            self.feedforward_channels = feedforward_channels \
-                if not glu_balanced_param else int(feedforward_channels * 4 / 3)
-            self.feedforward_channels -= (self.feedforward_channels % 2)
-            self.fc1 = Conv2d(
-                in_channels=embed_dims,
-                out_channels=self.feedforward_channels,
-                kernel_size=1)
-            if kernel_size > 0:
-                self.dwconv = Conv2d(
-                    in_channels=self.feedforward_channels,
-                    out_channels=self.feedforward_channels,
-                    kernel_size=kernel_size,
-                    stride=1, padding=1, bias=True,
-                    groups=self.feedforward_channels)
-            else:
-                self.dwconv = nn.Identity()
-            if glu_act_cfg is not None:
-                if glu_act_cfg['type'] == "SiLU":
-                    self.act = nn.SiLU()
-                else:
-                    self.act = build_activation_layer(glu_act_cfg)
-                self.glu = None
-            else:
-                self.act = None
-                self.glu = nn.GLU(dim=1)
-            self.fc2 = Conv2d(
-                in_channels=self.feedforward_channels // 2,
-                out_channels=embed_dims,
-                kernel_size=1)
-        else:  # glu after the FFN activation
-            self.feedforward_channels = feedforward_channels \
-                if not glu_balanced_param else int(feedforward_channels * 2 / 3)
-            self.feedforward_channels -= (self.feedforward_channels % 2)
-            self.fc1 = Conv2d(
-                in_channels=embed_dims,
-                out_channels=self.feedforward_channels,
-                kernel_size=1)
-            if kernel_size > 0:
-                self.dwconv = Conv2d(
-                    in_channels=self.feedforward_channels,
-                    out_channels=self.feedforward_channels,
-                    kernel_size=kernel_size,
-                    stride=1, padding=1, bias=True,
-                    groups=self.feedforward_channels)
-            else:
-                self.dwconv = nn.Identity()
-            self.act = build_activation_layer(act_cfg)
-            self.glu = nn.GLU(dim=1)
-            self.fc2 = Conv2d(
-                in_channels=self.feedforward_channels,
-                out_channels=embed_dims * 2,
-                kernel_size=1)
+        self.fc1 = Conv2d(
+            in_channels=embed_dims,
+            out_channels=self.decompose_channels,
+            kernel_size=1)
+        self.dwconv = Conv2d(
+            in_channels=self.decompose_channels,
+            out_channels=self.decompose_channels,
+            kernel_size=kernel_size,
+            stride=1,
+            padding=kernel_size // 2,
+            bias=True,
+            groups=self.decompose_channels)
+        self.act = build_activation_layer(act_cfg)
+        self.fc2 = Conv2d(
+            in_channels=feedforward_channels,
+            out_channels=embed_dims,
+            kernel_size=1)
         self.drop = nn.Dropout(ffn_drop)
 
+        self.decompose = Conv2d(
+            in_channels=self.decompose_channels,  # C -> 1
+            out_channels=1, kernel_size=1,
+        ) if decompose_method == 'learn' else None
+        for i in range(self.decompose_repeat):
+            sigma = ElementScale(
+                self.decompose_channels, decompose_init_value, decompose_reweight=='learn')
+            self.add_module(f'sigma{i + 1}', sigma)
+        self.decompose_act = custom_build_activation_layer(decompose_act_cfg)
+
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.dwconv(x)
-        if self.pre_glu:
-            if self.act is not None:
-                f_x, g_x = torch.split(x, self.feedforward_channels // 2, dim=1)
-                x = self.act(f_x) * self.act(g_x)  # 4d -> 2d
-            else:
-                x = self.glu(x)  # 4d -> 2d
-        else:
-            x = self.act(x)
+        # proj 1
+        x = self.act(self.dwconv(self.fc1(x)))
         x = self.drop(x)
+        # decompose
+        if self.decompose is not None:
+            x_d = self.decompose_act(self.decompose(x))  # [B, C, H, W] -> [B, 1, H, W]
+        else:
+            x_d = torch.mean(x, dim=1, keepdim=True)  # [B, 1, H, W]
+        x_repeat = list()
+        for i in range(self.decompose_repeat):
+            sigma_i = getattr(self, f'sigma{i + 1}')
+            x_repeat.append(x + sigma_i(x - x_d))
+        x = torch.cat(x_repeat, dim=1)
+        # proj 2
         x = self.fc2(x)
-        if not self.pre_glu:
-            x = self.glu(x)  # 2d -> d
         x = self.drop(x)
         return x
 
@@ -239,32 +253,18 @@ class LKA(BaseModule):
     def __init__(self,
                  embed_dims,
                  dw_kernel_size=5,
-                 use_competition=False,
-                 act_competition="Sigmoid",
-                 act_kernel="ELU+1",
-                 act_value_kernel=None,
-                 with_conv_group=None,
                  with_dilation=True,
                  with_pointwise=True,
                  init_cfg=None):
         super(LKA, self).__init__(init_cfg=init_cfg)
 
-        # a spatial local convolution
-        if with_conv_group is None or with_pointwise:  # depth-wise convolution
-            self.DW_conv = Conv2d(
-                in_channels=embed_dims,
-                out_channels=embed_dims,
-                kernel_size=dw_kernel_size,
-                padding=dw_kernel_size // 2,
-                groups=embed_dims)
-        else:
-            assert embed_dims % with_conv_group == 0
-            self.DW_conv = Conv2d(  # group conv
-                in_channels=embed_dims,
-                out_channels=embed_dims,
-                kernel_size=dw_kernel_size,
-                padding=dw_kernel_size // 2,
-                groups=with_conv_group)
+        # a spatial local convolution (depth-wise convolution)
+        self.DW_conv = Conv2d(
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=dw_kernel_size,
+            padding=dw_kernel_size // 2,
+            groups=embed_dims)
         # a spatial long-range convolution (depth-wise dilation convolution)
         self.DW_D_conv = Conv2d(
             in_channels=embed_dims,
@@ -274,72 +274,19 @@ class LKA(BaseModule):
             padding=9,
             groups=embed_dims,
             dilation=3) if with_dilation else nn.Identity()
-        # a channel convolution
-        if with_conv_group is None:
-            self.conv1 = Conv2d(  # point-wise convolution
-                in_channels=embed_dims,
-                out_channels=embed_dims,
-                kernel_size=1) if with_pointwise else nn.Identity()
-        else:
-            assert embed_dims % with_conv_group == 0
-            self.conv1 = Conv2d(
-                in_channels=embed_dims,
-                out_channels=embed_dims,
-                kernel_size=1,
-                groups=with_conv_group,
-            ) if with_pointwise else nn.Identity()
+        # a channel convolution (point-wise convolution)
+        self.PW_conv = Conv2d(
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=1) if with_pointwise else nn.Identity()
 
-        # use competition by normalization
-        self.use_competition = use_competition
-        if self.use_competition:
-            if act_kernel in ["Sigmoid", "Tanh",]:
-                self.act_kernel = build_activation_layer(dict(type=act_kernel))
-            elif act_kernel == "ELU+1":
-                self.act_kernel = self.elu_1
-            else:
-                self.act_kernel = nn.Identity()
-        else:
-            self.act_kernel = None
-        # activation attention
-        assert isinstance(act_competition, str) and isinstance(act_kernel, str)
-        if act_competition == "Softmax":
-            self.act_competition = nn.Softmax(dim=-1)
-        elif act_competition in ["Sigmoid", "Tanh", "GELU", "ELU"]:
-            self.act_competition = build_activation_layer(dict(type=act_competition))
-        elif act_competition == "SiLU":
-            self.act_competition = nn.SiLU()
-        else:
-            self.act_competition = nn.Identity()
-        # activation value
-        if act_value_kernel is not None:
-            if act_value_kernel == "SiLU":
-                self.act_v_kernel = nn.SiLU()
-            else:
-                self.act_v_kernel = build_activation_layer(dict(type=act_value_kernel))
-        else:
-            self.act_v_kernel = nn.Identity()
-
-    def elu_1(self, x):
-        return F.elu(x) + 1.
-
-    def forward(self, x, value=None):
-        if value is None:
-            value = x.clone()
-        value = self.act_v_kernel(value)
-
+    def forward(self, x):
+        u = x.clone()
         attn = self.DW_conv(x)
         attn = self.DW_D_conv(attn)
-        attn = self.conv1(attn)
-        if self.use_competition:
-            B, C, H, W = attn.shape
-            attn = attn.reshape(B, C, -1)
-            attn_act = self.act_kernel(attn)
-            attn_sum = 1.0 / (attn_act.sum(dim=-1, keepdim=True) + 1e-6)
-            attn = self.act_competition(attn_act * attn_sum).reshape(B, C, H, W)
-        else:
-            attn = self.act_competition(attn)
+        attn = self.PW_conv(attn)
 
-        return value * attn
+        return u * attn
 
 
 class VANAttention(BaseModule):
@@ -357,10 +304,6 @@ class VANAttention(BaseModule):
                  embed_dims,
                  dw_kernel_size=5,
                  act_cfg=dict(type='GELU'),
-                 use_competition=False,
-                 act_competition="Sigmoid",
-                 act_kernel="Sigmoid",
-                 act_value_kernel=None,
                  with_dilation=True,
                  with_pointwise=True,
                  init_cfg=None):
@@ -373,8 +316,7 @@ class VANAttention(BaseModule):
             kernel_size=1)
         self.activation = build_activation_layer(act_cfg)
         self.spatial_gating_unit = LKA(
-            embed_dims, dw_kernel_size, use_competition,
-            act_competition, act_kernel, act_value_kernel=act_value_kernel,
+            embed_dims, dw_kernel_size,
             with_dilation=with_dilation, with_pointwise=with_pointwise)
         self.proj_2 = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
@@ -386,6 +328,122 @@ class VANAttention(BaseModule):
         x = self.spatial_gating_unit(x)
         x = self.proj_2(x)
         x = x + shorcut
+        return x
+
+
+class LKGAU(BaseModule):
+    """Gated Attention Unit with Large Kernel (LKGAU).
+
+    Args:
+        embed_dims (int): Number of input channels.
+        init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
+            Default: None.
+    """
+
+    def __init__(self,
+                 embed_dims,
+                 dw_kernel_size=5,
+                 with_dilation=True,
+                 with_pointwise=True,
+                 init_cfg=None):
+        super(LKGAU, self).__init__(init_cfg=init_cfg)
+
+        # a spatial local convolution (depth-wise convolution)
+        self.DW_conv = Conv2d(
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=dw_kernel_size,
+            padding=dw_kernel_size // 2,
+            groups=embed_dims)
+        # a spatial long-range convolution (depth-wise dilation convolution)
+        self.DW_D_conv = Conv2d(
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=7,
+            stride=1,
+            padding=9,
+            groups=embed_dims,
+            dilation=3) if with_dilation else nn.Identity()
+        # a channel convolution
+        self.PW_conv = Conv2d(  # point-wise convolution
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=1) if with_pointwise else nn.Identity()
+
+    def forward(self, x):
+        x = self.DW_conv(x)
+        x = self.DW_D_conv(x)
+        x = self.PW_conv(x)
+        return x
+
+
+class InceptionGAU(BaseModule):
+    """Gated Attention Unit with Inception Kernel (InceptionGAU).
+
+    Args:
+        embed_dims (int): Number of input channels.
+        init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
+            Default: None.
+    """
+
+    def __init__(self,
+                 embed_dims,
+                 dw_kernel_size=5,
+                 with_channel_split=[2, 1, 1,],
+                 with_dilation=True,
+                 with_pointwise=True,
+                 init_cfg=None):
+        super(InceptionGAU, self).__init__(init_cfg=init_cfg)
+
+        assert len(with_channel_split) == 3
+        self.split_ratio = [i / sum(with_channel_split) for i in with_channel_split]
+        self.embed_dims_1 = int(self.split_ratio[1] * embed_dims)
+        self.embed_dims_2 = int(self.split_ratio[2] * embed_dims)
+        self.embed_dims_0 = embed_dims - self.embed_dims_1 - self.embed_dims_2
+        self.embed_dims = embed_dims
+
+        assert dw_kernel_size % 2 == 1 and dw_kernel_size >= 3
+        # basic DW conv
+        self.DW_conv0 = Conv2d(
+            in_channels=self.embed_dims,
+            out_channels=self.embed_dims,
+            kernel_size=dw_kernel_size,
+            padding=dw_kernel_size // 2,
+            groups=self.embed_dims)
+        # DW conv 1
+        self.DW_conv1 = Conv2d(
+            in_channels=self.embed_dims_1,
+            out_channels=self.embed_dims_1,
+            kernel_size=5,
+            stride=1,
+            padding=4 if with_dilation else 5 // 2,
+            groups=self.embed_dims_1,
+            dilation=2 if with_dilation else 1,
+        )
+        # DW conv 2
+        self.DW_conv2 = Conv2d(
+            in_channels=self.embed_dims_2,
+            out_channels=self.embed_dims_2,
+            kernel_size=7,
+            stride=1,
+            padding=9 if with_dilation else 7 // 2,
+            groups=self.embed_dims_2,
+            dilation=3 if with_dilation else 1,
+        )
+        # a channel convolution
+        self.PW_conv = Conv2d(  # point-wise convolution
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=1) if with_pointwise else nn.Identity()
+
+    def forward(self, x):
+        x_0 = self.DW_conv0(x)
+        x_1 = self.DW_conv1(x_0[:, self.embed_dims_0: self.embed_dims_0+self.embed_dims_1, ...])
+        x_2 = self.DW_conv2(x_0[:, self.embed_dims-self.embed_dims_2:, ...])
+        x = torch.cat([
+            x_0[:, :self.embed_dims_0, ...],
+            x_1, x_2], dim=1)
+        x = self.PW_conv(x)
         return x
 
 
@@ -403,48 +461,129 @@ class GAUAttention(BaseModule):
     def __init__(self,
                  embed_dims,
                  dw_kernel_size=5,
-                 act_cfg=dict(type='Sigmoid'),
-                 use_competition=False,
-                 act_competition="Sigmoid",
-                 act_kernel="Sigmoid",
-                 act_value_kernel=None,
-                 with_conv_group=None,
+                 act_value_kernel=dict(type="GELU"),
+                 act_gate_kernel=dict(type="SiLU"),
                  with_dilation=True,
                  with_pointwise=True,
-                 with_glu=False,
+                 with_glu_dw_conv=False,
+                 with_channel_shuffle=False,
                  init_cfg=None):
         super(GAUAttention, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
+        self.with_channel_shuffle = with_channel_shuffle
         self.proj_1 = Conv2d(
+            in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
+        self.proj_g = Conv2d(
+            in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
+        self.conv_g = nn.Conv2d(
             in_channels=embed_dims,
-            out_channels=embed_dims if not with_glu else embed_dims * 2,
-            kernel_size=1)
-        if act_cfg['type'] == "SiLU":
-            self.activation = nn.SiLU()
-        else:
-            self.activation = build_activation_layer(act_cfg)
-        self.spatial_gating_unit = LKA(
-            embed_dims, dw_kernel_size, use_competition,
-            act_competition, act_kernel, act_value_kernel=act_value_kernel,
-            with_conv_group=with_conv_group, with_dilation=with_dilation,
-            with_pointwise=with_pointwise)
-        self.with_glu = with_glu
-        self.with_sigmoid = act_cfg['type'] == "Sigmoid"
+            out_channels=embed_dims,
+            kernel_size=dw_kernel_size,
+            padding=dw_kernel_size // 2,
+            groups=embed_dims) if with_glu_dw_conv else nn.Identity()
+        # value
+        self.large_kernel_unit = LKGAU(
+            embed_dims, dw_kernel_size,
+            with_dilation=with_dilation,
+            with_pointwise=with_pointwise,
+        )
         self.proj_2 = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
 
+        # activation for gating and value
+        self.act_value = custom_build_activation_layer(act_value_kernel)
+        self.act_gate = custom_build_activation_layer(act_gate_kernel)
+
     def forward(self, x):
         shorcut = x.clone()
-        v = self.proj_1(x)
-        if self.with_glu:
-            v, gate = torch.split(v, self.embed_dims, dim=1)
-            gate = self.activation(gate)  # Sigmoid or SiLU
-            if not self.with_sigmoid:
-                v = self.activation(v)  # SiLU
-        x = self.spatial_gating_unit(x, value=v)
-        if self.with_glu:
-            x = x * gate
+        x = self.proj_1(x)
+        x = self.act_value(x)
+
+        # value
+        v = self.large_kernel_unit(x)
+        v = self.act_value(v)
+        # gating
+        g = self.conv_g(x)
+        g = self.proj_g(g)
+        g = self.act_gate(g)
+
+        x = g * v
+        if self.with_channel_shuffle:
+            x = channel_shuffle(x)
+        x = self.proj_2(x)
+        x = x + shorcut
+        return x
+
+
+class InceptionGAUAttention(BaseModule):
+    """Local attention module in VANBloack.
+
+    Args:
+        embed_dims (int): Number of input channels.
+        act_cfg (dict, optional): The activation config for FFNs.
+            Default: dict(type='GELU').
+        init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
+            Default: None.
+    """
+
+    def __init__(self,
+                 embed_dims,
+                 dw_kernel_size=5,
+                 act_value_kernel=dict(type="GELU"),
+                 act_gate_kernel=dict(type="SiLU"),
+                 with_channel_split=[2, 1, 1],
+                 with_dilation=True,
+                 with_pointwise=True,
+                 with_glu_dw_conv=False,
+                 with_channel_shuffle=False,
+                 init_cfg=None):
+        super(InceptionGAUAttention, self).__init__(init_cfg=init_cfg)
+
+        self.embed_dims = embed_dims
+        self.with_channel_shuffle = with_channel_shuffle
+        self.proj_1 = Conv2d(
+            in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
+        self.proj_g = Conv2d(
+            in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
+        self.conv_g = nn.Conv2d(
+            in_channels=embed_dims,
+            out_channels=embed_dims,
+            kernel_size=dw_kernel_size,
+            padding=dw_kernel_size // 2,
+            groups=embed_dims) if with_glu_dw_conv else nn.Identity()
+        # value
+        self.large_kernel_unit = InceptionGAU(
+            embed_dims, dw_kernel_size,
+            with_channel_split=with_channel_split,
+            with_dilation=with_dilation,
+            with_pointwise=with_pointwise,
+        )
+        self.proj_2 = Conv2d(
+            in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
+        self.channel_split_group = sum(with_channel_split)
+        assert embed_dims % self.channel_split_group == 0
+
+        # activation for gating and value
+        self.act_value = custom_build_activation_layer(act_value_kernel)
+        self.act_gate = custom_build_activation_layer(act_gate_kernel)
+
+    def forward(self, x):
+        shorcut = x.clone()
+        x = self.proj_1(x)
+        x = self.act_value(x)
+
+        # value
+        v = self.large_kernel_unit(x)
+        v = self.act_value(v)
+        # gating
+        g = self.conv_g(x)
+        g = self.proj_g(g)
+        g = self.act_gate(g)
+
+        x = g * v
+        if self.with_channel_shuffle:
+            x = channel_shuffle(x, groups=self.channel_split_group)
         x = self.proj_2(x)
         x = x + shorcut
         return x
@@ -480,61 +619,57 @@ class VANBlock(BaseModule):
                  layer_scale_init_value=1e-2,
                  attention_types=None,
                  ffn_types=None,
-                 pos_kernel_size=0,
-                 local_dw_kernel_size=5,
-                 local_use_competition=False,
-                 local_act_competition="Sigmoid",
-                 local_act_kernel="Sigmoid",
-                 local_act_value_kernel=None,
-                 local_glu_act=dict(type="Sigmoid"),
-                 attn_with_conv_group=None,
+                 with_channel_split=[2, 1, 1,],
+                 attn_act_gate_cfg=dict(type='GELU'),
+                 attn_act_value_cfg=dict(type='GELU'),
+                 attn_dw_kernel_size=5,
                  attn_with_dilation=True,
                  attn_with_pointwise=True,
-                 attn_with_glu=False,
-                 ffn_pre_glu=False,
+                 attn_with_glu_dw_conv=False,
+                 attn_with_channel_shuffle=False,
                  ffn_dwconv_kernel_size=3,
-                 ffn_glu_balanced_param=False,
-                 ffn_glu_act_cfg=dict(type="Sigmoid"),
+                 ffn_decompose_repeat=1,
+                 ffn_decompose_method='mean',
+                 ffn_decompose_reweight='fix',
+                 ffn_decompose_init_value=1,
+                 ffn_decompose_act_cfg=None,
                  init_cfg=None):
         super(VANBlock, self).__init__(init_cfg=init_cfg)
         self.out_channels = embed_dims
 
         self.norm1 = build_norm_layer(norm_cfg, embed_dims)[1]
-        # positional encoding
-        if pos_kernel_size > 0:
-            self.pos_embed = Conv2d(
-                embed_dims, embed_dims, pos_kernel_size, padding=1, groups=embed_dims)
-        else:
-            self.pos_embed = None
 
         # attention
-        if attention_types == "VAN":
-            self.attn = VANAttention(
-                embed_dims,
-                act_cfg=act_cfg,
-                dw_kernel_size=local_dw_kernel_size,
-                use_competition=local_use_competition,
-                act_competition=local_act_competition,
-                act_kernel=local_act_kernel,
-                act_value_kernel=local_act_value_kernel,
-                with_dilation=attn_with_dilation,
-                with_pointwise=attn_with_pointwise)
-        elif attention_types == "GAU":
+        if attention_types == "GAU":
             self.attn = GAUAttention(
                 embed_dims,
-                act_cfg=local_glu_act,
-                dw_kernel_size=local_dw_kernel_size,
-                use_competition=local_use_competition,
-                act_competition=local_act_competition,
-                act_kernel=local_act_kernel,
-                act_value_kernel=local_act_value_kernel,
-                with_conv_group=attn_with_conv_group,
+                dw_kernel_size=attn_dw_kernel_size,
+                act_value_kernel=attn_act_value_cfg,
+                act_gate_kernel=attn_act_gate_cfg,
                 with_dilation=attn_with_dilation,
                 with_pointwise=attn_with_pointwise,
-                with_glu=attn_with_glu,
+                with_glu_dw_conv=attn_with_glu_dw_conv,
+                with_channel_shuffle=attn_with_channel_shuffle,
+            )
+        elif attention_types == "InceptionGAU":
+            self.attn = InceptionGAUAttention(
+                embed_dims,
+                dw_kernel_size=attn_dw_kernel_size,
+                act_value_kernel=attn_act_value_cfg,
+                act_gate_kernel=attn_act_gate_cfg,
+                with_channel_split=with_channel_split,
+                with_dilation=attn_with_dilation,
+                with_pointwise=attn_with_pointwise,
+                with_glu_dw_conv=attn_with_glu_dw_conv,
+                with_channel_shuffle=attn_with_channel_shuffle,
             )
         else:
-            raise NotImplementedError
+            self.attn = VANAttention(
+                embed_dims,
+                act_cfg=attn_act_value_cfg,
+                dw_kernel_size=attn_dw_kernel_size,
+                with_dilation=attn_with_dilation,
+                with_pointwise=attn_with_pointwise)
         self.drop_path = DropPath(
             drop_path_rate) if drop_path_rate > 0. else nn.Identity()
 
@@ -549,16 +684,19 @@ class VANBlock(BaseModule):
                 act_cfg=act_cfg,
                 kernel_size=ffn_dwconv_kernel_size,
                 ffn_drop=drop_rate)
-        elif ffn_types == "GLU":
-            self.mlp = GLUFFN(  # GLU + FFN
+        elif ffn_types == "Decompose":
+            self.mlp = DecomposeFFN(  # Decomposed FFN
                 embed_dims=embed_dims,
                 feedforward_channels=mlp_hidden_dim,
                 act_cfg=act_cfg,
                 kernel_size=ffn_dwconv_kernel_size,
-                pre_glu=ffn_pre_glu,
-                glu_balanced_param=ffn_glu_balanced_param,
-                glu_act_cfg=ffn_glu_act_cfg,
-                ffn_drop=drop_rate)
+                ffn_drop=drop_rate,
+                decompose_repeat=ffn_decompose_repeat,
+                decompose_method=ffn_decompose_method,
+                decompose_reweight=ffn_decompose_reweight,
+                decompose_init_value=ffn_decompose_init_value,
+                decompose_act_cfg=ffn_decompose_act_cfg,
+            )
         else:
             self.mlp = ConvFFN(  # vanilla FFN
                 embed_dims=embed_dims,
@@ -575,9 +713,6 @@ class VANBlock(BaseModule):
             requires_grad=True) if layer_scale_init_value > 0 else None
 
     def forward(self, x):
-        if self.pos_embed is not None:
-            x = x + self.pos_embed(x)
-
         identity = x
         x = self.norm1(x)
         x = self.attn(x)
@@ -627,10 +762,52 @@ class VANPatchEmbed(PatchEmbed):
         return x, out_size
 
 
+class MiddleEmbedding(BaseModule):
+    """An implementation of Conv middle embedding layer.
+
+    Args:
+        in_features (int): The feature dimension.
+        out_features (int): The output dimension of FFNs.
+        kernel_size (int): The conv kernel size of middle patch embedding.
+            Defaults to 3.
+        stride_size (int): The conv stride of middle patch embedding.
+            Defaults to 2.
+        norm_cfg (dict): Config dict for normalization layer.
+            Defaults to ``dict(type='BN')``.
+    """
+
+    def __init__(self,
+                 in_channels,
+                 embed_dims=None,
+                 kernel_size=3,
+                 stride_size=2,
+                 norm_cfg=dict(type='BN'),
+                 init_cfg=None,
+                ):
+        super(MiddleEmbedding, self).__init__(init_cfg)
+
+        embed_dims = in_channels or embed_dims
+        self.projection = nn.Sequential(
+            Conv2d(  # point-wise conv
+                in_channels, embed_dims, kernel_size=1,
+                stride=1, padding=0),
+            Conv2d(  # depth-wise conv
+                in_channels, embed_dims, kernel_size=kernel_size,
+                stride=stride_size, padding=kernel_size // 2),
+            build_norm_layer(norm_cfg, embed_dims)[1],
+        )
+
+    def forward(self, x):
+        x = self.projection(x)
+        out_size = (x.shape[2], x.shape[3])
+        x = x.flatten(2).transpose(1, 2)
+        return x, out_size
+
+
 @BACKBONES.register_module()
 class LAN(BaseBackbone):
     """Linear Attention Network based on Visual Attention Network.
-        v07.29, IP53
+        v08.11, IP53
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -707,24 +884,23 @@ class LAN(BaseBackbone):
                  norm_eval=False,
                  norm_cfg=dict(type='LN', eps=1e-6),
                  conv_norm_cfg=dict(type='BN', eps=1e-5),
-                 attention_types=["FAN", "FAN", "FAN", "FAN",],
+                 attention_types=["GAU", "GAU", "GAU", "GAU",],
                  ffn_types=["Mix", "Mix", "Mix", "Mix",],
-                 norm_types=['BN', 'BN', 'BN', 'BN'],
-                 pos_kernel_size=0,
-                 local_dw_kernel_size=5,
-                 local_use_competition=False,
-                 local_act_competition="Sigmoid",
-                 local_act_kernel="Sigmoid",
-                 local_act_value_kernel=None,
-                 local_glu_act=dict(type="Sigmoid"),
-                 attn_with_conv_group=None,
+                 patchembed_types=["Conv", "Conv", "Conv", "Conv",],
+                 with_channel_split=[2, 1, 1],
+                 attn_act_gate_cfg=dict(type="GELU"),
+                 attn_act_value_cfg=dict(type="GELU"),
+                 attn_dw_kernel_size=5,
                  attn_with_dilation=True,
                  attn_with_pointwise=True,
-                 attn_with_glu=False,
-                 ffn_pre_glu=False,
+                 attn_with_channel_shuffle=False,
+                 attn_with_glu_dw_conv=False,
                  ffn_dwconv_kernel_size=3,
-                 ffn_glu_balanced_param=True,
-                 ffn_glu_act_cfg=dict(type="Sigmoid"),
+                 ffn_decompose_repeat=1,
+                 ffn_decompose_method='mean',
+                 ffn_decompose_reweight='fix',
+                 ffn_decompose_init_value=1,
+                 ffn_decompose_act_cfg=None,
                  block_cfgs=dict(),
                  init_cfg=None):
         super(LAN, self).__init__(init_cfg=init_cfg)
@@ -755,6 +931,7 @@ class LAN(BaseBackbone):
             attention_types = [attention_types for i in range(self.num_stages)]
         assert len(attention_types) == self.num_stages
         assert len(ffn_types) == self.num_stages
+        assert len(patchembed_types) == self.num_stages
 
         total_depth = sum(self.depths)
         dpr = [
@@ -763,14 +940,23 @@ class LAN(BaseBackbone):
 
         cur_block_idx = 0
         for i, depth in enumerate(self.depths):
-            patch_embed = VANPatchEmbed(
-                in_channels=in_channels if i == 0 else self.embed_dims[i - 1],
-                input_size=None,
-                embed_dims=self.embed_dims[i],
-                kernel_size=patch_sizes[i],
-                stride=patch_sizes[i] // 2 + 1,
-                padding=(patch_sizes[i] // 2, patch_sizes[i] // 2),
-                norm_cfg=conv_norm_cfg)
+            if i > 0 and patchembed_types[i] == "DWConv":
+                patch_embed = MiddleEmbedding(
+                    in_channels=self.embed_dims[i - 1],
+                    embed_dims=self.embed_dims[i],
+                    kernel_size=patch_sizes[i],
+                    stride=patch_sizes[i] // 2 + 1,
+                    norm_cfg=conv_norm_cfg,
+                )
+            else:
+                patch_embed = VANPatchEmbed(
+                    in_channels=in_channels if i == 0 else self.embed_dims[i - 1],
+                    input_size=None,
+                    embed_dims=self.embed_dims[i],
+                    kernel_size=patch_sizes[i],
+                    stride=patch_sizes[i] // 2 + 1,
+                    padding=(patch_sizes[i] // 2, patch_sizes[i] // 2),
+                    norm_cfg=conv_norm_cfg)
 
             blocks = nn.ModuleList([
                 VANBlock(
@@ -778,25 +964,24 @@ class LAN(BaseBackbone):
                     ffn_ratio=self.ffn_ratios[i],
                     drop_rate=drop_rate,
                     drop_path_rate=dpr[cur_block_idx + j],
-                    norm_cfg=conv_norm_cfg if "BN" in norm_types[i] else dict(type="LN2d"),
+                    norm_cfg=conv_norm_cfg,
                     layer_scale_init_value=init_values,
                     attention_types=self.attention_types[i],
                     ffn_types=self.ffn_types[i],
-                    pos_kernel_size=pos_kernel_size,
-                    local_dw_kernel_size=local_dw_kernel_size,
-                    local_use_competition=local_use_competition,
-                    local_act_competition=local_act_competition,
-                    local_act_kernel=local_act_kernel,
-                    local_act_value_kernel=local_act_value_kernel,
-                    local_glu_act=local_glu_act,
-                    attn_with_conv_group=attn_with_conv_group,
+                    with_channel_split=with_channel_split,
+                    attn_act_gate_cfg=attn_act_gate_cfg,
+                    attn_act_value_cfg=attn_act_value_cfg,
+                    attn_dw_kernel_size=attn_dw_kernel_size,
                     attn_with_dilation=attn_with_dilation,
                     attn_with_pointwise=attn_with_pointwise,
-                    attn_with_glu=attn_with_glu,
-                    ffn_pre_glu=ffn_pre_glu,
+                    attn_with_channel_shuffle=attn_with_channel_shuffle,
+                    attn_with_glu_dw_conv=attn_with_glu_dw_conv,
                     ffn_dwconv_kernel_size=ffn_dwconv_kernel_size,
-                    ffn_glu_balanced_param=ffn_glu_balanced_param,
-                    ffn_glu_act_cfg=ffn_glu_act_cfg,
+                    ffn_decompose_repeat=ffn_decompose_repeat,
+                    ffn_decompose_method=ffn_decompose_method,
+                    ffn_decompose_reweight=ffn_decompose_reweight,
+                    ffn_decompose_init_value=ffn_decompose_init_value,
+                    ffn_decompose_act_cfg=ffn_decompose_act_cfg,
                     **block_cfgs) for j in range(depth)
             ])
             cur_block_idx += depth
@@ -811,14 +996,23 @@ class LAN(BaseBackbone):
 
         if pretrained is None:
             if self.init_cfg is not None:
+                for k, m in self.named_modules():
+                    if isinstance(m, (nn.Conv2d)):
+                        if "offset" in k:  # skip `conv_offset` in DConv
+                            if self.init_cfg is not None:
+                                m.weight.data.zero_()
                 return
-            for m in self.modules():
+            for k, m in self.named_modules():
                 if isinstance(m, (nn.Conv2d)):
-                    fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-                    fan_out //= m.groups
-                    m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
-                    if m.bias is not None:
-                        m.bias.data.zero_()
+                    if "offset" in k:  # skip `conv_offset` in DConv
+                        if self.init_cfg is not None:
+                            m.weight.data.zero_()
+                    else:
+                        fan_out = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                        fan_out //= m.groups
+                        m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
+                        if m.bias is not None:
+                            m.bias.data.zero_()
                 elif isinstance(m, (nn.Linear)):
                     if not self.is_init:
                         trunc_normal_init(m, mean=0., std=0.02, bias=0)

@@ -524,7 +524,7 @@ class VisionTransformer(BaseBackbone):
                     patch_token = x.reshape(B, *patch_resolution, C)
                     patch_token = patch_token.permute(0, 3, 1, 2).contiguous()
                     cls_token = None
-                if self.output_cls_token:
+                if self.output_cls_token and i == len(self.layers) - 1:
                     out = [patch_token, cls_token]
                 else:
                     out = patch_token

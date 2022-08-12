@@ -69,6 +69,8 @@ if __name__ == '__main__':
             cfg_args = args.copy()
             cfg_args["keyword"] = keyword
             cfg_path = os.path.join(args["path"], cfg)
+            if not os.path.isdir(cfg_path):
+                continue
             # find latest json file
             json_list = list()
             for p in os.listdir(cfg_path):

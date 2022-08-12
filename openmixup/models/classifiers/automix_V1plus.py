@@ -205,9 +205,9 @@ class AutoMixup(BaseModel):
         
         # init head
         if self.head_mix_q is not None:
-            self.head_mix_q.init_weights(init_linear='normal')
+            self.head_mix_q.init_weights()
         if self.head_one_q is not None:
-            self.head_one_q.init_weights(init_linear='normal')
+            self.head_one_q.init_weights()
         
         # copy head one param from q to k
         if (self.head_one_q is not None and self.head_one_k is not None) and \
