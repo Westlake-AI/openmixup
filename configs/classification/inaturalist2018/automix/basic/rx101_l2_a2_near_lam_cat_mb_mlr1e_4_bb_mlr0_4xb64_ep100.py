@@ -1,4 +1,4 @@
-_base_ = "r50_l2_a2_bili_val_dp01_mb_mlr1e_4_bb_mlr0_4xb64_ep100.py"
+_base_ = "r50_l2_a2_near_lam_cat_mb_mlr1e_4_bb_mlr0_4xb64_ep100.py"
 
 # model settings
 model = dict(

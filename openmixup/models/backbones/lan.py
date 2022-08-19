@@ -168,33 +168,30 @@ class DecomposeFFN(BaseModule):
                  kernel_size=3,
                  act_cfg=dict(type='GELU'),
                  ffn_drop=0.,
-                 decompose_repeat=2,
-                 decompose_method='learn',
-                 decompose_reweight='learn',
-                 decompose_init_value=1e-2,
+                 decompose_method='after',
+                 decompose_init_value=0.,
                  decompose_act_cfg=None,
+                 decompose_post_conv=False,
                  init_cfg=None):
         super(DecomposeFFN, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
         self.feedforward_channels = feedforward_channels
-        self.decompose_repeat = decompose_repeat
-        self.decompose_channels = int(feedforward_channels / decompose_repeat)
-        assert self.feedforward_channels % self.decompose_channels == 0
         self.act_cfg = act_cfg
+        assert decompose_post_conv == False
 
         self.fc1 = Conv2d(
             in_channels=embed_dims,
-            out_channels=self.decompose_channels,
+            out_channels=self.feedforward_channels,
             kernel_size=1)
         self.dwconv = Conv2d(
-            in_channels=self.decompose_channels,
-            out_channels=self.decompose_channels,
+            in_channels=self.feedforward_channels,
+            out_channels=self.feedforward_channels,
             kernel_size=kernel_size,
             stride=1,
             padding=kernel_size // 2,
             bias=True,
-            groups=self.decompose_channels)
+            groups=self.feedforward_channels)
         self.act = build_activation_layer(act_cfg)
         self.fc2 = Conv2d(
             in_channels=feedforward_channels,
@@ -202,30 +199,36 @@ class DecomposeFFN(BaseModule):
             kernel_size=1)
         self.drop = nn.Dropout(ffn_drop)
 
+        assert decompose_method in [None, 'between', 'between-shortcut', 'after',]
+        self.decompose_method = decompose_method
         self.decompose = Conv2d(
-            in_channels=self.decompose_channels,  # C -> 1
+            in_channels=self.feedforward_channels,  # C -> 1
             out_channels=1, kernel_size=1,
-        ) if decompose_method == 'learn' else None
-        for i in range(self.decompose_repeat):
-            sigma = ElementScale(
-                self.decompose_channels, decompose_init_value, decompose_reweight=='learn')
-            self.add_module(f'sigma{i + 1}', sigma)
-        self.decompose_act = custom_build_activation_layer(decompose_act_cfg)
+        ) if decompose_method is not None else nn.Identity()
+        self.sigma = ElementScale(
+            self.feedforward_channels, decompose_init_value, requires_grad=True)
+        self.decompose_act = custom_build_activation_layer(decompose_act_cfg) \
+            if decompose_method is not None else nn.Identity()
+
+    def feat_decompose(self, x, shortcut=None):
+        x_d = shortcut if shortcut is not None else x
+        x_d = self.decompose_act(self.decompose(x))  # [B, C, H, W] -> [B, 1, H, W]
+        x = x + self.sigma(x - x_d)
+        return x
 
     def forward(self, x):
         # proj 1
-        x = self.act(self.dwconv(self.fc1(x)))
-        x = self.drop(x)
-        # decompose
-        if self.decompose is not None:
-            x_d = self.decompose_act(self.decompose(x))  # [B, C, H, W] -> [B, 1, H, W]
+        x = self.fc1(x)
+        if self.decompose_method == 'between-shortcut':
+            x = self.feat_decompose(self.dwconv(x), shortcut=x)
         else:
-            x_d = torch.mean(x, dim=1, keepdim=True)  # [B, 1, H, W]
-        x_repeat = list()
-        for i in range(self.decompose_repeat):
-            sigma_i = getattr(self, f'sigma{i + 1}')
-            x_repeat.append(x + sigma_i(x - x_d))
-        x = torch.cat(x_repeat, dim=1)
+            x = self.dwconv(x)
+        if self.decompose_method == 'between':
+            x = self.feat_decompose(x)
+        x = self.act(x)
+        x = self.drop(x)
+        if self.decompose_method == 'after':
+            x = self.feat_decompose(x)
         # proj 2
         x = self.fc2(x)
         x = self.drop(x)
@@ -402,6 +405,7 @@ class InceptionGAU(BaseModule):
         self.embed_dims_0 = embed_dims - self.embed_dims_1 - self.embed_dims_2
         self.embed_dims = embed_dims
 
+        assert with_dilation == True and with_pointwise == True
         assert dw_kernel_size % 2 == 1 and dw_kernel_size >= 3
         # basic DW conv
         self.DW_conv0 = Conv2d(
@@ -414,11 +418,11 @@ class InceptionGAU(BaseModule):
         self.DW_conv1 = Conv2d(
             in_channels=self.embed_dims_1,
             out_channels=self.embed_dims_1,
-            kernel_size=5,
+            kernel_size=5 if dw_kernel_size != 7 else 7,
             stride=1,
-            padding=4 if with_dilation else 5 // 2,
+            padding=4 if dw_kernel_size != 7 else 6,
             groups=self.embed_dims_1,
-            dilation=2 if with_dilation else 1,
+            dilation=2,
         )
         # DW conv 2
         self.DW_conv2 = Conv2d(
@@ -426,15 +430,15 @@ class InceptionGAU(BaseModule):
             out_channels=self.embed_dims_2,
             kernel_size=7,
             stride=1,
-            padding=9 if with_dilation else 7 // 2,
+            padding=9,
             groups=self.embed_dims_2,
-            dilation=3 if with_dilation else 1,
+            dilation=3,
         )
         # a channel convolution
         self.PW_conv = Conv2d(  # point-wise convolution
             in_channels=embed_dims,
             out_channels=embed_dims,
-            kernel_size=1) if with_pointwise else nn.Identity()
+            kernel_size=1)
 
     def forward(self, x):
         x_0 = self.DW_conv0(x)
@@ -465,7 +469,6 @@ class GAUAttention(BaseModule):
                  act_gate_kernel=dict(type="SiLU"),
                  with_dilation=True,
                  with_pointwise=True,
-                 with_glu_dw_conv=False,
                  with_channel_shuffle=False,
                  init_cfg=None):
         super(GAUAttention, self).__init__(init_cfg=init_cfg)
@@ -476,12 +479,6 @@ class GAUAttention(BaseModule):
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
         self.proj_g = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
-        self.conv_g = nn.Conv2d(
-            in_channels=embed_dims,
-            out_channels=embed_dims,
-            kernel_size=dw_kernel_size,
-            padding=dw_kernel_size // 2,
-            groups=embed_dims) if with_glu_dw_conv else nn.Identity()
         # value
         self.large_kernel_unit = LKGAU(
             embed_dims, dw_kernel_size,
@@ -497,18 +494,13 @@ class GAUAttention(BaseModule):
 
     def forward(self, x):
         shorcut = x.clone()
-        x = self.proj_1(x)
-        x = self.act_value(x)
+        x = self.act_value(self.proj_1(x))
 
-        # value
+        # gating * value
         v = self.large_kernel_unit(x)
-        v = self.act_value(v)
-        # gating
-        g = self.conv_g(x)
-        g = self.proj_g(g)
-        g = self.act_gate(g)
+        g = self.proj_g(x)
+        x = self.act_gate(g) * self.act_value(v)
 
-        x = g * v
         if self.with_channel_shuffle:
             x = channel_shuffle(x)
         x = self.proj_2(x)
@@ -535,25 +527,19 @@ class InceptionGAUAttention(BaseModule):
                  with_channel_split=[2, 1, 1],
                  with_dilation=True,
                  with_pointwise=True,
-                 with_glu_dw_conv=False,
                  with_channel_shuffle=False,
+                 decompose_method=None,
+                 decompose_position='before',
                  init_cfg=None):
         super(InceptionGAUAttention, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
-        self.with_channel_shuffle = with_channel_shuffle
         self.proj_1 = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
-        self.proj_g = Conv2d(
+        self.gate = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
-        self.conv_g = nn.Conv2d(
-            in_channels=embed_dims,
-            out_channels=embed_dims,
-            kernel_size=dw_kernel_size,
-            padding=dw_kernel_size // 2,
-            groups=embed_dims) if with_glu_dw_conv else nn.Identity()
         # value
-        self.large_kernel_unit = InceptionGAU(
+        self.value = InceptionGAU(
             embed_dims, dw_kernel_size,
             with_channel_split=with_channel_split,
             with_dilation=with_dilation,
@@ -563,29 +549,45 @@ class InceptionGAUAttention(BaseModule):
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
         self.channel_split_group = sum(with_channel_split)
         assert embed_dims % self.channel_split_group == 0
+        assert with_channel_shuffle == False
 
         # activation for gating and value
         self.act_value = custom_build_activation_layer(act_value_kernel)
         self.act_gate = custom_build_activation_layer(act_gate_kernel)
 
+        # decompose
+        self.decompose_position = decompose_position if decompose_method is not None else 'none'
+        assert decompose_method in [None, 'pool',]
+        assert decompose_position in ['before', 'between', 'between-shortcut', 'after',]
+        if decompose_method is not None:
+            self.sigma = ElementScale(embed_dims, 0., requires_grad=True)
+        else:
+            self.sigma = None
+
+    def feat_decompose(self, x, shortcut=None):
+        x_d = shortcut if shortcut is not None else x
+        x_d = F.adaptive_avg_pool2d(x_d, output_size=1)  # [B, C, 1, 1]
+        x = x + self.sigma(x - x_d)
+        return x
+
     def forward(self, x):
-        shorcut = x.clone()
+        shortcut = x.clone()
+
+        if self.decompose_position == 'before':
+            x = self.feat_decompose(x)
         x = self.proj_1(x)
+        if self.decompose_position == 'between':
+            x = self.feat_decompose(x)
+        if self.decompose_position == 'between-shortcut':
+            x = self.feat_decompose(x, shortcut=shortcut)
         x = self.act_value(x)
+        if self.decompose_position == 'after':
+            x = self.feat_decompose(x)
 
-        # value
-        v = self.large_kernel_unit(x)
-        v = self.act_value(v)
-        # gating
-        g = self.conv_g(x)
-        g = self.proj_g(g)
-        g = self.act_gate(g)
-
-        x = g * v
-        if self.with_channel_shuffle:
-            x = channel_shuffle(x, groups=self.channel_split_group)
+        # gating * value
+        x = self.act_gate(self.gate(x)) * self.act_value(self.value(x))
         x = self.proj_2(x)
-        x = x + shorcut
+        x = x + shortcut
         return x
 
 
@@ -625,14 +627,14 @@ class VANBlock(BaseModule):
                  attn_dw_kernel_size=5,
                  attn_with_dilation=True,
                  attn_with_pointwise=True,
-                 attn_with_glu_dw_conv=False,
                  attn_with_channel_shuffle=False,
+                 attn_decompose_method=None,
+                 attn_decompose_position='before',
                  ffn_dwconv_kernel_size=3,
-                 ffn_decompose_repeat=1,
-                 ffn_decompose_method='mean',
-                 ffn_decompose_reweight='fix',
+                 ffn_decompose_method='after',
                  ffn_decompose_init_value=1,
                  ffn_decompose_act_cfg=None,
+                 ffn_decompose_post_conv=False,
                  init_cfg=None):
         super(VANBlock, self).__init__(init_cfg=init_cfg)
         self.out_channels = embed_dims
@@ -648,7 +650,6 @@ class VANBlock(BaseModule):
                 act_gate_kernel=attn_act_gate_cfg,
                 with_dilation=attn_with_dilation,
                 with_pointwise=attn_with_pointwise,
-                with_glu_dw_conv=attn_with_glu_dw_conv,
                 with_channel_shuffle=attn_with_channel_shuffle,
             )
         elif attention_types == "InceptionGAU":
@@ -660,8 +661,9 @@ class VANBlock(BaseModule):
                 with_channel_split=with_channel_split,
                 with_dilation=attn_with_dilation,
                 with_pointwise=attn_with_pointwise,
-                with_glu_dw_conv=attn_with_glu_dw_conv,
                 with_channel_shuffle=attn_with_channel_shuffle,
+                decompose_method=attn_decompose_method,
+                decompose_position=attn_decompose_position,
             )
         else:
             self.attn = VANAttention(
@@ -691,11 +693,10 @@ class VANBlock(BaseModule):
                 act_cfg=act_cfg,
                 kernel_size=ffn_dwconv_kernel_size,
                 ffn_drop=drop_rate,
-                decompose_repeat=ffn_decompose_repeat,
                 decompose_method=ffn_decompose_method,
-                decompose_reweight=ffn_decompose_reweight,
                 decompose_init_value=ffn_decompose_init_value,
                 decompose_act_cfg=ffn_decompose_act_cfg,
+                decompose_post_conv=ffn_decompose_post_conv,
             )
         else:
             self.mlp = ConvFFN(  # vanilla FFN
@@ -807,7 +808,7 @@ class MiddleEmbedding(BaseModule):
 @BACKBONES.register_module()
 class LAN(BaseBackbone):
     """Linear Attention Network based on Visual Attention Network.
-        v08.11, IP53
+        v08.17, IP53
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -894,13 +895,13 @@ class LAN(BaseBackbone):
                  attn_with_dilation=True,
                  attn_with_pointwise=True,
                  attn_with_channel_shuffle=False,
-                 attn_with_glu_dw_conv=False,
+                 attn_decompose_method=None,
+                 attn_decompose_position='before',
                  ffn_dwconv_kernel_size=3,
-                 ffn_decompose_repeat=1,
-                 ffn_decompose_method='mean',
-                 ffn_decompose_reweight='fix',
-                 ffn_decompose_init_value=1,
+                 ffn_decompose_method='after',
+                 ffn_decompose_init_value=0,
                  ffn_decompose_act_cfg=None,
+                 ffn_decompose_post_conv=False,
                  block_cfgs=dict(),
                  init_cfg=None):
         super(LAN, self).__init__(init_cfg=init_cfg)
@@ -975,13 +976,13 @@ class LAN(BaseBackbone):
                     attn_with_dilation=attn_with_dilation,
                     attn_with_pointwise=attn_with_pointwise,
                     attn_with_channel_shuffle=attn_with_channel_shuffle,
-                    attn_with_glu_dw_conv=attn_with_glu_dw_conv,
+                    attn_decompose_method=attn_decompose_method,
+                    attn_decompose_position=attn_decompose_position,
                     ffn_dwconv_kernel_size=ffn_dwconv_kernel_size,
-                    ffn_decompose_repeat=ffn_decompose_repeat,
                     ffn_decompose_method=ffn_decompose_method,
-                    ffn_decompose_reweight=ffn_decompose_reweight,
                     ffn_decompose_init_value=ffn_decompose_init_value,
                     ffn_decompose_act_cfg=ffn_decompose_act_cfg,
+                    ffn_decompose_post_conv=ffn_decompose_post_conv,
                     **block_cfgs) for j in range(depth)
             ])
             cur_block_idx += depth

@@ -39,7 +39,6 @@ model = dict(
         x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
         # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
-        mask_mode="none_v_",
         frozen=False),
     head_one=dict(
         type='ClsHead',  # soft CE

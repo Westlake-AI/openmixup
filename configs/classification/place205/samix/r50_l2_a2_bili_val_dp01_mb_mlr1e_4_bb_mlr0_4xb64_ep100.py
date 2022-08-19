@@ -1,5 +1,5 @@
 _base_ = [
-    '../../../_base_/datasets/inaturalist2017/basic_sz224_4xbs64.py',
+    '../../../_base_/datasets/place205/basic_sz224_4xbs64.py',
     '../../../_base_/default_runtime.py',
 ]
 
@@ -39,22 +39,15 @@ model = dict(
         x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
         # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
-        mask_mode="none_v_",
         frozen=False),
     head_one=dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=205),
     head_mix=dict(  # backbone
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
-    head_mix_k=dict(  # mixblock
-        type='ClsMixupHead',  # mixup, soft CE (onehot encoding)
-        loss=dict(type='CrossEntropyLoss', use_soft=True, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=True,
-        neg_weight=1,  # try neg (eta in SAMix)
-        in_channels=2048, num_classes=5089),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=205),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -62,8 +55,8 @@ model = dict(
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=22630,  # plot every 2263 x 10ep
-        iter_per_epoch=2263,
+        save_interval=9566 * 10,  # plot every 10 ep
+        iter_per_epoch=9566,
     ),
     dict(type='CustomCosineAnnealingHook',  # 0.1 to 0
         attr_name="mask_loss", attr_base=0.1, by_epoch=False,  # by iter

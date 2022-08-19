@@ -32,6 +32,8 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## What's New
 
+[2020-08-19] Weights and logs for mixup benchmarks are released.
+
 [2020-07-30] `OpenMixup` v0.2.5 is released (issue [#10](https://github.com/Westlake-AI/openmixup/issues/10)).
 
 ## Installation
@@ -127,7 +129,8 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
     - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
     - [x] [Place205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
-    - [x] [iNaturalist-2017/2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
+    - [x] [iNaturalist-2017](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2017)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
+    - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
     </details>
 
 * Self-supervised algorithms for visual representation.
