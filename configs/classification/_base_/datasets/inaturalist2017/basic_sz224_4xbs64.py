@@ -1,10 +1,12 @@
 # dataset settings
-data_source_cfg = dict(type='ImageNet')
+data_source_cfg = dict(
+    type='ImageList', splitor=",",  # iNat
+)
 # iNat dataset
-data_train_list = 'data/meta/iNaturalist2017/train_labeled_full.txt'
-data_train_root = 'data/iNaturalist2017/train'
-data_test_list = 'data/meta/iNaturalist2017/val_labeled.txt'
-data_test_root = 'data/iNaturalist2017/val/'
+data_train_list = 'data/meta/iNaturalist2017/train2017_classification.txt'
+data_train_root = 'data/iNaturalist2017/'
+data_test_list = 'data/meta/iNaturalist2017/val2017_classification.txt'
+data_test_root = 'data/iNaturalist2017/'
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

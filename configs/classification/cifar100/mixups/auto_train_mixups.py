@@ -35,13 +35,12 @@ def main():
 
     # abbreviation of long attributes
     abbs = {
-        'total_epochs': 'ep'
+        'max_epochs': 'ep'
     }
     # create nested dirs (cannot be none)
     model_var = {
         'model.mix_mode': ["mixup",],
-        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix",
-        #                    "saliencymix", "smoothmix", "resizemix",],
+        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix", "puzzlemix",],
         # 'model.mix_mode': ["attentivemix", "automix", "puzzlemix", "samix",],
     }
     # adjust sub-attributes (cannot be none)
@@ -51,7 +50,7 @@ def main():
         # 'model.head.loss.use_sigmoid': [True, ],
         # 'optimizer.weight_decay': [1e-4, 5e-4, 1e-3],  # default: 1e-4, adjust for RX50 and WRN
         # 'lr_config.min_lr': [0],  # default: 0
-        'total_epochs': [400, 800, 1200],
+        'runner.max_epochs': [400, 800, 1200],
     }
     
     num_device = 1

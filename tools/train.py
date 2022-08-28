@@ -10,7 +10,7 @@ import mmcv
 import torch
 import torch.distributed as dist
 from mmcv import Config, DictAction
-from mmcv.runner import get_dist_info, init_dist
+from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 
 from openmixup import __version__
 from openmixup.apis import init_random_seed, set_random_seed, train_model
@@ -36,6 +36,8 @@ def parse_args():
         help='resume from the latest checkpoint automatically')
     parser.add_argument(
         '--pretrained', default=None, help='pretrained model file')
+    parser.add_argument(
+        '--load_checkpoint', default=None, help='load the checkpoint file of full models')
     group_gpus = parser.add_mutually_exclusive_group()
     group_gpus.add_argument(
         '--gpus',
@@ -168,16 +170,20 @@ def main():
     seed = init_random_seed(args.seed)
     seed = seed + dist.get_rank() if args.diff_seed else seed
     logger.info('Set random seed to {}, deterministic: {}'.format(
-        args.seed, args.deterministic))
-    set_random_seed(args.seed, deterministic=args.deterministic)
-    cfg.seed = args.seed
-    meta['seed'] = args.seed
+        seed, args.deterministic))
+    set_random_seed(seed, deterministic=args.deterministic)
+    cfg.seed = seed
+    meta['seed'] = seed
     meta['exp_name'] = osp.basename(args.config)
 
+    # build the model and load pretrained or checkpoint
     if args.pretrained is not None:
-        assert isinstance(args.pretrained, str)
+        assert isinstance(args.pretrained, str) and args.load_checkpoint is None
         cfg.model.pretrained = args.pretrained
     model = build_model(cfg.model)
+    if args.load_checkpoint is not None:
+        assert isinstance(args.load_checkpoint, str) and args.pretrained is None
+        load_checkpoint(model, args.load_checkpoint, map_location='cpu')
 
     datasets = [build_dataset(cfg.data.train)]
     assert len(cfg.workflow) == 1, "Validation is called by hook."

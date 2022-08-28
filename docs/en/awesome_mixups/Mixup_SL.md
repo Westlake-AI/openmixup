@@ -11,6 +11,8 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 
 * **MixUp**: Hongyi Zhang, Moustapha Cisse, Yann N. Dauphin, David Lopez-Paz.
    - mixup: Beyond Empirical Risk Minimization. [[ICLR'2018](https://arxiv.org/abs/1710.09412)] [[code](https://github.com/facebookresearch/mixup-cifar10)]
+* **BC**: Yuji Tokozume, Yoshitaka Ushiku, Tatsuya Harada.
+   - Between-class Learning for Image Classification. [[CVPR'2018](https://arxiv.org/abs/1711.10284)] [[code](https://github.com/mil-tokyo/bc_learning_image)]
 * **AdaMixup**: Hongyu Guo, Yongyi Mao, Richong Zhang.
    - MixUp as Locally Linear Out-Of-Manifold Regularization. [[AAAI'2019](https://arxiv.org/abs/1809.02499)]
 * **CutMix**: Sangdoo Yun, Dongyoon Han, Seong Joon Oh, Sanghyuk Chun, Junsuk Choe, Youngjoon Yoo.
@@ -44,13 +46,15 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 * **k-Mixup**: Kristjan Greenewald, Anming Gu, Mikhail Yurochkin, Justin Solomon, Edward Chien.
    - k-Mixup Regularization for Deep Learning via Optimal Transport. [[ArXiv'2021](https://arxiv.org/abs/2106.02933)]
 * **LocalMix**: Raphael Baena, Lucas Drumetz, Vincent Gripon.
-   - Preventing Manifold Intrusion with Locality: Local Mixup. [[ArXiv'2022](https://arxiv.org/abs/2201.04368)] [[code](https://github.com/raphael-baena/Local-Mixup)]
+   - Preventing Manifold Intrusion with Locality: Local Mixup. [[EUSIPCO'2022](https://arxiv.org/abs/2201.04368)] [[code](https://github.com/raphael-baena/Local-Mixup)]
 * **RandomMix**: Xiaoliang Liu, Furao Shen, Jian Zhao, Changhai Nie.
-   - RandomMix: A mixed sample data augmentation method with multiple mixed modes. [[ArXiv’2022](https://arxiv.org/abs/2205.08728)]
+   - RandomMix: A mixed sample data augmentation method with multiple mixed modes. [[ArXiv'2022](https://arxiv.org/abs/2205.08728)]
 * **SuperpixelGridCut**: Karim Hammoudi, Adnane Cabani, Bouthaina Slika, Halim Benhabiles, Fadi Dornaika, Mahmoud Melkemi.
    - SuperpixelGridCut, SuperpixelGridMean and SuperpixelGridMix Data Augmentation. [[ArXiv'2022](https://arxiv.org/abs/2204.08458)] [[code](https://github.com/hammoudiproject/SuperpixelGridMasks)]
 * **AugRmixAT**: Xiaoliang Liu, Furao Shen, Jian Zhao, Changhai Nie.
-   - AugRmixAT: A Data Processing and Training Method for Improving Multiple Robustness and Generalization Performance. [[ICME’2022](https://arxiv.org/abs/2207.10290)]
+   - AugRmixAT: A Data Processing and Training Method for Improving Multiple Robustness and Generalization Performance. [[ICME'2022](https://arxiv.org/abs/2207.10290)]
+* **MSDA**: Chanwoo Park, Sangdoo Yun, Sanghyuk Chun.
+   - A Unified Analysis of Mixed Sample Data Augmentation: A Loss Function Perspective. [[ArXiv'2022](https://arxiv.org/abs/2208.09913)] [[code](https://github.com/naver-ai/hmix-gmix)]
 
 ### Saliency-guided Policies
 
@@ -104,9 +108,9 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 * **GenLabel**: Yeming Wen, Ghassen Jerfel, Rafael Muller, Michael W. Dusenberry, Jasper Snoek, Balaji Lakshminarayanan, Dustin Tran.
    - GenLabel: Mixup Relabeling using Generative Models. [[ArXiv'2022](https://arxiv.org/abs/2201.02354)]
 * **DecoupleMix**: Zicheng Liu, Siyuan Li, Ge Wang, Cheng Tan, Lirong Wu, Stan Z. Li.
-   - Decoupled Mixup for Data-efficient Learning. [[Arxiv'2022](https://arxiv.org/abs/2203.10761),] [[code](https://github.com/Westlake-AI/openmixup)]
+   - Decoupled Mixup for Data-efficient Learning. [[Arxiv'2022](https://arxiv.org/abs/2203.10761)] [[code](https://github.com/Westlake-AI/openmixup)]
 * **TokenMix**: Jihao Liu, Boxiao Liu, Hang Zhou, Hongsheng Li, Yu Liu.
-   - TokenMix: Rethinking Image Mixing for Data Augmentation in Vision Transformers. [[ECCV'2022](https://arxiv.org/abs/2207.08409),] [[code](https://github.com/Sense-X/TokenMix)]
+   - TokenMix: Rethinking Image Mixing for Data Augmentation in Vision Transformers. [[ECCV'2022](https://arxiv.org/abs/2207.08409)] [[code](https://github.com/Sense-X/TokenMix)]
 
 ## Contribution
 

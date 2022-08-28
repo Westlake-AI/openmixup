@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../_base_/datasets/place205/basic_sz224_4xbs64.py',
-    '../../../_base_/default_runtime.py',
+    '../../_base_/datasets/place205/basic_sz224_4xbs64.py',
+    '../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg

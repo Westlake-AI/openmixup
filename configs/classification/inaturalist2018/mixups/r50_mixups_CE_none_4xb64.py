@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../_base_/datasets/place205/basic_sz224_4xbs64.py',
-    '../../../_base_/default_runtime.py',
+    '../../_base_/datasets/inaturalist2018/basic_sz224_4xbs64.py',
+    '../../_base_/default_runtime.py',
 ]
 
 # model settings
@@ -21,8 +21,8 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        type='ResNet',  # normal
-        # type='ResNet_Mix',  # required by 'manifoldmix'
+        # type='ResNet',  # normal
+        type='ResNet_Mix',  # required by 'manifoldmix'
         depth=50,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x
@@ -30,7 +30,7 @@ model = dict(
     head=dict(
         type='ClsHead',  # mixup head, normal CE loss
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=205)
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=8142)
 )
 
 # optimizer

@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../_base_/datasets/iNaturalist2018/basic_sz224_4xbs64.py',
-    '../../../_base_/default_runtime.py',
+    '../../_base_/datasets/inaturalist2017/basic_sz224_4xbs64.py',
+    '../../_base_/default_runtime.py',
 ]
 
 # model settings
@@ -35,11 +35,11 @@ model = dict(
     head_one=dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=8142),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
     head_mix=dict(  # backbone & mixblock
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=8142),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -47,8 +47,8 @@ model = dict(
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=1710 * 10,  # plot every 10ep
-        iter_per_epoch=1710,
+        save_interval=2263 * 10,  # plot every 2263 x 10ep
+        iter_per_epoch=2263,
     ),
     dict(type='CustomCosineAnnealingHook',  # 0.1 to 0
         attr_name="mask_loss", attr_base=0.1, by_epoch=False,  # by iter

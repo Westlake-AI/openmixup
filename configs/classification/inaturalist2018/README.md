@@ -15,6 +15,7 @@ Existing image classification datasets used in computer vision tend to have an e
 We provide a collection of [weights and logs](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-inat2018-weights) for mixup classification benchmark on iNaturalist-2018. You can download all results from **Baidu Cloud**: [iNaturalist-2018 (wy2v)](https://pan.baidu.com/s/1P4VeJalFLV0chryjYCfveg).
 
 * All compared methods adopt ResNet-50 and ResNeXt-101 (32x4d) architectures and are trained 100 epochs using the PyTorch training recipe. The training and testing image size is 224 with the CenterCrop ratio of 0.85. We search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
+* Please refer to [configs]((https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)) files for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
 * The **median** of top-1 accuracy in the last 5 training epochs is reported for ResNet variants.
 * Visualization of mixed samples from [AutoMix](https://arxiv.org/abs/2103.13027) and [SAMix](https://arxiv.org/abs/2111.15454) are provided in zip files.
 
@@ -38,7 +39,7 @@ We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/open
 
 ## Citation
 
-Please refer to the original paper of iNaturalist datasets and AutoMix for details.
+Please refer to the original paper of [iNaturalist](https://arxiv.org/abs/1707.06642) for dataset information, and refer to [AutoMix](https://arxiv.org/abs/2103.13027) for experiment details.
 
 ```bibtex
 @article{Horn2018TheIS,

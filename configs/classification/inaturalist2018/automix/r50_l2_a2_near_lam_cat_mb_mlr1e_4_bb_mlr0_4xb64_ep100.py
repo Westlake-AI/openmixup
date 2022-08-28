@@ -1,15 +1,7 @@
 _base_ = [
-    '../../../_base_/datasets/inaturalist2017/basic_sz224_4xbs64.py',
-    '../../../_base_/default_runtime.py',
+    '../../_base_/datasets/inaturalist2018/basic_sz224_4xbs64.py',
+    '../../_base_/default_runtime.py',
 ]
-
-# value_neck_cfg
-conv1x1=dict(
-    type="ConvNeck",
-    in_channels=1024, hid_channels=512, out_channels=1,  # MixBlock v
-    num_layers=2, kernel_size=1,
-    with_last_norm=False, norm_cfg=dict(type='BN'),  # default
-    with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
 
 # model settings
 model = dict(
@@ -29,31 +21,25 @@ model = dict(
         num_stages=4,
         out_indices=(2,3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
-    mix_block = dict(  # SAMix
+    mix_block = dict(  # AutoMix
         type='PixelMixBlock',
         in_channels=1024, reduction=2, use_scale=True,
-        unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
-        lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)
-        value_neck_cfg=conv1x1,  # SAMix: non-linear value
-        x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
+        unsampling_mode=['nearest',],  # str or list, train & test MixBlock
+        lam_concat=True, lam_concat_v=False,  # AutoMix: lam cat q,k,v
+        lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
+        value_neck_cfg=None,  # SAMix: non-linear value
+        x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
         # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
-        mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
+        mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
         frozen=False),
     head_one=dict(
         type='ClsHead',  # default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
-    head_mix=dict(  # backbone
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=8142),
+    head_mix=dict(  # backbone & mixblock
         type='ClsMixupHead',  # mixup, default CE
         loss=dict(type='CrossEntropyLoss', use_soft=False, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=5089),
-    head_mix_k=dict(  # mixblock
-        type='ClsMixupHead',  # mixup, soft CE (onehot encoding)
-        loss=dict(type='CrossEntropyLoss', use_soft=True, use_sigmoid=False, loss_weight=1.0),
-        with_avg_pool=True, multi_label=True,
-        neg_weight=1,  # try neg (eta in SAMix)
-        in_channels=2048, num_classes=5089),
+        with_avg_pool=True, multi_label=False, in_channels=2048, num_classes=8142),
     head_weights=dict(
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
 )
@@ -61,8 +47,8 @@ model = dict(
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=2263 * 10,  # plot every 2263 x 10ep
-        iter_per_epoch=2263,
+        save_interval=1710 * 10,  # plot every 10ep
+        iter_per_epoch=1710,
     ),
     dict(type='CustomCosineAnnealingHook',  # 0.1 to 0
         attr_name="mask_loss", attr_base=0.1, by_epoch=False,  # by iter

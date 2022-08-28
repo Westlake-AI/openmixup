@@ -6,7 +6,7 @@ def main():
 
     Usage:
         Generating various mixup methods' configs by executing
-            `python configs/classification/tiny_imagenet/mixups/auto_train_tiny_mixups.py`
+            `python configs/classification/tiny_imagenet/mixups/auto_train_mixups.py`
         For example: generate the optimal configs for 'mixup' with 'default CE' on
             Tiny-ImageNet based on R-18 as following folders:
             |-- configs/classification/tiny_imagenet/mixups/basic/
@@ -34,12 +34,12 @@ def main():
 
     # abbreviation of long attributes
     abbs = {
-        'total_epochs': 'ep'
+        'max_epochs': 'ep'
     }
     # create nested dirs (cannot be none)
     model_var = {
         'model.mix_mode': ["mixup",],
-        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix",],
+        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix", "puzzlemix",],
     }
     # adjust sub-attributes (cannot be none)
     gm_var = {
@@ -47,8 +47,8 @@ def main():
         # 'model.head.loss.use_soft': [True, ],
         # 'model.head.loss.use_sigmoid': [True, ],
         # 'optimizer.weight_decay': [1e-4, 5e-4, 1e-3],  # default: 1e-4, adjust for RX50 and WRN
-        # 'lr_config.min_lr': [0],  # default: 0
-        'total_epochs': [400, 800, 1200],
+        'runner.max_epochs': [400,],
+        # 'runner.max_epochs': [400, 800, 1200,],
     }
     
     num_device = 1

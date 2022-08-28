@@ -111,42 +111,6 @@ class MixFFN(BaseModule):
         return x
 
 
-class ConvFFN(BaseModule):
-    """An implementation of Conv FFN
-
-    Args:
-        in_features (int): The feature dimension.
-        hidden_features (int): The hidden dimension of FFNs.
-        out_features (int): The output dimension of FFNs.
-        act_cfg (dict, optional): The activation config for FFNs.
-            Default: dict(type='GELU').
-        ffn_drop (float, optional): Probability of an element to be
-            zeroed in FFN. Default 0.0.
-    """
-
-    def __init__(self,
-                 embed_dims,
-                 feedforward_channels=None,
-                 act_cfg=dict(type='GELU'),
-                 ffn_drop=0.,
-                 init_cfg=None):
-        super(ConvFFN, self).__init__(init_cfg=init_cfg)
-
-        feedforward_channels = feedforward_channels or embed_dims
-        self.fc1 = Conv2d(embed_dims, feedforward_channels, 1)
-        self.fc2 = Conv2d(feedforward_channels, embed_dims, 1)
-        self.act = build_activation_layer(act_cfg)
-        self.drop = nn.Dropout(ffn_drop)
-
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.act(x)
-        x = self.drop(x)
-        x = self.fc2(x)
-        x = self.drop(x)
-        return x
-
-
 class DecomposeFFN(BaseModule):
     """An implementation of FFN with Feature Decomposing.
 
@@ -171,14 +135,12 @@ class DecomposeFFN(BaseModule):
                  decompose_method='after',
                  decompose_init_value=0.,
                  decompose_act_cfg=None,
-                 decompose_post_conv=False,
                  init_cfg=None):
         super(DecomposeFFN, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
         self.feedforward_channels = feedforward_channels
         self.act_cfg = act_cfg
-        assert decompose_post_conv == False
 
         self.fc1 = Conv2d(
             in_channels=embed_dims,
@@ -245,7 +207,7 @@ class LKA(BaseModule):
         DW_D_conv (depth-wise dilation convolution)
                             |
                             |
-        Transition Convolution (1×1 convolution)
+        Transition Convolution (1x1 convolution)
 
     Args:
         embed_dims (int): Number of input channels.
@@ -634,7 +596,6 @@ class VANBlock(BaseModule):
                  ffn_decompose_method='after',
                  ffn_decompose_init_value=1,
                  ffn_decompose_act_cfg=None,
-                 ffn_decompose_post_conv=False,
                  init_cfg=None):
         super(VANBlock, self).__init__(init_cfg=init_cfg)
         self.out_channels = embed_dims
@@ -642,6 +603,7 @@ class VANBlock(BaseModule):
         self.norm1 = build_norm_layer(norm_cfg, embed_dims)[1]
 
         # attention
+        assert attention_types in ['GAU', 'InceptionGAU', 'LKA',]
         if attention_types == "GAU":
             self.attn = GAUAttention(
                 embed_dims,
@@ -679,6 +641,7 @@ class VANBlock(BaseModule):
 
         # feed forward MLP
         mlp_hidden_dim = int(embed_dims * ffn_ratio)
+        assert ffn_types in ['Mix', 'Decompose',]
         if ffn_types == "Mix":
             self.mlp = MixFFN(  # dwconv + FFN
                 embed_dims=embed_dims,
@@ -696,14 +659,7 @@ class VANBlock(BaseModule):
                 decompose_method=ffn_decompose_method,
                 decompose_init_value=ffn_decompose_init_value,
                 decompose_act_cfg=ffn_decompose_act_cfg,
-                decompose_post_conv=ffn_decompose_post_conv,
             )
-        else:
-            self.mlp = ConvFFN(  # vanilla FFN
-                embed_dims=embed_dims,
-                feedforward_channels=mlp_hidden_dim,
-                act_cfg=act_cfg,
-                ffn_drop=drop_rate)
 
         # init layer scale
         self.layer_scale_1 = nn.Parameter(
@@ -731,16 +687,16 @@ class VANBlock(BaseModule):
         return x
 
 
-class VANPatchEmbed(PatchEmbed):
+class ConvPatchEmbed(PatchEmbed):
     """Image to Patch Embedding of VAN.
 
-    The differences between VANPatchEmbed & PatchEmbed:
+    The differences between ConvPatchEmbed & PatchEmbed:
         1. Use BN.
         2. Do not use 'flatten' and 'transpose'.
     """
 
     def __init__(self, *args, norm_cfg=dict(type='BN'), **kwargs):
-        super(VANPatchEmbed, self).__init__(*args, norm_cfg=norm_cfg, **kwargs)
+        super(ConvPatchEmbed, self).__init__(*args, norm_cfg=norm_cfg, **kwargs)
 
     def forward(self, x):
         """
@@ -763,13 +719,13 @@ class VANPatchEmbed(PatchEmbed):
         return x, out_size
 
 
-class MiddleEmbedding(BaseModule):
-    """An implementation of Conv middle embedding layer.
+class DWConvPatchEmbed(BaseModule):
+    """An implementation of DW Conv patch embedding layer.
 
     Args:
         in_features (int): The feature dimension.
         out_features (int): The output dimension of FFNs.
-        kernel_size (int): The conv kernel size of middle patch embedding.
+        kernel_size (int): The conv kernel size of patch embedding.
             Defaults to 3.
         stride_size (int): The conv stride of middle patch embedding.
             Defaults to 2.
@@ -785,7 +741,7 @@ class MiddleEmbedding(BaseModule):
                  norm_cfg=dict(type='BN'),
                  init_cfg=None,
                 ):
-        super(MiddleEmbedding, self).__init__(init_cfg)
+        super(DWConvPatchEmbed, self).__init__(init_cfg)
 
         embed_dims = in_channels or embed_dims
         self.projection = nn.Sequential(
@@ -808,7 +764,7 @@ class MiddleEmbedding(BaseModule):
 @BACKBONES.register_module()
 class LAN(BaseBackbone):
     """Linear Attention Network based on Visual Attention Network.
-        v08.17, IP53
+        v08.28, IP51
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -888,7 +844,7 @@ class LAN(BaseBackbone):
                  attention_types=["GAU", "GAU", "GAU", "GAU",],
                  ffn_types=["Mix", "Mix", "Mix", "Mix",],
                  patchembed_types=["Conv", "Conv", "Conv", "Conv",],
-                 with_channel_split=[2, 1, 1],
+                 with_channel_split=[1, 3, 4,],
                  attn_act_gate_cfg=dict(type="GELU"),
                  attn_act_value_cfg=dict(type="GELU"),
                  attn_dw_kernel_size=5,
@@ -901,7 +857,6 @@ class LAN(BaseBackbone):
                  ffn_decompose_method='after',
                  ffn_decompose_init_value=0,
                  ffn_decompose_act_cfg=None,
-                 ffn_decompose_post_conv=False,
                  block_cfgs=dict(),
                  init_cfg=None):
         super(LAN, self).__init__(init_cfg=init_cfg)
@@ -942,7 +897,7 @@ class LAN(BaseBackbone):
         cur_block_idx = 0
         for i, depth in enumerate(self.depths):
             if i > 0 and patchembed_types[i] == "DWConv":
-                patch_embed = MiddleEmbedding(
+                patch_embed = DWConvPatchEmbed(
                     in_channels=self.embed_dims[i - 1],
                     embed_dims=self.embed_dims[i],
                     kernel_size=patch_sizes[i],
@@ -950,7 +905,7 @@ class LAN(BaseBackbone):
                     norm_cfg=conv_norm_cfg,
                 )
             else:
-                patch_embed = VANPatchEmbed(
+                patch_embed = ConvPatchEmbed(
                     in_channels=in_channels if i == 0 else self.embed_dims[i - 1],
                     input_size=None,
                     embed_dims=self.embed_dims[i],
@@ -982,7 +937,6 @@ class LAN(BaseBackbone):
                     ffn_decompose_method=ffn_decompose_method,
                     ffn_decompose_init_value=ffn_decompose_init_value,
                     ffn_decompose_act_cfg=ffn_decompose_act_cfg,
-                    ffn_decompose_post_conv=ffn_decompose_post_conv,
                     **block_cfgs) for j in range(depth)
             ])
             cur_block_idx += depth

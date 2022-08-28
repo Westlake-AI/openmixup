@@ -23,6 +23,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Masked Feature Prediction for Self-Supervised Visual Pre-Training. [[CVPR'2022](https://arxiv.org/abs/2112.09133)] [[code](https://github.com/facebookresearch/SlowFast)]
 * **SplitMask**: Alaaeldin El-Nouby, Gautier Izacard, Hugo Touvron, Ivan Laptev, Hervé Jegou, Edouard Grave.
    - Are Large-scale Datasets Necessary for Self-Supervised Pre-training? [[ArXiv'2021](https://arxiv.org/abs/2112.10740)]
+* **data2vec**: Alexei Baevski, Wei-Ning Hsu, Qiantong Xu, Arun Babu, Jiatao Gu, Michael Auli.
+   - data2vec: A General Framework for Self-supervised Learning in Speech, Vision and Language. [[ICML'2022](https://arxiv.org/abs/2202.03555)] [[code](https://github.com/facebookresearch/fairseq/tree/main/examples/data2vec)]
 * **PeCo**: Xiaoyi Dong, Jianmin Bao, Ting Zhang, Dongdong Chen, Weiming Zhang, Lu Yuan, Dong Chen, Fang Wen, Nenghai Yu.
    - PeCo: Perceptual Codebook for BERT Pre-training of Vision Transformers. [[ArXiv'2021](https://arxiv.org/abs/2111.12710)] [[code](https://github.com/microsoft/PeCo)]
 * **MC-SSL0.0**: Sara Atito, Muhammad Awais, Ammarah Farooq, Zhenhua Feng, Josef Kittler.
@@ -31,11 +33,13 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - mc-BEiT: Multi-choice Discretization for Image BERT Pre-training. [[ECCV'2022](https://arxiv.org/abs/2203.15371)] [[code](https://github.com/lixiaotong97/mc-BEiT)]
 * **BootMAE**: Xiaoyi Dong, Jianmin Bao, Ting Zhang, Dongdong Chen, Weiming Zhang, Lu Yuan, Dong Chen, Fang Wen, Nenghai Yu.
    - Bootstrapped Masked Autoencoders for Vision BERT Pretraining. [[ECCV'2022](https://arxiv.org/abs/2207.07116)] [[code](https://github.com/LightDXY/BootMAE)]
+* **SdAE**: Yabo Chen, Yuchen Liu, Dongsheng Jiang, Xiaopeng Zhang, Wenrui Dai, Hongkai Xiong, Qi Tian.
+   - SdAE: Self-distillated Masked Autoencoder. [[ECCV'2022](https://arxiv.org/abs/2208.00449)] [[code](https://github.com/AbrahamYabo/SdAE)]
 * **SupMAE**: Feng Liang, Yangguang Li, Diana Marculescu.
    - SupMAE: Supervised Masked Autoencoders Are Efficient Vision Learners. [[ArXiv'2022](https://arxiv.org/abs/2205.14540)] [[code](https://github.com/cmu-enyac/supmae)]
 * **MVP**: Longhui Wei, Lingxi Xie, Wengang Zhou, Houqiang Li, Qi Tian.
    - MVP: Multimodality-guided Visual Pre-training. [[ArXiv'2022](https://arxiv.org/abs/2203.05175)]
-* **Ge$^2$AE**: Hao Liu, Xinghua Jiang, Xin Li, Antai Guo, Deqiang Jiang, Bo Ren.
+* **Ge2AE**: Hao Liu, Xinghua Jiang, Xin Li, Antai Guo, Deqiang Jiang, Bo Ren.
    - The Devil is in the Frequency: Geminated Gestalt Autoencoder for Self-Supervised Visual Pre-Training. [[ArXiv'2022](https://arxiv.org/abs/2204.08227)]
 * **ConvMAE**: Peng Gao, Teli Ma, Hongsheng Li, Ziyi Lin, Jifeng Dai, Yu Qiao.
    - ConvMAE: Masked Convolution Meets Masked Autoencoders. [[ArXiv'2022](https://arxiv.org/abs/2205.03892)] [[code](https://github.com/Alpha-VL/ConvMAE)]
@@ -49,6 +53,10 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Efficient Self-supervised Vision Pretraining with Local Masked Reconstruction. [[ArXiv'2022](https://arxiv.org/abs/2206.00790)] [[code](https://github.com/junchen14/LoMaR)]
 * **BEiT.V2**: Zhiliang Peng, Li Dong, Hangbo Bao, Qixiang Ye, Furu Wei.
    - BEiT v2: Masked Image Modeling with Vector-Quantized Visual Tokenizers. [[ArXiv'2022](http://arxiv.org/abs/2208.06366)] [[code](https://aka.ms/beit)]
+* **MILAN**: Zejiang Hou, Fei Sun, Yen-Kuang Chen, Yuan Xie, Sun-Yuan Kung.
+   - MILAN: Masked Image Pretraining on Language Assisted Representation. [[ArXiv'2022](https://arxiv.org/abs/2208.06049)] [[code](https://github.com/zejiangh/milan)]
+* **BEiT.V3**: Wenhui Wang, Hangbo Bao, Li Dong, Johan Bjorck, Zhiliang Peng, Qiang Liu, Kriti Aggarwal, Owais Khan Mohammed, Saksham Singhal, Subhojit Som, Furu Wei.
+   - Image as a Foreign Language: BEiT Pretraining for All Vision and Vision-Language Tasks. [[ArXiv'2022](https://arxiv.org/abs/2208.10442)] [[code](https://github.com/microsoft/unilm/tree/master/beit)]
 
 ### MIM with Constrastive Learning
 
@@ -73,7 +81,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Context Encoders: Feature Learning by Inpainting. [[CVPR'2016](https://arxiv.org/abs/1604.07379)] [[code](https://github.com/pathak22/context-encoder)]
 * **CIM**: Yuxin Fang, Li Dong, Hangbo Bao, Xinggang Wang, Furu Wei.
    - Corrupted Image Modeling for Self-Supervised Visual Pre-Training. [[ArXiv'2022](https://arxiv.org/abs/2202.03382)]
-* **A$^2$MIM**: Siyuan Li, Di Wu, Fang Wu, Zelin Zang, Kai Wang, Lei Shang, Baigui Sun, Hao Li, Stan.Z.Li.
+* **A2MIM**: Siyuan Li, Di Wu, Fang Wu, Zelin Zang, Kai Wang, Lei Shang, Baigui Sun, Hao Li, Stan.Z.Li.
    - Architecture-Agnostic Masked Image Modeling - From ViT back to CNN. [[ArXiv'2022](https://arxiv.org/abs/2205.13943)] [[code](https://github.com/Westlake-AI/openmixup)]
 * **MixMIM**: Jihao Liu, Xin Huang, Yu Liu, Hongsheng Li.
    - MixMIM: Mixed and Masked Image Modeling for Efficient Visual Representation Learning. [[ArXiv'2022](https://arxiv.org/abs/2205.13137)] [[code](https://github.com/Sense-X/MixMIM)]

@@ -13,13 +13,19 @@ class PlotTensor:
     """
 
     def __init__(self, apply_inv=True) -> None:
-        trans = list()
+        trans_cifar = [
+            torchvision.transforms.Normalize(
+                mean=[ 0., 0., 0. ], std=[1 / 0.2023, 1 / 0.1994, 1 / 0.201]),
+            torchvision.transforms.Normalize(
+                mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])]
+        trans_in = [
+            torchvision.transforms.Normalize(
+                mean=[ 0., 0., 0. ], std=[1 / 0.229, 1 / 0.224, 1 / 0.225]),
+            torchvision.transforms.Normalize(
+                mean=[-0.485, -0.456, -0.406], std=[ 1., 1., 1. ])]
         if apply_inv:
-            trans = [torchvision.transforms.Normalize(
-                        mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
-                    torchvision.transforms.Normalize(
-                        mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])]
-        self.invTrans = torchvision.transforms.Compose(trans)
+            self.invTrans_cifar = torchvision.transforms.Compose(trans_cifar)
+            self.invTrans_in = torchvision.transforms.Compose(trans_in)
 
     def plot(self,
              img, nrow=4, title_name=None, save_name=None,
@@ -36,7 +42,10 @@ class PlotTensor:
         if img.size(1) == 1:
             cmap = plt.cm.gray
         if apply_inv:
-            img_grid = self.invTrans(img_grid)
+            if img.size(2) <= 64:
+                img_grid = self.invTrans_cifar(img_grid)
+            else:
+                img_grid = self.invTrans_in(img_grid)
         img_grid = torch.clip(img_grid * 255, 0, 255).int()
         img_grid = np.transpose(img_grid.detach().cpu().numpy(), (1, 2, 0))
         fig = plt.figure(figsize=(nrow * 2, ncol * 2))

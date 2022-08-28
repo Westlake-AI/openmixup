@@ -47,12 +47,12 @@ def main():
 
     # abbreviation of long attributes
     abbs = {
-        'total_epochs': 'ep'
+        'max_epochs': 'ep'
     }
     # create nested dirs (cannot be none)
     model_var = {
         'model.mix_mode': ["mixup", "cutmix",],
-        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix",],
+        # 'model.mix_mode': ["vanilla", "mixup", "cutmix", "manifoldmix", "fmix", "saliencymix", "resizemix", "puzzlemix",],
     }
     # adjust sub-attributes (cannot be none)
     gm_var = {
@@ -60,10 +60,10 @@ def main():
         # 'model.head.loss.use_soft': [True, ],
         # 'model.head.loss.use_sigmoid': [True, ],
         # 'lr_config.min_lr': [0],  # default: 0
-        'total_epochs': [100, 300],
+        'runner.max_epochs': [100, 300,],
     }
     
-    num_device = 1
+    num_device = 4  # 4 gpus by default
     
     generator = ConfigGenerator(base_path=base_path, num_device=num_device)
     generator.generate(model_var, gm_var, abbs)

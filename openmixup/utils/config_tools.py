@@ -95,8 +95,9 @@ class ConfigGenerator(object):
 
                     # write cmds for .sh
                     port += 1
-                    cmd = 'CUDA_VISIBLE_DEVICES=0 PORT={} bash tools/dist_train.sh {} {} &\nsleep 0.1s \n'.format(
-                        port, file_name, self.num_device)
+                    devices = str([i for i in range(self.num_device)]).replace(' ', '').split('[')[1].split(']')[0]
+                    cmd = 'CUDA_VISIBLE_DEVICES={} PORT={} bash tools/dist_train.sh {} {} &\nsleep 0.1s \n'.format(
+                        devices, port, file_name, self.num_device)
                     shfile.write(cmd)
                 shfile.write('\n')
     

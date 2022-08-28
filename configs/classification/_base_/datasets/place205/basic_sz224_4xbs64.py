@@ -1,10 +1,10 @@
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
-# iNat dataset
+# Place dataset
 data_train_list = 'data/meta/Place205/train_labeled_places205_full.txt'
-data_train_root = 'data/Place205/train'
+data_train_root = 'data/Place205/images256/'
 data_test_list = 'data/meta/Place205/val_labeled_places205.txt'
-data_test_root = 'data/Place205/val/'
+data_test_root = 'data/Place205/images256/'
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
