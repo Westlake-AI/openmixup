@@ -365,6 +365,7 @@ class AutoMixup(BaseModel):
         assert self.save_name.find(".png") != -1
         if not os.path.exists(self.save_name):
             plt.savefig(self.save_name)
+        plt.close()
         # debug: plot intermediate results, fp32
         if self.debug:
             assert isinstance(debug_plot, dict)
@@ -377,8 +378,8 @@ class AutoMixup(BaseModel):
                 _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
                 if not os.path.exists(_debug_path):
                     plt.savefig(_debug_path, bbox_inches='tight')
-        plt.close()
-    
+                plt.close()
+
     @auto_fp16(apply_to=('x', 'mixed_x', ))
     def forward_q(self, x, mixed_x, y, index, lam):
         """
@@ -464,7 +465,7 @@ class AutoMixup(BaseModel):
             loss_mix_k["pre_mix_loss"] = None
         
         return loss_mix_k
-    
+
     def pixel_mixup(self, x, y, lam, index, feature):
         """ pixel-wise input space mixup
 

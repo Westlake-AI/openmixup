@@ -8,7 +8,7 @@
 
 ## Introduction
 
-The main branch works with **PyTorch 1.8** (required by some self-supervised methods) or higher (we recommend **PyTorch 1.10**). You can still use **PyTorch 1.6** for supervised classification methods.
+The main branch works with **PyTorch 1.8** (required by some self-supervised methods) or higher (we recommend **PyTorch 1.12**). You can still use **PyTorch 1.6** for supervised classification methods.
 
 `OpenMixup` is an open-source toolbox for supervised, self-, and semi-supervised visual representation learning with mixup based on PyTorch, especially for mixup-related methods.
 
@@ -23,10 +23,13 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
   OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplatable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
 
 - **All in One.**
-  OpenMixup provides popular backbones, mixup methods, semi-supervised, and self-supervised algorithms. Users can perform image classification (CNN & Transformer) and self-supervised pre-training (contrastive and autoregressive) under the same setting.
+  OpenMixup provides popular backbones, mixup methods, semi-supervised, and self-supervised algorithms. Users can perform image classification (CNN & Transformer) and self-supervised pre-training (contrastive and autoregressive) under the same framework.
 
 - **Standard Benchmarks.**
   OpenMixup supports standard benchmarks of image classification, mixup classification, self-supervised evaluation, and provides smooth evaluation on downstream tasks with open-source projects (e.g., object detection and segmentation on [Detectron2](https://github.com/facebookresearch/maskrcnn-benchmark) and [MMSegmentation](https://github.com/open-mmlab/mmsegmentation)).
+
+- **State-of-the-art Methods.**
+  Openmixup provides awesome lists of popular mixup and self-supervised methods. OpenMixup is updating to support more state-of-the-art image classification and self-supervised methods.
 
 </details>
 
@@ -43,7 +46,7 @@ There are quick installation steps for develepment:
 ```shell
 conda create -n openmixup python=3.8 pytorch=1.10 cudatoolkit=11.3 torchvision -c pytorch -y
 conda activate openmixup
-pip3 install openmim
+pip install openmim
 mim install mmcv-full
 git clone https://github.com/Westlake-AI/openmixup.git
 cd openmixup
@@ -178,7 +181,9 @@ If you find this project useful in your research, please consider cite our repo:
 ```BibTeX
 @misc{2022openmixup,
     title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
-    author={Li, Siyuan and Liu, Zichen and Wu, Di and Stan Z. Li},
+    author={Li, Siyuan and Liu, Zicheng and Wu, Di and Stan Z. Li},
+    publisher = {GitHub},
+    journal = {GitHub repository},
     howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
     year={2022}
 }
@@ -186,7 +191,7 @@ If you find this project useful in your research, please consider cite our repo:
 
 ## Contributors
 
-For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thank contributors from MMSelfSup and MMClassification.
+For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thank contributors from MMSelfSup and MMClassification.
 
 ## Contact
 

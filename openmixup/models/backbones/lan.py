@@ -354,7 +354,7 @@ class InceptionGAU(BaseModule):
     def __init__(self,
                  embed_dims,
                  dw_kernel_size=5,
-                 with_channel_split=[2, 1, 1,],
+                 with_channel_split=[1, 3, 4,],
                  with_dilation=True,
                  with_pointwise=True,
                  init_cfg=None):
@@ -406,9 +406,12 @@ class InceptionGAU(BaseModule):
         x_0 = self.DW_conv0(x)
         x_1 = self.DW_conv1(x_0[:, self.embed_dims_0: self.embed_dims_0+self.embed_dims_1, ...])
         x_2 = self.DW_conv2(x_0[:, self.embed_dims-self.embed_dims_2:, ...])
-        x = torch.cat([
-            x_0[:, :self.embed_dims_0, ...],
-            x_1, x_2], dim=1)
+        if self.embed_dims_0 > 0:
+            x = torch.cat([
+                x_0[:, :self.embed_dims_0, ...],
+                x_1, x_2], dim=1)
+        else:
+            x = torch.cat([x_1, x_2], dim=1)
         x = self.PW_conv(x)
         return x
 
@@ -486,7 +489,7 @@ class InceptionGAUAttention(BaseModule):
                  dw_kernel_size=5,
                  act_value_kernel=dict(type="GELU"),
                  act_gate_kernel=dict(type="SiLU"),
-                 with_channel_split=[2, 1, 1],
+                 with_channel_split=[1, 3, 4],
                  with_dilation=True,
                  with_pointwise=True,
                  with_channel_shuffle=False,
@@ -580,10 +583,10 @@ class VANBlock(BaseModule):
                  drop_path_rate=0.,
                  act_cfg=dict(type='GELU'),
                  norm_cfg=dict(type='BN', eps=1e-5),
-                 layer_scale_init_value=1e-2,
+                 layer_scale_init_value=1e-5,
                  attention_types=None,
                  ffn_types=None,
-                 with_channel_split=[2, 1, 1,],
+                 with_channel_split=[1, 3, 4,],
                  attn_act_gate_cfg=dict(type='GELU'),
                  attn_act_value_cfg=dict(type='GELU'),
                  attn_dw_kernel_size=5,
@@ -764,7 +767,7 @@ class DWConvPatchEmbed(BaseModule):
 @BACKBONES.register_module()
 class LAN(BaseBackbone):
     """Linear Attention Network based on Visual Attention Network.
-        v08.28, IP51
+        v09.09, IP51
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -835,7 +838,7 @@ class LAN(BaseBackbone):
                  in_channels=3,
                  drop_rate=0.,
                  drop_path_rate=0.,
-                 init_values=1e-2,
+                 init_values=1e-5,
                  out_indices=(3, ),
                  frozen_stages=-1,
                  norm_eval=False,

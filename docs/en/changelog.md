@@ -2,7 +2,7 @@
 
 ### v0.2.5 (21/07/2022)
 
-Support new features and update documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10).
+Support new features and update documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10). Update features and fix bugs in V0.2.5 as [#17](https://github.com/Westlake-AI/openmixup/issues/17).
 
 #### New Features
 
@@ -13,10 +13,15 @@ Support new features and update documents as [#10](https://github.com/Westlake-A
 - Recognize `README` and `README` for various methods.
 - Update [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
 - Update [get_started.md](docs/en/get_started.md) and [Tutorials](docs/en/tutorials) for better usage of `OpenMixup`.
+- Update mixup benchmarks in [model_zoos](docs/en/model_zoos/Model_Zoo_sup.md): providing configs, weights, and more details.
+- Update latest methods in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
+- Update `README.md` and fix `auto_train_mixups.py` for various datasets.
 
 ### Bug Fixes
 
 - Fix visualization of the reconstruction results in `MAE`.
+- Fix the normalization bug in config files and `plot_torch.py` as mentioned in #16.
+- Fix the random seeds in `tools/train.py` as mentioned in #14.
 
 ### v0.2.4 (07/07/2022)
 

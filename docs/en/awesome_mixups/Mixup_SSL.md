@@ -31,11 +31,15 @@ We are working on a survey of mixup methods. The list is on updating.
    - Mix-up Self-Supervised Learning for Contrast-agnostic Applications. [[ICME'2021](https://arxiv.org/abs/2204.00901)]
 * **CLIM**: Hao Li, Xiaopeng Zhang, Hongkai Xiong.
    - Center-wise Local Image Mixture For Contrastive Representation Learning. [[BMVC'2021](https://arxiv.org/abs/2011.02697)]
+* **SDMP**: Sucheng Ren, Huiyu Wang, Zhengqi Gao, Shengfeng He, Alan Yuille, Yuyin Zhou, Cihang Xie.
+   - A Simple Data Mixing Prior for Improving Self-Supervised Learning. [[CVPR'2022](https://arxiv.org/abs/2206.07692)] [[code](https://github.com/oliverrensu/sdmp)]
 
 ## Mixup Methods for Semi-supervised Learning
 
 * **MixMatch**: David Berthelot, Nicholas Carlini, Ian Goodfellow, Nicolas Papernot, Avital Oliver, Colin Raffel.
    - MixMatch: A Holistic Approach to Semi-Supervised Learning. [[NIPS'2019](https://arxiv.org/abs/1905.02249)] [[code](https://github.com/google-research/mixmatch)]
+* **Pani VAT**: Ke Sun, Bing Yu, Zhouchen Lin, Zhanxing Zhu.
+   - Patch-level Neighborhood Interpolation: A General and Effective Graph-based Regularization Strategy. [[ArXiv'2019](https://arxiv.org/abs/1911.09307)]
 * **ReMixMatch**: David Berthelot, dberth@google.com, Nicholas Carlini, Ekin D. Cubuk, Alex Kurakin, Kihyuk Sohn, Han Zhang, Colin Raffel.
    - ReMixMatch: Semi-Supervised Learning with Distribution Matching and Augmentation Anchoring. [[ICLR'2020](https://openreview.net/forum?id=HklkeR4KPB)] [[code](https://github.com/google-research/remixmatch)]
 * **Core-Tuning**: Yifan Zhang, Bryan Hooi, Dapeng Hu, Jian Liang, Jiashi Feng.

@@ -90,7 +90,7 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 
 **Note**
 
-* Please refer to config files for experiment details: [RSB A3](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a2/) and [RSB A3](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a2/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
+* Please refer to config files for experiment details: [RSB A3](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a3/) and [RSB A2](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a2/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
 * Notice that the [RSB](https://arxiv.org/abs/2110.00476) settings employ Mixup with $\alpha=0.1$ and CutMix with $\alpha=1.0$. We report the **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs.
 
 | Backbones     |  $Beta$  | ResNet-50 | ResNet-50 | Eff-B0 | Eff-B0 | Mob.V2 1x | Mob.V2 1x |
@@ -270,19 +270,19 @@ These benchmarks follow transfer learning settings on fine-grained datasets, usi
 
 * Please refer to config files for experiment details: [CUB-200](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/mixups/basic) and [FGVC-Aircraft](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/mixups/basic). As for config files of various mixups, please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
 
-| Datasets    |  CUB-200  |   CUB-200  |  Aircraft |  Aircraft  |
-|-------------|:---------:|:----------:|:---------:|:----------:|
-| Backbones   | ResNet-18 | ResNeXt-50 | ResNet-18 | ResNeXt-50 |
-| Vanilla     |   77.68   |    83.01   |   80.23   |    85.10   |
-| MixUp       |   78.39   |    84.58   |   79.52   |    85.18   |
-| CutMix      |   78.40   |    85.68   |   78.84   |    84.55   |
-| ManifoldMix |   79.76   |    86.38   |   80.68   |    86.60   |
-| SaliencyMix |   77.95   |    83.29   |   80.02   |    84.31   |
-| FMix*       |   77.28   |    84.06   |   79.36   |    86.23   |
-| PuzzleMix   |   78.63   |    84.51   |   80.76   |    86.23   |
-| ResizeMix*  |   78.50   |    84.77   |   78.10   |    84.08   |
-| AutoMix     |   79.87   |    86.56   |   81.37   |    86.72   |
-| SAMix*      |   81.11   |    86.83   |   82.15   |    86.80   |
+| Datasets    |  $Beta$  |  CUB-200  |   CUB-200  |  Aircraft |  Aircraft  |
+|-------------|:--------:|:---------:|:----------:|:---------:|:----------:|
+| Backbones   | $\alpha$ | ResNet-18 | ResNeXt-50 | ResNet-18 | ResNeXt-50 |
+| Vanilla     |     -    |   77.68   |    83.01   |   80.23   |    85.10   |
+| MixUp       |    0.2   |   78.39   |    84.58   |   79.52   |    85.18   |
+| CutMix      |     1    |   78.40   |    85.68   |   78.84   |    84.55   |
+| ManifoldMix |    0.5   |   79.76   |    86.38   |   80.68   |    86.60   |
+| SaliencyMix |    0.2   |   77.95   |    83.29   |   80.02   |    84.31   |
+| FMix*       |    0.2   |   77.28   |    84.06   |   79.36   |    86.23   |
+| PuzzleMix   |     1    |   78.63   |    84.51   |   80.76   |    86.23   |
+| ResizeMix*  |     1    |   78.50   |    84.77   |   78.10   |    84.08   |
+| AutoMix     |     2    |   79.87   |    86.56   |   81.37   |    86.72   |
+| SAMix*      |     2    |   81.11   |    86.83   |   82.15   |    86.80   |
 
 ### **Large-scale Fine-grained Datasets**
 
