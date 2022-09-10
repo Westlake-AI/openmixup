@@ -309,14 +309,14 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageN
 
 ### **Scenic Classification Dataset**
 
-This benchmark follows [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNet-1k training settings, training 100 epochs from stretch on [Place205](http://places2.csail.mit.edu/index.html).
+This benchmark follows [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNet-1k training settings, training 100 epochs from stretch on [Places205](http://places2.csail.mit.edu/index.html).
 
 **Note**
 
-* Please refer to config files of [Place205](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/) for experiment details. As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Download weights and logs of Place205 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-place205-weights), [Baidu (4m94)](https://pan.baidu.com/s/1ciAYxK6SwR13UNScp0W3bQ)].
+* Please refer to config files of [Places205](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/) for experiment details. As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
+* Download weights and logs of Places205 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-place205-weights), [Baidu (4m94)](https://pan.baidu.com/s/1ciAYxK6SwR13UNScp0W3bQ)].
 
-| Datasets    |  $Beta$  |  Place205 |  Place205 |
+| Datasets    |  $Beta$  |  Places205 |  Places205 |
 |-------------|:--------:|:---------:|:---------:|
 | Backbones   | $\alpha$ | ResNet-18 | ResNet-50 |
 | Vanilla     |     -    |   59.63   |   63.10   |

@@ -1,4 +1,9 @@
 # OpenMixup
+[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://openmixup.readthedocs.io/en/latest/)
+[![license](https://img.shields.io/github/license/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
+[![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/issues)
+[![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/issues)
+
 [📘Documentation](https://openmixup.readthedocs.io/en/latest/) |
 [🛠️Installation](https://openmixup.readthedocs.io/en/latest/install.html) |
 [🚀Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos) |
@@ -44,7 +49,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 There are quick installation steps for develepment:
 
 ```shell
-conda create -n openmixup python=3.8 pytorch=1.10 cudatoolkit=11.3 torchvision -c pytorch -y
+conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
 conda activate openmixup
 pip install openmim
 mim install mmcv-full
@@ -131,7 +136,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
     - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
     - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
-    - [x] [Place205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
+    - [x] [Places205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
     - [x] [iNaturalist-2017](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2017)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
     - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
     </details>

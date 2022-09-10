@@ -1,4 +1,4 @@
-# Mixup Classification Benchmark on Place205
+# Mixup Classification Benchmark on Places205
 
 > [Places: A 10 million Image Database for Scene Recognition](http://places2.csail.mit.edu/PAMI_places.pdf)
 
@@ -12,14 +12,14 @@ The rise of multi-million-item dataset initiatives has enabled data-hungry machi
 
 ## Results and models
 
-We provide a collection of [weights and logs](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-place205-weights) for mixup classification benchmark on Place205. You can download all results from **Baidu Cloud**: [Place205 (4m94)](https://pan.baidu.com/s/1ciAYxK6SwR13UNScp0W3bQ).
+We provide a collection of [weights and logs](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-place205-weights) for mixup classification benchmark on Place205. You can download all results from **Baidu Cloud**: [Places205 (4m94)](https://pan.baidu.com/s/1ciAYxK6SwR13UNScp0W3bQ).
 
 * All compared methods adopt ResNet-18/50 architectures and are trained 100 epochs using the PyTorch training recipe. The training and testing image size is 224 with the CenterCrop ratio of 0.85. We search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
-* Please refer to config files of [Place205](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
+* Please refer to config files of [Places205](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
 * The **median** of top-1 accuracy in the last 5 training epochs is reported for ResNet-18/50.
 * Visualization of mixed samples from [AutoMix](https://arxiv.org/abs/2103.13027) and [SAMix](https://arxiv.org/abs/2111.15454) are provided in zip files.
 
-### Place-205
+### Places-205
 
 | Backbones                                                   | ResNet-18 top-1 | ResNet-50 top-1 |
 |-------------------------------------------------------------|:---------------:|:---------------:|
@@ -39,7 +39,7 @@ We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/open
 
 ## Citation
 
-Please refer to the original paper of [Place205](http://places2.csail.mit.edu/PAMI_places.pdf) for dataset information, and refer to [AutoMix](https://arxiv.org/abs/2103.13027) for experiment details.
+Please refer to the original paper of [Places205](http://places2.csail.mit.edu/PAMI_places.pdf) for dataset information, and refer to [AutoMix](https://arxiv.org/abs/2103.13027) for experiment details.
 
 ```bibtex
 @article{zhou2017places,
