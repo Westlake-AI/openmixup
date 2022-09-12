@@ -1,9 +1,7 @@
 import re
-import torch
 from mmcv.runner import allreduce_grads, OptimizerHook
 from mmcv.runner import Fp16OptimizerHook as _Fp16OptimizerHook
 from mmcv.utils import TORCH_VERSION, _BatchNorm, digit_version
-from openmixup.models.utils import concat_all_gather
 
 try:
     import apex
@@ -147,7 +145,6 @@ if (TORCH_VERSION != 'parrots'
             cancel_grad (dict): Config dict for cancelling gradients for selected
                 parameters, e.g., cancel_grad=dict(regexp=cancel_iter), 'regexp' stands
                 for param_name. Default: None.
-            skip_overflow (bool): Whether to skip inf or nan loss. Default: True.
             grad_clip (dict): Gradient clip tricks. Default: None.
             loss_scale (float | str | dict): Scale factor multiplied with loss.
                 If loss_scale is a float, static loss scaling will be used with
@@ -159,12 +156,10 @@ if (TORCH_VERSION != 'parrots'
 
         def __init__(self,
                      update_interval=1,
-                     skip_overflow=True,
                      cancel_grad=None,
                      **kwargs):
             super(Fp16OptimizerHook, self).__init__(**kwargs)
             self.update_interval = update_interval
-            self.skip_overflow = skip_overflow
             if cancel_grad is not None:
                 assert isinstance(cancel_grad, dict)
                 self.cancel_grad = cancel_grad
@@ -181,31 +176,6 @@ if (TORCH_VERSION != 'parrots'
             4. Scale the gradients back and update the fp32 weight copy.
             5. Copy back the params from fp32 weight copy to the fp16 model.
             """
-            # skip current iteration if loss is inf or nan
-            if self.skip_overflow:
-                if self.distributed:
-                    loss = concat_all_gather(
-                        runner.outputs['loss'].clone().detach().unsqueeze(0)).mean()
-                else:
-                    loss = runner.outputs['loss'].clone().detach()
-                if torch.any(torch.isinf(loss) ^ torch.isnan(loss)):
-                    ##############################
-                    print(f"Epoch={runner._epoch}, iter={runner._iter}, skip loss:", runner.outputs['loss'])
-                    ##############################
-                    runner.outputs['loss'].backward()
-                    runner.outputs['loss'] = None
-                    runner.model.zero_grad()
-                    runner.optimizer.zero_grad()
-                    runner.logger.warning(
-                        f"Epoch={runner._epoch}, iter={runner._iter},"
-                        "check loss overflow to nan or inf, skip!")
-                    return
-                ####################
-                if runner.rank == 0:
-                    if runner._iter % 10 == 0:
-                        print(f"Ep={runner._epoch}, iter={runner._iter}, loss:", float(loss))
-                ####################
-
             # scale the loss value
             runner.outputs['loss'] /= self.update_interval
             self.loss_scaler.scale(runner.outputs['loss']).backward()
@@ -257,7 +227,6 @@ else:
 
         Args:
             update_interval (int): Frequency of epochs to call the hook. Default: 1.
-            skip_overflow (bool): Whether to skip inf or nan loss. Default: True.
             cancel_grad (dict): Config dict for cancelling gradients for selected
                 parameters, e.g., cancel_grad=dict(regexp=cancel_iter), 'regexp' stands
                 for param_name. Default: None.
@@ -272,12 +241,10 @@ else:
 
         def __init__(self,
                      update_interval=1,
-                     skip_overflow=True,
                      cancel_grad=None,
                      **kwargs):
             super(Fp16OptimizerHook, self).__init__(**kwargs)
             self.update_interval = update_interval
-            self.skip_overflow = skip_overflow
             if cancel_grad is not None:
                 assert isinstance(cancel_grad, dict)
                 self.cancel_grad = cancel_grad
@@ -300,16 +267,6 @@ else:
             scaled_loss.backward()
 
             if self.every_n_iters(runner, self.update_interval):
-                # skip current iteration if loss is inf or nan
-                if self.skip_overflow:
-                    if torch.any(torch.isinf(runner.outputs['loss'])) or \
-                        torch.any(torch.isnan(runner.outputs['loss'])):
-                        runner.outputs['loss'].backward()
-                        runner.model.zero_grad()
-                        runner.optimizer.zero_grad()
-                        runner.logger.warning('Check loss overflow to nan or inf, skip!')
-                        return
-
                 # cancel gradients of selected params
                 if self.cancel_grad is not None:
                     for regexp, cancel_iter in self.cancel_grad.items():

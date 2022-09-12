@@ -1,8 +1,9 @@
 # OpenMixup
-[![Docs](https://img.shields.io/badge/docs-latest-blue)](https://openmixup.readthedocs.io/en/latest/)
-[![license](https://img.shields.io/github/license/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
-[![open issues](https://isitmaintained.com/badge/open/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/issues)
-[![issue resolution](https://isitmaintained.com/badge/resolution/open-mmlab/mmclassification.svg)](https://github.com/Westlake-AI/openmixup/issues)
+[![Release](https://img.shields.io/badge/release-V0.2.6-%09%2356004F)](https://github.com/Westlake-AI/openmixup/releases)
+[![Docs](https://img.shields.io/badge/docs-latest-%23002FA7)](https://openmixup.readthedocs.io/en/latest/)
+[![license](https://img.shields.io/badge/license-Apache--2.0-%23B7A800)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
+![open issues](https://img.shields.io/github/issues-raw/Westlake-AI/openmixup?color=%23FF9600)
+[![issue resolution](https://img.shields.io/badge/issue%20resolution-1%20d-%23009745)](https://github.com/Westlake-AI/openmixup/issues)
 
 [📘Documentation](https://openmixup.readthedocs.io/en/latest/) |
 [🛠️Installation](https://openmixup.readthedocs.io/en/latest/install.html) |
@@ -25,7 +26,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 <summary>Major Features</summary>
 
 - **Modular Design.**
-  OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplatable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
+  OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplantable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
 
 - **All in One.**
   OpenMixup provides popular backbones, mixup methods, semi-supervised, and self-supervised algorithms. Users can perform image classification (CNN & Transformer) and self-supervised pre-training (contrastive and autoregressive) under the same framework.
@@ -66,7 +67,7 @@ Please see [get_started.md](docs/en/get_started.md) for the basic usage of OpenM
 ```shell
 bash tools/dist_train.sh ${CONFIG_FILE} ${GPUS} [optional arguments]
 ```
-Please Then, see [Tutorials](docs/en/tutorials) for more tech details:
+Please then, see [Tutorials](docs/en/tutorials) for more tech details:
 
 - [config files](docs/en/tutorials/0_config.md)
 - [add new dataset](docs/en/tutorials/1_new_dataset.md)
@@ -141,7 +142,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
     </details>
 
-* Self-supervised algorithms for visual representation.
+* Self-supervised algorithms for visual representation learning.
 
     <details open>
     <summary>Currently supported self-supervised algorithms</summary>
@@ -176,7 +177,7 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Acknowledgement
 
-- OpenMixup is an open-source project for mixup methods created by researchers in **CAIRI AI LAB**. We encourage researchers interested in visual representation learning and mixup methods to contribute to OpenMixup!
+- OpenMixup is an open-source project for mixup methods created by researchers in **CAIRI AI Lab**. We encourage researchers interested in visual representation learning and mixup methods to contribute to OpenMixup!
 - This repo borrows the architecture design and part of the code from [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [MMClassification](https://github.com/open-mmlab/mmclassification).
 
 ## Citation

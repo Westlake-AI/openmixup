@@ -24,11 +24,13 @@ The original ImageNet dataset is a popular large-scale benchmark for training De
 | MixUp [[ICLR'2018](https://arxiv.org/abs/1710.09412)]           |      63.86      |       66.36      |
 | CutMix [[ICCV'2019](https://arxiv.org/abs/1905.04899)]          |      65.53      |       66.47      |
 | ManifoldMix [[ICML'2019](https://arxiv.org/abs/1806.05236)]     |      64.15      |       67.30      |
+| SmoothMix [[CVPRW'2020](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)] |   66.65   |    69.65   |
 | SaliencyMix [[ICLR'2021](https://arxiv.org/abs/2006.01791)]     |      64.60      |       66.55      |
 | AttentiveMix+ [[ICASSP'2020]](https://arxiv.org/abs/2003.13048) |      64.85      |       67.42      |
 | FMix [[Arixv'2020](https://arxiv.org/abs/2002.12047)]           |      63.47      |       65.08      |
 | PuzzleMix [[ICML'2020](https://arxiv.org/abs/2009.06962)]       |      65.81      |       67.83      |
 | ResizeMix [[Arixv'2020](https://arxiv.org/abs/2012.11101)]      |      63.74      |       65.87      |
+| GridMix [PR'2021](https://www.sciencedirect.com/science/article/pii/S0031320320303976) |   65.14   |    66.53   |
 | AutoMix [[ECCV'2022](https://arxiv.org/abs/2103.13027)]         |      67.33      |       70.72      |
 | SAMix [[Arxiv'2021](https://arxiv.org/abs/2111.15454)]          |      68.89      |       72.18      |
 

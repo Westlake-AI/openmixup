@@ -150,14 +150,14 @@ This benchmark largely follows [PuzzleMix](https://arxiv.org/abs/2009.06962) set
 | MixUp         |     1    |   63.86   |    66.36   |
 | CutMix        |     1    |   65.53   |    66.47   |
 | ManifoldMix   |    0.2   |   64.15   |    67.30   |
-| SmoothMix     |    0.2   |   66.65   |      -     |
+| SmoothMix     |    0.2   |   66.65   |    69.65   |
 | SaliencyMix   |     1    |   64.60   |    66.55   |
 | AttentiveMix+ |     2    |   64.85   |    67.42   |
 | FMix*         |     1    |   63.47   |    65.08   |
 | PuzzleMix     |     1    |   65.81   |    67.83   |
 | Co-Mixup📖    |     2    |   65.92   |    68.02   |
 | ResizeMix*    |     1    |   63.74   |    65.87   |
-| GridMix       |    0.2   |   65.14   |    69.12   |
+| GridMix       |    0.2   |   65.14   |    66.53   |
 | Grafting📖    |     1    |   64.84   |      -     |
 | AlignMix📖    |     2    |   66.87   |      -     |
 | AutoMix       |     2    |   67.33   |    70.72   |
