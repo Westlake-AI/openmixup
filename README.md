@@ -1,9 +1,9 @@
 # OpenMixup
-[![Release](https://img.shields.io/badge/release-V0.2.6-%09%2356004F)](https://github.com/Westlake-AI/openmixup/releases)
+[![Release](https://img.shields.io/badge/release-V0.2.6-%09%2360004F)](https://github.com/Westlake-AI/openmixup/releases)
 [![Docs](https://img.shields.io/badge/docs-latest-%23002FA7)](https://openmixup.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-%23B7A800)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
 ![open issues](https://img.shields.io/github/issues-raw/Westlake-AI/openmixup?color=%23FF9600)
-[![issue resolution](https://img.shields.io/badge/issue%20resolution-1%20d-%23009745)](https://github.com/Westlake-AI/openmixup/issues)
+[![issue resolution](https://img.shields.io/badge/issue%20resolution-1%20d-%23009763)](https://github.com/Westlake-AI/openmixup/issues)
 
 [📘Documentation](https://openmixup.readthedocs.io/en/latest/) |
 [🛠️Installation](https://openmixup.readthedocs.io/en/latest/install.html) |
