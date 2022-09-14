@@ -4,15 +4,16 @@ from .gather_layer import GatherLayer, concat_all_gather, \
 from .grad_weight import GradWeighter, get_grad_norm
 from .helpers import is_tracing, to_2tuple, to_3tuple, to_4tuple, to_ntuple
 from .augments import cutmix, mixup, fmix, gridmix, resizemix, saliencymix, smoothmix, attentivemix, puzzlemix
-from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, Decoder, DropPath, Encoder, InvertedResidual, make_divisible, \
+from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, Decoder, DropPath, Encoder, InvertedResidual, \
+   LayerScale, make_divisible, \
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
    Scale, SELayer, Canny, Laplacian, Sobel, Smoothing, \
-   CrossMultiheadAttention, FlowAttention, HiLoAttention, MultiheadAttention, MultiheadAttentionWithRPE, \
-   MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
+   CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
+   MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
    build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
    ConditionalPositionEncoding, resize_pos_embed, resize_relative_position_bias_table, \
-   FourierEmbed, RotaryEmbed, CAETransformerRegressorLayer, \
+   FourierEmbed, RotaryEmbed, PositionEncodingFourier, CAETransformerRegressorLayer, \
    lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 from .evaluation import calculate_confusion_matrix, f1_score, precision, recall, precision_recall_f1, \
    support, pearson_correlation, spearman_correlation, regression_error, \
@@ -26,15 +27,16 @@ __all__ = [
    'grad_batch_shuffle_ddp', 'grad_batch_unshuffle_ddp', 'GradWeighter', 'get_grad_norm',
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
    'cutmix', 'mixup', 'fmix', 'gridmix', 'resizemix', 'saliencymix', 'smoothmix', 'attentivemix', 'puzzlemix',
-   'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual', 'make_divisible',
+   'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual',
+   'LayerScale', 'make_divisible',
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
    'Scale', 'SELayer', 'Canny', 'Laplacian', 'Sobel', 'Smoothing',
-   'CrossMultiheadAttention', 'FlowAttention', 'HiLoAttention', 'MultiheadAttention', 'MultiheadAttentionWithRPE',
-   'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
+   'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
+   'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
    'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
    'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',
    'ConditionalPositionEncoding', 'resize_pos_embed', 'resize_relative_position_bias_table',
-   'FourierEmbed', 'RotaryEmbed', 'CAETransformerRegressorLayer',
+   'FourierEmbed', 'RotaryEmbed', 'PositionEncodingFourier', 'CAETransformerRegressorLayer',
    'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
    'calculate_confusion_matrix', 'f1_score', 'precision', 'recall', 'precision_recall_f1', 'support',
    'pearson_correlation', 'spearman_correlation', 'regression_error',

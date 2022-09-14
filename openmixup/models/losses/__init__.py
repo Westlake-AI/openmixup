@@ -1,3 +1,4 @@
+from .arcface_loss import ArcFaceLoss
 from .asymmetric_loss import AsymmetricLoss, asymmetric_loss
 from .cross_entropy_loss import CrossEntropyLoss, binary_cross_entropy, cross_entropy
 from .focal_loss import (FocalLoss, FocalFrequencyLoss,
@@ -8,6 +9,7 @@ from .regression_loss import (RegressionLoss, BMCLoss, BNILoss, balanced_l1_loss
 from .utils import convert_to_one_hot, weight_reduce_loss, weighted_loss
 
 __all__ = [
+    'ArcFaceLoss',
     'asymmetric_loss', 'AsymmetricLoss', 'FocalLoss', 'FocalFrequencyLoss', 'GHMC', 'GHMR', 'VarifocalLoss',
     'cross_entropy', 'binary_cross_entropy', 'CrossEntropyLoss', 'sigmoid_focal_loss', 'varifocal_loss',
     'LabelSmoothLoss',

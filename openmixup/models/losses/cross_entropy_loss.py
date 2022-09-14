@@ -294,16 +294,22 @@ class CrossEntropyLoss(nn.Module):
         Args:
             cls_score (tensor): Predicted logits of (N, C).
             label (tensor): Groundtruth label of (N, \*).
-            weight (tensor): Loss weight for each samples of (N,),
-            eta_weight (list): Rescale weight for the global loss when 'use_mix_decouple'=true,
-                loss = loss_local + eta_weight[i] * loss_global[i]. Default: None.
+            weight (tensor): Loss weight for each samples of (N,).
+            eta_weight (list): Rescale weight for the global loss when
+                'use_mix_decouple'=true, loss = loss_local + eta_weight[i] * \
+                loss_global[i]. Default: None.
+            avg_factor (int, optional): Average factor that is used to average the loss.
+                Defaults to None.
+            reduction_override (str, optional): The reduction method used to override
+                the original reduction method of the loss. Defaults to None.
         """
         assert reduction_override in (None, 'none', 'mean', 'sum')
         reduction = (
             reduction_override if reduction_override is not None else self.reduction)
 
         class_weight = \
-            class_weight_override if class_weight_override is not None else self.class_weight
+            class_weight_override if class_weight_override is not None \
+                else self.class_weight
         if class_weight is not None:
             if isinstance(class_weight, list):  # [C]
                 class_weight = cls_score.new_tensor(class_weight)

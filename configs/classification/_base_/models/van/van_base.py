@@ -7,7 +7,7 @@ model = dict(
     mix_args=dict(),
     backbone=dict(
         type='VAN',
-        arch='base',
+        arch='base',  # equal to VAN-b2
         drop_path_rate=0.1,
     ),
     head=dict(

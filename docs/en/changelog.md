@@ -1,12 +1,31 @@
 ## Changelog
 
-### v0.2.5 (21/07/2022)
+### v0.2.6 (41/09/2022)
 
-Support new features and update documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10). Update features and fix bugs in V0.2.5 as [#17](https://github.com/Westlake-AI/openmixup/issues/17).
+Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20).
 
 #### New Features
 
+- Support new backbone architectures ([EdgeNeXt](https://arxiv.org/abs/2206.10589), [EfficientFormer](https://arxiv.org/abs/2206.01191), [HorNet](https://arxiv.org/abs/2207.14284), [MViT.V2](https://arxiv.org/abs/2112.01526), (ShuffleNet.V1](https://arxiv.org/abs/1707.01083)) and provide relevant network modules in `models/utils/layers`.
+- Fix the updated arXiv.V2 version of [VAN](https://arxiv.org/pdf/2202.09741v2.pdf) by adding architecture configurations.
+- Support [ArcFace](https://arxiv.org/abs/1801.07698) loss for metric learning and the relevant `NormLinearClsHead`.
+
+### Update Documents
+
+- Update our `OpenMixup` tech report on [arXiv](https://arxiv.org/abs/2209.04851), which provides more technical details and benchmark results.
+
+### Bug Fixes
+
+- Fix raising error notification of `torch.fft` for *PyTorch 1.6* or lower versions in backbones and heads.
+- Fix `README.md` (new icons, fixing typos) and support pytest in `tests`.
+
+### v0.2.5 (21/07/2022)
+
+Bump version to V0.2.5 with new features and updating documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10). Update features and fix bugs in V0.2.5 as [#17](https://github.com/Westlake-AI/openmixup/issues/17). Update features and documents in V0.2.5 as [#18](https://github.com/Westlake-AI/openmixup/issues/18) and [#19](https://github.com/Westlake-AI/openmixup/issues/19).
+#### New Features
+
 - Support new attention mechanisms in backbone architectures ([Anti-Oversmoothing](https://arxiv.org/abs/2203.05962), `FlowAttention` in [FlowFormer](https://arxiv.org/abs/2202.06258) and `PoolAttention` in [MViTv2](https://arxiv.org/abs/2112.01526)).
+- Update code intergration testing in [tests](https://github.com/Westlake-AI/openmixup/tests/).
 
 ### Update Documents
 
@@ -20,8 +39,8 @@ Support new features and update documents as [#10](https://github.com/Westlake-A
 ### Bug Fixes
 
 - Fix visualization of the reconstruction results in `MAE`.
-- Fix the normalization bug in config files and `plot_torch.py` as mentioned in #16.
-- Fix the random seeds in `tools/train.py` as mentioned in #14.
+- Fix the normalization bug in config files and `plot_torch.py` as mentioned in [#16](https://github.com/Westlake-AI/openmixup/issues/16).
+- Fix the random seeds in `tools/train.py` as mentioned in [#14](https://github.com/Westlake-AI/openmixup/issues/14).
 
 ### v0.2.4 (07/07/2022)
 
@@ -42,7 +61,7 @@ Update new features and fix bugs as [#7](https://github.com/Westlake-AI/openmixu
 
 ### v0.2.3 (17/06/2022)
 
-Support new features as [#7](https://github.com/Westlake-AI/openmixup/issues/6).
+Support new features as [#6](https://github.com/Westlake-AI/openmixup/issues/6).
 
 #### New Features
 

@@ -9,6 +9,11 @@ from ..registry import HEADS
 from .cls_head import ClsHead
 from openmixup.utils import print_log
 
+try:
+    import torch.fft as fft
+except ImportError:
+    fft = None
+
 
 @HEADS.register_module
 class MAEPretrainHead(BaseModule):
@@ -196,7 +201,11 @@ class MIMHead(BaseModule):
                 self.fft_unmask_replace = 'target'
                 print_log("When using the fft loss, `fft_unmask_replace` should " + \
                     "not be None. Reset as `fft_unmask_replace='target'`.")
-        
+
+        if fft is None and fft_weight > 0:
+            raise RuntimeError(
+                'Failed to import torch.fft. Please install "torch>=1.7.0".')
+
         # spatial loss
         assert loss is None or isinstance(loss, dict)
         if loss is None:
@@ -256,8 +265,8 @@ class MIMHead(BaseModule):
             if self.fft_focal:
                 loss_fft = self.fft_loss(x_rec, x)
             else:
-                f_x = torch.fft.fftn(x, dim=(2, 3), norm='ortho')
-                f_x_rec = torch.fft.fftn(x_rec, dim=(2, 3), norm='ortho')
+                f_x = fft.fftn(x, dim=(2, 3), norm='ortho')
+                f_x_rec = fft.fftn(x_rec, dim=(2, 3), norm='ortho')
                 if self.fft_reweight:
                     loss_fft = self.fft_loss(f_x_rec, target=f_x, reduction_override='none')
                     fft_weight = loss_fft.clone().detach()

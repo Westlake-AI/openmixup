@@ -5,6 +5,11 @@ import torch.nn.functional as F
 from ..registry import LOSSES
 from .utils import weight_reduce_loss, convert_to_one_hot
 
+try:
+    import torch.fft as fft
+except ImportError:
+    fft = None
+
 
 def sigmoid_focal_loss(pred,
                        target,
@@ -479,13 +484,16 @@ class FocalFrequencyLoss(nn.Module):
                  ave_spectrum=False,
                  log_matrix=False,
                  batch_matrix=False):
-        
         super(FocalFrequencyLoss, self).__init__()
         self.loss_weight = loss_weight
         self.alpha = alpha
         self.ave_spectrum = ave_spectrum
         self.log_matrix = log_matrix
         self.batch_matrix = batch_matrix
+
+        if fft is None:
+            raise RuntimeError(
+                'Failed to import torch.fft. Please install "torch>=1.7.0".')
 
     def loss_formulation(self, f_pred, f_targ, matrix=None):
         # spectrum weight matrix
@@ -533,8 +541,8 @@ class FocalFrequencyLoss(nn.Module):
             matrix (torch.Tensor, optional): Element-wise spectrum weight matrix.
                 Default: None (If set to None: calculated online, dynamic).
         """
-        f_pred = torch.fft.fft2(pred, dim=(2, 3), norm='ortho')
-        f_targ = torch.fft.fft2(target, dim=(2, 3), norm='ortho')
+        f_pred = fft.fft2(pred, dim=(2, 3), norm='ortho')
+        f_targ = fft.fft2(target, dim=(2, 3), norm='ortho')
         f_pred = torch.stack([f_pred.real, f_pred.imag], -1)
         f_targ = torch.stack([f_targ.real, f_targ.imag], -1)
 

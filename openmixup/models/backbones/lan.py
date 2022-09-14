@@ -764,10 +764,53 @@ class DWConvPatchEmbed(BaseModule):
         return x, out_size
 
 
+class StackConvPatchEmbed(BaseModule):
+    """An implementation of Conv patch embedding layer.
+
+    Args:
+        in_features (int): The feature dimension.
+        embed_dims (int): The output dimension of FFNs.
+        kernel_size (int): The conv kernel size of middle patch embedding.
+            Defaults to 3.
+        stride (int): The conv stride of middle patch embedding.
+            Defaults to 2.
+        act_cfg (dict, optional): The activation config for FFNs.
+            Default: dict(type='GELU').
+        norm_cfg (dict): Config dict for normalization layer.
+            Defaults to ``dict(type='BN')``.
+    """
+
+    def __init__(self,
+                 in_channels,
+                 embed_dims,
+                 kernel_size=3,
+                 stride=2,
+                 act_cfg=dict(type='GELU'),
+                 norm_cfg=dict(type='BN'),
+                 init_cfg=None,
+                ):
+        super(StackConvPatchEmbed, self).__init__(init_cfg)
+        
+        self.projection = nn.Sequential(
+            Conv2d(in_channels, embed_dims // 2, kernel_size=kernel_size,
+                stride=stride, padding=kernel_size // 2),
+            build_norm_layer(norm_cfg, embed_dims // 2)[1],
+            build_activation_layer(act_cfg),
+            Conv2d(embed_dims // 2, embed_dims, kernel_size=kernel_size,
+                stride=stride, padding=kernel_size // 2),
+            build_norm_layer(norm_cfg, embed_dims)[1],
+        )
+
+    def forward(self, x):
+        x = self.projection(x)
+        out_size = (x.shape[2], x.shape[3])
+        return x, out_size
+
+
 @BACKBONES.register_module()
 class LAN(BaseBackbone):
     """Linear Attention Network based on Visual Attention Network.
-        v09.09, IP51
+        v09.10, IP51
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -902,6 +945,15 @@ class LAN(BaseBackbone):
             if i > 0 and patchembed_types[i] == "DWConv":
                 patch_embed = DWConvPatchEmbed(
                     in_channels=self.embed_dims[i - 1],
+                    embed_dims=self.embed_dims[i],
+                    kernel_size=patch_sizes[i],
+                    stride=patch_sizes[i] // 2 + 1,
+                    norm_cfg=conv_norm_cfg,
+                )
+            elif i == 0 and patchembed_types[i] == "ConvEmbed":
+                assert patch_sizes[i] <= 3
+                patch_embed = StackConvPatchEmbed(
+                    in_channels=in_channels,
                     embed_dims=self.embed_dims[i],
                     kernel_size=patch_sizes[i],
                     stride=patch_sizes[i] // 2 + 1,

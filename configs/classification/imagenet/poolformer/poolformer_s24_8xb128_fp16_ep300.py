@@ -1,6 +1,6 @@
 _base_ = [
     '../../_base_/models/poolformer/poolformer_s24.py',
-    '../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
+    '../../_base_/datasets/imagenet/poolformer_s_sz224_8xbs128.py',
     '../../_base_/default_runtime.py',
 ]
 

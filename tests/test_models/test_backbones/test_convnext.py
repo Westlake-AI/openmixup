@@ -23,7 +23,3 @@ def test_convnext():
     model = ConvNeXt(arch='tiny', out_indices=-1)
     model.init_weights()
     model.train()
-
-
-
-

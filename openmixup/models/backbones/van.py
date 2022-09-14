@@ -268,7 +268,7 @@ class VAN(BaseBackbone):
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
-            If use string, choose from 'tiny', 'small', 'base' and 'large'.
+            If use string, choose from b0', 'b1', b2', b3' and etc.,
             If use dict, it should have below keys:
 
             - **embed_dims** (List[int]): The dimensions of embedding.
@@ -276,7 +276,9 @@ class VAN(BaseBackbone):
             - **ffn_ratios** (List[int]): The number of expansion ratio of
             feedforward network hidden layer channels.
 
-            Defaults to 'tiny'.
+            Defaults to 'b0' (or 'tiny').
+            Notice that And the 'b0', 'b1', 'b2', 'b3' are totally equal to
+                'tiny', 'small', 'base', 'large'.
         patch_sizes (List[int | tuple]): The patch size in patch embeddings.
             Defaults to [7, 3, 3, 3].
         in_channels (int): The num of input channels. Defaults to 3.
@@ -311,26 +313,38 @@ class VAN(BaseBackbone):
         (1, 256, 7, 7)
     """
     arch_zoo = {
-        **dict.fromkeys(['t', 'tiny'],
+        **dict.fromkeys(['b0', 't', 'tiny'],
                         {'embed_dims': [32, 64, 160, 256],
                          'depths': [3, 3, 5, 2],
                          'ffn_ratios': [8, 8, 4, 4]}),
-        **dict.fromkeys(['s', 'small'],
+        **dict.fromkeys(['b1', 's', 'small'],
                         {'embed_dims': [64, 128, 320, 512],
                          'depths': [2, 2, 4, 2],
                          'ffn_ratios': [8, 8, 4, 4]}),
-        **dict.fromkeys(['b', 'base'],
+        **dict.fromkeys(['b2', 'b', 'base'],
                         {'embed_dims': [64, 128, 320, 512],
                          'depths': [3, 3, 12, 3],
                          'ffn_ratios': [8, 8, 4, 4]}),
-        **dict.fromkeys(['l', 'large'],
+        **dict.fromkeys(['b3', 'l', 'large'],
                         {'embed_dims': [64, 128, 320, 512],
                          'depths': [3, 5, 27, 3],
+                         'ffn_ratios': [8, 8, 4, 4]}),
+        **dict.fromkeys(['b4'],
+                        {'embed_dims': [64, 128, 320, 512],
+                         'depths': [3, 6, 40, 3],
+                         'ffn_ratios': [8, 8, 4, 4]}),
+        **dict.fromkeys(['b5'],
+                        {'embed_dims': [96, 192, 480, 768],
+                         'depths': [3, 3, 24, 3],
+                         'ffn_ratios': [8, 8, 4, 4]}),
+        **dict.fromkeys(['b6'],
+                        {'embed_dims': [96, 192, 384, 768],
+                         'depths': [6, 6, 90, 6],
                          'ffn_ratios': [8, 8, 4, 4]}),
     }  # yapf: disable
 
     def __init__(self,
-                 arch='tiny',
+                 arch='b0',
                  patch_sizes=[7, 3, 3, 3],
                  in_channels=3,
                  drop_rate=0.,

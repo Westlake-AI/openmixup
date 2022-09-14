@@ -41,9 +41,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## What's New
 
-[2020-08-19] Weights and logs for mixup benchmarks are released.
-
-[2020-07-30] `OpenMixup` v0.2.5 is released (issue [#10](https://github.com/Westlake-AI/openmixup/issues/10)).
+[2020-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 
 ## Installation
 
@@ -91,6 +89,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+    - [x] [ShuffleNetV1](https://arxiv.org/abs/1807.11164) (CVPR'2018)
     - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
     - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
     - [x] [MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV'2019)
@@ -104,8 +103,12 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
     - [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
     - [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
+    - [x] [MViTV2](https://arxiv.org/abs/2112.01526) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/)]
     - [x] [VAN](https://arxiv.org/abs/2202.09741) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/)]
     - [x] [LITv2](https://arxiv.org/abs/2205.13213) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/)]
+    - [x] [HorNet](https://arxiv.org/abs/2207.14284) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/)]
+    - [x] [EdgeNeXt](https://arxiv.org/abs/2206.10589) (ECCVW'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/)]
+    - [x] [EfficientFormer](https://arxiv.org/abs/2206.01191) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/)]
     </details>
 
 * Mixup methods for supervised image classification.
@@ -182,22 +185,32 @@ This project is released under the [Apache 2.0 license](LICENSE).
 
 ## Citation
 
-If you find this project useful in your research, please consider cite our repo:
+If you find this project useful in your research, please consider cite our repo and tech report:
 
 ```BibTeX
 @misc{2022openmixup,
     title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
-    author={Li, Siyuan and Liu, Zicheng and Wu, Di and Stan Z. Li},
+    author={Li, Siyuan and Liu, Zicheng and Wang, Zedong and Wu, Di and Stan Z. Li},
     publisher = {GitHub},
     journal = {GitHub repository},
     howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
     year={2022}
 }
 ```
+```BibTeX
+@misc{li2022openmixup,
+    title={OpenMixup: Open Mixup Toolbox and Benchmark for Visual Representation Learning}, 
+    author={Li, Siyuan and Wang, Zedong and Liu, Zicheng and Wu, Di and Stan Z. Li},
+    year={2022},
+    eprint={2209.04851},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
+}
+```
 
 ## Contributors
 
-For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thank contributors from MMSelfSup and MMClassification.
+For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zicheng Liu ([@pone7](https://github.com/pone7)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thank contributors from MMSelfSup and MMClassification and all public contributors!
 
 ## Contact
 
