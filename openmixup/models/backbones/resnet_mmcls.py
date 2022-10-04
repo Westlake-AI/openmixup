@@ -51,7 +51,7 @@ class BasicBlock(nn.Module):
                  conv_cfg=None,
                  norm_cfg=dict(type='BN'),
                  drop_path_rate=0.0,
-                ):
+                 **kwargs):
         super(BasicBlock, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -170,7 +170,7 @@ class Bottleneck(nn.Module):
                  conv_cfg=None,
                  norm_cfg=dict(type='BN'),
                  drop_path_rate=0.0,
-                ):
+                 **kwargs):
         super(Bottleneck, self).__init__()
         assert style in ['pytorch', 'caffe']
 
@@ -488,8 +488,9 @@ class ResNet(BaseBackbone):
                  norm_eval=False,
                  with_cp=False,
                  zero_init_residual=True,
-                 drop_path_rate=0.0):
-        super(ResNet, self).__init__()
+                 drop_path_rate=0.0,
+                 init_cfg=None):
+        super(ResNet, self).__init__(init_cfg)
         if depth not in self.arch_settings:
             raise KeyError(f'invalid depth {depth} for resnet')
         self.depth = depth

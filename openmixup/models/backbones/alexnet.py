@@ -2,7 +2,7 @@
 # copy from mmclassification alexnet.py
 import torch.nn as nn
 
-from mmcv.cnn import kaiming_init, normal_init
+from mmcv.cnn import kaiming_init
 
 from .. import builder
 from ..registry import BACKBONES
@@ -80,3 +80,6 @@ class AlexNet(BaseBackbone):
             x = self.cls_neck(x)
         
         return [x]
+
+    def train(self, mode=True):
+        super(AlexNet, self).train(mode)

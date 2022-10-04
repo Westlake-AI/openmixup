@@ -61,4 +61,4 @@ if __name__ == '__main__':
     main()
 
 # usage exam:
-# python tools/extract_dir_weights.py /public/home/liziqinggroup/liuzicheng/src/FineGrained_v0319/work_dirs/selfsup/byol/cub/
+# python tools/extract_dir_weights.py [PATH of the dir to checkpoints]

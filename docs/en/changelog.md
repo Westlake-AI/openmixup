@@ -9,6 +9,7 @@ Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI
 - Support new backbone architectures ([EdgeNeXt](https://arxiv.org/abs/2206.10589), [EfficientFormer](https://arxiv.org/abs/2206.01191), [HorNet](https://arxiv.org/abs/2207.14284), [MViT.V2](https://arxiv.org/abs/2112.01526), (ShuffleNet.V1](https://arxiv.org/abs/1707.01083)) and provide relevant network modules in `models/utils/layers`.
 - Fix the updated arXiv.V2 version of [VAN](https://arxiv.org/pdf/2202.09741v2.pdf) by adding architecture configurations.
 - Support [ArcFace](https://arxiv.org/abs/1801.07698) loss for metric learning and the relevant `NormLinearClsHead`.
+- Update the issue template with more relevant links and emojis.
 
 ### Update Documents
 

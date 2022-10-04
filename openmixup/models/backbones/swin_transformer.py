@@ -15,7 +15,7 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from openmixup.utils import get_root_logger
 from ..utils import (ShiftWindowMSA, to_2tuple, resize_pos_embed,
-                     resize_relative_position_bias_table, lecun_normal_init)
+                     resize_relative_position_bias_table)
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
 

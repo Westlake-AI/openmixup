@@ -2,8 +2,19 @@
 
  [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=green) ![visitors](https://visitor-badge.glitch.me/badge?page_id=Westlake-AI/openmixup)
 
-**We summarize mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*.**
+**We summarize fundermental mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*. Then, we summarize mixup techniques used in downstream tasks.**
 We are working on a survey of mixup methods. The list of awesome mixup methods is summarized in chronological order and is on updating.
+
+**Table of Contents**
+
+  - [Sample Mixup Methods](#sample-mixup-methods)
+    - [Pre-defined Policies](#pre-defined-policies)
+    - [Saliency-guided Policies](#saliency-guided-policies)
+  - [Label Mixup Methods](#label-mixup-methods)
+  - [Analysis of Mixup](#analysis-of-mixup)
+  - [Survey](#Survey)
+  - [Contribution](#contribution)
+
 
 ## Sample Mixup Methods
 
@@ -45,6 +56,8 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - On Feature Normalization and Data Augmentation. [[CVPR'2021](https://arxiv.org/abs/2002.11102)] [[code](https://github.com/Boyiliee/MoEx)]
 * **k-Mixup**: Kristjan Greenewald, Anming Gu, Mikhail Yurochkin, Justin Solomon, Edward Chien.
    - k-Mixup Regularization for Deep Learning via Optimal Transport. [[ArXiv'2021](https://arxiv.org/abs/2106.02933)]
+* **NFM**: Soon Hoe Lim, N. Benjamin Erichson, Francisco Utrera, Winnie Xu, Michael W. Mahoney.
+   - Noisy Feature Mixup. [[ICLR'2022](https://arxiv.org/abs/2110.02180)] [[code](https://github.com/erichson/NFM)]
 * **LocalMix**: Raphael Baena, Lucas Drumetz, Vincent Gripon.
    - Preventing Manifold Intrusion with Locality: Local Mixup. [[EUSIPCO'2022](https://arxiv.org/abs/2201.04368)] [[code](https://github.com/raphael-baena/Local-Mixup)]
 * **RandomMix**: Xiaoliang Liu, Furao Shen, Jian Zhao, Changhai Nie.
@@ -89,7 +102,9 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 * **ScoreMix**: Thomas Stegmüller, Behzad Bozorgtabar, Antoine Spahr, Jean-Philippe Thiran.
    - ScoreNet: Learning Non-Uniform Attention and Augmentation for Transformer-Based Histopathological Image Classification. [[Arxiv'2022](https://arxiv.org/abs/2202.07570)]
 * **RecursiveMix**: Lingfeng Yang, Xiang Li, Borui Zhao, Renjie Song, Jian Yang.
-   - RecursiveMix: Mixed Learning with History. [[Arxiv'2022](https://arxiv.org/abs/2203.06844)] [[code](https://github.com/implus/RecursiveMix-pytorch)]
+   - RecursiveMix: Mixed Learning with History. [[NIPS'2022](https://arxiv.org/abs/2203.06844)] [[code](https://github.com/implus/RecursiveMix-pytorch)]
+* **SciMix** Rémy Sun, Clément Masson, Gilles Hénaff, Nicolas Thome, Matthieu Cord.
+   - Swapping Semantic Contents for Mixing Images. [[ICPR'2022](https://arxiv.org/abs/2205.10158)]
 
 ## Label Mixup Methods
 
@@ -114,6 +129,31 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 * **TokenMix**: Jihao Liu, Boxiao Liu, Hang Zhou, Hongsheng Li, Yu Liu.
    - TokenMix: Rethinking Image Mixing for Data Augmentation in Vision Transformers. [[ECCV'2022](https://arxiv.org/abs/2207.08409)] [[code](https://github.com/Sense-X/TokenMix)]
 
+
+## Analysis of Mixup
+
+* Muthu Chidambaram, Xiang Wang, Yuzheng Hu, Chenwei Wu, Rong Ge.
+   - Towards Understanding the Data Dependency of Mixup-style Training. [[ICLR'2022](https://openreview.net/pdf?id=ieNJYujcGDO)] [[code](https://github.com/2014mchidamb/Mixup-Data-Dependency)]
+* Linjun Zhang, Zhun Deng, Kenji Kawaguchi, James Zou.
+   - When and How Mixup Improves Calibration. [[ICML'2022](https://arxiv.org/abs/2102.06289)]
+
+
+## Survey
+
+* An overview of mixing augmentation methods and augmentation strategies.
+   - A Survey on Masked Autoencoder for Self-supervised Learning in Vision and Beyond. [[Artificial Intelligence Review'2022](https://link.springer.com/article/10.1007/s10462-022-10227-z)]
+
+
 ## Contribution
 
-Feel free to send [pull requests](https://github.com/Westlake-AI/openmixup/pulls) to add more links! Current contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)) and Zicheng Liu ([@pone7](https://github.com/pone7)).
+Feel free to send [pull requests](https://github.com/Westlake-AI/openmixup/pulls) to add more links with the following Markdown format Current contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)) and Zicheng Liu ([@pone7](https://github.com/pone7)).
+
+```markdown
+* **Abbreviation**: Author List.
+  - Paper Name. [[Conference'Year](link)] [[code](link)]
+```
+
+## Related Project
+
+- [Awesome-Mixup](https://github.com/Westlake-AI/Awesome-Mixup): Awesome List of Mixup Augmentation Papers for Visual Representation Learning.
+- [awesome-mixup](https://github.com/demoleiwang/awesome-mixup): A collection of awesome papers about mixup.

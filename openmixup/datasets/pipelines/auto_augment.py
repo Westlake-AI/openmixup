@@ -4,7 +4,7 @@ import copy
 import inspect
 import random
 from numbers import Number
-from typing import Sequence
+from typing import List, Optional, Sequence, Tuple, Union
 from PIL import Image
 from timm.data import create_transform
 import cv2
@@ -62,17 +62,23 @@ class AutoAugment(object):
     Policies from Data <https://arxiv.org/abs/1805.09501>`_.
 
     Args:
-        policies (list[list[dict]]): The policies of auto augmentation. Each
-            policy in ``policies`` is a specific augmentation policy, and is
-            composed by several augmentations (dict). When AutoAugment is
-            called, a random policy in ``policies`` will be selected to
-            augment images.
+        policies (str | list[list[dict]]): The policies of auto augmentation.
+            If string, use preset policies collection like "imagenet". If list,
+            Each item is a sub policies, composed by several augmentation
+            policy dicts. When AutoAugment is called, a random sub policies in
+            ``policies`` will be selected to augment images.
         hparams (dict): Configs of hyperparameters. Hyperparameters will be
             used in policies that require these arguments if these arguments
             are not set in policy dicts. Defaults to use _HPARAMS_DEFAULT.
     """
 
-    def __init__(self, policies, hparams=_HPARAMS_DEFAULT):
+    def __init__(self,
+                 policies: Union[str, List[List[dict]]],
+                 hparams: dict = _HPARAMS_DEFAULT):
+        if isinstance(policies, str):
+            assert policies in AUTOAUG_POLICIES, 'Invalid policies, ' \
+                f'please choose from {list(AUTOAUG_POLICIES.keys())}.'
+            policies = AUTOAUG_POLICIES[policies]
         assert isinstance(policies, list) and len(policies) > 0, \
             'Policies must be a non-empty list.'
         for policy in policies:
@@ -151,13 +157,19 @@ class RandAugment(object):
     """
 
     def __init__(self,
-                 policies,
-                 num_policies,
-                 magnitude_level,
-                 magnitude_std=0.,
-                 total_level=30,
-                 use_numpy=False,
-                 hparams=_HPARAMS_DEFAULT):
+                 policies: Union[str, List[dict]],
+                 num_policies: int,
+                 magnitude_level: int,
+                 magnitude_std: Union[Number, str] = 0.,
+                 total_level: int = 30,
+                 use_numpy: bool = False,
+                 hparams: dict = _HPARAMS_DEFAULT):
+        if isinstance(policies, str):
+            assert policies in RANDAUG_POLICIES, 'Invalid policies, ' \
+                f'please choose from {list(RANDAUG_POLICIES.keys())}.'
+            policies = RANDAUG_POLICIES[policies]
+        assert isinstance(policies, list) and len(policies) > 0, \
+            'Policies must be a non-empty list.'
         assert isinstance(num_policies, int), 'Number of policies must be ' \
             f'of int type, got {type(num_policies)} instead.'
         assert isinstance(magnitude_level, (int, float)), \
@@ -165,8 +177,6 @@ class RandAugment(object):
             f'got {type(magnitude_level)} instead.'
         assert isinstance(total_level, (int, float)),  'Total level must be ' \
             f'of int or float type, got {type(total_level)} instead.'
-        assert isinstance(policies, list) and len(policies) > 0, \
-            'Policies must be a non-empty list.'
 
         assert isinstance(magnitude_std, (Number, str)), \
             'Magnitude std must be of number or str type, ' \
@@ -1108,3 +1118,59 @@ class Cutout(object):
         repr_str += f'pad_val={self.pad_val}, '
         repr_str += f'prob={self.prob})'
         return repr_str
+
+
+# yapf: disable
+AUTOAUG_POLICIES = {
+    # Policy for ImageNet, refers to
+    # https://github.com/DeepVoltaire/AutoAugment/blame/master/autoaugment.py
+    'imagenet': [
+        [dict(type='Posterize', bits=4, prob=0.4),             dict(type='Rotate', angle=30., prob=0.6)],
+        [dict(type='Solarize', thr=256 / 9 * 4, prob=0.6),     dict(type='AutoContrast', prob=0.6)],
+        [dict(type='Equalize', prob=0.8),                      dict(type='Equalize', prob=0.6)],
+        [dict(type='Posterize', bits=5, prob=0.6),             dict(type='Posterize', bits=5, prob=0.6)],
+        [dict(type='Equalize', prob=0.4),                      dict(type='Solarize', thr=256 / 9 * 5, prob=0.2)],
+        [dict(type='Equalize', prob=0.4),                      dict(type='Rotate', angle=30 / 9 * 8, prob=0.8)],
+        [dict(type='Solarize', thr=256 / 9 * 6, prob=0.6),     dict(type='Equalize', prob=0.6)],
+        [dict(type='Posterize', bits=6, prob=0.8),             dict(type='Equalize', prob=1.)],
+        [dict(type='Rotate', angle=10., prob=0.2),             dict(type='Solarize', thr=256 / 9, prob=0.6)],
+        [dict(type='Equalize', prob=0.6),                      dict(type='Posterize', bits=5, prob=0.4)],
+        [dict(type='Rotate', angle=30 / 9 * 8, prob=0.8),      dict(type='ColorTransform', magnitude=0., prob=0.4)],
+        [dict(type='Rotate', angle=30., prob=0.4),             dict(type='Equalize', prob=0.6)],
+        [dict(type='Equalize', prob=0.0),                      dict(type='Equalize', prob=0.8)],
+        [dict(type='Invert', prob=0.6),                        dict(type='Equalize', prob=1.)],
+        [dict(type='ColorTransform', magnitude=0.4, prob=0.6), dict(type='Contrast', magnitude=0.8, prob=1.)],
+        [dict(type='Rotate', angle=30 / 9 * 8, prob=0.8),      dict(type='ColorTransform', magnitude=0.2, prob=1.)],
+        [dict(type='ColorTransform', magnitude=0.8, prob=0.8), dict(type='Solarize', thr=256 / 9 * 2, prob=0.8)],
+        [dict(type='Sharpness', magnitude=0.7, prob=0.4),      dict(type='Invert', prob=0.6)],
+        [dict(type='Shear', magnitude=0.3 / 9 * 5, prob=0.6, direction='horizontal'), dict(type='Equalize', prob=1.)],
+        [dict(type='ColorTransform', magnitude=0., prob=0.4),  dict(type='Equalize', prob=0.6)],
+        [dict(type='Equalize', prob=0.4),                      dict(type='Solarize', thr=256 / 9 * 5, prob=0.2)],
+        [dict(type='Solarize', thr=256 / 9 * 4, prob=0.6),     dict(type='AutoContrast', prob=0.6)],
+        [dict(type='Invert', prob=0.6),                        dict(type='Equalize', prob=1.)],
+        [dict(type='ColorTransform', magnitude=0.4, prob=0.6), dict(type='Contrast', magnitude=0.8, prob=1.)],
+        [dict(type='Equalize', prob=0.8),                      dict(type='Equalize', prob=0.6)],
+    ],
+}
+
+
+RANDAUG_POLICIES = {
+    # Refers to `_RAND_INCREASING_TRANSFORMS` in pytorch-image-models
+    'timm_increasing': [
+        dict(type='AutoContrast'),
+        dict(type='Equalize'),
+        dict(type='Invert'),
+        dict(type='Rotate', magnitude_range=(0, 30)),
+        dict(type='Posterize', magnitude_range=(4, 0)),
+        dict(type='Solarize', magnitude_range=(256, 0)),
+        dict(type='SolarizeAdd', magnitude_range=(0, 110)),
+        dict(type='ColorTransform', magnitude_range=(0, 0.9)),
+        dict(type='Contrast', magnitude_range=(0, 0.9)),
+        dict(type='Brightness', magnitude_range=(0, 0.9)),
+        dict(type='Sharpness', magnitude_range=(0, 0.9)),
+        dict(type='Shear', magnitude_range=(0, 0.3), direction='horizontal'),
+        dict(type='Shear', magnitude_range=(0, 0.3), direction='vertical'),
+        dict(type='Translate', magnitude_range=(0, 0.45), direction='horizontal'),
+        dict(type='Translate', magnitude_range=(0, 0.45), direction='vertical'),
+    ],
+}

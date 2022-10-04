@@ -1614,10 +1614,72 @@ class RandomResizedCropWithTwoCrop(object):
 
 
 @PIPELINES.register_module
+class Lighting_mmcls(object):
+    """Adjust images lighting using AlexNet-style PCA jitter.
+
+    Args:
+        eigval (Sequence[float]): the eigenvalue of the convariance matrix
+            of pixel values, respectively.
+        eigvec (list[list]): the eigenvector of the convariance matrix of
+            pixel values, respectively.
+        alphastd (float): The standard deviation for distribution of alpha.
+            Defaults to 0.1.
+    """
+
+    def __init__(self,
+                 eigval: Sequence[float],
+                 eigvec: Sequence[float],
+                 alphastd: float = 0.1,
+                ):
+        assert isinstance(eigval, Sequence), \
+            f'eigval must be Sequence, got {type(eigval)} instead.'
+        assert isinstance(eigvec, Sequence), \
+            f'eigvec must be Sequence, got {type(eigvec)} instead.'
+        for vec in eigvec:
+            assert isinstance(vec, Sequence) and len(vec) == len(eigvec[0]), \
+                'eigvec must contains lists with equal length.'
+        assert isinstance(alphastd, float), 'alphastd should be of type ' \
+            f'float or int, got {type(alphastd)} instead.'
+
+        self.eigval = np.array(eigval)
+        self.eigvec = np.array(eigvec)
+        self.alphastd = alphastd
+
+    def __call__(self, img):
+        if self.alphastd <= 0.:
+            return img
+        img = np.array(img)
+        img = mmcv.adjust_lighting(
+            img,
+            self.eigval,
+            self.eigvec,
+            alphastd=self.alphastd,
+            to_rgb=False)
+        return Image.fromarray(img.astype(np.uint8))
+
+    def __repr__(self):
+        """Print the basic information of the transform.
+
+        Returns:
+            str: Formatted string.
+        """
+        repr_str = self.__class__.__name__
+        repr_str += f'(eigval={self.eigval.tolist()}, '
+        repr_str += f'eigvec={self.eigvec.tolist()}, '
+        repr_str += f'alphastd={self.alphastd}, '
+        repr_str += f'to_rgb={self.to_rgb})'
+        return repr_str
+
+
+@PIPELINES.register_module
 class Lighting(object):
     """Lighting noise(AlexNet - style PCA - based noise).
     
     Args:
+        eigval (Sequence[float]): the eigenvalue of the convariance matrix
+            of pixel values, respectively.
+        eigvec (list[list]): the eigenvector of the convariance matrix of
+            pixel values, respectively.
         alphastd (float, optional): The parameter for Lighting.
             Defaults to 0.1.
     """
@@ -1630,10 +1692,23 @@ class Lighting(object):
             ])
     }
 
-    def __init__(self):
-        self.alphastd = 0.1
-        self.eigval = self._IMAGENET_PCA['eigval']
-        self.eigvec = self._IMAGENET_PCA['eigvec']
+    def __init__(self,
+                 eigval=None,
+                 eigvec=None,
+                 alphastd=0.1):
+
+        if isinstance(eigval, Sequence):
+            self.eigval = torch.from_numpy(np.array(eigval))
+        else:
+            self.eigval = self._IMAGENET_PCA['eigval']
+        if isinstance(eigvec, Sequence):
+            self.eigvec = torch.from_numpy(np.array(eigvec))
+        else:
+            self.eigvec = self._IMAGENET_PCA['eigvec']
+        assert isinstance(alphastd, float), 'alphastd should be of type ' \
+            f'float or int, got {type(alphastd)} instead.'
+
+        self.alphastd = alphastd
 
     def __call__(self, img):
         assert isinstance(img, torch.Tensor), \
@@ -1651,6 +1726,9 @@ class Lighting(object):
 
     def __repr__(self):
         repr_str = self.__class__.__name__
+        repr_str += f'(eigval={self.eigval.numpy().tolist()}, '
+        repr_str += f'eigvec={self.eigvec.numpy().tolist()}, '
+        repr_str += f'alphastd={self.alphastd}, '
         return repr_str
 
 

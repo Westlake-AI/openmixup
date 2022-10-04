@@ -31,3 +31,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# usage exam:
+# python tools/publish_model.py [PATH of the checkpoints]

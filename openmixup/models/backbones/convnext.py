@@ -98,10 +98,7 @@ class ConvNeXtBlock(nn.Module):
             pw_conv = partial(nn.Conv2d, kernel_size=1)
 
         self.pointwise_conv1 = pw_conv(in_channels, mid_channels)
-        if act_cfg['type'] == 'GELU':
-            self.act = nn.GELU()
-        else:
-            self.act = build_activation_layer(act_cfg)
+        self.act = build_activation_layer(act_cfg)
         self.pointwise_conv2 = pw_conv(mid_channels, in_channels)
 
         self.gamma = nn.Parameter(

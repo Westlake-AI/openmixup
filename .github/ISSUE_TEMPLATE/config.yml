@@ -1,6 +1,9 @@
 blank_issues_enabled: true
 
 contact_links:
-  - name: MMClassification Documentation
-    url: https://mmclassification.readthedocs.io/en/latest/
+  - name: 📚 OpenMixup Documentation
+    url: https://openmixup.readthedocs.io/en/latest/
     about: Check if your question is answered in docs
+  - name: 💬 Forum
+    url: https://github.com/Westlake-AI/openmixup/discussions
+    about: Ask general usage questions and discuss with other OpenMixup community members

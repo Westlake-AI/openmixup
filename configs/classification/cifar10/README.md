@@ -13,7 +13,7 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
 ## Results and models
 
 * This benchmark using CIFAR varient of ResNet architectures train 200, 400, 800, 1200 epochs on [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). The training and testing image size is 32 and we search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
-* Please refer to [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
+* Please refer to [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts. As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_puzzlemix_CE_soft.py).
 * The **median** of top-1 accuracy in the last 10 training epochs is reported for ResNet-18 and ResNeXt-50 (32x4d).
 
 ### CIFAR-10

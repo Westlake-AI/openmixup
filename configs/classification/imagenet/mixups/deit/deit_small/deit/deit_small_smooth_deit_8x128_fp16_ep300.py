@@ -36,6 +36,7 @@ model = dict(
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
+# sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
 
 # optimizer
 optimizer = dict(
@@ -49,7 +50,8 @@ optimizer = dict(
         'cls_token': dict(weight_decay=0.),
         'pos_embed': dict(weight_decay=0.),
     })
-# apex
+
+# fp16
 use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
