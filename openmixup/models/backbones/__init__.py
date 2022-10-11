@@ -12,7 +12,7 @@ from .lenet import LeNet5
 from .lit import LIT
 from .mim_resnet import MIMResNet
 from .mim_swin import SimMIMSwinTransformer
-from .mim_vit import MAEViT, MIMVisionTransformer, SimMIMViT
+from .mim_vit import BEiTViT, MAEViT, MIMVisionTransformer, SimMIMViT
 from .mlp_mixer import MlpMixer
 from .mobilenet_v2 import MobileNetV2
 from .mobilenet_v3 import MobileNetV3
@@ -41,7 +41,7 @@ from .vision_transformer import TransformerEncoderLayer, VisionTransformer
 from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
-    'AlexNet', 'ConvNeXt', 'ConvMixer', 'DistilledVisionTransformer', 'DenseNet',
+    'AlexNet', 'BEiTViT', 'ConvNeXt', 'ConvMixer', 'DistilledVisionTransformer', 'DenseNet',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
     'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MViT',

@@ -85,7 +85,7 @@ class LKA(BaseModule):
         DW_D_conv (depth-wise dilation convolution)
                             |
                             |
-        Transition Convolution (1×1 convolution)
+        Transition Convolution (1x1 convolution)
 
     Args:
         embed_dims (int): Number of input channels.

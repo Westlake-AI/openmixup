@@ -18,9 +18,6 @@ from ..utils import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoot
 @MODELS.register_module
 class MixUpClassification(BaseModel):
     """MixUp classification.
-        v01.09 (randomly selecting mix_mode)
-        v01.17 (add mix_repeat)
-        v03.09 (add dynamic methods)
 
     Args:
         backbone (dict): Config dict for module of backbone ConvNet.

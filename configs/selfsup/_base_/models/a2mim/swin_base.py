@@ -14,7 +14,7 @@ model = dict(
         decoder_cfg=None,
         in_channels=1024, in_chans=3, encoder_stride=32),
     head=dict(
-        type='MIMHead',
+        type='A2MIMHead',
         loss=dict(type='RegressionLoss', mode='l1_loss',
             loss_weight=1.0, reduction='none'),
         unmask_weight=0.,

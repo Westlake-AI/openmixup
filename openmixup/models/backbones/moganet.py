@@ -196,7 +196,7 @@ class MultiOrderGAU(BaseModule):
 
     def __init__(self,
                  embed_dims,
-                 dw_kernel_size=5,
+                 dw_dilation=[1, 2, 3,],
                  channel_split=[1, 3, 4,],
                  init_cfg=None):
         super(MultiOrderGAU, self).__init__(init_cfg=init_cfg)
@@ -206,34 +206,36 @@ class MultiOrderGAU(BaseModule):
         self.embed_dims_2 = int(self.split_ratio[2] * embed_dims)
         self.embed_dims_0 = embed_dims - self.embed_dims_1 - self.embed_dims_2
         self.embed_dims = embed_dims
-        assert len(channel_split) == 3
-        assert dw_kernel_size % 2 == 1 and dw_kernel_size >= 3
+        assert len(dw_dilation) == len(channel_split) == 3
+        assert 1 <= min(dw_dilation) and max(dw_dilation) <= 3
         assert embed_dims % sum(channel_split) == 0
 
         # basic DW conv
         self.DW_conv0 = Conv2d(
             in_channels=self.embed_dims,
             out_channels=self.embed_dims,
-            kernel_size=dw_kernel_size,
-            padding=dw_kernel_size // 2,
-            groups=self.embed_dims)
+            kernel_size=5,
+            padding=(1 + 4 * dw_dilation[0]) // 2,
+            groups=self.embed_dims,
+            stride=1, dilation=dw_dilation[0],
+        )
         # DW conv 1
         self.DW_conv1 = Conv2d(
             in_channels=self.embed_dims_1,
             out_channels=self.embed_dims_1,
-            kernel_size=5 if dw_kernel_size != 7 else 7,
-            padding=4 if dw_kernel_size != 7 else 6,
+            kernel_size=5,
+            padding=(1 + 4 * dw_dilation[1]) // 2,
             groups=self.embed_dims_1,
-            stride=1, dilation=2,
+            stride=1, dilation=dw_dilation[1],
         )
         # DW conv 2
         self.DW_conv2 = Conv2d(
             in_channels=self.embed_dims_2,
             out_channels=self.embed_dims_2,
             kernel_size=7,
-            padding=9,
+            padding=(1 + 6 * dw_dilation[2]) // 2,
             groups=self.embed_dims_2,
-            stride=1, dilation=3,
+            stride=1, dilation=dw_dilation[2],
         )
         # a channel convolution
         self.PW_conv = Conv2d(  # point-wise convolution
@@ -266,9 +268,9 @@ class MultiOrderGAUAttention(BaseModule):
 
     def __init__(self,
                  embed_dims,
-                 dw_kernel_size=5,
-                 attn_act_cfg=dict(type="SiLU"),
+                 attn_dw_dilation=[1, 2, 3],
                  attn_channel_split=[1, 3, 4],
+                 attn_act_cfg=dict(type="SiLU"),
                  attn_force_fp32=False,
                  init_cfg=None):
         super(MultiOrderGAUAttention, self).__init__(init_cfg=init_cfg)
@@ -280,7 +282,8 @@ class MultiOrderGAUAttention(BaseModule):
         self.gate = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
         self.value = MultiOrderGAU(
-            embed_dims, dw_kernel_size,
+            embed_dims,
+            dw_dilation=attn_dw_dilation,
             channel_split=attn_channel_split,
         )
         self.proj_2 = Conv2d(
@@ -352,9 +355,9 @@ class MogaBlock(BaseModule):
                  norm_cfg=dict(type='BN', eps=1e-5),
                  init_value=1e-5,
                  ffn_types="Decompose",
-                 attn_channel_split=[1, 3, 4,],
+                 attn_dw_dilation=[1, 2, 3],
+                 attn_channel_split=[1, 3, 4],
                  attn_act_cfg=dict(type='SiLU'),
-                 attn_dw_kernel_size=5,
                  attn_force_fp32=False,
                  init_cfg=None):
         super(MogaBlock, self).__init__(init_cfg=init_cfg)
@@ -365,9 +368,9 @@ class MogaBlock(BaseModule):
         # attention
         self.attn = MultiOrderGAUAttention(
             embed_dims,
-            dw_kernel_size=attn_dw_kernel_size,
-            attn_act_cfg=attn_act_cfg,
+            attn_dw_dilation=attn_dw_dilation,
             attn_channel_split=attn_channel_split,
+            attn_act_cfg=attn_act_cfg,
             attn_force_fp32=attn_force_fp32,
         )
         self.drop_path = DropPath(
@@ -530,7 +533,7 @@ class MogaNet(BaseBackbone):
                          'ffn_ratios': [8, 8, 4, 4]}),
         **dict.fromkeys(['s', 'small'],
                         {'embed_dims': [64, 128, 320, 512],
-                         'depths': [2, 2, 12, 2],
+                         'depths': [2, 3, 12, 2],
                          'ffn_ratios': [8, 8, 4, 4]}),
         **dict.fromkeys(['b', 'base'],
                         {'embed_dims': [64, 128, 320, 512],
@@ -552,13 +555,14 @@ class MogaNet(BaseBackbone):
                  out_indices=(3, ),
                  frozen_stages=-1,
                  norm_eval=False,
-                 stem_norm_cfg=dict(type='LN2d', eps=1e-6),
+                 stem_norm_cfg=dict(type='BN', eps=1e-5),
                  conv_norm_cfg=dict(type='BN', eps=1e-5),
                  ffn_types=["Mix", "Mix", "Mix", "Mix",],
                  patchembed_types=["ConvEmbed", "Conv", "Conv", "Conv",],
+                 attn_dw_dilation=[1, 2, 3],
+                 attn_channel_split=[1, 3, 4],
                  attn_act_cfg=dict(type="SiLU"),
-                 attn_dw_kernel_size=5,
-                 attn_channel_split=[1, 3, 4,],
+                 attn_final_dilation=True,
                  attn_force_fp32=False,
                  block_cfgs=dict(),
                  init_cfg=None,
@@ -615,6 +619,8 @@ class MogaNet(BaseBackbone):
                     padding=(patch_sizes[i] // 2, patch_sizes[i] // 2),
                     norm_cfg=conv_norm_cfg)
 
+            if i == self.num_stages - 1 and not attn_final_dilation:
+                attn_dw_dilation = [1, 2, 1]
             blocks = nn.ModuleList([
                 MogaBlock(
                     embed_dims=self.embed_dims[i],
@@ -624,9 +630,9 @@ class MogaNet(BaseBackbone):
                     norm_cfg=conv_norm_cfg,
                     init_value=init_value,
                     ffn_types=self.ffn_types[i],
-                    attn_act_cfg=attn_act_cfg,
-                    attn_dw_kernel_size=attn_dw_kernel_size,
+                    attn_dw_dilation=attn_dw_dilation,
                     attn_channel_split=attn_channel_split,
+                    attn_act_cfg=attn_act_cfg,
                     attn_force_fp32=attn_force_fp32,
                     **block_cfgs) for j in range(depth)
             ])
@@ -697,6 +703,10 @@ class MogaNet(BaseBackbone):
                 x = norm(x)
 
             if i in self.out_indices:
+                ##########################
+                if torch.any(torch.isnan(x)) or torch.any(torch.isinf(x)):
+                    raise ValueError("STOP NAN.")
+                ##########################
                 outs.append(x)
 
         return outs

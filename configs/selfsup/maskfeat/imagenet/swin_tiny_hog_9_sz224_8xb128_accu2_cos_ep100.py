@@ -1,24 +1,27 @@
 _base_ = [
     '../../_base_/models/maskfeat/swin_tiny.py',
-    '../../_base_/datasets/imagenet/mim_feat_sz192_bs64.py',
+    '../../_base_/datasets/imagenet/mim_feat_sz224_p32_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
 # model settings
 model = dict(
-    mim_target='hog',
+    mim_target='hog',  # hog feature by skimage with out_channels=9
     neck=dict(
         type='NonLinearMIMNeck',
         decoder_cfg=None,
-        in_channels=768, in_chans=9, encoder_stride=32 // 8),  # hog
+        in_channels=768, in_chans=9, encoder_stride=32 // 16),  # hog
     head=dict(
-        type='MIMHead',
+        type='A2MIMHead',
         loss=dict(type='RegressionLoss', mode='mse_loss', loss_weight=1.0, reduction='none'),
         encoder_in_channels=9),  # hog
 )
 
+# data
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+
 # interval for accumulate gradient
-update_interval = 4  # total: 8 x bs64 x 4 accumulates = bs2048
+update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
 
 # optimizer
 optimizer = dict(
@@ -33,9 +36,9 @@ optimizer = dict(
         'relative_position_bias_table': dict(weight_decay=0.0)
     })
 
-# apex
+# fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
     update_interval=update_interval, grad_clip=dict(max_norm=5.0),

@@ -194,6 +194,7 @@ class VisionTransformer(BaseBackbone):
             - **num_heads** (int): The number of heads in attention modules.
             - **feedforward_channels** (int): The hidden dimensions in
               feedforward modules.
+
             Default: 'base'
         img_size (int | tuple): The expected input image shape. Because we
             support dynamic input shape, just set the argument to the most

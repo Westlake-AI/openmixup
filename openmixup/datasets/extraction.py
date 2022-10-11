@@ -1,4 +1,5 @@
 import torch
+from PIL import Image
 
 from .registry import DATASETS
 from .base import BaseDataset
@@ -22,6 +23,10 @@ class ExtractDataset(BaseDataset):
 
     def __getitem__(self, idx):
         img = self.data_source.get_sample(idx)
+        assert isinstance(img, Image.Image), \
+            'The output from the data source must be an Image, got: {}. \
+            Please ensure that the list file does not contain labels.'.format(
+            type(img))
         img = self.pipeline(img)
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))

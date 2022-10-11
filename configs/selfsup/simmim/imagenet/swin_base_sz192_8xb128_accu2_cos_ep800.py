@@ -4,14 +4,17 @@ _base_ = [
     '../../_base_/default_runtime.py',
 ]
 
+# data
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+
 # interval for accumulate gradient
-update_interval = 4  # total: 8 x bs64 x 4 accumulates = bs2048
+update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
 
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=2504 * 10,  # plot every 10 ep
-        iter_per_epoch=2504),
+        save_interval=1252 * 10,  # plot every 10 ep
+        iter_per_epoch=1252),
 ]
 
 # optimizer
@@ -27,9 +30,9 @@ optimizer = dict(
         'relative_position_bias_table': dict(weight_decay=0.0)
     })
 
-# apex
+# fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
     update_interval=update_interval, grad_clip=dict(max_norm=5.0),

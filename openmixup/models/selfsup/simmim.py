@@ -105,7 +105,7 @@ class SimMIM(BaseModel):
             mask, _ = mask
 
         img_latent = self.backbone(img, mask)
-        img_rec = self.neck(img_latent[0])
+        img_rec = self.neck(img_latent)
         if isinstance(img_rec, list):
             img_rec = img_rec[-1]
         losses = self.head(img, img_rec, mask)

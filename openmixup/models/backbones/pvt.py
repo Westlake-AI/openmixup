@@ -495,26 +495,27 @@ class PyramidVisionTransformer(BaseBackbone):
             x = pos_drop(x + pos_embed)
             for block in blocks:
                 x = block(x, H, W)
-            if i != self.num_stages - 1:
-                x = x.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
             if i in self.out_indices:
                 norm_layer = getattr(self, f'norm{i}')
-                x = norm_layer(x)
+                _x = norm_layer(x)
 
-                if self.with_cls_token:
-                    patch_token = x[:, 1:].reshape(B, H, W, -1)
+                if self.with_cls_token and i == self.num_stages - 1:
+                    patch_token = _x[:, 1:].reshape(B, H, W, -1)
                     patch_token = patch_token.permute(0, 3, 1, 2)
-                    cls_token = x[:, 0]
+                    cls_token = _x[:, 0]
                 else:
-                    patch_token = x.reshape(B, H, W, -1)
+                    patch_token = _x.reshape(B, H, W, -1)
                     patch_token = patch_token.permute(0, 3, 1, 2)
                     cls_token = None
-                if self.output_cls_token:
+                if self.output_cls_token and i == self.num_stages - 1:
                     out = [patch_token, cls_token]
                 else:
                     out = patch_token
                 outs.append(out)
+
+            if i != self.num_stages - 1:
+                x = x.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
 
         return outs
 

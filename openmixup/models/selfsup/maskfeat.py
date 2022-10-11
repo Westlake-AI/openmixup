@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from openmixup.utils import force_fp32, print_log
-from openmixup.models.utils import Canny, Laplacian, Sobel
+from openmixup.models.utils import Canny, HOG, Laplacian, Sobel
 
 from ..classifiers import BaseModel
 from ..utils import PlotTensor
@@ -14,17 +14,20 @@ from ..registry import MODELS
 class MaskFeat(BaseModel):
     """MaskFeat.
 
-    Implementation of `Masked Feature Prediction for Self-Supervised Visual Pre-Training
-    <https://arxiv.org/abs/2112.09133>`_.
+    Implementation of `Masked Feature Prediction for Self-Supervised
+    Visual Pre-Training <https://arxiv.org/abs/2112.09133>`_.
 
     Args:
         backbone (dict): Config dict for encoder. Defaults to None.
         neck (dict): Config dict for encoder. Defaults to None.
         head (dict): Config dict for loss functions. Defaults to None.
         backbone_k (dict): Config dict for pre-trained backbone. Default: None.
-        mim_target (None or str): Mode of MIM target. Default: None.
+        mim_target (None or str): Mode of MIM target. Notice that 'HOG' is
+            borrowed as SlowFast implementation (9*12) while 'hog' is implemented
+            by scimage (9). Default: None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
-        pretrained_k (str, optional): Path to pre-trained weights for backbone_k.
+        pretrained_k (str, optional): Path to pre-trained weights for backbone_k,
+            e.g., DINO or CLIP pre-training.
             Default: None.
         save (bool): Saving reconstruction results. Defaults to False.
         init_cfg (dict, optional): Config dict for weight initialization.
@@ -36,7 +39,7 @@ class MaskFeat(BaseModel):
                  neck=None,
                  head=None,
                  backbone_k=None,
-                 mim_target=None,
+                 mim_target="HOG",
                  residual=False,
                  pretrained=None,
                  pretrained_k=None,
@@ -57,9 +60,12 @@ class MaskFeat(BaseModel):
         # mim targets
         self.mim_target = mim_target
         self.residual = residual
-        assert self.mim_target in [None, 'gray', 'canny', 'hog', 'laplacian', 'lbp', 'pretrained', 'sobel',]
+        assert self.mim_target in [
+            None, 'gray', 'canny', 'hog', 'HOG', 'laplacian', 'lbp', 'pretrained', 'sobel',]
         if self.mim_target == 'canny':
             self.feat_layer = Canny(non_max_suppression=True, edge_smooth=True)
+        elif self.mim_target == 'HOG':
+            self.feat_layer = HOG(nbins=9, pool=8, gaussian_window=16)
         elif self.mim_target == 'laplacian':
             self.feat_layer = Laplacian(mode='DoG', use_threshold=False)
         elif self.mim_target == 'sobel':
@@ -164,7 +170,7 @@ class MaskFeat(BaseModel):
 
         Args:
             img (torch.Tensor): Input images of shape (N, C, H, W).
-            mask (torch.Tensor): MIM mask of shape (N, H, W).
+            mask (torch.Tensor or list): MIM mask of shape (N, H, W).
 
         Returns:
             dict: Reconstructed loss.
@@ -174,9 +180,11 @@ class MaskFeat(BaseModel):
         if isinstance(mask, list):
             mask, img_mim = mask
         else:
+            if isinstance(img, list):
+                img, mask = img
             img_mim = img.clone()
 
-        if self.mim_target in ['canny', 'laplacian', 'sobel',]:
+        if self.mim_target in ['canny', 'HOG', 'laplacian', 'sobel',]:
             assert img_mim.size(1) == 3
             img_mim = self.feat_layer(img_mim)
         elif self.mim_target == 'gray':
@@ -188,11 +196,12 @@ class MaskFeat(BaseModel):
         img_rec = self.neck(img_latent)
         if isinstance(img_rec, list):
             img_rec = img_rec[-1]
+
         if self.residual:
             img_rec += img_mim.mean(dim=(2, 3), keepdim=True).expand(img_rec.size())
         losses = self.head(img_mim, img_rec, mask)
 
         if self.save:
             self.plot_reconstruction(img, img_mim, img_rec, mask)
-        
+
         return losses

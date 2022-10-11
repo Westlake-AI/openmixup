@@ -1,4 +1,4 @@
-_base_ = '../imagenet/mim_feat_sz192_bs64.py'
+_base_ = '../imagenet/mim_feat_sz224_p16_bs64.py'
 
 # dataset settings
 data_source_cfg = dict(type='ImageNet', return_label=False)

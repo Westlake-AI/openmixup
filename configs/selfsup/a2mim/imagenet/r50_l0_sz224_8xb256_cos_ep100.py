@@ -43,9 +43,9 @@ optimizer = dict(
         'mask_token': dict(weight_decay=0., lr_mult=1e-1,),
     })
 
-# apex
+# fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(update_interval=update_interval)
 

@@ -1,30 +1,20 @@
 _base_ = [
-    '../../_base_/models/maskfeat/swin_tiny.py',
-    '../../_base_/datasets/imagenet100/mim_feat_sz192_bs64.py',
+    '../../_base_/models/simmim/swin_base.py',
+    '../../_base_/datasets/imagenet/simmim_sz192_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
-# model settings
-model = dict(
-    mim_target='hog',
-    neck=dict(
-        type='NonLinearMIMNeck',
-        decoder_cfg=None,
-        in_channels=768, in_chans=9, encoder_stride=32 // 8),  # hog
-    head=dict(
-        type='MIMHead',
-        loss=dict(type='RegressionLoss', mode='mse_loss', loss_weight=1.0, reduction='none'),
-        encoder_in_channels=9),  # hog
-)
+# data
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # interval for accumulate gradient
-update_interval = 4  # total: 8 x bs64 x 4 accumulates = bs2048
+update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
 
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=495 * 20,  # plot every 20ep
-        iter_per_epoch=495),
+        save_interval=1252 * 10,  # plot every 10 ep
+        iter_per_epoch=1252),
 ]
 
 # optimizer
@@ -40,9 +30,9 @@ optimizer = dict(
         'relative_position_bias_table': dict(weight_decay=0.0)
     })
 
-# apex
+# fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
     update_interval=update_interval, grad_clip=dict(max_norm=5.0),
@@ -54,7 +44,7 @@ lr_config = dict(
     by_epoch=False, min_lr=1e-5 * 2048 / 512,
     warmup='linear',
     warmup_iters=10, warmup_by_epoch=True,  # warmup 10ep when training 100ep
-    warmup_ratio=1e-6 / 2e-4,
+    warmup_ratio=1e-6 * 2048 / 512,
 )
 
 # runtime settings

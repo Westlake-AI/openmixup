@@ -1,4 +1,6 @@
 import torch
+from PIL import Image
+
 from openmixup.utils import build_from_cfg
 from torchvision.transforms import Compose
 
@@ -53,6 +55,10 @@ class MultiViewDataset(BaseDataset):
 
     def __getitem__(self, idx):
         img = self.data_source.get_sample(idx)
+        assert isinstance(img, Image.Image), \
+            'The output from the data source must be an Image, got: {}. \
+            Please ensure that the list file does not contain labels.'.format(
+            type(img))
         multi_views = list(map(lambda trans: trans(img), self.trans))
         if self.prefetch:
             multi_views = [

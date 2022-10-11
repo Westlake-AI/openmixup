@@ -16,7 +16,7 @@ model = dict(
         kernel_size=1,
         in_channels=2048, in_chans=3, encoder_stride=32),
     head=dict(
-        type='MIMHead',
+        type='A2MIMHead',
         loss=dict(type='RegressionLoss', mode='focal_l1_loss',
             loss_weight=1.0, reduction='none',
             activate='sigmoid', alpha=0.2, gamma=1.0, residual=False),

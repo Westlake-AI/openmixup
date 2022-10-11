@@ -158,7 +158,7 @@ class SimMIMHead(BaseModule):
 
 
 @HEADS.register_module
-class MIMHead(BaseModule):
+class A2MIMHead(BaseModule):
     """Head for A2MIM training.
 
     Args:
@@ -186,7 +186,7 @@ class MIMHead(BaseModule):
                  fft_unmask_weight=0,
                  init_cfg=None,
                  **kwargs):
-        super(MIMHead, self).__init__(init_cfg)
+        super(A2MIMHead, self).__init__(init_cfg)
         self.encoder_in_channels = encoder_in_channels
         self.unmask_weight = unmask_weight
         self.fft_weight = fft_weight

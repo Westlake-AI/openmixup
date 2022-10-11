@@ -12,7 +12,7 @@ model = dict(
 
 # dataset
 data = dict(
-    # imgs_per_gpu=256, workers_per_gpu=10,
+    imgs_per_gpu=256, workers_per_gpu=10,
     train=dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
@@ -47,7 +47,7 @@ optimizer = dict(
         'gamma': dict(weight_decay=0.),
     })
 
-# apex
+# fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args

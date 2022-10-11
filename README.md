@@ -41,9 +41,9 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## What's New
 
-[2020-10-05] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24)).
+[2022-10-12] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24) and issue [#25](https://github.com/Westlake-AI/openmixup/issues/25)).
 
-[2020-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
+[2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 
 ## Installation
 
@@ -173,9 +173,11 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [SimSiam](https://arxiv.org/abs/2011.10566) (CVPR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simsiam/)]
     - [x] [Barlow Twins](https://arxiv.org/abs/2103.03230) (ICML'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/barlowtwins/)]
     - [x] [MoCoV3](https://arxiv.org/abs/2104.02057) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov3/)]
+    - [x] [BEiT](https://arxiv.org/abs/2106.08254) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/beit/)
     - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
     - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
-    - [x] [CAE](https://arxiv.org/abs/2202.03026) (ArXiv'2022)
+    - [x] [MaskFeat](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/maskfeat/)]
+    - [x] [CAE](https://arxiv.org/abs/2202.03026) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/cae/)]
     - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
     </details>
 

@@ -14,7 +14,6 @@ from ..builder import build_loss
 class ClsMixupHead(BaseModule):
     """Simplest classifier head, with only one fc layer.
        *** Mixup and multi-label classification are supported ***
-       V1218, IP89, fix 'neg_weight' and 'eta_weight' usages
     
     Args:
         with_avg_pool (bool): Whether to use GAP before this head.

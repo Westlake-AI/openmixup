@@ -1,8 +1,11 @@
 _base_ = [
     '../../_base_/models/simmim/vit_base.py',
-    '../../_base_/datasets/imagenet/simmim_sz224_bs64.py',
+    '../../_base_/datasets/imagenet/simmim_sz224_p16_bs64.py',
     '../../_base_/default_runtime.py',
 ]
+
+# data
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # interval for accumulate gradient
 update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
@@ -29,9 +32,9 @@ optimizer = dict(
         'gamma': dict(weight_decay=0.),
     })
 
-# apex
+# fp16
 use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
     update_interval=update_interval, grad_clip=dict(max_norm=5.0),

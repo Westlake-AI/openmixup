@@ -47,7 +47,7 @@ optimizer = dict(
         'gamma': dict(weight_decay=0.),
     })
 
-# apex
+# fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args

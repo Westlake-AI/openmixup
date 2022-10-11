@@ -1,3 +1,5 @@
+from .base import BaseDataset
+from .beit_mim import BEiTDataset
 from .builder import build_dataset
 from .data_sources import *
 from .pipelines import *

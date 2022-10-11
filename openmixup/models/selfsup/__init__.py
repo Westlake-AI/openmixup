@@ -1,6 +1,8 @@
 from .a2mim import A2MIM
 from .barlowtwins import BarlowTwins
+from .beit import BEiT
 from .byol import BYOL
+from .cae import CAE
 from .deepcluster import DeepCluster
 from .densecl import DenseCL
 from .mae import MAE
@@ -20,8 +22,8 @@ from .simsiam import SimSiam
 from .swav import SwAV
 
 __all__ = [
-    'A2MIM', 'BarlowTwins', 'BYOL', 'DeepCluster', 'DenseCL', 'MAE', 'MaskFeat',
-    'MOCO', 'MoCoMix', 'MoCoSAMix', 'MoCoV3',
+    'A2MIM', 'BarlowTwins', 'BEiT', 'BYOL', 'CAE', 'DeepCluster', 'DenseCL',
+    'MAE', 'MaskFeat', 'MOCO', 'MoCoMix', 'MoCoSAMix', 'MoCoV3',
     'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimCLRMix',
     'SimMIM', 'SimSiam', 'SwAV',
 ]

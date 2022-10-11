@@ -1,8 +1,8 @@
 # Awesome Mixup Methods for Supervised Learning
 
- [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=green) ![visitors](https://visitor-badge.glitch.me/badge?page_id=Westlake-AI/openmixup)
+![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-green) [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=blue) ![GitHub forks](https://img.shields.io/github/forks/Westlake-AI/openmixup?color=yellow&label=Fork)
 
-**We summarize fundermental mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*. Then, we summarize mixup techniques used in downstream tasks.**
+**We summarize fundamental mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*. Then, we summarize mixup techniques used in downstream tasks.**
 We are working on a survey of mixup methods. The list of awesome mixup methods is summarized in chronological order and is on updating.
 
 **Table of Contents**
@@ -132,6 +132,12 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 
 ## Analysis of Mixup
 
+* Sunil Thulasidasan, Gopinath Chennupati, Jeff Bilmes, Tanmoy Bhattacharya, Sarah Michalak.
+   - On Mixup Training: Improved Calibration and Predictive Uncertainty for Deep Neural Networks. [[NIPS'2019](https://arxiv.org/abs/1905.11001)] [[code](https://github.com/paganpasta/onmixup)]
+* Luigi Carratino, Moustapha Cissé, Rodolphe Jenatton, Jean-Philippe Vert.
+   - On Mixup Regularization. [[ArXiv'2020](https://arxiv.org/abs/2006.06049)]
+* Linjun Zhang, Zhun Deng, Kenji Kawaguchi, Amirata Ghorbani, James Zou.
+   - How Does Mixup Help With Robustness and Generalization? [[ICLR'2021](https://arxiv.org/abs/2010.04819)]
 * Muthu Chidambaram, Xiang Wang, Yuzheng Hu, Chenwei Wu, Rong Ge.
    - Towards Understanding the Data Dependency of Mixup-style Training. [[ICLR'2022](https://openreview.net/pdf?id=ieNJYujcGDO)] [[code](https://github.com/2014mchidamb/Mixup-Data-Dependency)]
 * Linjun Zhang, Zhun Deng, Kenji Kawaguchi, James Zou.
@@ -140,6 +146,8 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 
 ## Survey
 
+* Humza Naveed.
+   - Survey: Image Mixing and Deleting for Data Augmentation. [[ArXiv'2021](https://arxiv.org/abs/2106.07085)]
 * An overview of mixing augmentation methods and augmentation strategies.
    - A Survey on Masked Autoencoder for Self-supervised Learning in Vision and Beyond. [[Artificial Intelligence Review'2022](https://link.springer.com/article/10.1007/s10462-022-10227-z)]
 

@@ -1,6 +1,6 @@
 # Awesome Masked Image Modeling for Visual Represention
 
- [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=green) ![visitors](https://visitor-badge.glitch.me/badge?page_id=Westlake-AI/openmixup)
+![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-green) [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=blue) ![GitHub forks](https://img.shields.io/github/forks/Westlake-AI/openmixup?color=yellow&label=Fork)
 
 **We summarize masked image modeling (MIM) methods proposed for self-supervised visual representation learning.**
 The list of awesome MIM methods is summarized in chronological order and is on updating.
@@ -8,7 +8,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 **Table of Contents**
 
   - [MIM for Backbones](#mim-for-backbones)
-    - [Fundermental Methods](#fundermental-methods)
+    - [Fundamental Methods](#fundamental-methods)
     - [MIM with Constrastive Learning](#mim-with-constrastive-learning)
     - [MIM for Transformer and CNN](#mim-for-transformer-and-cnn)
     - [MIM with Advanced Masking](#mim-with-advanced-masking)
@@ -28,7 +28,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 
 ## MIM for Backbones
 
-### Fundermental Methods
+### Fundamental Methods
 
 * **iGPT**: Mark Chen, Alec Radford, Rewon Child, Jeff Wu, Heewoo Jun, David Luan, Ilya Sutskever.
    - Generative Pretraining from Pixels. [[ICML'2020](http://proceedings.mlr.press/v119/chen20s/chen20s.pdf)] [[code](https://github.com/openai/image-gpt)]

@@ -1,5 +1,7 @@
 import torch
 import numpy as np
+from PIL import Image
+
 from openmixup.models.utils import precision_recall_f1, support
 from openmixup.utils import build_from_cfg, print_log
 
@@ -67,6 +69,11 @@ class MaskedImageDataset(BaseDataset):
             ret_dict['gt_label'] = target
         else:
             img = self.data_source.get_sample(idx)
+        assert isinstance(img, Image.Image), \
+            'The output from the data source must be an Image, got: {}. \
+            Please ensure that the list file does not contain labels.'.format(
+            type(img))
+
         # process img
         img = self.pipeline(img)
         img_mim = None
@@ -97,7 +104,7 @@ class MaskedImageDataset(BaseDataset):
         if self.prefetch:
             img = torch.from_numpy(to_numpy(img))
         ret_dict['img'] = img
-        
+
         return ret_dict
 
     def evaluate(self,
