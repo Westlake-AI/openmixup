@@ -22,6 +22,8 @@ class ClsHead(BaseModule):
         multi_label (bool): Whether to use one_hot like labels (requiring the
             multi-label classification loss). Notice that we support the
             single-label cls task to use the multi-label cls loss.
+        finetune (bool): Whether to use the finetune mode of ViTs.
+        aug_test (bool): Whether to perform test time augmentations.
         frozen (bool): Whether to freeze the parameters.
     """
 
@@ -31,8 +33,9 @@ class ClsHead(BaseModule):
                  in_channels=2048,
                  num_classes=1000,
                  multi_label=False,
-                 frozen=False,
                  finetune=False,
+                 aug_test=False,
+                 frozen=False,
                  init_cfg=None):
         super(ClsHead, self).__init__(init_cfg=init_cfg)
         self.with_avg_pool = with_avg_pool
@@ -40,6 +43,7 @@ class ClsHead(BaseModule):
         self.num_classes = num_classes
         self.multi_label = multi_label
         self.finetune = finetune
+        self.aug_test = aug_test
 
         # loss
         if loss is not None:
@@ -81,11 +85,8 @@ class ClsHead(BaseModule):
                 elif init_linear == 'trunc_normal':
                     trunc_normal_init(m, std=std, bias=bias)
 
-    def forward(self, x):
-        assert isinstance(x, (tuple, list)) and len(x) == 1
-        if self.fc is None:
-            return x
-        x = x[0]
+    def forward_head(self, x):
+        """" forward cls head with x in a shape of (X, \*) """
         if self.with_avg_pool:
             if x.dim() == 3:
                 x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
@@ -94,7 +95,20 @@ class ClsHead(BaseModule):
             else:
                 assert x.dim() in [2, 3, 4], \
                     "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
-        return [self.fc(x)]
+        return self.fc(x)
+
+    def forward(self, x):
+        assert isinstance(x, (tuple, list)) and len(x) >= 1
+        if self.fc is None:
+            return x
+        # test-time augmentation
+        if len(x) > 1 and self.aug_test:
+            aug_pred = [self.forward_head(_x) for _x in x]
+            aug_pred = torch.stack(aug_pred).mean(dim=0)
+            return [aug_pred]
+        # simple test
+        else:
+            return [self.forward_head(x[0])]
 
     def loss(self, cls_score, labels, **kwargs):
         """" cls loss forward

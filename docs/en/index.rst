@@ -15,6 +15,13 @@ Welcome to OpenMixup's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Tools
+
+   tools/analysis.md
+   tools/visualization.md
+
+.. toctree::
+   :maxdepth: 1
    :caption: Tutorials
 
    tutorials/0_config.md

@@ -9,7 +9,7 @@ model = dict(
     pretrained=None,
     alpha=2.0,
     momentum=0.999,
-    mask_layer=2,  # dowmsampling to 1/8
+    mask_layer=2,  # dowmsampling to 1/16
     mask_loss=0.1,  # using loss
     mask_adjust=0,  # none for large datasets
     lam_margin=0.08,
@@ -92,7 +92,7 @@ optimizer = dict(
 # Sets `find_unused_parameters`: randomly switch off mixblock
 find_unused_parameters = True
 
-# apex
+# fp16
 use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(

@@ -7,7 +7,7 @@ from typing import Sequence, Tuple
 
 import mmcv
 import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 
 import torch
 from torchvision import transforms as _transforms
@@ -1744,7 +1744,7 @@ class GaussianBlur(object):
         p (float, optional): Probability. Defaults to 0.5.
     """
 
-    def __init__(self, sigma_min, sigma_max, p=0.5):
+    def __init__(self, sigma_min=0.1, sigma_max=2.0, p=0.5):
         assert 0 <= p <= 1.0, \
             f'The prob should be in range [0,1], got {p} instead.'
         self.sigma_min = sigma_min
@@ -1778,18 +1778,22 @@ class Solarization(object):
         p (float, optional): Probability. Defaults to 0.5.
     """
 
-    def __init__(self, threshold=128, p=0.5):
+    def __init__(self, threshold=128, p=0.5, backend='pillow'):
         assert 0 <= p <= 1.0, \
             f'The prob should be in range [0, 1], got {p} instead.'
         self.threshold = threshold
         self.prob = p
+        self.backend = backend
 
     def __call__(self, img):
         if np.random.rand() > self.prob:
             return img
-        img = np.array(img)
-        img = np.where(img < self.threshold, img, 255 -img)
-        return Image.fromarray(img.astype(np.uint8))
+        if self.backend == 'pillow':
+            return ImageOps.solarize(img)
+        else:
+            img = np.array(img)
+            img = np.where(img < self.threshold, img, 255 -img)
+            return Image.fromarray(img.astype(np.uint8))
 
     def __repr__(self):
         repr_str = self.__class__.__name__

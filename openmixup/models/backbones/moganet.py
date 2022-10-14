@@ -588,8 +588,9 @@ class MogaNet(BaseBackbone):
         self.frozen_stages = frozen_stages
         self.norm_eval = norm_eval
         self.ffn_types = ffn_types
+        self.attn_force_fp32 = attn_force_fp32
         self.use_layer_norm = stem_norm_cfg['type'] == 'LN'
-        assert stem_norm_cfg['type'] in ['BN', 'LN', 'LN2d',]
+        assert stem_norm_cfg['type'] in ['BN', 'SyncBN', 'LN', 'LN2d',]
         assert len(ffn_types) == self.num_stages
         assert len(patchembed_types) == self.num_stages
 
@@ -703,10 +704,9 @@ class MogaNet(BaseBackbone):
                 x = norm(x)
 
             if i in self.out_indices:
-                ##########################
-                if torch.any(torch.isnan(x)) or torch.any(torch.isinf(x)):
-                    raise ValueError("STOP NAN.")
-                ##########################
+                if self.attn_force_fp32:
+                    if torch.any(torch.isnan(x)) or torch.any(torch.isinf(x)):
+                        raise ValueError("Inf or nan value: use FP32 instead.")
                 outs.append(x)
 
         return outs

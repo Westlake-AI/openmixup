@@ -42,6 +42,7 @@ class ClsMixupHead(BaseModule):
         neg_weight (bool or float): Whether to remove (or reweight) the negative
             part of loss according to gt_label (should be BCE multi-label loss).
             Default: 1 (True).
+        aug_test (bool): Whether to perform test time augmentations.
         frozen (bool): Whether to freeze the parameters.
     """
 
@@ -58,6 +59,7 @@ class ClsMixupHead(BaseModule):
                  lam_idx=1,
                  eta_weight=dict(eta=0, mode="both", thr=0.5),
                  neg_weight=1,
+                 aug_test=False,
                  frozen=False,
                  init_cfg=None):
         super(ClsMixupHead, self).__init__(init_cfg=init_cfg)
@@ -72,6 +74,7 @@ class ClsMixupHead(BaseModule):
         self.lam_idx = float(lam_idx)
         self.eta_weight = eta_weight
         self.neg_weight = float(neg_weight) if float(neg_weight) != 1 else 1
+        self.aug_test = aug_test
         assert lam_scale_mode in ['none', 'pow', 'exp']
         assert eta_weight["mode"] in ['more', 'less', 'both'] and \
             0 <= eta_weight["thr"] <= 1 and eta_weight["eta"] < 100
@@ -115,9 +118,8 @@ class ClsMixupHead(BaseModule):
                 elif init_linear == 'trunc_normal':
                     trunc_normal_init(m, std=std, bias=bias)
 
-    def forward(self, x):
-        assert isinstance(x, (tuple, list)) and len(x) == 1
-        x = x[0]
+    def forward_head(self, x):
+        """" forward cls head with x in a shape of (X, \*) """
         if self.with_avg_pool:
             if x.dim() == 3:
                 x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
@@ -126,8 +128,21 @@ class ClsMixupHead(BaseModule):
             else:
                 assert x.dim() in [2, 3, 4], \
                     "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
-        return [self.fc(x)]
-    
+        return self.fc(x)
+
+    def forward(self, x):
+        assert isinstance(x, (tuple, list)) and len(x) >= 1
+        if self.fc is None:
+            return x
+        # test-time augmentation
+        if len(x) > 1 and self.aug_test:
+            aug_pred = [self.forward_head(_x) for _x in x]
+            aug_pred = torch.stack(aug_pred).mean(dim=0)
+            return [aug_pred]
+        # simple test
+        else:
+            return [self.forward_head(x[0])]
+
     def lambda_adjust(self, lam, mode="pow", thr=1, idx=1):
         """ rescale lambda for two-hot label mixup classification
         

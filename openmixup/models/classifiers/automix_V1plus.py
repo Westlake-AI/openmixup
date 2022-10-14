@@ -57,6 +57,7 @@ class AutoMixup(BaseModel):
             Default: -1 (or 0).
         switch_off (bool or float): Switch off MixBlock updating for fast training. Default to
             False (or 0).
+        head_ensemble (bool): Whether to ensemble results of all heads. Default to False.
         mix_shuffle_no_repeat (bool): Whether to use 'no_repeat' mode to generate
             mixup shuffle idx. We can ignore this issue in supervised learning.
             Default: False.
@@ -85,6 +86,7 @@ class AutoMixup(BaseModel):
                  pre_mix_loss=0.,
                  lam_margin=-1,
                  switch_off=0.,
+                 head_ensemble=False,
                  save=False,
                  save_name='MixedSamples',
                  debug=False,
@@ -105,6 +107,7 @@ class AutoMixup(BaseModel):
         self.pre_mix_loss = float(pre_mix_loss) if float(pre_mix_loss) > 0 else 0
         self.lam_margin = float(lam_margin) if float(lam_margin) > 0 else 0
         self.switch_off = float(switch_off) if float(switch_off) > 0 else 0
+        self.head_ensemble = bool(head_ensemble)
         self.mask_up_override = mask_up_override \
             if isinstance(mask_up_override, (str, list)) else None
         self.save = bool(save)
@@ -558,15 +561,8 @@ class AutoMixup(BaseModel):
         
         return results
 
-    def forward_test(self, img, **kwargs):
-        """Forward computation during testing.
-
-        Args:
-            img (Tensor): Input of a batch of images, (N, C, H, W).
-
-        Returns:
-            dict[key, Tensor]: A dictionary of head names (key) and predictions.
-        """
+    def simple_test(self, img, **kwargs):
+        """Test without augmentation."""
         keys = list()  # 'acc_mix_k', 'acc_one_k', 'acc_mix_q', 'acc_one_q'
         pred = list()
         # backbone
@@ -585,10 +581,61 @@ class AutoMixup(BaseModel):
         if self.head_one_q is not None:
             pred.append(self.head_one_q([last_q]))
             keys.append('acc_one_q')
-        
+        # head ensemble
+        if self.head_ensemble:
+            pred.append([torch.stack(
+                [pred[i][0] ** 2 for i in range(len(pred))]).mean(dim=0)])
+            keys.append('acc_avg')
+
         out_tensors = [p[0].cpu() for p in pred]  # NxC
         return dict(zip(keys, out_tensors))
-    
+
+    def augment_test(self, img, **kwargs):
+        """Test function with test time augmentation."""
+        keys = list()  # 'acc_mix_k', 'acc_one_k', 'acc_mix_q', 'acc_one_q'
+        pred = list()
+        # backbone
+        img = img[0]
+        last_k = self.backbone_k(img)[-1]
+        last_q = self.backbone_q(img)[-1]
+        # head k
+        if self.weight_mix_k > 0:
+            pred.append(self.head_mix_k([last_k]))
+            keys.append('acc_mix_k')
+            if self.head_one_k is not None:
+                pred.append(self.head_one_k([last_k]))
+                keys.append('acc_one_k')
+        # head q
+        pred.append(self.head_mix_q([last_q]))
+        keys.append('acc_mix_q')
+        if self.head_one_q is not None:
+            pred.append(self.head_one_q([last_q]))
+            keys.append('acc_one_q')
+        # head ensemble
+        if self.head_ensemble:
+            pred.append([torch.stack(
+                [pred[i][0] ** 2 for i in range(len(pred))]).mean(dim=0)])
+            keys.append('acc_avg')
+
+        out_tensors = [p[0].cpu() for p in pred]  # NxC
+        return dict(zip(keys, out_tensors))
+
+    def forward_test(self, img, **kwargs):
+        """Forward computation during testing.
+
+        Args:
+            img (List[Tensor] or Tensor): the outer list indicates the
+                test-time augmentations and inner Tensor should have a
+                shape of (N, C, H, W).
+
+        Returns:
+            dict[key, Tensor]: A dictionary of head names (key) and predictions.
+        """
+        if isinstance(img, list):
+            return self.augment_test(img)
+        else:
+            return self.simple_test(img)
+
     def forward_vis(self, img, gt_label, **kwargs):
         """" visualization by jupyter notebook """
         batch_size = img.size()[0]

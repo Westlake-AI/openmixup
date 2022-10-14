@@ -66,7 +66,8 @@ class Classification(BaseModel):
         losses = self.head.loss(outs, gt_label)
         return losses
 
-    def forward_test(self, img, **kwargs):
+    def simple_test(self, img):
+        """Test without augmentation."""
         x = self.backbone(img)  # tuple
         if self.with_neck:
             x = self.neck(x)
@@ -74,3 +75,28 @@ class Classification(BaseModel):
         keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
+
+    def augment_test(self, img):
+        """Test function with test time augmentation."""
+        x = list()
+        for _img in img:
+            if self.with_neck:
+                x.append(self.neck(self.backbone(_img))[0])
+            else:
+                x.append(self.backbone(_img)[0])
+        outs = self.head(x)
+        keys = [f'head{i}' for i in range(len(outs))]
+        out_tensors = [out.cpu() for out in outs]  # NxC
+        return dict(zip(keys, out_tensors))
+
+    def forward_test(self, img, **kwargs):
+        """
+        Args:
+            img (List[Tensor] or Tensor): the outer list indicates the
+                test-time augmentations and inner Tensor should have a
+                shape of (N, C, H, W).
+        """
+        if isinstance(img, list):
+            return self.augment_test(img)
+        else:
+            return self.simple_test(img)

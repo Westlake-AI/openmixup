@@ -13,6 +13,7 @@ from mmcv.cnn.bricks.transformer import build_dropout
 from mmcv.cnn.utils.weight_init import trunc_normal_
 from mmcv.runner.base_module import BaseModule
 
+from .layer_scale import LayerScale
 from ..helpers import to_2tuple
 
 
@@ -385,6 +386,8 @@ class MultiheadAttention(BaseModule):
         v_shortcut (bool): Add a shortcut from value to output. It's usually
             used if ``input_dims`` is different from ``embed_dims``.
             Defaults to False.
+        use_layer_scale (bool): Whether to use the layer init scale. Defaults
+            to False.
         init_cfg (dict, optional): The Config for initialization.
             Defaults to None.
     """
@@ -401,6 +404,7 @@ class MultiheadAttention(BaseModule):
                  proj_bias=True,
                  attn_scale=False,
                  v_shortcut=False,
+                 use_layer_scale=False,
                  init_cfg=None):
         super(MultiheadAttention, self).__init__(init_cfg=init_cfg)
 
@@ -424,6 +428,11 @@ class MultiheadAttention(BaseModule):
 
         self.out_drop = DROPOUT_LAYERS.build(dropout_layer)
 
+        if use_layer_scale:
+            self.gamma1 = LayerScale(embed_dims, data_format='channels_last')
+        else:
+            self.gamma1 = nn.Identity()
+
     def forward(self, x):
         B, N, _ = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads,
@@ -446,7 +455,7 @@ class MultiheadAttention(BaseModule):
 
         x = (attn @ v).transpose(1, 2).reshape(B, N, self.embed_dims)
         x = self.proj(x)
-        x = self.out_drop(self.proj_drop(x))
+        x = self.out_drop(self.gamma1(self.proj_drop(x)))
 
         if self.v_shortcut:
             x = v.squeeze(1) + x

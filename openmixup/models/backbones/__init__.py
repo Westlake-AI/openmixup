@@ -2,6 +2,7 @@ from .alexnet import AlexNet
 from .convmixer import ConvMixer
 from .convnext import ConvNeXt
 from .deit import DistilledVisionTransformer
+from .deit3 import DeiT3
 from .densenet import DenseNet
 from .edgenext import EdgeNeXt
 from .efficientformer import EfficientFormer
@@ -41,7 +42,7 @@ from .vision_transformer import TransformerEncoderLayer, VisionTransformer
 from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
-    'AlexNet', 'BEiTViT', 'ConvNeXt', 'ConvMixer', 'DistilledVisionTransformer', 'DenseNet',
+    'AlexNet', 'BEiTViT', 'ConvNeXt', 'ConvMixer', 'DistilledVisionTransformer', 'DeiT3', 'DenseNet',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
     'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MViT',

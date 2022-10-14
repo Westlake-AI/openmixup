@@ -66,6 +66,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - ConvMAE: Masked Convolution Meets Masked Autoencoders. [[NIPS'2022](https://arxiv.org/abs/2205.03892)] [[code](https://github.com/Alpha-VL/ConvMAE)]
 * **GreenMIM**: Lang Huang, Shan You, Mingkai Zheng, Fei Wang, Chen Qian, Toshihiko Yamasaki.
    - Green Hierarchical Vision Transformer for Masked Image Modeling. [[NIPS'2022](https://arxiv.org/abs/2205.13515)] [[code](https://github.com/LayneH/GreenMIM)]
+* **TTT-MAE**: Yossi Gandelsman, Yu Sun, Xinlei Chen, Alexei A. Efros.
+   - Test-Time Training with Masked Autoencoders. [[NIPS'2022](https://arxiv.org/abs/2209.07522)] [[code](https://github.com/yossigandelsman/test_time_training_mae)]
 * **HiViT**: Xiaosong Zhang, Yunjie Tian, Wei Huang, Qixiang Ye, Qi Dai, Lingxi Xie, Qi Tian.
    - HiViT: Hierarchical Vision Transformer Meets Masked Image Modeling. [[ArXiv'2022](https://arxiv.org/abs/2205.14949)]
 * **FD**: Yixuan Wei, Han Hu, Zhenda Xie, Zheng Zhang, Yue Cao, Jianmin Bao, Dong Chen, Baining Guo.
@@ -84,6 +86,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Image as a Foreign Language: BEiT Pretraining for All Vision and Vision-Language Tasks. [[ArXiv'2022](https://arxiv.org/abs/2208.10442)] [[code](https://github.com/microsoft/unilm/tree/master/beit)]
 * **DMAE**: Yutong Bai, Zeyu Wang, Junfei Xiao, Chen Wei, Huiyu Wang, Alan Yuille, Yuyin Zhou, Cihang Xie.
    - Masked Autoencoders Enable Efficient Knowledge Distillers. [[ArXiv'2022](https://arxiv.org/abs/2208.12256)] [[code](https://github.com/UCSC-VLAA/DMAE)]
+* **RC-MAE**: Youngwan Lee, Jeffrey Willette, Jonghee Kim, Juho Lee, Sung Ju Hwang.
+   - Exploring The Role of Mean Teachers in Self-supervised Masked Auto-Encoders. [[ArXiv'2022](https://arxiv.org/abs/2210.02077)]
 
 ### MIM with Constrastive Learning
 
@@ -152,6 +156,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - MILES: Visual BERT Pre-training with Injected Language Semantics for Video-text Retrieval. [[ArXiv'2022](https://arxiv.org/abs/2204.12408)] [[code](https://github.com/tencentarc/mcq)]
 * **MAR**: Zhiwu Qing, Shiwei Zhang, Ziyuan Huang, Xiang Wang, Yuehuan Wang, Yiliang Lv, Changxin Gao, Nong Sang.
    - MAR: Masked Autoencoders for Efficient Action Recognition. [[ArXiv'2022](http://arxiv.org/abs/2207.11660)]
+* **MotionMAE**: Haosen Yang, Deng Huang, Bin Wen, Jiannan Wu, Hongxun Yao, Yi Jiang, Xiatian Zhu, Zehuan Yuan.
+   - Self-supervised Video Representation Learning with Motion-Aware Masked Autoencoders. [[ArXiv'2022](https://arxiv.org/abs/2210.04154)] [[code](https://github.com/happy-hsy/MotionMAE)]
 
 ### Medical Image
 
@@ -199,6 +205,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 
 ### Audio
 
+* **MAM**: Junkun Chen, Mingbo Ma, Renjie Zheng, Liang Huang.
+   - MAM: Masked Acoustic Modeling for End-to-End Speech-to-Text Translation. [[ArXiv'2021](https://arxiv.org/abs/2010.11445)]
 * **MAE-AST**: Alan Baade, Puyuan Peng, David Harwath.
    - MAE-AST: Masked Autoencoding Audio Spectrogram Transformer. [[ArXiv'2022](https://arxiv.org/abs/2203.16691)] [[code](https://github.com/AlanBaade/MAE-AST-Public)]
 * **MaskSpec**: Dading Chong, Helin Wang, Peilin Zhou, Qingcheng Zeng.
