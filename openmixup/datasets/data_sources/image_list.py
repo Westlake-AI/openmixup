@@ -1,4 +1,3 @@
-import cv2
 import os
 import mmcv
 import numpy as np
@@ -19,7 +18,9 @@ class ImageList(object):
         root (str): Path to the dataset.
         list_file (str): Path to the txt list file.
         splitor (str): Splitor between file names and the class id.
-        backend (str): Backend of the loader in {'pillow', 'cv2'}.
+        file_client_args (dict): Arguments to instantiate a FileClient.
+            See :class:`mmcv.fileio.FileClient` for details.
+            Defaults to ``dict(backend='pillow')``.
         return_label (bool): Whether to return the class id.
     """
 
@@ -29,7 +30,7 @@ class ImageList(object):
                  root,
                  list_file,
                  splitor=" ",
-                 backend='pillow',
+                 file_client_args=dict(backend='pillow'),
                  return_label=True):
         with open(list_file, 'r') as fp:
             lines = fp.readlines()
@@ -45,10 +46,16 @@ class ImageList(object):
             self.labels = None
             self.fns = [l.strip() for l in lines]
         self.fns = [os.path.join(root, fn) for fn in self.fns]
-        self.backend = backend
-        assert backend in ['cv2', 'pillow']
-        if self.backend == 'cv2':
-            self.file_client = mmcv.FileClient(backend='disk')
+
+        self.file_client_args = file_client_args
+        self.backend = file_client_args.get('backend', 'pillow')
+        assert self.backend in \
+            ['pillow', 'disk', 'ceph', 'memcached', 'lmdb', 'petrel', 'http'], \
+            "Find unsupport file_client_backend={}".format(self.backend)
+        if self.backend != 'pillow':
+            self.file_client = mmcv.FileClient(**self.file_client_args)
+        else:
+            self.file_client = None
 
     def get_length(self):
         return len(self.fns)
@@ -60,10 +67,13 @@ class ImageList(object):
         else:
             img_bytes = self.file_client.get(self.fns[idx])
             img = mmcv.imfrombytes(img_bytes, flag='color')
-            if img is None:
-                img = cv2.cvtColor(
-                    np.array(Image.open(self.fns[idx])), cv2.COLOR_RGB2BGR)
             img = Image.fromarray(img.astype(np.uint8))
+        if img is None:  # fix bug of loading by cv2
+            if self.backend == 'cv2':
+                img = Image.open(self.fns[idx])
+                img = img.convert('RGB')
+            else:
+                raise ValueError("Fail to load img={}".format(self.fns[idx]))
 
         if self.has_labels and self.return_label:
             target = self.labels[idx]

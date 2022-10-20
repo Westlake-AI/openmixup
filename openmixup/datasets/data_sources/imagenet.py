@@ -1013,6 +1013,11 @@ class ImageNet(ImageList):
         'toilet tissue, toilet paper, bathroom tissue'
     ]
 
-    def __init__(self, root, list_file, splitor=" ", backend='pillow', return_label=True):
+    def __init__(self,
+                 root,
+                 list_file,
+                 splitor=" ",
+                 file_client_args=dict(backend='pillow'),
+                 return_label=True):
         super(ImageNet, self).__init__(
-            root, list_file, splitor, backend, return_label)
+            root, list_file, splitor, file_client_args, return_label)

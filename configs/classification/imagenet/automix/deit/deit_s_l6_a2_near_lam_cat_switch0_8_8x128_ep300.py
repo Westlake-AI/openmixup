@@ -21,15 +21,15 @@ model = dict(
         arch='deit-small',
         img_size=224, patch_size=16,
         drop_path_rate=0.1,
-        out_indices=(5, 11),  # DeiT-S: 12 layers
+        out_indices=(5, 11),  # DeiT-S: 12 layers, use 6-layer for MixBlock
     ),
-    mix_block = dict(  # SAMix
+    mix_block = dict(  # AutoMix
         type='PixelMixBlock',
         in_channels=384, reduction=2, use_scale=True,
-        unsampling_mode=['nearest',],  # str or list, train & test MixBlock
+        unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
-        value_neck_cfg=None,  # SAMix: non-linear value
+        att_norm_cfg=None,  # Not use attention_norm for better performance
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
         att_norm_cfg=None,  # AutoMix: attention norm for fp16
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1

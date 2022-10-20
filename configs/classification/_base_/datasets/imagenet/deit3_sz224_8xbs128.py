@@ -11,13 +11,13 @@ img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
     dict(type='RandomResizedCrop', size=224, interpolation=3),  # bicubic
     dict(type='RandomHorizontalFlip'),
-    dict(type='RandomAppliedTrans',  # 3-Augment in DeiT III
+    dict(type='RandomChoiceTrans',  # 3-Augment in DeiT III
         transforms=[
             dict(type='RandomGrayscale', p=1.),
             dict(type='Solarization', p=1.),
             dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=1.),
         ],
-        p=1.0),
+    ),
     dict(type='ColorJitter',
          brightness=0.3, contrast=0.3, saturation=0.3),
 ]
