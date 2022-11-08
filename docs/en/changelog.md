@@ -2,7 +2,7 @@
 
 ### v0.2.6 (41/09/2022)
 
-Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20).  Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24) and issue [#25](https://github.com/Westlake-AI/openmixup/issues/25)).
+Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20). Update new features and documents of `OpenMixup` v0.2.6 as issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), fix relevant issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#26](https://github.com/Westlake-AI/openmixup/issues/26), and issue [#27](https://github.com/Westlake-AI/openmixup/issues/27).
 
 #### New Features
 
