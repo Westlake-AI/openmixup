@@ -1,5 +1,5 @@
 _base_ = [
-    '../../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
+    '../../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
     '../../../_base_/default_runtime.py',
 ]
 
@@ -17,35 +17,34 @@ model = dict(
     mask_up_override=None,
     debug=True,
     backbone=dict(
-        type='PyramidVisionTransformer',
+        type='SwinTransformer',
         arch='tiny',
-        img_size=224,
-        in_channels=3,
-        drop_path_rate=0.1,
-        out_indices=(2,3,),
+        img_size=224, drop_path_rate=0.2,
+        out_indices=(2,3),  # use stage-2 of 7x7x768
     ),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
-        in_channels=320, reduction=2, use_scale=True,
+        in_channels=768, reduction=2, use_scale=True,
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
         value_neck_cfg=None,  # SAMix: non-linear value
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
-        att_norm_cfg=dict(type='LN2d', eps=1e-6),  # AutoMix: attention norm for fp16 (fast training)
+        att_norm_cfg=None,  # Not use attention_norm for better performance
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
-        mask_mode="none_v_",
         frozen=False),
     head_one=dict(
-        type='VisionTransformerClsHead',  # mixup CE + label smooth
+        type='ClsMixupHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=512, num_classes=1000),
+        with_avg_pool=True,
+        in_channels=768, num_classes=1000),
     head_mix=dict(
-        type='VisionTransformerClsHead',  # mixup CE + label smooth
+        type='ClsMixupHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=512, num_classes=1000),
+        with_avg_pool=True,
+        in_channels=768, num_classes=1000),
     head_weights=dict(
         decent_weight=[], accent_weight=[],
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
@@ -57,15 +56,14 @@ model = dict(
 
 # dataset
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
-# sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
 
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=1251 * 20,  # plot every 20 ep
-        iter_per_epoch=1251,
+        save_interval=1252 * 20,  # 20 ep
+        iter_per_epoch=1252,
     ),
     dict(type='CustomCosineAnnealingHook',  # 0.1 to 0
         attr_name="mask_loss", attr_base=0.1, min_attr=0., by_epoch=False,  # by iter
@@ -85,37 +83,37 @@ optimizer = dict(
     lr=1e-3,  # lr = 5e-4 * (256 * 4) * 1 accumulate / 512 = 1e-3 / bs1024
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
-        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'cls_token': dict(weight_decay=0.),
-        'pos_embed': dict(weight_decay=0.),
+        'absolute_pos_embed': dict(weight_decay=0.),
+        'relative_position_bias_table': dict(weight_decay=0.),
         'mix_block': dict(lr=1e-3),
     })
 # Sets `find_unused_parameters`: randomly switch off mixblock
 find_unused_parameters = True
 
 # fp16
-use_fp16 = True
+use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
-# lr scheduler
+# lr scheduler: Swim for DeiT
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5,  # 1e-5 yields better performances than 1e-6
+    by_epoch=False, min_lr=1e-5,
     warmup='linear',
-    warmup_iters=5, warmup_by_epoch=True,
-    warmup_ratio=1e-6,
+    warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
+    warmup_ratio=1e-5,
 )
+
 # additional scheduler
 addtional_scheduler = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-4,
+    by_epoch=False, min_lr=1e-4,  # 0.1 x lr
     paramwise_options=['mix_block'],
-    warmup_iters=5, warmup_by_epoch=True,
-    warmup_ratio=1e-6,
+    warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs
+    warmup_ratio=1e-5,
 )
 
 # runtime settings

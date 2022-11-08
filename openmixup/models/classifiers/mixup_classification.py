@@ -63,6 +63,7 @@ class MixUpClassification(BaseModel):
                  pretrained=None,
                  pretrained_k=None,
                  save_name='MixedSamples',
+                 debug_mode=True,
                  init_cfg=None,
                  **kwargs):
         super(MixUpClassification, self).__init__(init_cfg, **kwargs)
@@ -113,6 +114,7 @@ class MixUpClassification(BaseModel):
         if len(self.mix_mode) < self.mix_repeat:
             print_log("Warning: the number of mix_mode={} is less than mix_repeat={}.".format(
                 self.mix_mode, self.mix_repeat))
+        self.debug_mode = debug_mode
         self.save_name = str(save_name)
         self.save = False
         self.ploter = PlotTensor(apply_inv=True)
@@ -280,7 +282,10 @@ class MixUpClassification(BaseModel):
         outs = self.head(x)
         losses = self.head.loss(outs, gt_label)
         losses['loss'] /= self.mix_repeat
-        
+        if self.debug_mode:
+            if torch.any(torch.isnan(losses['loss'])) or torch.any(torch.isinf(losses['loss'])):
+                raise ValueError("Inf or nan value: use FP32 instead.")
+
         return losses, cur_idx
 
     def forward_train(self, img, gt_label, **kwargs):

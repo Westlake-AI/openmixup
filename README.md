@@ -41,7 +41,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## What's New
 
-[2022-10-15] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24) and issue [#25](https://github.com/Westlake-AI/openmixup/issues/25)).
+[2022-11-09] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24) and issue [#25](https://github.com/Westlake-AI/openmixup/issues/25)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
 
 [2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 
@@ -118,6 +118,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [HorNet](https://arxiv.org/abs/2207.14284) (NIPS'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/)]
     - [x] [EdgeNeXt](https://arxiv.org/abs/2206.10589) (ECCVW'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/)]
     - [x] [EfficientFormer](https://arxiv.org/abs/2206.01191) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/)]
+    - [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
     </details>
 
 * Mixup methods for supervised image classification.

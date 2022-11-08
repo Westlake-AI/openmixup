@@ -47,73 +47,8 @@ class ElementScale(nn.Module):
         return x * self.scale
 
 
-class MixFFN(BaseModule):
-    """An implementation of MixFFN of VAN.
-
-    The differences between MixFFN & FFN:
-        1. Use 1X1 Conv to replace Linear layer.
-        2. Introduce 3X3 Depth-wise Conv to encode positional information.
-
-    Args:
-        embed_dims (int): The feature dimension. Same as
-            `MultiheadAttention`.
-        feedforward_channels (int): The hidden dimension of FFNs.
-        kernel_size (int): The depth-wise conv kernel size as the
-            depth-wise convolution. Defaults to 3.
-        act_cfg (dict, optional): The activation config for FFNs.
-            Default: dict(type='GELU').
-        ffn_drop (float, optional): Probability of an element to be
-            zeroed in FFN. Default 0.0.
-        init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
-            Default: None.
-    """
-
-    def __init__(self,
-                 embed_dims,
-                 feedforward_channels,
-                 kernel_size=3,
-                 act_cfg=dict(type='GELU'),
-                 ffn_drop=0.,
-                 init_cfg=None):
-        super(MixFFN, self).__init__(init_cfg=init_cfg)
-
-        self.embed_dims = embed_dims
-        self.feedforward_channels = feedforward_channels
-        self.act_cfg = act_cfg
-
-        self.fc1 = Conv2d(
-            in_channels=embed_dims,
-            out_channels=feedforward_channels,
-            kernel_size=1)
-        self.dwconv = Conv2d(
-            in_channels=feedforward_channels,
-            out_channels=feedforward_channels,
-            kernel_size=kernel_size,
-            stride=1,
-            padding=kernel_size // 2,
-            bias=True,
-            groups=feedforward_channels)
-        self.act = build_activation_layer(act_cfg)
-        self.fc2 = Conv2d(
-            in_channels=feedforward_channels,
-            out_channels=embed_dims,
-            kernel_size=1)
-        self.drop = nn.Dropout(ffn_drop)
-
-    def forward(self, x):
-        # proj 1
-        x = self.fc1(x)
-        x = self.dwconv(x)
-        x = self.act(x)
-        x = self.drop(x)
-        # proj 2
-        x = self.fc2(x)
-        x = self.drop(x)
-        return x
-
-
-class DecomposeFFN(BaseModule):
-    """An implementation of FFN with Feature Decomposing.
+class ChannelAggregationFFN(BaseModule):
+    """An implementation of FFN with Channel Aggregation.
 
     Args:
         embed_dims (int): The feature dimension. Same as
@@ -134,7 +69,7 @@ class DecomposeFFN(BaseModule):
                  act_cfg=dict(type='GELU'),
                  ffn_drop=0.,
                  init_cfg=None):
-        super(DecomposeFFN, self).__init__(init_cfg=init_cfg)
+        super(ChannelAggregationFFN, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
         self.feedforward_channels = feedforward_channels
@@ -185,11 +120,13 @@ class DecomposeFFN(BaseModule):
         return x
 
 
-class MultiOrderGAU(BaseModule):
-    """Gated Attention Unit with Multi-order Kernel (MultiOrderGAU).
+class MultiOrderDWConv(BaseModule):
+    """Multi-order Features with Dilated DWConv Kernel.
 
     Args:
         embed_dims (int): Number of input channels.
+        dw_dilation (list): Dilations of three DWConv layers.
+        channel_split (list): The raletive ratio of three splited channels.
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
             Default: None.
     """
@@ -199,7 +136,7 @@ class MultiOrderGAU(BaseModule):
                  dw_dilation=[1, 2, 3,],
                  channel_split=[1, 3, 4,],
                  init_cfg=None):
-        super(MultiOrderGAU, self).__init__(init_cfg=init_cfg)
+        super(MultiOrderDWConv, self).__init__(init_cfg=init_cfg)
 
         self.split_ratio = [i / sum(channel_split) for i in channel_split]
         self.embed_dims_1 = int(self.split_ratio[1] * embed_dims)
@@ -255,12 +192,14 @@ class MultiOrderGAU(BaseModule):
         return x
 
 
-class MultiOrderGAUAttention(BaseModule):
-    """Attention Block with MultiOrderGAU.
+class MultiOrderGatedAggregation(BaseModule):
+    """Spatial Block with Multi-order Gated Aggregation.
 
     Args:
         embed_dims (int): Number of input channels.
-        act_cfg (dict, optional): The activation config for FFNs.
+        attn_dw_dilation (list): Dilations of three DWConv layers.
+        attn_channel_split (list): The raletive ratio of splited channels.
+        attn_act_cfg (dict, optional): The activation config for FFNs.
             Default: dict(type='GELU').
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
             Default: None.
@@ -273,7 +212,7 @@ class MultiOrderGAUAttention(BaseModule):
                  attn_act_cfg=dict(type="SiLU"),
                  attn_force_fp32=False,
                  init_cfg=None):
-        super(MultiOrderGAUAttention, self).__init__(init_cfg=init_cfg)
+        super(MultiOrderGatedAggregation, self).__init__(init_cfg=init_cfg)
 
         self.embed_dims = embed_dims
         self.attn_force_fp32 = attn_force_fp32
@@ -281,7 +220,7 @@ class MultiOrderGAUAttention(BaseModule):
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
         self.gate = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
-        self.value = MultiOrderGAU(
+        self.value = MultiOrderDWConv(
             embed_dims,
             dw_dilation=attn_dw_dilation,
             channel_split=attn_channel_split,
@@ -298,9 +237,11 @@ class MultiOrderGAUAttention(BaseModule):
             embed_dims, init_value=1e-5, requires_grad=True)
 
     def feat_decompose(self, x):
+        x = self.proj_1(x)
         # x_d: [B, C, H, W] -> [B, C, 1, 1]
         x_d = F.adaptive_avg_pool2d(x, output_size=1)
         x = x + self.sigma(x - x_d)
+        x = self.act_value(x)
         return x
 
     @force_fp32()
@@ -311,14 +252,12 @@ class MultiOrderGAUAttention(BaseModule):
 
     def forward(self, x):
         shortcut = x.clone()
-        # proj 1
-        x = self.proj_1(x)
+        # proj 1x1
         x = self.feat_decompose(x)
-        x = self.act_value(x)
-        # gating, value
+        # gating and value branch
         g = self.gate(x)
         v = self.value(x)
-        # proj 2
+        # aggregation
         if not self.attn_force_fp32:
             x = self.proj_2(self.act_gate(g) * self.act_gate(v))
         else:
@@ -336,12 +275,15 @@ class MogaBlock(BaseModule):
             layer channels. Defaults to 4.
         drop_rate (float): Dropout rate after embedding. Defaults to 0.
         drop_path_rate (float): Stochastic depth rate. Defaults to 0.1.
-        act_cfg (dict, optional): The activation config for FFNs.
+        act_cfg (dict, optional): The activation config for projections and FFNs.
             Default: dict(type='GELU').
         norm_cfg (dict): Config dict for normalization layer.
             Defaults to ``dict(type='BN')``.
         init_value (float): Init value for Layer Scale. Defaults to 1e-5.
-        attention_types (str): Type of attention in each stage.
+        attn_dw_dilation (list): Dilations of three DWConv layers.
+        attn_channel_split (list): The raletive ratio of splited channels.
+        attn_act_cfg (str): The activation config for the gating branch.
+            Default: dict(type='SiLU').
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
             Default: None.
     """
@@ -354,7 +296,6 @@ class MogaBlock(BaseModule):
                  act_cfg=dict(type='GELU'),
                  norm_cfg=dict(type='BN', eps=1e-5),
                  init_value=1e-5,
-                 ffn_types="Decompose",
                  attn_dw_dilation=[1, 2, 3],
                  attn_channel_split=[1, 3, 4],
                  attn_act_cfg=dict(type='SiLU'),
@@ -365,8 +306,8 @@ class MogaBlock(BaseModule):
 
         self.norm1 = build_norm_layer(norm_cfg, embed_dims)[1]
 
-        # attention
-        self.attn = MultiOrderGAUAttention(
+        # spatial attention
+        self.attn = MultiOrderGatedAggregation(
             embed_dims,
             attn_dw_dilation=attn_dw_dilation,
             attn_channel_split=attn_channel_split,
@@ -378,22 +319,14 @@ class MogaBlock(BaseModule):
 
         self.norm2 = build_norm_layer(norm_cfg, embed_dims)[1]
 
-        # feed forward MLP
+        # channel MLP
         mlp_hidden_dim = int(embed_dims * ffn_ratio)
-        assert ffn_types in ['Mix', 'Decompose',]
-        if ffn_types == "Mix":
-            self.mlp = MixFFN(  # DWConv + FFN
-                embed_dims=embed_dims,
-                feedforward_channels=mlp_hidden_dim,
-                act_cfg=act_cfg,
-                ffn_drop=drop_rate)
-        elif ffn_types == "Decompose":
-            self.mlp = DecomposeFFN(  # DWConv + Decomposed FFN
-                embed_dims=embed_dims,
-                feedforward_channels=mlp_hidden_dim,
-                act_cfg=act_cfg,
-                ffn_drop=drop_rate,
-            )
+        self.mlp = ChannelAggregationFFN(  # DWConv + Channel Aggregation FFN
+            embed_dims=embed_dims,
+            feedforward_channels=mlp_hidden_dim,
+            act_cfg=act_cfg,
+            ffn_drop=drop_rate,
+        )
 
         # init layer scale
         self.layer_scale_1 = nn.Parameter(
@@ -489,8 +422,11 @@ class StackConvPatchEmbed(BaseModule):
 
 @BACKBONES.register_module()
 class MogaNet(BaseBackbone):
-    """Revitalizing CovNets with Efficient Multi-order Aggregation (MogaNet).
-        v09.30, IP51
+    """MogaNet.
+
+    A PyTorch implement of : `Efficient Multi-order Gated Aggregation Network
+    <https://arxiv.org/abs/2211.03295>`_
+        v11.07, arXiv (IP120)
 
     Args:
         arch (str | dict): Visual Attention Network architecture.
@@ -527,6 +463,10 @@ class MogaNet(BaseBackbone):
 
     """
     arch_zoo = {
+        **dict.fromkeys(['xt', 'x-tiny'],
+                        {'embed_dims': [32, 64, 96, 192],
+                         'depths': [3, 3, 10, 2],
+                         'ffn_ratios': [8, 8, 4, 4]}),
         **dict.fromkeys(['t', 'tiny'],
                         {'embed_dims': [32, 64, 128, 256],
                          'depths': [3, 3, 12, 2],
@@ -536,12 +476,12 @@ class MogaNet(BaseBackbone):
                          'depths': [2, 3, 12, 2],
                          'ffn_ratios': [8, 8, 4, 4]}),
         **dict.fromkeys(['b', 'base'],
-                        {'embed_dims': [64, 128, 320, 512],
-                         'depths': [3, 5, 27, 3],
+                        {'embed_dims': [64, 160, 320, 512],
+                         'depths': [4, 6, 22, 3],
                          'ffn_ratios': [8, 8, 4, 4]}),
         **dict.fromkeys(['l', 'large'],
-                        {'embed_dims': [64, 128, 320, 640],
-                         'depths': [4, 6, 42, 4],
+                        {'embed_dims': [64, 160, 320, 640],
+                         'depths': [4, 6, 44, 4],
                          'ffn_ratios': [8, 8, 4, 4]}),
     }  # yapf: disable
 
@@ -557,7 +497,6 @@ class MogaNet(BaseBackbone):
                  norm_eval=False,
                  stem_norm_cfg=dict(type='BN', eps=1e-5),
                  conv_norm_cfg=dict(type='BN', eps=1e-5),
-                 ffn_types=["Mix", "Mix", "Mix", "Mix",],
                  patchembed_types=["ConvEmbed", "Conv", "Conv", "Conv",],
                  attn_dw_dilation=[1, 2, 3],
                  attn_channel_split=[1, 3, 4],
@@ -587,11 +526,9 @@ class MogaNet(BaseBackbone):
         self.out_indices = out_indices
         self.frozen_stages = frozen_stages
         self.norm_eval = norm_eval
-        self.ffn_types = ffn_types
         self.attn_force_fp32 = attn_force_fp32
         self.use_layer_norm = stem_norm_cfg['type'] == 'LN'
         assert stem_norm_cfg['type'] in ['BN', 'SyncBN', 'LN', 'LN2d',]
-        assert len(ffn_types) == self.num_stages
         assert len(patchembed_types) == self.num_stages
 
         total_depth = sum(self.depths)
@@ -630,7 +567,6 @@ class MogaNet(BaseBackbone):
                     drop_path_rate=dpr[cur_block_idx + j],
                     norm_cfg=conv_norm_cfg,
                     init_value=init_value,
-                    ffn_types=self.ffn_types[i],
                     attn_dw_dilation=attn_dw_dilation,
                     attn_channel_split=attn_channel_split,
                     attn_act_cfg=attn_act_cfg,
@@ -704,9 +640,6 @@ class MogaNet(BaseBackbone):
                 x = norm(x)
 
             if i in self.out_indices:
-                if self.attn_force_fp32:
-                    if torch.any(torch.isnan(x)) or torch.any(torch.isinf(x)):
-                        raise ValueError("Inf or nan value: use FP32 instead.")
                 outs.append(x)
 
         return outs

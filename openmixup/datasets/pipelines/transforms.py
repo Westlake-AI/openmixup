@@ -46,6 +46,30 @@ class RandomAppliedTrans(object):
         return repr_str
 
 
+@PIPELINES.register_module
+class RandomChoiceTrans(object):
+    """Apply single transformation randomly picked from a list.
+
+    Args:
+        transforms (list[dict]): List of transformations in dictionaries.
+        p (float or list): Probability.
+    """
+
+    def __init__(self, transforms, p=None):
+        if p is not None:
+            assert not isinstance(p, Sequence), "Argument p should be a sequence"
+            assert len(p) == len(transforms)
+        self.trans = [build_from_cfg(t, PIPELINES) for t in transforms]
+        self.p = p
+
+    def __call__(self, *args):
+        t = random.choices(self.trans, weights=self.p)[0]
+        return t(*args)
+
+    def __repr__(self) -> str:
+        return f"{super().__repr__()}(p={self.p})"
+
+
 @PIPELINES.register_module()
 class CenterCropForEfficientNet(object):
     r"""Center crop the image.
@@ -1829,6 +1853,25 @@ class PlaceCrop(object):
             start_y = self.start[np.random.randint(len(self.start))]
         th, tw = self.size
         return img.crop((start_x, start_y, start_x + tw, start_y + th))
+
+    def __repr__(self):
+        repr_str = self.__class__.__name__
+        return repr_str
+
+
+@PIPELINES.register_module
+class ToHalf(object):
+    """ Convert to torch.Tensor (torch.fp16) """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, img):
+        if isinstance(img, torch.Tensor):
+            img = img.to(torch.half)
+        else:
+            img = img.astype(np.float16)
+        return img
 
     def __repr__(self):
         repr_str = self.__class__.__name__

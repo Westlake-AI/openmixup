@@ -9,7 +9,7 @@ data_test_root = 'data/ImageNet/val/'
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
-    dict(type='RandomResizedCrop', size=160, interpolation=3),  # bicubic
+    dict(type='RandomResizedCrop', size=256, interpolation=3),  # bicubic
     dict(type='RandomHorizontalFlip'),
     dict(type='RandomChoiceTrans',  # 3-Augment in DeiT III
         transforms=[
@@ -22,14 +22,13 @@ train_pipeline = [
          brightness=0.3, contrast=0.3, saturation=0.3),
 ]
 test_pipeline = [
-    dict(type='Resize', size=160, interpolation=3),  # crop-ratio = 1.0
-    dict(type='CenterCrop', size=160),
+    dict(type='Resize', size=284, interpolation=3),  # 0.90
+    dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg),
 ]
-
 # prefetch
-prefetch = True
+prefetch = False
 if not prefetch:
     train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
 
