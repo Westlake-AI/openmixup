@@ -88,6 +88,12 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Masked Autoencoders Enable Efficient Knowledge Distillers. [[ArXiv'2022](https://arxiv.org/abs/2208.12256)] [[code](https://github.com/UCSC-VLAA/DMAE)]
 * **RC-MAE**: Youngwan Lee, Jeffrey Willette, Jonghee Kim, Juho Lee, Sung Ju Hwang.
    - Exploring The Role of Mean Teachers in Self-supervised Masked Auto-Encoders. [[ArXiv'2022](https://arxiv.org/abs/2210.02077)]
+* **DMAE**: Quanlin Wu, Hang Ye, Yuntian Gu, Huishuai Zhang, Liwei Wang, Di He.
+   - Denoising Masked AutoEncoders are Certifiable Robust Vision Learners. [[ArXiv'2022](https://arxiv.org/abs/2210.06983)] [[code](https://github.com/quanlin-wu/dmae)]
+* **MaskDistill**: Zhiliang Peng, Li Dong, Hangbo Bao, Qixiang Ye, Furu Wei.
+   - A Unified View of Masked Image Modeling. [[ArXiv'2022](https://arxiv.org/abs/2210.10615)] [[code](https://aka.ms/unimim)]
+* **MaskVLM**: Gukyeong Kwon, Zhaowei Cai, Avinash Ravichandran, Erhan Bas, Rahul Bhotika, Stefano Soatto.
+   - Masked Vision and Language Modeling for Multi-modal Representation Learning. [[ArXiv'2022](https://arxiv.org/abs/2208.02131)]
 
 ### MIM with Constrastive Learning
 
@@ -105,6 +111,10 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - RePre: Improving Self-Supervised Vision Transformer with Reconstructive Pre-training. [[ArXiv'2022](https://arxiv.org/abs/2201.06857)]
 * **CMAE**: Zhicheng Huang, Xiaojie Jin, Chengze Lu, Qibin Hou, Ming-Ming Cheng, Dongmei Fu, Xiaohui Shen, Jiashi Feng.
    - Contrastive Masked Autoencoders are Stronger Vision Learners. [[ArXiv'2022](https://arxiv.org/abs/2207.13532)]
+* **CAN**: Shlok Mishra, Joshua Robinson, Huiwen Chang, David Jacobs, Aaron Sarna, Aaron Maschinot, Dilip Krishnan.
+   - A simple, efficient and scalable contrastive masked autoencoder for learning visual representations. [[ArXiv'2022](https://arxiv.org/abs/2210.16870)]
+* **ccMIM**: Anonymous.
+   - Contextual Image Masking Modeling via Synergized Contrasting without View Augmentation for Faster and Better Visual Pretraining. [[OpenReview'2022](https://openreview.net/forum?id=A3sgyt4HWp)]
 
 ### MIM for Transformer and CNN
 
@@ -158,6 +168,9 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - MAR: Masked Autoencoders for Efficient Action Recognition. [[ArXiv'2022](http://arxiv.org/abs/2207.11660)]
 * **MotionMAE**: Haosen Yang, Deng Huang, Bin Wen, Jiannan Wu, Hongxun Yao, Yi Jiang, Xiatian Zhu, Zehuan Yuan.
    - Self-supervised Video Representation Learning with Motion-Aware Masked Autoencoders. [[ArXiv'2022](https://arxiv.org/abs/2210.04154)] [[code](https://github.com/happy-hsy/MotionMAE)]
+* **MIMT**: Anonymous.
+   - MIMT: Masked Image Modeling Transformer for Video Compression. [[OpenReview'2022](https://openreview.net/forum?id=j9m-mVnndbm)]
+
 
 ### Medical Image
 
@@ -213,6 +226,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Masked Spectrogram Prediction For Self-Supervised Audio Pre-Training. [[ArXiv'2022](https://arxiv.org/abs/2204.12768)] [[code](https://github.com/wanghelin1997/maskspec)]
 * **Audio-MAE**: Po-Yao Huang, Hu Xu, Juncheng Li, Alexei Baevski, Michael Auli, Wojciech Galuba, Florian Metze, Christoph Feichtenhofer.
    - Masked Autoencoders that Listen. [[NIPS'2022](https://arxiv.org/abs/2207.06405)] [[code](https://github.com/facebookresearch/audiomae)]
+* **CAV-MAE**: Yuan Gong, Andrew Rouditchenko, Alexander H. Liu, David Harwath, Leonid Karlinsky, Hilde Kuehne, James Glass.
+   - Contrastive Audio-Visual Masked Autoencoder. [[ArXiv'2022](https://arxiv.org/abs/2210.07839)]
 
 
 ## Analysis of MIM

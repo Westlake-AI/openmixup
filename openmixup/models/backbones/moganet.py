@@ -199,8 +199,8 @@ class MultiOrderGatedAggregation(BaseModule):
         embed_dims (int): Number of input channels.
         attn_dw_dilation (list): Dilations of three DWConv layers.
         attn_channel_split (list): The raletive ratio of splited channels.
-        attn_act_cfg (dict, optional): The activation config for FFNs.
-            Default: dict(type='GELU').
+        attn_act_cfg (dict, optional): The activation config for Spatial Block.
+            Default: dict(type='SiLU').
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
             Default: None.
     """
@@ -209,7 +209,7 @@ class MultiOrderGatedAggregation(BaseModule):
                  embed_dims,
                  attn_dw_dilation=[1, 2, 3],
                  attn_channel_split=[1, 3, 4],
-                 attn_act_cfg=dict(type="SiLU"),
+                 attn_act_cfg=dict(type='SiLU'),
                  attn_force_fp32=False,
                  init_cfg=None):
         super(MultiOrderGatedAggregation, self).__init__(init_cfg=init_cfg)
@@ -221,7 +221,7 @@ class MultiOrderGatedAggregation(BaseModule):
         self.gate = Conv2d(
             in_channels=embed_dims, out_channels=embed_dims, kernel_size=1)
         self.value = MultiOrderDWConv(
-            embed_dims,
+            embed_dims=embed_dims,
             dw_dilation=attn_dw_dilation,
             channel_split=attn_channel_split,
         )
@@ -278,11 +278,11 @@ class MogaBlock(BaseModule):
         act_cfg (dict, optional): The activation config for projections and FFNs.
             Default: dict(type='GELU').
         norm_cfg (dict): Config dict for normalization layer.
-            Defaults to ``dict(type='BN')``.
+            Default: dict(type='BN').
         init_value (float): Init value for Layer Scale. Defaults to 1e-5.
         attn_dw_dilation (list): Dilations of three DWConv layers.
         attn_channel_split (list): The raletive ratio of splited channels.
-        attn_act_cfg (str): The activation config for the gating branch.
+        attn_act_cfg (dict): The activation config for the gating branch.
             Default: dict(type='SiLU').
         init_cfg (obj:`mmcv.ConfigDict`): The Config for initialization.
             Default: None.
@@ -347,9 +347,9 @@ class MogaBlock(BaseModule):
 
 
 class ConvPatchEmbed(PatchEmbed):
-    """Image to Patch Embedding of VAN.
+    """An implementation of Conv patch embedding layer.
 
-    The differences between ConvPatchEmbed & PatchEmbed:
+    The differences between ConvPatchEmbed & ViT PatchEmbed:
         1. Use BN.
         2. Do not use 'flatten' and 'transpose'.
     """
@@ -378,19 +378,19 @@ class ConvPatchEmbed(PatchEmbed):
 
 
 class StackConvPatchEmbed(BaseModule):
-    """An implementation of Conv patch embedding layer.
+    """An implementation of Stack Conv patch embedding layer.
 
     Args:
         in_features (int): The feature dimension.
-        embed_dims (int): The output dimension of FFNs.
-        kernel_size (int): The conv kernel size of middle patch embedding.
+        embed_dims (int): The output dimension of PatchEmbed.
+        kernel_size (int): The conv kernel size of stack patch embedding.
             Defaults to 3.
-        stride (int): The conv stride of middle patch embedding.
+        stride (int): The conv stride of stack patch embedding.
             Defaults to 2.
-        act_cfg (dict, optional): The activation config for FFNs.
+        act_cfg (dict, optional): The activation config in PatchEmbed.
             Default: dict(type='GELU').
-        norm_cfg (dict): Config dict for normalization layer.
-            Defaults to ``dict(type='BN')``.
+        norm_cfg (dict): Config dict for normalization layer in PatchEmbed.
+            Defaults: dict(type='BN').
     """
 
     def __init__(self,
@@ -403,7 +403,7 @@ class StackConvPatchEmbed(BaseModule):
                  init_cfg=None,
                 ):
         super(StackConvPatchEmbed, self).__init__(init_cfg)
-        
+
         self.projection = nn.Sequential(
             Conv2d(in_channels, embed_dims // 2, kernel_size=kernel_size,
                 stride=stride, padding=kernel_size // 2),
@@ -426,11 +426,10 @@ class MogaNet(BaseBackbone):
 
     A PyTorch implement of : `Efficient Multi-order Gated Aggregation Network
     <https://arxiv.org/abs/2211.03295>`_
-        v11.07, arXiv (IP120)
 
     Args:
-        arch (str | dict): Visual Attention Network architecture.
-            If use string, choose from 'tiny', 'small', 'base' and 'large'.
+        arch (str | dict): MogaNet architecture.
+            If use string, choose from 'xtiny', 'tiny', 'small', 'base' and 'large'.
             If use dict, it should have below keys:
 
             - **embed_dims** (List[int]): The dimensions of embedding.
@@ -445,22 +444,20 @@ class MogaNet(BaseBackbone):
         drop_rate (float): Dropout rate after embedding. Defaults to 0.
         drop_path_rate (float): Stochastic depth rate. Defaults to 0.1.
         init_value (float): Init value for Layer Scale. Defaults to 1e-5.
-        out_indices (Sequence[int]): Output from which stages.
-            Default: ``(3, )``.
+        out_indices (Sequence[int]): Output from which stages. Default: ``(3, )``.
         frozen_stages (int): Stages to be frozen (stop grad and set eval mode).
             -1 means not freezing any parameters. Defaults to -1.
         norm_eval (bool): Whether to set norm layers to eval mode, namely,
             freeze running stats (mean and var). Note: Effect on Batch Norm
             and its variants only. Defaults to False.
-        stem_norm_cfg (dict): Config dict for normalization layer for all output
-            features. Defaults to ``dict(type='LN')``.
+        stem_norm_cfg (dict): Config dict for normalization layer for stems.
+            Defaults to ``dict(type='LN')``.
         conv_norm_cfg (dict): Config dict for convolution normalization layer.
             Defaults to ``dict(type='BN')``.
         block_cfgs (Sequence[dict] | dict): The extra config of each block.
             Defaults to empty dicts.
         init_cfg (dict, optional): The Config for initialization.
             Defaults to None.
-
     """
     arch_zoo = {
         **dict.fromkeys(['xt', 'x-tiny'],
@@ -497,10 +494,10 @@ class MogaNet(BaseBackbone):
                  norm_eval=False,
                  stem_norm_cfg=dict(type='BN', eps=1e-5),
                  conv_norm_cfg=dict(type='BN', eps=1e-5),
-                 patchembed_types=["ConvEmbed", "Conv", "Conv", "Conv",],
+                 patchembed_types=['ConvEmbed', 'Conv', 'Conv', 'Conv',],
                  attn_dw_dilation=[1, 2, 3],
                  attn_channel_split=[1, 3, 4],
-                 attn_act_cfg=dict(type="SiLU"),
+                 attn_act_cfg=dict(type='SiLU'),
                  attn_final_dilation=True,
                  attn_force_fp32=False,
                  block_cfgs=dict(),

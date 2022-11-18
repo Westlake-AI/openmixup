@@ -6,6 +6,7 @@ from .focal_loss import (FocalLoss, FocalFrequencyLoss,
 from .label_smooth_loss import LabelSmoothLoss
 from .regression_loss import (RegressionLoss, BMCLoss, BNILoss, balanced_l1_loss, charbonnier_loss,
                              focal_l1_loss, focal_mse_loss, fuzzy_ce_loss, general_kl_loss, huber_loss, kl_loss)
+from .seesaw_loss import SeesawLoss
 from .utils import convert_to_one_hot, weight_reduce_loss, weighted_loss
 
 __all__ = [
@@ -15,5 +16,6 @@ __all__ = [
     'LabelSmoothLoss',
     'RegressionLoss', 'BMCLoss', 'BNILoss', 'balanced_l1_loss', 'charbonnier_loss',
     'focal_l1_loss', 'focal_mse_loss', 'fuzzy_ce_loss', 'general_kl_loss', 'huber_loss', 'kl_loss',
+    'SeesawLoss',
     'convert_to_one_hot', 'weight_reduce_loss', 'weighted_loss',
 ]

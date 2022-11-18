@@ -29,7 +29,7 @@ class PlotTensor:
 
     def plot(self,
              img, nrow=4, title_name=None, save_name=None,
-             dpi=None, apply_inv=True, overwrite=False):
+             dpi=None, cmap='gray', apply_inv=True, overwrite=False):
         assert save_name is not None
         assert img.size(0) % nrow == 0
         ncol = img.size(0) // nrow
@@ -37,10 +37,11 @@ class PlotTensor:
             ncol = nrow
             nrow = img.size(0) // ncol
         img_grid = torchvision.utils.make_grid(img, nrow=nrow, pad_value=0)
-        
-        cmap=None
+
         if img.size(1) == 1:
-            cmap = plt.cm.gray
+            cmap = getattr(plt.cm, cmap, plt.cm.jet)
+        else:
+            cmap = None
         if apply_inv:
             if img.size(2) <= 64:
                 img_grid = self.invTrans_cifar(img_grid)

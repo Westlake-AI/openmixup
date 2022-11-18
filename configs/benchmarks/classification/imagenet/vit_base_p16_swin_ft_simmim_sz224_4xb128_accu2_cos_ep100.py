@@ -7,6 +7,7 @@ _base_ = [
 # model
 model = dict(
     backbone=dict(  # for SimMIM & CAE
+        mix_repeat=2,
         use_window=True, init_values=0.1,  # use relative pos encoding + init value
 ))
 
@@ -15,6 +16,14 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=8)
 
 # interval for accumulate gradient
 update_interval = 2  # total: 4 x bs128 x 2 accumulates = bs1024
+custom_hooks = [
+    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
+        momentum=0.99996,
+        warmup='linear',
+        warmup_iters=20 * 2503, warmup_ratio=0.9,  # warmup 20 epochs.
+        update_interval=update_interval,
+    ),
+]
 
 # optimizer
 optimizer = dict(

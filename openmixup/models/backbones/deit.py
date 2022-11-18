@@ -69,8 +69,17 @@ class DistilledVisionTransformer(VisionTransformer):
         cls_tokens = self.cls_token.expand(B, -1, -1)
         dist_token = self.dist_token.expand(B, -1, -1)
         x = torch.cat((cls_tokens, dist_token, x), dim=1)
-        x = x + self.pos_embed
+        x = x + self.resize_pos_embed(
+            self.pos_embed,
+            self.patch_resolution,
+            patch_resolution,
+            mode=self.interpolate_mode,
+            num_extra_tokens=self.num_extra_tokens)
         x = self.drop_after_pos(x)
+
+        if not self.with_cls_token:
+            # Remove class token for transformer encoder input
+            x = x[:, 2:]
 
         outs = []
         for i, layer in enumerate(self.layers):
@@ -81,10 +90,16 @@ class DistilledVisionTransformer(VisionTransformer):
 
             if i in self.out_indices:
                 B, _, C = x.shape
-                patch_token = x[:, 2:].reshape(B, *patch_resolution, C)
-                patch_token = patch_token.permute(0, 3, 1, 2)
-                cls_token = x[:, 0]
-                dist_token = x[:, 1]
+                if self.with_cls_token:
+                    patch_token = x[:, 2:].reshape(B, *patch_resolution, C)
+                    patch_token = patch_token.permute(0, 3, 1, 2)
+                    cls_token = x[:, 0]
+                    dist_token = x[:, 1]
+                else:
+                    patch_token = x.reshape(B, *patch_resolution, C)
+                    patch_token = patch_token.permute(0, 3, 1, 2)
+                    cls_token = None
+                    dist_token = None
                 if self.output_cls_token:
                     out = [patch_token, cls_token, dist_token]
                 else:

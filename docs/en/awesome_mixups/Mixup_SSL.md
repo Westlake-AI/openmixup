@@ -49,6 +49,8 @@ We are working on a survey of mixup methods. The list is on updating.
    - VLMixer: Unpaired Vision-Language Pre-training via Cross-Modal CutMix. [[ICML'2022](https://arxiv.org/abs/2206.08919)]
 * **CropMix**: Junlin Han, Lars Petersson, Hongdong Li, Ian Reid.
    - CropMix: Sampling a Rich Input Distribution via Multi-Scale Cropping. [[ArXiv'2022](https://arxiv.org/abs/2205.15955)] [[code](https://github.com/JunlinHan/CropMix)]
+* **MixMask**: Kirill Vishniakov, Eric Xing, Zhiqiang Shen.
+   - MixMask: Revisiting Masked Siamese Self-supervised Learning in Asymmetric Distance. [[ArXiv'2022](https://arxiv.org/abs/2210.11456)]
 
 
 ## Mixup for Semi-supervised Learning

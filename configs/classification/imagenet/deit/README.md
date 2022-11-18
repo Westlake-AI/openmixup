@@ -25,7 +25,7 @@ This page is based on documents in [MMClassification](https://github.com/open-mm
 |  DeiT-B   | From scratch |   86.57   |   16.86  |   81.82   |   95.57   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_base_8xb128_ep300.py) | model | log |
 |  DeiT-B\* | From scratch |   86.57   |   16.86  |   81.80   |   95.60   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_base_8xb128_ep300.py) | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
 
-We follow the original training setting provided by the [official repo](https://github.com/facebookresearch/deit) and reproduce the performance of 300-epoch training from scratch. *Models with * are provided by the [official repo](https://github.com/facebookresearch/deit).*
+We follow the original training setting provided by the [official repo](https://github.com/facebookresearch/deit) and reproduce the performance of 300-epoch training from scratch without distillation. *Note that this repo does not support the distillation loss in DeiT. Models with * are provided by the [official repo](https://github.com/facebookresearch/deit).*
 
 ## Citation
 

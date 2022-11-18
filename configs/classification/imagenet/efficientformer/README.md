@@ -20,7 +20,7 @@ Vision Transformers (ViT) have shown rapid progress in computer vision tasks, ac
 | EfficientFormer-l3\* | From scratch |  224x224  |   31.41   |   3.93   |   82.45   |   96.18   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/efficientformer_l3_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientformer/efficientformer-l3_3rdparty_in1k_20220803-dde1c8c5.pth) |
 | EfficientFormer-l7\* | From scratch |  224x224  |   82.23   |  10.16   |   83.40   |   96.60   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/efficientformer_l7_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientformer/efficientformer-l7_3rdparty_in1k_20220803-41a552bb.pth) |
 
-We follow the original training setting provided by the [official repo](https://github.com/snap-research/EfficientFormer) and the [original paper](https://arxiv.org/abs/2206.01191). *Note that models with \* are converted from the [official repo](https://github.com/snap-research/EfficientFormer).*
+We follow the original training setting provided by the [official repo](https://github.com/snap-research/EfficientFormer) and the [original paper](https://arxiv.org/abs/2206.01191). *However, this repo does not support the distillation loss in EfficientFormer, where we use the normal classification head instread. Note that models with \* are converted from the [official repo](https://github.com/snap-research/EfficientFormer).*
 
 ## Citation
 

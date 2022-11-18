@@ -2,20 +2,21 @@
 
 ### v0.2.6 (41/09/2022)
 
-Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20). Update new features and documents of `OpenMixup` v0.2.6 as issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), fix relevant issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#26](https://github.com/Westlake-AI/openmixup/issues/26), and issue [#27](https://github.com/Westlake-AI/openmixup/issues/27).
+Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20). Update new features and documents of `OpenMixup` v0.2.6 as issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), fix relevant issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#26](https://github.com/Westlake-AI/openmixup/issues/26), issue [#27](https://github.com/Westlake-AI/openmixup/issues/27), and issue [#31](https://github.com/Westlake-AI/openmixup/issues/31).
 
 #### New Features
 
-- Support new backbone architectures ([EdgeNeXt](https://arxiv.org/abs/2206.10589), [EfficientFormer](https://arxiv.org/abs/2206.01191), [HorNet](https://arxiv.org/abs/2207.14284), [MViT.V2](https://arxiv.org/abs/2112.01526), [ShuffleNet.V1](https://arxiv.org/abs/1707.01083), [DeiT-3](https://arxiv.org/abs/2204.07118)), and provide relevant network modules in `models/utils/layers`. Config files and README.md are updated.
-Support new self-supervised method [BEiT](https://arxiv.org/abs/2106.08254) with ViT-Base on ImageNet-1K, and fix bugs of [CAE](https://arxiv.org/abs/2202.03026), [MaskFeat](https://arxiv.org/abs/2112.09133), and [SimMIM](https://arxiv.org/abs/2111.09886) in `Dataset`, `Model`, and `Head`. Note that we added `HOG` feature implementation borrowed from the [original repo](https://github.com/facebookresearch/SlowFast) for [MaskFeat](https://arxiv.org/abs/2112.09133). Update pre-training and fine-tuning config files, and documents for the relevant masked image modeling (MIM) methods ([BEiT](https://arxiv.org/abs/2106.08254), [MaskFeat](https://arxiv.org/abs/2111.06377), [CAE](https://arxiv.org/abs/2202.03026), and [A2MIM](https://arxiv.org/abs/2205.13943)).
+- Support new backbone architectures ([EdgeNeXt](https://arxiv.org/abs/2206.10589), [EfficientFormer](https://arxiv.org/abs/2206.01191), [HorNet](https://arxiv.org/abs/2207.14284), ([MogaNet](https://arxiv.org/abs/2211.03295), [MViT.V2](https://arxiv.org/abs/2112.01526), [ShuffleNet.V1](https://arxiv.org/abs/1707.01083), [DeiT-3](https://arxiv.org/abs/2204.07118)), and provide relevant network modules in `models/utils/layers`. Config files and README.md are updated.
+- Support new self-supervised method [BEiT](https://arxiv.org/abs/2106.08254) with ViT-Base on ImageNet-1K, and fix bugs of [CAE](https://arxiv.org/abs/2202.03026), [MaskFeat](https://arxiv.org/abs/2112.09133), and [SimMIM](https://arxiv.org/abs/2111.09886) in `Dataset`, `Model`, and `Head`. Note that we added `HOG` feature implementation borrowed from the [original repo](https://github.com/facebookresearch/SlowFast) for [MaskFeat](https://arxiv.org/abs/2112.09133). Update pre-training and fine-tuning config files, and documents for the relevant masked image modeling (MIM) methods ([BEiT](https://arxiv.org/abs/2106.08254), [MaskFeat](https://arxiv.org/abs/2111.06377), [CAE](https://arxiv.org/abs/2202.03026), and [A2MIM](https://arxiv.org/abs/2205.13943)).
 - Fix the updated arXiv.V2 version of [VAN](https://arxiv.org/pdf/2202.09741v2.pdf) by adding architecture configurations.
-- Support [ArcFace](https://arxiv.org/abs/1801.07698) loss for metric learning and the relevant `NormLinearClsHead`.
+- Support [ArcFace](https://arxiv.org/abs/1801.07698) loss for metric learning and the relevant `NormLinearClsHead`. And support [SeeSaw](https://arxiv.org/abs/2008.10032) loss for long-tail classification tasks.
 - Update the issue template with more relevant links and emojis.
 - Support Grad-CAM visualization tools [vis_cam.py](tools/visualizations/vis_cam.py) of supported architectures.
 
 ### Update Documents
 
 - Update our `OpenMixup` tech report on [arXiv](https://arxiv.org/abs/2209.04851), which provides more technical details and benchmark results.
+- Update self-supervised learning [Model_Zoo_selfsup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_selfsup.md). And update documents of the new backbone and self-supervised methods.
 - Update the template and add the latest paper lists of mixup and MIM methods in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
 - Update [documents](docs/en/tools) of `tools`.
 

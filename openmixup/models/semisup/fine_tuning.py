@@ -1,3 +1,4 @@
+import torch.nn as nn
 from openmixup.utils import print_log
 
 from ..classifiers import BaseModel
@@ -23,9 +24,10 @@ class FineTuning(BaseModel):
                  **kwargs):
         super(FineTuning, self).__init__(init_cfg, **kwargs)
         self.backbone = builder.build_backbone(backbone)
-        self.head = head
         if head is not None:
             self.head = builder.build_head(head)
+        else:
+            self.head = nn.Identity()
         self.init_weights(pretrained=pretrained)
 
     def init_weights(self, pretrained=None):

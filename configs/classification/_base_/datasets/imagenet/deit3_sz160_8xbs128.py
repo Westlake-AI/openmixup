@@ -22,8 +22,8 @@ train_pipeline = [
          brightness=0.3, contrast=0.3, saturation=0.3),
 ]
 test_pipeline = [
-    dict(type='Resize', size=160, interpolation=3),  # crop-ratio = 1.0
-    dict(type='CenterCrop', size=160),
+    dict(type='Resize', size=224, interpolation=3),  # crop-ratio = 1.0
+    dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg),
 ]
