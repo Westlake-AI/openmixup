@@ -47,7 +47,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## Installation
 
-There are quick installation steps for develepment:
+There are quick installation steps for development:
 
 ```shell
 conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
@@ -79,7 +79,7 @@ Please then, see [Tutorials](docs/en/tutorials) for more tech details:
 
 ## Overview of Model Zoo
 
-Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup methods, and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) for your reference. Checkpoints and traning logs will be updated soon!
+Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup methods, and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) for your reference. Checkpoints and training logs will be updated soon!
 
 * Backbone architectures for supervised image classification on ImageNet.
 
@@ -87,6 +87,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <summary>Currently supported backbones</summary>
 
     - [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
+    - [x] [InceptionV3](https://arxiv.org/abs/1512.00567) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/inception_v3/)]
     - [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
@@ -144,7 +145,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <details open>
     <summary>Currently supported datasets for mixups</summary>
 
-    - [x] [ImageNet](https://dl.acm.org/doi/10.1145/3065386) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [ImageNet](https://arxiv.org/abs/1409.0575) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
     - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
     - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](http://cs231n.stanford.edu/tiny-imagenet-200.zip)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]

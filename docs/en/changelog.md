@@ -17,13 +17,15 @@ Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI
 
 - Update our `OpenMixup` tech report on [arXiv](https://arxiv.org/abs/2209.04851), which provides more technical details and benchmark results.
 - Update self-supervised learning [Model_Zoo_selfsup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_selfsup.md). And update documents of the new backbone and self-supervised methods.
-- Update the template and add the latest paper lists of mixup and MIM methods in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md).
+- Update supervised learning [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) as provided in [AutoMix](https://arxiv.org/abs/2103.13027) and support more mixup benchmark results.
+- Update the template and add the latest paper lists of mixup and MIM methods in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md). We provide teaser figures of most papers as illustrations.
 - Update [documents](docs/en/tools) of `tools`.
 
 ### Bug Fixes
 
 - Fix raising error notification of `torch.fft` for *PyTorch 1.6* or lower versions in backbones and heads.
 - Fix `README.md` (new icons, fixing typos) and support pytest in `tests`.
+- Fix the classification heads and update implementations and config files of [AlexNet](https://dl.acm.org/doi/10.1145/3065386) and [InceptionV3](https://arxiv.org/abs/1512.00567).
 
 ### v0.2.5 (21/07/2022)
 

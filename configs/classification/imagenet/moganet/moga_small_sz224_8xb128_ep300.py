@@ -10,11 +10,10 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 # additional hooks
 update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
 custom_hooks = [
-    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
-        momentum=0.9999,
-        warmup='exp',
-        warmup_iters=300 * 1252, warmup_ratio=0.9,
-        update_interval=update_interval,
+    dict(type='PreciseBNHook',
+        num_samples=8192,
+        update_all_stats=False,
+        interval=1,
     ),
 ]
 
@@ -39,7 +38,7 @@ optimizer_config = dict(update_interval=update_interval)
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=5e-6,
+    by_epoch=False, min_lr=1e-5,
     warmup='linear',
     warmup_iters=5, warmup_by_epoch=True,
     warmup_ratio=1e-6,

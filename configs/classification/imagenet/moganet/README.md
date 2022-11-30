@@ -4,7 +4,7 @@
 
 ## Abstract
 
-Since the recent success of Vision Transformers (ViTs), explorations toward transformer-style architectures have triggered the resurgence of modern ConvNets. In this work, we explore the representation ability of DNNs through the lens of interaction complexities. We empirically show that interaction complexity is an overlooked but essential indi-cator for visual recognition. Accordingly, a new family of efﬁcient ConvNets, named MogaNet, is presented to pursue informative context mining in pure ConvNet-based models, with preferable complexity-performance trade-offs. In MogaNet, interactions across multiple complexities are facil-itated and contextualized by leveraging two specially designed aggregation blocks in both spatial and channel interaction spaces. Extensive studies are conducted on ImageNet classiﬁcation, COCO object detection, and ADE20K semantic segmentation tasks. The results demonstrate that our MogaNet establishes new state-of-the-art over other popular methods in mainstream scenarios and all model scales. Typically, the lightweight MogaNet-T achieves 80.0% top-1 accuracy with only 1.44G FLOPs using reﬁned training setup on ImageNet-1K, surpassing ParC-Net-S by 1.4% accuracy but saving 59% (2.04G) FLOPs.
+Since the recent success of Vision Transformers (ViTs), explorations toward transformer-style architectures have triggered the resurgence of modern ConvNets. In this work, we explore the representation ability of DNNs through the lens of interaction complexities. We empirically show that interaction complexity is an overlooked but essential indicator for visual recognition. Accordingly, a new family of efﬁcient ConvNets, named MogaNet, is presented to pursue informative context mining in pure ConvNet-based models, with preferable complexity-performance trade-offs. In MogaNet, interactions across multiple complexities are facilitated and contextualised by leveraging two specially designed aggregation blocks in both spatial and channel interaction spaces. Extensive studies are conducted on ImageNet classiﬁcation, COCO object detection, and ADE20K semantic segmentation tasks. The results demonstrate that our MogaNet establishes new state-of-the-art over other popular methods in mainstream scenarios and all model scales. Typically, the lightweight MogaNet-T achieves 80.0% top-1 accuracy with only 1.44G FLOPs using reﬁned training setup on ImageNet-1K, surpassing ParC-Net-S by 1.4% accuracy but saving 59% (2.04G) FLOPs.
 
 <div align=center>
 <img src="https://user-images.githubusercontent.com/44519745/200625735-86bd2237-5bbe-43c1-ab37-049810b8d8a1.jpg" width="100%"/>
@@ -12,21 +12,27 @@ Since the recent success of Vision Transformers (ViTs), explorations toward tran
 
 ## Results and models
 
-Here, we provide ImageNet classification results and pre-trained models. Please refer to [code](https://github.com/Westlake-AI/MogaNet) for full implementations of downstream tasks (COCO object detection and ADE20K semantic segmentation).
+Here, we provide ImageNet classification results and pre-trained models. Please refer to [MogaNet](https://github.com/Westlake-AI/MogaNet) for full implementations of classification and dense prediction tasks (COCO object detection and ADE20K semantic segmentation).
 
 ### ImageNet-1k
 
-|     Model    |   Pretrain   | resolution | Params(M) | Flops(G) | Top-1 (%) |                               Config                                |                               Download                                |
-| :----------: | :----------: | :--------: | :-------: | :------: | :-------: | :-----------------------------------------------------------------: | :-------------------------------------------------------------------: |
-|  MogaNet-XT  | From scratch |  224x224   |    2.97   |   0.80   |    76.5   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz224_8xb128_fp16_ep300.py) | model / log |
-|  MogaNet-T   | From scratch |  224x224   |    5.20   |   1.10   |    79.0   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz224_8xb128_fp16_ep300.py)  | model / log |
-|  MogaNet-T   | From scratch |  256x256   |    5.20   |   1.44   |    79.6   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz256_8xb128_fp16_ep300.py)  | model / log |
-|  MogaNet-T\* | From scratch |  256x256   |    5.20   |   1.44   |    80.0   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.py) | model / log |
-|  MogaNet-S   | From scratch |  224x224   |    25.3   |   4.97   |    83.4   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_small_sz224_8xb128_ep300.py)      | model / log |
-|  MogaNet-B   | From scratch |  224x224   |    43.9   |   9.93   |    84.2   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_base_sz224_8xb128_ep300.py)       | model / log |
-|  MogaNet-L   | From scratch |  224x224   |    82.5   |   15.9   |    84.6   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_large_sz224_8xb64_accu2_ep300.py) | model / log |
+| Model | Pretrain | Setting | resolution | Params(M) | Flops(G) | Top-1 (%) | Config | Download |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|---|:---:|
+| MogaNet-XT | From scratch | DeiT | 224x224 | 2.97 | 0.80 | 76.5 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz224_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-XT | From scratch | DeiT | 256x256 | 2.97 | 1.04 | 77.2 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz256_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-XT\* | From scratch | DeiT | 256x256 | 2.97 | 1.04 | 77.6 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz224_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-T | From scratch | DeiT | 224x224 | 5.20 | 1.10 | 79.0 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz224_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-T | From scratch | DeiT | 256x256 | 5.20 | 1.44 | 79.6 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz256_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-T\* | From scratch | DeiT | 256x256 | 5.20 | 1.44 | 80.0 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.py) | model / log |
+| MogaNet-S | From scratch | DeiT | 224x224 | 25.3 | 4.97 | 83.4 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_small_ema_sz224_8xb128_ep300.py) | model / log |
+| MogaNet-B | From scratch | DeiT | 224x224 | 43.9 | 9.93 | 84.2 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_base_ema_sz224_8xb128_ep300.py) | model / log |
+| MogaNet-L | From scratch | DeiT | 224x224 | 82.5 | 15.9 | 84.6 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_large_ema_sz224_8xb64_accu2_ep300.py) | model / log |
+| MogaNet-XT | From scratch | RSB A3 | 160x160 | 2.97 | 0.80 | 72.8 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_rsb_a3_sz160_8xb256_ep100.py) | model / log |
+| MogaNet-T | From scratch | RSB A3 | 160x160 | 5.20 | 1.10 | 75.4 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_rsb_a3_sz160_8xb256_ep100.py) | model / log |
+| MogaNet-S | From scratch | RSB A3 | 160x160 | 25.3 | 4.97 | 81.1 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_small_rsb_a3_sz160_8xb256_ep100.py) | model / log |
+| MogaNet-B | From scratch | RSB A3 | 160x160 | 43.9 | 9.93 | 82.2 | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_base_rsb_a3_sz160_8xb256_accu2_ep100.py) | model / log |
 
-We provide the config files according to the original training setting described in the [paper](https://arxiv.org/abs/2211.03295). Note that \* denotes the refined training setting of lightweight models and we can get a slight better performance with [Precise BN](https://arxiv.org/abs/2105.07576).
+We provide the config files according to the original training setting described in the [paper](https://arxiv.org/abs/2211.03295) and report FLOPs with the test resolutions (224x224 or 256x256). Note that \* denotes the refined training setting of lightweight models with [3-Augment](https://arxiv.org/abs/2204.07118). We can get a slightly better performance with [Precise BN](https://arxiv.org/abs/2105.07576) for all MogaNet variants.
 
 ## Citation
 

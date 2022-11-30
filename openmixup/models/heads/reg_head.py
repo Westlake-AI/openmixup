@@ -101,16 +101,17 @@ class RegHead(BaseModule):
         """
         losses = dict()
         assert isinstance(score, (tuple, list)) and len(score) == 1
-        
+        score = score[0]
+
         # computing loss
-        labels = labels.type_as(score[0])
+        labels = labels.type_as(score)
         _criterion = getattr(self, "0")
-        losses['loss'] = _criterion(score[0], labels, **kwargs)
+        losses['loss'] = _criterion(score, labels, **kwargs)
         if self.criterion_num > 1:
             for i in range(1, self.criterion_num):
                 _criterion = getattr(self, str(i))
-                losses['loss'] += _criterion(score[0], labels, **kwargs)
+                losses['loss'] += _criterion(score, labels, **kwargs)
         # compute error
-        losses['mse'], _ = regression_error(score[0], labels, average_mode='mean')
+        losses['mse'], _ = regression_error(score, labels, average_mode='mean')
         
         return losses

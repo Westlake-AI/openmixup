@@ -13,22 +13,28 @@ from .base_backbone import BaseBackbone
 class AlexNet(BaseBackbone):
     """`AlexNet <https://en.wikipedia.org/wiki/AlexNet>`_ backbone.
 
+    ImageNet classification with deep convolutional neural networks
+    <https://dl.acm.org/doi/10.1145/3065386>.
+
     The input for AlexNet is a 224x224 RGB image.
 
     Args:
-        mlp_neck (dict): additional MLP neck in SSL. Default is None.
-        cls_neck (dict): the original classifier MLP in AlexNet,
+        num_classes (int): The number of categroies. Defaults to 1000.
+        cls_head (dict): the original classifier MLP in AlexNet,
             "Dropout-fc-ReLU-Dropout-fc-ReLU-4096-class_num".
+        mlp_neck (dict): additional MLP neck in SSL. Default is None.
     """
 
     def __init__(self,
-                mlp_neck=None,
-                cls_neck=None,
-                pretrained=None):
+                 num_classes=1000,
+                 cls_head=True,
+                 mlp_neck=None,
+                 pretrained=None):
         super(AlexNet, self).__init__()
-        assert mlp_neck is None or cls_neck is None
-        self.mlp_neck = mlp_neck
-        self.cls_neck = cls_neck
+        assert mlp_neck is None or cls_head is True
+        self.num_classes = num_classes
+        self.mlp_neck = None
+        self.cls_head = None
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
             nn.ReLU(inplace=True),
@@ -46,18 +52,19 @@ class AlexNet(BaseBackbone):
         )
         if mlp_neck is not None:  # additional mlp neck for AlexNet
             self.mlp_neck = builder.build_neck(mlp_neck)
-        if cls_neck is not None:  # original cls neck in AlexNet
-            self.cls_neck = nn.Sequential(
+        if cls_head:  # original cls neck in AlexNet
+            assert isinstance(num_classes, int)
+            self.cls_head = nn.Sequential(
                 nn.Dropout(),
                 nn.Linear(256 * 6 * 6, 4096),
                 nn.ReLU(inplace=True),
                 nn.Dropout(),
                 nn.Linear(4096, 4096),
                 nn.ReLU(inplace=True),
-                # nn.Linear(4096, num_classes),  # ori
+                nn.Linear(4096, num_classes),
             )
         self.init_weights(pretrained=pretrained)
-    
+
     def init_weights(self, pretrained=None):
         super(AlexNet, self).init_weights(pretrained)
         for m in self.features.modules():
@@ -65,8 +72,8 @@ class AlexNet(BaseBackbone):
                 kaiming_init(m, mode='fan_in', nonlinearity='relu')
         if self.mlp_neck is not None:
             self.mlp_neck.init_weights(init_linear='normal')
-        if self.cls_neck is not None:
-            for m in self.cls_neck:
+        if self.cls_head is not None:
+            for m in self.cls_head:
                 if isinstance(m, nn.Linear):
                     kaiming_init(m, mode='fan_in', nonlinearity='relu')
 
@@ -75,10 +82,9 @@ class AlexNet(BaseBackbone):
         if self.mlp_neck is not None:
             x = [x.view(x.size(0), 256 * 6 * 6)]
             x = self.mlp_neck(x)[0]
-        if self.cls_neck is not None:
+        if self.cls_head is not None:
             x = x.view(x.size(0), 256 * 6 * 6)
-            x = self.cls_neck(x)
-        
+            x = self.cls_head(x)
         return [x]
 
     def train(self, mode=True):

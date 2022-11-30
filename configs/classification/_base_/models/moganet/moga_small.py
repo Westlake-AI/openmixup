@@ -7,7 +7,7 @@ model = dict(
     mix_args=dict(),
     backbone=dict(
         type='MogaNet',
-        arch="tiny",
+        arch="small",
         init_value=1e-5,
         drop_path_rate=0.1,
         stem_norm_cfg=dict(type='BN', eps=1e-5),

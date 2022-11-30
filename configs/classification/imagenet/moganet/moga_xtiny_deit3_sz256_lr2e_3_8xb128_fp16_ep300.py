@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/models/moganet/moga_tiny.py',
+    '../../_base_/models/moganet/moga_xtiny.py',
     '../../_base_/datasets/imagenet/moga_light_deit3_sz256_8xbs128.py',
     '../../_base_/default_runtime.py',
 ]
@@ -21,7 +21,7 @@ custom_hooks = [
 optimizer = dict(
     type='AdamW',
     lr=2e-3,  # lr = 2e-3 / bs1024
-    weight_decay=0.04, eps=1e-8, betas=(0.9, 0.999),
+    weight_decay=0.03, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),

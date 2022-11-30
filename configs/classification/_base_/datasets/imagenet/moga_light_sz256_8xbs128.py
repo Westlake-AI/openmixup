@@ -48,7 +48,7 @@ train_pipeline = [
 ]
 test_pipeline = [
     dict(type='Resize', size=284, interpolation=3),  # 0.90
-    dict(type='CenterCrop', size=224),
+    dict(type='CenterCrop', size=256),
     dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg),
 ]

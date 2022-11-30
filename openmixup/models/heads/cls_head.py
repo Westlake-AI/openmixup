@@ -120,8 +120,14 @@ class ClsHead(BaseModule):
         """
         single_label = False
         losses = dict()
-        assert isinstance(cls_score, (tuple, list)) and len(cls_score) == 1
-        
+        assert isinstance(cls_score, (tuple, list)) and len(cls_score) >= 1
+        if len(cls_score) > 1:
+            assert isinstance(labels, torch.Tensor), "Only support one-hot labels."
+            labels = labels.reshape(labels.size(0), -1).repeat(len(cls_score), 1).squeeze()
+            cls_score = torch.cat(cls_score, dim=0)
+        else:
+            cls_score = cls_score[0]
+
         # computing loss
         if not isinstance(labels, tuple):
             # whether is the single label cls [N,] or multi-label cls [N,C]
@@ -138,9 +144,9 @@ class ClsHead(BaseModule):
                     target = F.one_hot(target, num_classes=self.num_classes)
             # default onehot cls
             losses['loss'] = self.criterion(
-                cls_score[0], target, avg_factor=avg_factor, **kwargs)
+                cls_score, target, avg_factor=avg_factor, **kwargs)
             # compute accuracy
-            losses['acc'] = accuracy(cls_score[0], labels)
+            losses['acc'] = accuracy(cls_score, labels)
         else:
             # mixup classification
             y_a, y_b, lam = labels
@@ -155,8 +161,8 @@ class ClsHead(BaseModule):
 
             if not self.multi_label:
                 losses['loss'] = \
-                    self.criterion(cls_score[0], y_a, avg_factor=avg_factor, **kwargs) * lam + \
-                    self.criterion(cls_score[0], y_b, avg_factor=avg_factor, **kwargs) * (1 - lam)
+                    self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam + \
+                    self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * (1 - lam)
             else:
                 # convert to onehot labels
                 if single_label:
@@ -165,8 +171,8 @@ class ClsHead(BaseModule):
                 # mixup onehot like labels, using a multi-label loss
                 y_mixed = lam * y_a + (1 - lam) * y_b
                 losses['loss'] = self.criterion(
-                    cls_score[0], y_mixed, avg_factor=avg_factor, **kwargs)
+                    cls_score, y_mixed, avg_factor=avg_factor, **kwargs)
             # compute accuracy
-            losses['acc'] = accuracy(cls_score[0], labels[0])
-            losses['acc_mix'] = accuracy_mixup(cls_score[0], labels)
+            losses['acc'] = accuracy(cls_score, labels[0])
+            losses['acc_mix'] = accuracy_mixup(cls_score, labels)
         return losses

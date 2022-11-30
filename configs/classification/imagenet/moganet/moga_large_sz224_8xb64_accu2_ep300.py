@@ -10,11 +10,10 @@ data = dict(imgs_per_gpu=64, workers_per_gpu=8)
 # additional hooks
 update_interval = 2  # 64 x 8gpus x 2 accumulates = bs1024
 custom_hooks = [
-    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
-        momentum=0.9999,
-        warmup='exp',
-        warmup_iters=300 * 2503, warmup_ratio=0.9,
-        update_interval=update_interval,
+    dict(type='PreciseBNHook',
+        num_samples=8192,
+        update_all_stats=False,
+        interval=1,
     ),
 ]
 

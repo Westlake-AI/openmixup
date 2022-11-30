@@ -178,8 +178,14 @@ class ClsMixupHead(BaseModule):
         """
         single_label = False
         losses = dict()
-        assert isinstance(cls_score, (tuple, list)) and len(cls_score) == 1
-        
+        assert isinstance(cls_score, (tuple, list)) and len(cls_score) >= 1
+        if len(cls_score) > 1:
+            assert isinstance(labels, torch.Tensor), "Only support one-hot labels."
+            labels = labels.reshape(labels.size(0), -1).repeat(len(cls_score), 1).squeeze()
+            cls_score = torch.cat(cls_score, dim=0)
+        else:
+            cls_score = cls_score[0]
+
         # 1. original one-hot classification
         if not isinstance(labels, tuple):
             # whether is the single label cls [N,] or multi-label cls [N,C]
@@ -196,9 +202,9 @@ class ClsMixupHead(BaseModule):
                     target = F.one_hot(target, num_classes=self.num_classes)
             # default onehot cls
             losses['loss'] = self.criterion(
-                cls_score[0], target, avg_factor=avg_factor, **kwargs)
+                cls_score, target, avg_factor=avg_factor, **kwargs)
             # compute accuracy
-            losses['acc'] = accuracy(cls_score[0], labels)
+            losses['acc'] = accuracy(cls_score, labels)
         # 2. mixup classification
         else:
             y_a, y_b, lam = labels
@@ -215,8 +221,8 @@ class ClsMixupHead(BaseModule):
             if not self.multi_label:
                 assert self.two_hot == False
                 losses['loss'] = \
-                    self.criterion(cls_score[0], y_a, avg_factor=avg_factor, **kwargs) * lam + \
-                    self.criterion(cls_score[0], y_b, avg_factor=avg_factor, **kwargs) * (1 - lam)
+                    self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam + \
+                    self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * (1 - lam)
             else:
                 # convert to onehot (binary) for multi-label mixup cls
                 if single_label:
@@ -271,10 +277,10 @@ class ClsMixupHead(BaseModule):
                     class_weight = (y_mixed > 0).type(torch.float)
                     class_weight = class_weight.clamp(min=self.neg_weight)
                 losses['loss'] = self.criterion(
-                    cls_score[0], y_mixed,
+                    cls_score, y_mixed,
                     avg_factor=avg_factor, class_weight_override=class_weight,
                     eta_weight=use_eta_weight, **kwargs)
             # compute accuracy
-            losses['acc'] = accuracy(cls_score[0], labels[0])
-            losses['acc_mix'] = accuracy_mixup(cls_score[0], labels)
+            losses['acc'] = accuracy(cls_score, labels[0])
+            losses['acc_mix'] = accuracy_mixup(cls_score, labels)
         return losses

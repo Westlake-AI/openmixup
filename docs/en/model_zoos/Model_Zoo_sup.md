@@ -97,7 +97,7 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 |---------------|:--------:|:---------:|:---------:|:------:|:------:|:---------:|:---------:|
 | Settings      | $\alpha$ |     A3    |     A2    |   A3   |   A2   |     A3    |     A2    |
 | RSB           |  0.1, 1  |   78.08   |   79.80   |  74.02 |  77.26 |   69.86   |   72.87   |
-| MixUp         |    0.2   |   77.66   |           |  73.87 |  77.19 |   70.17   |   72.78   |
+| MixUp         |    0.2   |   77.66   |     -     |  73.87 |  77.19 |   70.17   |   72.78   |
 | CutMix        |    0.2   |   77.62   |   79.38   |  73.46 |  77.24 |   69.62   |   72.23   |
 | ManifoldMix   |    0.2   |   77.78   |   79.47   |  73.83 |  77.22 |   70.05   |   72.34   |
 | AttentiveMix+ |     2    |   77.46   |   79.34   |  72.16 |  75.95 |   67.32   |   70.30   |
@@ -105,35 +105,35 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 | FMix*         |    0.2   |   77.76   |   79.05   |  73.71 |  77.33 |   70.10   |   72.79   |
 | PuzzleMix     |     1    |   78.02   |   79.78   |  74.10 |  77.35 |   70.04   |   72.85   |
 | ResizeMix*    |     1    |   77.85   |   79.74   |  73.67 |  77.27 |   69.94   |   72.50   |
-| AutoMix       |     2    |   78.44   |           |  74.61 |  77.58 |   71.16   |   73.19   |
-| SAMix         |     2    |   78.64   |           |  75.28 |  77.69 |   71.24   |   73.42   |
+| AutoMix       |     2    |   78.44   |     -     |  74.61 |  77.58 |   71.16   |   73.19   |
+| SAMix         |     2    |   78.64   |     -     |  75.28 |  77.69 |   71.24   |   73.42   |
 
-### **DeiT Training Settings on ImageNet-1k**
+### **DeiT Training Settings with ViTs on ImageNet-1k**
 
 Since recently proposed transformer-based architectures adopt mixups as parts of essential augmentations, these benchmarks follow [DeiT](https://arxiv.org/abs/2012.12877) settings based on DeiT-Small, Swin-Tiny, and ConvNeXt-Tiny on ImageNet-1k.
 
 **Note**
 
-* Please refer to config files of various mixups for experiment details: [DeiT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit/), [Swin](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/swin/), [ConvNeXt](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/convnext/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
+* Please refer to config files of various mixups for experiment details: [DeiT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit/), [PVT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/pvt), [Swin](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/swin/), [ConvNeXt](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/convnext/), [MogaNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/moganet/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
 * Notice that the [DeiT](https://arxiv.org/abs/2012.12877) setting employs Mixup with $\alpha=0.8$ and CutMix with $\alpha=1.0$.
 * Notice that the performances of transformer-based architectures are more difficult to reproduce than ResNet variants, and the mean of the **best** performance in 3 trials is reported as their original paper. Notice that 📖 denotes original results reproduced by official implementations.
 
-| Methods       | $\alpha$ | DeiT-Small | Swin-Tiny | ConvNeXt-Tiny |
-|---------------|:--------:|:----------:|:---------:|:-------------:|
-| Vanilla       |     -    |    75.66   |   80.21   |     79.22     |
-| DeiT          |  0.8, 1  |    79.80   |   81.20   |     82.10     |
-| MixUp         |    0.2   |    77.72   |   81.01   |     80.88     |
-| CutMix        |    0.2   |    80.13   |   81.23   |     81.57     |
-| ManifoldMix   |    0.2   |      -     |     -     |     80.57     |
-| AttentiveMix+ |     2    |    80.32   |   81.29   |     81.14     |
-| SaliencyMix   |    0.2   |    79.88   |   81.37   |     81.33     |
-| PuzzleMix     |     1    |    80.45   |   81.47   |     81.48     |
-| FMix*         |    0.2   |    77.37   |   79.60   |     81.04     |
-| ResizeMix*    |     1    |    78.61   |   81.36   |     81.64     |
-| TransMix📖     |  0.8, 1  |    80.70   |   81.80   |       -       |
-| TokenMix📖     |  0.8, 1  |    80.80   |   81.60   |       -       |
-| AutoMix       |     2    |    80.78   |   81.80   |     82.28     |
-| SAMix*        |     2    |    80.94   |   81.87   |     82.35     |
+| Methods       | $\alpha$ | DeiT-T | DeiT-S | PVT-T | Swin-T | ConvNeXt-T | MogaNet-T |
+|---------------|:--------:|:------:|:------:|:-----:|:------:|:----------:|:---------:|
+| Vanilla       |     -    |        |  75.66 |       |  80.21 |    79.22   |   79.25   |
+| DeiT          |  0.8, 1  |  74.50 |  79.80 | 75.10 |  81.20 |    82.10   |   79.02   |
+| MixUp         |    0.2   |  74.69 |  77.72 | 75.24 |  81.01 |    80.88   |   79.29   |
+| CutMix        |    0.2   |        |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
+| ManifoldMix   |    0.2   |    -   |    -   |   -   |    -   |    80.57   |   79.07   |
+| AttentiveMix+ |     2    |  74.07 |  80.32 | 74.98 |  81.29 |    81.14   |   77.53   |
+| SaliencyMix   |    0.2   |        |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
+| PuzzleMix     |     1    |  73.85 |  80.45 | 75.48 |  81.47 |    81.48   |   78.12   |
+| FMix*         |    0.2   |  74.41 |  77.37 | 75.28 |  79.60 |    81.04   |   79.05   |
+| ResizeMix*    |     1    |  74.79 |  78.61 | 76.05 |  81.36 |    81.64   |   78.77   |
+| TransMix📖     |  0.8, 1  |  72.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
+| TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
+| AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
+| SAMix*        |     2    |        |  80.94 |       |  81.87 |    82.35   |           |
 
 ### **Tiny-ImageNet Dataset**
 
@@ -293,19 +293,19 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageN
 * Please refer to config files for experiment details: [iNat2017](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/) and [iNat2018](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
 * Download weights and logs: iNat2017 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-inat2017-weights), [Baidu (1e7w)](https://pan.baidu.com/s/1GsoXVpIBXPjyFKsCdnmp9Q)], iNat2018 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-inat2018-weights), [Baidu (wy2v)](https://pan.baidu.com/s/1P4VeJalFLV0chryjYCfveg)].
 
-| Datasets    |  $Beta$  |  iNat2017 |   iNat2017  |  iNat2018 |   iNat2018  |
-|-------------|:--------:|:---------:|:-----------:|:---------:|:-----------:|
-| Backbones   | $\alpha$ | ResNet-50 | ResNeXt-101 | ResNet-50 | ResNeXt-101 |
-| Vanilla     |     -    |   60.23   |    63.70    |   62.53   |    66.94    |
-| MixUp       |    0.2   |   61.22   |    66.27    |   62.69   |    67.56    |
-| CutMix      |     1    |   62.34   |    67.59    |   63.91   |    69.75    |
-| ManifoldMix |    0.2   |   61.47   |    66.08    |   63.46   |    69.30    |
-| SaliencyMix |     1    |   62.51   |    67.20    |   64.27   |    70.01    |
-| FMix*       |     1    |   61.90   |    66.64    |   63.71   |    69.46    |
-| PuzzleMix   |     1    |   62.66   |    67.72    |   64.36   |    70.12    |
-| ResizeMix*  |     1    |   62.29   |    66.82    |   64.12   |    69.30    |
-| AutoMix     |     2    |   63.08   |    68.03    |   64.73   |    70.49    |
-| SAMix*      |     2    |   63.32   |    68.26    |   64.84   |    70.54    |
+| Datasets    |  $Beta$  |  iNat2017 |  iNat2017 |   iNat2017  |  iNat2018 |   iNat2018  |
+|-------------|:--------:|:---------:|:---------:|:-----------:|:---------:|:-----------:|
+| Backbones   | $\alpha$ | ResNet-18 | ResNet-50 | ResNeXt-101 | ResNet-50 | ResNeXt-101 |
+| Vanilla     |     -    |   51.79   |   60.23   |    63.70    |   62.53   |    66.94    |
+| MixUp       |    0.2   |   51.40   |   61.22   |    66.27    |   62.69   |    67.56    |
+| CutMix      |     1    |   51.24   |   62.34   |    67.59    |   63.91   |    69.75    |
+| ManifoldMix |    0.2   |   51.83   |   61.47   |    66.08    |   63.46   |    69.30    |
+| SaliencyMix |     1    |   51.29   |   62.51   |    67.20    |   64.27   |    70.01    |
+| FMix*       |     1    |   52.01   |   61.90   |    66.64    |   63.71   |    69.46    |
+| PuzzleMix   |     1    |     -     |   62.66   |    67.72    |   64.36   |    70.12    |
+| ResizeMix*  |     1    |   51.21   |   62.29   |    66.82    |   64.12   |    69.30    |
+| AutoMix     |     2    |   52.84   |   63.08   |    68.03    |   64.73   |    70.49    |
+| SAMix*      |     2    |   53.42   |   63.32   |    68.26    |   64.84   |    70.54    |
 
 ### **Scenic Classification Dataset**
 

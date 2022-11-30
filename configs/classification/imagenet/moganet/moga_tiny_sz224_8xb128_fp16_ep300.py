@@ -9,6 +9,13 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # additional hooks
 update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
+custom_hooks = [
+    dict(type='PreciseBNHook',
+        num_samples=8192,
+        update_all_stats=False,
+        interval=1,
+    ),
+]
 
 # optimizer
 optimizer = dict(

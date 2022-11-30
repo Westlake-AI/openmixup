@@ -4,7 +4,7 @@ openmixup.apis
     :members:
 
 
-mmselfsup.hooks
+openmixup.hooks
 ---------------
 .. automodule:: openmixup.hooks
     :members:

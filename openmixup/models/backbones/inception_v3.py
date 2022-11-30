@@ -499,7 +499,10 @@ class InceptionV3(BaseBackbone):
         # N x 2048
         x = self.fc(x)
         # N x 1000 (num_classes)
-        return aux, x
+        if aux is not None:
+            return [aux, x]
+        else:
+            return [x]
 
     def train(self, mode=True):
         super(InceptionV3, self).train(mode)

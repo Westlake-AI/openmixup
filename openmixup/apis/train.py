@@ -166,11 +166,14 @@ def train_model(model,
     # an ugly walkaround to make the .log and .log.json filenames the same
     runner.timestamp = timestamp
 
-    # preprocess hooks: add EMAHook bofore ValidationHook and CheckpointSaverHook
+    # register custom hooks: bofore ValidationHook and CheckpointSaverHook
     for hook in cfg.get('custom_hooks', list()):
-        if hook.type == "EMAHook":
-            common_params = dict(dist_mode=True)
-            runner.register_hook(build_hook(hook, common_params), priority='NORMAL')
+        common_params = dict(dist_mode=distributed)
+        if hook.type == "DeepClusterAutoMixHook" or hook.type == "DeepClusterHook":
+            common_params = dict(dist_mode=distributed, data_loaders=data_loaders)
+        hook_cfg = hook.copy()
+        priority = hook_cfg.pop('priority', 'NORMAL')
+        runner.register_hook(build_hook(hook, common_params), priority=priority)
 
     # register basic hooks
     runner.register_training_hooks(cfg.lr_config,
@@ -181,16 +184,6 @@ def train_model(model,
     if distributed:
         runner.register_hook(DistSamplerSeedHook())
 
-    # register custom hooks
-    for hook in cfg.get('custom_hooks', list()):
-        common_params = dict(dist_mode=distributed)
-        if hook.type == "DeepClusterAutoMixHook" or hook.type == "DeepClusterHook":
-            common_params = dict(dist_mode=distributed, data_loaders=data_loaders)
-        elif hook.type == "EMAHook":
-            continue
-        hook_cfg = hook.copy()
-        priority = hook_cfg.pop('priority', 'NORMAL')
-        runner.register_hook(build_hook(hook, common_params), priority=priority)
     # register custom optional_scheduler hook
     if cfg.get('addtional_scheduler', None) is not None:
         runner.register_hook(
