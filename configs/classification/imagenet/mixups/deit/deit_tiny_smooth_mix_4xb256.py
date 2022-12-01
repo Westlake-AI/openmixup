@@ -38,6 +38,9 @@ model = dict(
         in_channels=192, num_classes=1000)
 )
 
+# data
+data = dict(imgs_per_gpu=256, workers_per_gpu=12)
+
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
 # sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
@@ -56,7 +59,7 @@ optimizer = dict(
     })
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)

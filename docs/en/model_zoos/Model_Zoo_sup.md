@@ -123,7 +123,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | Vanilla       |     -    |        |  75.66 |       |  80.21 |    79.22   |   79.25   |
 | DeiT          |  0.8, 1  |  74.50 |  79.80 | 75.10 |  81.20 |    82.10   |   79.02   |
 | MixUp         |    0.2   |  74.69 |  77.72 | 75.24 |  81.01 |    80.88   |   79.29   |
-| CutMix        |    0.2   |        |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
+| CutMix        |    0.2   |  73.82 |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
 | ManifoldMix   |    0.2   |    -   |    -   |   -   |    -   |    80.57   |   79.07   |
 | AttentiveMix+ |     2    |  74.07 |  80.32 | 74.98 |  81.29 |    81.14   |   77.53   |
 | SaliencyMix   |    0.2   |        |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
@@ -133,7 +133,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | TransMix📖     |  0.8, 1  |  72.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |        |  80.94 |       |  81.87 |    82.35   |           |
+| SAMix*        |     2    |        |  80.94 | 76.60 |  81.87 |    82.35   |           |
 
 ### **Tiny-ImageNet Dataset**
 
@@ -163,6 +163,7 @@ This benchmark largely follows [PuzzleMix](https://arxiv.org/abs/2009.06962) set
 | AutoMix       |     2    |   67.33   |    70.72   |
 | SAMix*        |     2    |   68.89   |    72.18   |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## CIFAR-10/100 Benchmarks
 
@@ -258,6 +259,8 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | AutoMix       |     2    |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
 | SAMix*        |     2    |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Fine-grained and Scenic Classification Benchmarks
 
 We further provide benchmarks on downstream classification scenarios. We report the **median** of top-1 accuracy in the last 5/10 training epochs for 100/200 epochs.
@@ -329,3 +332,5 @@ This benchmark follows [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNe
 | ResizeMix*  |     1    |   59.66   |   63.88   |
 | AutoMix     |     2    |   59.74   |   64.06   |
 | SAMix*      |     2    |   59.86   |   64.27   |
+
+<p align="right">(<a href="#top">back to top</a>)</p>

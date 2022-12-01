@@ -95,6 +95,7 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - RegMixup: Mixup as a Regularizer Can Surprisingly Improve Accuracy and Out Distribution Robustness. [[NIPS'2022](https://arxiv.org/abs/2206.14502)] [[code](https://github.com/FrancescoPinto/RegMixup)]
    <p align="center"><img width="80%" src="https://user-images.githubusercontent.com/44519745/204571630-e8407bd7-ca27-44de-baca-5d88ca2004a6.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### Saliency-guided Policies
 
@@ -153,6 +154,7 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - TransformMix: Learning Transformation and Mixing Strategies for Sample-mixing Data Augmentation. [[OpenReview'2022](https://openreview.net/forum?id=-1vpxBUtP0B)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204575385-0b2d7470-0ffd-4b6b-977b-ef28b1617954.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Label Mixup Methods
 
@@ -193,6 +195,7 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - Token-Label Alignment for Vision Transformers. [[arXiv'2022](https://arxiv.org/abs/2210.06455)] [[code](https://github.com/Euphoria16/TL-Align)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204579080-3b7c9352-8fb3-49bd-99f5-ce4f72d722d8.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Analysis of Mixup
 
@@ -212,6 +215,7 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - When and How Mixup Improves Calibration. [[ICML'2022](https://arxiv.org/abs/2102.06289)]
    <p align="center"><img width="50%" src="https://user-images.githubusercontent.com/44519745/204827323-b854f0a0-803f-46f8-9b74-44970998b311.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Survey
 

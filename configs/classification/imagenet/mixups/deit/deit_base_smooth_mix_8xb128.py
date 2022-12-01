@@ -24,14 +24,15 @@ model = dict(
     ),
     backbone=dict(
         type='VisionTransformer',
-        arch='deit-small',
+        arch='deit-base',
         img_size=224, patch_size=16,
+        drop_path_rate=0.1,
     ),
     head=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=384, num_classes=1000)
+        in_channels=768, num_classes=1000)
 )
 
 # data
@@ -39,7 +40,7 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
-# sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
+sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
 
 # optimizer
 optimizer = dict(

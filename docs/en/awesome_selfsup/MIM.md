@@ -129,6 +129,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Masked Vision and Language Modeling for Multi-modal Representation Learning. [[ArXiv'2022](https://arxiv.org/abs/2208.02131)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204310845-3e7777dc-5726-4c94-9506-8f88efd1966b.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### MIM with Constrastive Learning
 
@@ -160,6 +161,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Contextual Image Masking Modeling via Synergized Contrasting without View Augmentation for Faster and Better Visual Pretraining. [[OpenReview'2022](https://openreview.net/forum?id=A3sgyt4HWp)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204314041-63c5e06d-b870-482d-8f6b-e70e1af9d642.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### MIM for Transformer and CNN
 
@@ -185,6 +187,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - Sparse and Hierarchical Masked Modeling for Convolutional Representation Learning. [[OpenReview'2022](https://openreview.net/pdf?id=NRxydtWup1S)]
    <p align="center"><img width="80%" src="https://user-images.githubusercontent.com/44519745/204315983-d5a24e55-fab4-4336-a1ed-3428a997aebd.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ### MIM with Advanced Masking
 
@@ -201,6 +204,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - SemMAE: Semantic-Guided Masking for Learning Masked Autoencoders. [[NIPS'2022](https://arxiv.org/abs/2206.10207)] [[code](https://github.com/ucasligang/semmae)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204317096-f6ade707-6f66-4826-823e-e14d0784b960.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## MIM for Downstream Tasks
 
@@ -288,6 +292,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 * **CAV-MAE**: Yuan Gong, Andrew Rouditchenko, Alexander H. Liu, David Harwath, Leonid Karlinsky, Hilde Kuehne, James Glass.
    - Contrastive Audio-Visual Masked Autoencoder. [[ArXiv'2022](https://arxiv.org/abs/2210.07839)]
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Analysis of MIM
 
@@ -316,6 +321,7 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 * Qi Zhang, Yifei Wang, Yisen Wang.
    - How Mask Matters: Towards Theoretical Understandings of Masked Autoencoders. [[NIP'2022](https://openreview.net/forum?id=WOppMAJtvhv)]
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contribution
 

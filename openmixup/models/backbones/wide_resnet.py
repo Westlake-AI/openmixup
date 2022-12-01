@@ -230,8 +230,9 @@ class WideResNet_Mix(WideResNet):
     def __init__(self, **kwargs):
         super(WideResNet_Mix, self).__init__(**kwargs)
     
-    def _feature_mixup(self, x, mask, dist_shuffle=False, idx_shuffle_mix=None, cross_view=False,
-            BN_shuffle=False, idx_shuffle_BN=None, idx_unshuffle_BN=None, **kwargs):
+    def _feature_mixup(self, x, mask, dist_shuffle=False, idx_shuffle_mix=None,
+                       cross_view=False, BN_shuffle=False, idx_shuffle_BN=None,
+                       idx_unshuffle_BN=None, **kwargs):
         """ mixup two feature maps with the pixel-wise mask
         
         Args:

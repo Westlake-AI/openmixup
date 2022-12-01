@@ -11,6 +11,7 @@ from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 
 from ..registry import BACKBONES
 from .base_backbone import BaseBackbone
+from ..utils import grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp  # for mixup
 
 
 def custom_build_activation_layer(cfg):
@@ -649,3 +650,109 @@ class MogaNet(BaseBackbone):
                 # trick: eval have effect on BatchNorm only
                 if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()
+
+
+@BACKBONES.register_module()
+class MogaNet_Mix(MogaNet):
+    """Efficient Multi-order Gated Aggregation Network (MogaNet).
+
+    Provide a port to mixup the latent space for both SL and SSL.
+    """
+
+    def __init__(self, **kwargs):
+        super(MogaNet_Mix, self).__init__(**kwargs)
+
+    def _feature_mixup(self, x, mask, dist_shuffle=False, idx_shuffle_mix=None,
+                       cross_view=False, BN_shuffle=False, idx_shuffle_BN=None,
+                       idx_unshuffle_BN=None, **kwargs):
+        """ mixup two feature maps with the pixel-wise mask
+        
+        Args:
+            x, mask (tensor): Input x [N,C,H,W] and mixup mask [N, \*, H, W].
+            dist_shuffle (bool): Whether to shuffle cross gpus.
+            idx_shuffle_mix (tensor): Shuffle indice of [N,1] to generate x_.
+            cross_view (bool): Whether to view the input x as two views [2N, C, H, W],
+                which is usually adopted in self-supervised and semi-supervised settings.
+            BN_shuffle (bool): Whether to do shuffle cross gpus for shuffle_BN.
+            idx_shuffle_BN (tensor): Shuffle indice to utilize shuffle_BN cross gpus.
+            idx_unshuffle_BN (tensor): Unshuffle indice for the shuffle_BN (in pair).
+        """
+        # adjust mixup mask
+        assert mask.dim() == 4 and mask.size(1) <= 2
+        if mask.size(1) == 1:
+            mask = [mask, 1 - mask]
+        else:
+            mask = [
+                mask[:, 0, :, :].unsqueeze(1), mask[:, 1, :, :].unsqueeze(1)]
+        # undo shuffle_BN for ssl mixup
+        if BN_shuffle:
+            assert idx_unshuffle_BN is not None and idx_shuffle_BN is not None
+            x = grad_batch_unshuffle_ddp(x, idx_unshuffle_BN)  # 2N index if cross_view
+
+        # shuffle input
+        if dist_shuffle==True:  # cross gpus shuffle
+            assert idx_shuffle_mix is not None
+            if cross_view:
+                N = x.size(0) // 2
+                x_ = x[N:, ...].clone().detach()
+                x = x[:N, ...]
+                x_, _, _ = grad_batch_shuffle_ddp(x_, idx_shuffle_mix)
+            else:
+                x_, _, _ = grad_batch_shuffle_ddp(x, idx_shuffle_mix)
+        else:  # within each gpu
+            if cross_view:
+                # default: the input image is shuffled
+                N = x.size(0) // 2
+                x_ = x[N:, ...].clone().detach()
+                x = x[:N, ...]
+            else:
+                x_ = x[idx_shuffle_mix, :]
+        assert x.size(3) == mask[0].size(3), \
+            "mismatching mask x={}, mask={}.".format(x.size(), mask[0].size())
+        mix = x * mask[0] + x_ * mask[1]
+
+        # redo shuffle_BN for ssl mixup
+        if BN_shuffle:
+            mix, _, _ = grad_batch_shuffle_ddp(mix, idx_shuffle_BN)  # N index
+
+        return mix
+
+    def forward(self, x, mix_args=None):
+        """ only support mask-based mixup policy """
+        # latent space mixup
+        if mix_args is not None:
+            assert isinstance(mix_args, dict)
+            mix_layer = mix_args["layer"]  # {0, 1, 2, 3}
+            if mix_args["BN_shuffle"]:
+                x, _, idx_unshuffle = grad_batch_shuffle_ddp(x)  # 2N index if cross_view
+            else:
+                idx_unshuffle = None
+        else:
+            mix_layer = -1
+
+        # input mixup
+        if mix_layer == 0:
+            x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
+
+        outs = []
+        for i in range(self.num_stages):
+            patch_embed = getattr(self, f'patch_embed{i + 1}')
+            blocks = getattr(self, f'blocks{i + 1}')
+            norm = getattr(self, f'norm{i + 1}')
+
+            x, hw_shape = patch_embed(x)
+            for block in blocks:
+                x = block(x)
+            if self.use_layer_norm:
+                x = x.flatten(2).transpose(1, 2)
+                x = norm(x)
+                x = x.reshape(-1, *hw_shape,
+                            block.out_channels).permute(0, 3, 1, 2).contiguous()
+            else:
+                x = norm(x)
+            if i in self.out_indices:
+                outs.append(x)
+            if i+1 == mix_layer:  # stage 1 to 4
+                x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
+
+        return outs

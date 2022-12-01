@@ -68,6 +68,7 @@ We are working on a survey of mixup methods. The list is on updating.
    - CropMix: Sampling a Rich Input Distribution via Multi-Scale Cropping. [[ArXiv'2022](https://arxiv.org/abs/2205.15955)] [[code](https://github.com/JunlinHan/CropMix)]
    <p align="center"><img width="75%" src="https://user-images.githubusercontent.com/44519745/204585732-680295fe-4768-4199-af72-bda10edda644.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Mixup for Semi-supervised Learning
 
@@ -87,6 +88,7 @@ We are working on a survey of mixup methods. The list is on updating.
    - Decoupled Mixup for Data-efficient Learning. [[Arxiv'2022](https://arxiv.org/abs/2203.10761)] [[code](https://github.com/Westlake-AI/openmixup)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204578387-4be9567c-963a-4d2d-8c1f-c7c5ade527b8.png" /></p>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Contribution
 

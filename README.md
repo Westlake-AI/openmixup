@@ -39,7 +39,23 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 </details>
 
-## What's New
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#news-and-updates">News and Updates</a></li>
+    <li><a href="#installation">Installation</a></li>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#overview-of-model-zoo">Overview of Model Zoo</a></li>
+    <li><a href="#change-log">Change Log</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgement">Acknowledgement</a></li>
+    <li><a href="#contributors">Contributors</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+</details>
+
+## News and Updates
 
 [2022-11-19] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), and issue [#31](https://github.com/Westlake-AI/openmixup/issues/31)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
 
@@ -77,6 +93,8 @@ Please then, see [Tutorials](docs/en/tutorials) for more tech details:
 - [customize runtime](docs/en/tutorials/5_runtime.md)
 - [benchmarks](docs/en/tutorials/6_benchmarks.md)
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Overview of Model Zoo
 
 Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup methods, and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) for your reference. Checkpoints and training logs will be updated soon!
@@ -86,6 +104,7 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <details open>
     <summary>Currently supported backbones</summary>
 
+    - [x] [AlexNet](https://dl.acm.org/doi/10.1145/3065386) (NIPS'2012) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/alexnet/)]
     - [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
     - [x] [InceptionV3](https://arxiv.org/abs/1512.00567) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/inception_v3/)]
     - [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
@@ -184,6 +203,8 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
     </details>
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Change Log
 
 Please refer to [changelog.md](docs/en/changelog.md) for details and release history.
@@ -203,29 +224,31 @@ If you find this project useful in your research, please consider cite our GitHu
 
 ```BibTeX
 @misc{2022openmixup,
-    title={{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
-    author={Li, Siyuan and Liu, Zicheng and Wang, Zedong and Wu, Di and Stan Z. Li},
-    publisher = {GitHub},
+    title = {{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
+    author = {Siyuan Li and Zicheng Liu and Zedong Wang and Di Wu and Stan Z. Li},
     journal = {GitHub repository},
     howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
-    year={2022}
+    year = {2022}
 }
 ```
 ```BibTeX
-@misc{li2022openmixup,
-    title={OpenMixup: Open Mixup Toolbox and Benchmark for Visual Representation Learning}, 
-    author={Li, Siyuan and Wang, Zedong and Liu, Zicheng and Wu, Di and Stan Z. Li},
-    year={2022},
-    eprint={2209.04851},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
+@article{li2022openmixup,
+  title = {OpenMixup: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
+  author = {Siyuan Li and Zedong Wang and Zicheng Liu and Di Wu and Stan Z. Li},
+  journal = {ArXiv},
+  year = {2022},
+  volume = {abs/2209.04851}
 }
 ```
 
-## Contributors
+## Contributors and Contact
 
-For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), Zicheng Liu ([@pone7](https://github.com/pone7)), and Di Wu ([@wudi-bu](https://github.com/wudi-bu)). We thank contributors from MMSelfSup and MMClassification and all public contributors!
+For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), Zicheng Liu ([@pone7](https://github.com/pone7)), Di Wu ([@wudi-bu](https://github.com/wudi-bu)), Tengfei Wang ([@wang-tf](https://github.com/wang-tf)), and Minglong Liu ([@minhlong94](https://github.com/minhlong94)). We thank contributors from MMSelfSup and MMClassification and all public contributors!
 
-## Contact
+This repo is currently maintained by:
 
-This repo is currently maintained by Siyuan Li (lisiyuan@westlake.edu.cn) and Zicheng Liu (liuzicheng@westlake.edu.cn).
+- Siyuan Li (lisiyuan@westlake.edu.cn), Westlake University
+- Zedong Wang (wangzedong@westlake.edu.cn), Westlake University
+- Zicheng Liu (liuzicheng@westlake.edu.cn), Westlake University
+
+<p align="right">(<a href="#top">back to top</a>)</p>

@@ -97,7 +97,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | Vanilla       |     -    |        |  75.66 |       |  80.21 |    79.22   |   79.25   |
 | DeiT          |  0.8, 1  |  74.50 |  79.80 | 75.10 |  81.20 |    82.10   |   79.02   |
 | MixUp         |    0.2   |  74.69 |  77.72 | 75.24 |  81.01 |    80.88   |   79.29   |
-| CutMix        |    0.2   |        |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
+| CutMix        |    0.2   |  73.82 |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
 | ManifoldMix   |    0.2   |    -   |    -   |   -   |    -   |    80.57   |   79.07   |
 | AttentiveMix+ |     2    |  74.07 |  80.32 | 74.98 |  81.29 |    81.14   |   77.53   |
 | SaliencyMix   |    0.2   |        |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
@@ -107,7 +107,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | TransMix📖     |  0.8, 1  |  72.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |        |  80.94 |       |  81.87 |    82.35   |           |
+| SAMix*        |     2    |        |  80.94 | 76.60 |  81.87 |    82.35   |           |
 
 We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
 
