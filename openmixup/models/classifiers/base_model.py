@@ -91,10 +91,22 @@ class BaseModel(BaseModule, metaclass=ABCMeta):
         outs = [feat.view(feat.size(0), -1).cpu()]
         return dict(zip(keys, outs))
     
-    def forward_calibration(self, img, **kwargs):
+    def forward_inference(self, img, **kwargs):
+        """Forward output for inference.
+
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+            kwargs (keyword arguments): Specific to concrete implementation.
+
+        Returns:
+            tuple[Tensor]: final model outputs.
+        """
         x = self.backbone(img)
-        preds = self.head(x)
-        return preds
+        if self.with_neck:
+            x = self.neck(x)
+        preds = self.head(x, post_process=True)
+        return preds[0]
 
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, mode='train', **kwargs):
@@ -107,8 +119,8 @@ class BaseModel(BaseModule, metaclass=ABCMeta):
             return self.forward_train(img, **kwargs)
         elif mode == 'test':
             return self.forward_test(img, **kwargs)
-        elif mode == 'calibration':
-            return self.forward_calibration(img, **kwargs)
+        elif mode == 'inference':
+            return self.forward_inference(img, **kwargs)
         elif mode == 'extract':
             if len(img.size()) > 4:
                 img = img[:, 0, ...].contiguous()  # contrastive data

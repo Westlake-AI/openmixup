@@ -70,8 +70,18 @@ class MultiViewDataset(BaseDataset):
             ]
         return dict(img=multi_views, gt_label=target, idx=idx)
 
-    def evaluate(self, scores, keyword, logger=None, topk=(1, 5)):
-        """ (original supervised) classification evaluation """
+    def evaluate(self, scores, keyword, logger=None, topk=(1, 5), **kwargs):
+        """ Evaluation as supervised classification
+        
+        Args:
+            scores (tensor): The prediction values of output heads in (N, \*).
+            keyword (str): The corresponding head name in (N, \*).
+            logger (logging.Logger | str | None, optional): The defined logger
+                to be used. Defaults to None.
+            topk (tuple(int)): The output includes topk accuracy.
+        Returns:
+            dict: evaluation results
+        """
         eval_res = {}
         assert self.data_source.return_label and self.data_source.has_labels
 

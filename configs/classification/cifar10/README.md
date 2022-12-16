@@ -12,11 +12,29 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
 
 ## Results and models
 
-* This benchmark using CIFAR varient of ResNet architectures train 200, 400, 800, 1200 epochs on [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). The training and testing image size is 32 and we search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
-* Please refer to [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts. As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_puzzlemix_CE_soft.py).
-* The **median** of top-1 accuracy in the last 10 training epochs is reported for ResNet-18 and ResNeXt-50 (32x4d).
+### Getting Started
+
+* You can start training and evaluating with a config file. An example with a single GPU,
+  ```shell
+  CUDA_VISIBLE_DEVICES=1 PORT=29001 bash tools/dist_train.sh ${CONFIG_FILE} 1
+  ```
+* Please refer to [configs](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts. Here is an example of using Mixup and CutMix with switching probabilities of $\{0.4, 0.6\}$ based on [base_config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_mixups_CE_none.py).
+  ```python
+  model = dict(
+      alpha=[0.1, 1],  # list of alpha
+      mix_mode=["mixup", "cutmix"],  # list of chosen mixup modes
+      mix_prob=[0.4, 0.6],  # list of applying probs (sum=1), `None` for random applying
+      mix_repeat=1,  # times of repeating mixups in each iteration
+  )
+  ```
 
 ### CIFAR-10
+
+**Setup**
+
+* This benchmark using CIFAR varient of ResNet architectures train 200, 400, 800, 1200 epochs on [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html). The training and testing image size is 32 and we search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
+* As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/mixups/basic/r18_puzzlemix_CE_soft.py).
+* The **median** of top-1 accuracy in the last 10 training epochs is reported for ResNet-18 and ResNeXt-50 (32x4d).
 
 | Backbones     |  $Beta$   |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
 |---------------|:---------:|:----------:|:----------:|:----------:|:-----------:|
@@ -65,15 +83,5 @@ Please refer to the original paper of [CIFAR-10](https://www.cs.toronto.edu/~kri
   author={Krizhevsky, Alex and Hinton, Geoffrey and others},
   year={2009},
   publisher={Citeseer}
-}
-```
-```bibtex
-@misc{eccv2022automix,
-  title={AutoMix: Unveiling the Power of Mixup for Stronger Classifiers},
-  author={Zicheng Liu and Siyuan Li and Di Wu and Zhiyuan Chen and Lirong Wu and Jianzhu Guo and Stan Z. Li},
-  year={2021},
-  eprint={2103.13027},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV}
 }
 ```

@@ -18,6 +18,8 @@ Welcome to OpenMixup's documentation!
    :caption: Tools
 
    tools/analysis.md
+   tools/pytorch2onnx.md
+   tools/pytorch2torchscript.md
    tools/visualization.md
 
 .. toctree::

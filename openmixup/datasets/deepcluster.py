@@ -43,5 +43,5 @@ class DeepClusterDataset(BaseDataset):
             {} vs {}".format(len(self.labels), len(labels))
         self.labels = labels[:]
 
-    def evaluate(self, scores, keyword, logger=None):
+    def evaluate(self, scores, keyword, logger=None, **kwargs):
         raise NotImplementedError

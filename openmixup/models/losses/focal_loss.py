@@ -84,6 +84,7 @@ class FocalLoss(nn.Module):
         self.alpha = alpha
         self.reduction = reduction
         self.loss_weight = loss_weight
+        self.post_process = "sigmoid"  # multi-label classification
 
     def forward(self,
                 pred,
@@ -174,6 +175,7 @@ class GHMC(nn.Module):
             raise NotImplementedError
         self.loss_weight = loss_weight
         self.reduction = reduction
+        self.post_process = "sigmoid"  # multi-label classification
 
     def forward(self,
                 pred,
@@ -270,7 +272,8 @@ class GHMR(nn.Module):
             self.register_buffer('acc_sum', acc_sum)
         self.loss_weight = loss_weight
         self.reduction = reduction
-    
+        self.post_process = "sigmoid"  # multi-label classification
+
     def forward(self,
                 pred,
                 target,
@@ -418,6 +421,7 @@ class VarifocalLoss(nn.Module):
         self.iou_weighted = iou_weighted
         self.reduction = reduction
         self.loss_weight = loss_weight
+        self.post_process = "sigmoid"  # multi-label classification
 
     def forward(self,
                 pred,
@@ -490,6 +494,7 @@ class FocalFrequencyLoss(nn.Module):
         self.ave_spectrum = ave_spectrum
         self.log_matrix = log_matrix
         self.batch_matrix = batch_matrix
+        self.post_process = "none"  # regression
 
         if fft is None:
             raise RuntimeError(

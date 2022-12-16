@@ -11,9 +11,9 @@ from openmixup.utils import print_log
 from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
+from ..augments import cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix
 from ..utils import (concat_all_gather, batch_shuffle_ddp, batch_unshuffle_ddp, \
-                     grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp, \
-                     cutmix, mixup, saliencymix, resizemix, fmix)
+                     grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp)
 
 
 @MODELS.register_module

@@ -14,11 +14,22 @@ The ImageNet Large Scale Visual Recognition Challenge is a benchmark in object c
 
 We provide three popular benchmarks on ImageNet-1k based on various network architectures. We also provide results on Tiny-ImageNet for fast experiments. The **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs is reported for ResNet variants, and the **best** top-1 accuracy is reported for Transformer architectures.
 
+### Getting Started
+
+* You can start distributed training with a config file. Here is an example with 4 GPUs training on a single node. You can use `--load_checkpoint ${PATH}` (loading the full checkpoints from `PATH`), `--auto_resume` (resuming from the latest model), and `--resume_from ${PATH}` (resuming from `PATH`) in optional arguments.
+  ```shell
+  CUDA_VISIBLE_DEVICES=1,2,3,4 PORT=29001 bash tools/dist_train.sh ${CONFIG_FILE} 4 [optional arguments]
+  ```
+* If you have trained or downloaded a model, you can evaluate its classification performance. An example with 4 GPUs evaluation on a single node,
+  ```shell
+  CUDA_VISIBLE_DEVICES=1,2,3,4 bash tools/dist_test.sh ${CONFIG_FILE} 4 ${PATH_TO_MODEL}
+  ```
+
 ### **PyTorch-style Training Settings on ImageNet-1k**
 
 These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settings, training 100 and 300 epochs from stretch based on ResNet variants on [ImageNet-1k](http://www.image-net.org/challenges/LSVRC/2012/).
 
-**Note**
+**Setup**
 
 * Please refer to config files for experiment details: [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), [AutoMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/), [SAMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
 * Since ResNet-18 might be under-fitted on ImageNet-1k, we adopt $\alpha=0.2$ for some cutting-based mixups (CutMix, SaliencyMix, FMix, ResizeMix) based on ResNet-18.
@@ -62,7 +73,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 
 These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models) [RSB A2/A3](https://arxiv.org/abs/2110.00476) settings based on ResNet-50, EfficientNet-B0, and MobileNet.V2. Training 300/100 epochs with the BCE loss on ImageNet-1k, RSB A3 is a fast training setting while RSB A2 can exploit the full representation ability of ConvNets.
 
-**Note**
+**Setup**
 
 * Please refer to config files for experiment details: [RSB A3](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a3/) and [RSB A2](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a2/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
 * Notice that the [RSB](https://arxiv.org/abs/2110.00476) settings employ Mixup with $\alpha=0.1$ and CutMix with $\alpha=1.0$. We report the **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs.
@@ -86,7 +97,7 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 
 Since recently proposed transformer-based architectures adopt mixups as parts of essential augmentations, these benchmarks follow [DeiT](https://arxiv.org/abs/2012.12877) settings based on DeiT-Small, Swin-Tiny, and ConvNeXt-Tiny on ImageNet-1k.
 
-**Note**
+**Setup**
 
 * Please refer to config files of various mixups for experiment details: [DeiT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit/), [PVT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/pvt), [Swin](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/swin/), [ConvNeXt](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/convnext/), [MogaNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/moganet/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
 * Notice that the [DeiT](https://arxiv.org/abs/2012.12877) setting employs Mixup with $\alpha=0.8$ and CutMix with $\alpha=1.0$.
@@ -114,7 +125,7 @@ We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/open
 
 ## Citation
 
-Please refer to the original paper of [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html) and [AutoMix](https://arxiv.org/abs/2103.13027) for details.
+Please refer to the original paper of [ImageNet](https://dl.acm.org/doi/10.1145/3065386) and [AutoMix](https://arxiv.org/abs/2103.13027) for details.
 
 ```bibtex
 @article{IJCV2015ImageNet,

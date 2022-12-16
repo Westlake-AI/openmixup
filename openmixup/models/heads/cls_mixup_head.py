@@ -97,6 +97,12 @@ class ClsMixupHead(BaseModule):
         self.fc = nn.Linear(in_channels, num_classes)
         if frozen:
             self.frozen()
+        # post-process for inference
+        post_process = getattr(self.criterion, "post_process", "none")
+        if post_process == "softmax":
+            self.post_process = nn.Softmax(dim=1)
+        else:
+            self.post_process = nn.Identity()
 
     def frozen(self):
         self.fc.eval()
@@ -118,7 +124,7 @@ class ClsMixupHead(BaseModule):
                 elif init_linear == 'trunc_normal':
                     trunc_normal_init(m, std=std, bias=bias)
 
-    def forward_head(self, x):
+    def forward_head(self, x, post_process=False):
         """" forward cls head with x in a shape of (X, \*) """
         if self.with_avg_pool:
             if x.dim() == 3:
@@ -128,20 +134,35 @@ class ClsMixupHead(BaseModule):
             else:
                 assert x.dim() in [2, 3, 4], \
                     "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
-        return self.fc(x)
+        x = self.fc(x)
+        if post_process:
+            x = self.post_process(x)
+        return x
 
-    def forward(self, x):
+    def forward(self, x, post_process=False, **kwargs):
+        """Inference.
+
+        Args:
+            x (tuple[Tensor]): The input features. Multi-stage inputs are acceptable
+                but only the last stage will be used to classify. The shape of every
+                item should be ``(num_samples, in_channels)``.
+            post_process (bool): Whether to do post processing (e.g., softmax) the
+                inference results. It will convert the output to a list.
+
+        Returns:
+            Tensor | list: The inference results.
+        """
         assert isinstance(x, (tuple, list)) and len(x) >= 1
         if self.fc is None:
             return x
         # test-time augmentation
         if len(x) > 1 and self.aug_test:
-            aug_pred = [self.forward_head(_x) for _x in x]
+            aug_pred = [self.forward_head(_x, post_process) for _x in x]
             aug_pred = torch.stack(aug_pred).mean(dim=0)
             return [aug_pred]
         # simple test
         else:
-            return [self.forward_head(x[0])]
+            return [self.forward_head(x[0], post_process)]
 
     def lambda_adjust(self, lam, mode="pow", thr=1, idx=1):
         """ rescale lambda for two-hot label mixup classification

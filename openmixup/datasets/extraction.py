@@ -32,5 +32,5 @@ class ExtractDataset(BaseDataset):
             img = torch.from_numpy(to_numpy(img))
         return dict(img=img, idx=idx)
 
-    def evaluate(self, scores, keyword, logger=None):
+    def evaluate(self, scores, keyword, logger=None, **kwargs):
         raise NotImplementedError

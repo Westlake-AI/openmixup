@@ -41,8 +41,9 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True, keyword=None,
                     record_str.append(res)
     # output records
     print_str = "Median -- "
-    for l in record_str:
-        if print_all:
+    if print_all:
+        max_num = min(len(record_str), 5)
+        for l in record_str[-max_num:]:
             print(l)
     for k in keyword:
         record_acc[k] = np.median(np.array(record_acc[k]))
@@ -57,11 +58,12 @@ if __name__ == '__main__':
     args = parse_args()
     print(args)
 
+    keyword = args.get("key", ["head0"])
+    if isinstance(keyword, str):
+        keyword = keyword.split("-")
+
     # read record of a dir
     if args["path"].find(".json") == -1:
-        keyword = args.get("key", ["head0"])
-        if isinstance(keyword, str):
-            keyword = keyword.split("-")
         assert os.path.exists(args["path"])
         cfg_list = os.listdir(args["path"])
         cfg_list.sort()
@@ -94,6 +96,8 @@ if __name__ == '__main__':
 
     # read a json
     else:
+        args["print_all"] = True
+        args["keyword"] = keyword
         read_json(**args)
 
 

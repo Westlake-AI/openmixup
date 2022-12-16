@@ -42,6 +42,7 @@ class ArcFaceLoss(nn.Module):
         self.loss_weight = loss_weight
         self.class_weight = class_weight
         self.fp16_enabled = False
+        self.post_process = "softmax"
 
     @force_fp32(apply_to=('pred', ))
     def forward(self,

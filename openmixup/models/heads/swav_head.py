@@ -94,7 +94,7 @@ class SwAVHead(BaseModule):
             if init_linear == 'normal':
                 normal_init(self.prototypes, std=std, bias=bias)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
         """Forward head of swav to compute the loss.
 
         Args:

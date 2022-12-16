@@ -5,14 +5,17 @@
 **We summarize fundamental mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*. Then, we summarize mixup techniques used in downstream tasks.**
 We are working on a survey of mixup methods. The list of awesome mixup methods is summarized in chronological order and is on updating.
 
-**Table of Contents**
+* To find related papers and their relationships, check out [Connected Papers](https://www.connectedpapers.com/), which visualizes the academic field in a graph representation.
+* To export BibTeX citations of papers, check out [ArXiv](https://arxiv.org/) or [Semantic Scholar](https://www.semanticscholar.org/) of the paper for professional reference formats.
+
+## Table of Contents
 
   - [Sample Mixup Methods](#sample-mixup-methods)
-    - [Pre-defined Policies](#pre-defined-policies)
-    - [Saliency-guided Policies](#saliency-guided-policies)
+    + [Pre-defined Policies](#pre-defined-policies)
+    + [Saliency-guided Policies](#saliency-guided-policies)
   - [Label Mixup Methods](#label-mixup-methods)
   - [Analysis of Mixup](#analysis-of-mixup)
-  - [Survey](#Survey)
+  - [Survey](#survey)
   - [Contribution](#contribution)
 
 
@@ -194,6 +197,9 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 * **TL-Align**: Han Xiao, Wenzhao Zheng, Zheng Zhu, Jie Zhou, Jiwen Lu.
    - Token-Label Alignment for Vision Transformers. [[arXiv'2022](https://arxiv.org/abs/2210.06455)] [[code](https://github.com/Euphoria16/TL-Align)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204579080-3b7c9352-8fb3-49bd-99f5-ce4f72d722d8.png" /></p>
+* **LUMix**: Shuyang Sun, Jie-Neng Chen, Ruifei He, Alan Yuille, Philip Torr, Song Bai.
+   - LUMix: Improving Mixup by Better Modelling Label Uncertainty. [[arXiv'2022](https://arxiv.org/abs/2211.15846)] [[code](https://github.com/kevin-ssy/LUMix)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/205531445-dc4b7790-e0b7-4c41-b9d2-708efa5e4198.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -219,10 +225,14 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
 
 ## Survey
 
+* Connor Shorten and Taghi Khoshgoftaar.
+   - A survey on Image Data Augmentation for Deep Learning. [[Journal of Big Data'2019](https://www.researchgate.net/publication/334279066_A_survey_on_Image_Data_Augmentation_for_Deep_Learning)]
 * Humza Naveed.
    - Survey: Image Mixing and Deleting for Data Augmentation. [[ArXiv'2021](https://arxiv.org/abs/2106.07085)]
-* An overview of mixing augmentation methods and augmentation strategies.
-   - A Survey on Masked Autoencoder for Self-supervised Learning in Vision and Beyond. [[Artificial Intelligence Review'2022](https://link.springer.com/article/10.1007/s10462-022-10227-z)]
+* Dominik Lewy and Jacek Ma ́ndziuk.
+   - An overview of mixing augmentation methods and augmentation strategies. [[Artificial Intelligence Review'2022](https://link.springer.com/article/10.1007/s10462-022-10227-z)]
+* Suorong Yang, Weikang Xiao, Mengcheng Zhang, Suhan Guo, Jian Zhao, Furao Shen.
+   - Image Data Augmentation for Deep Learning: A Survey. [[ArXiv'2022](https://arxiv.org/abs/2204.08610)]
 
 
 ## Contribution

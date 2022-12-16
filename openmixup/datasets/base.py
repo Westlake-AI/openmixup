@@ -39,4 +39,5 @@ class BaseDataset(Dataset, metaclass=ABCMeta):
 
     @abstractmethod
     def evaluate(self, scores, keyword, logger=None, **kwargs):
+        """The evaluation function to predictions."""
         pass

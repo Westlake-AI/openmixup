@@ -77,7 +77,17 @@ class RegHead(BaseModule):
                 elif init_linear == 'trunc_normal':
                     trunc_normal_init(m, std=std, bias=bias)
 
-    def forward(self, x):
+    def forward(self, x, **kwargs):
+        """Inference without augmentation.
+
+        Args:
+            x (tuple[Tensor]): The input features. Multi-stage inputs are acceptable
+                but only the last stage will be used to classify. The shape of every
+                item should be ``(num_samples, in_channels)``.
+
+        Returns:
+            Tensor | list: The inference results.
+        """
         assert isinstance(x, (tuple, list)) and len(x) == 1
         x = x[0]
         if self.with_avg_pool:

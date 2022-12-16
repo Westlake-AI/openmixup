@@ -2,9 +2,8 @@ import torch.nn as nn
 from mmcv.cnn import build_norm_layer
 from mmcv.runner import BaseModule
 
-from ..utils import accuracy
 from ..registry import HEADS
-from ..utils import MultiPooling
+from ..utils import accuracy, MultiPooling
 
 
 @HEADS.register_module
@@ -53,6 +52,7 @@ class MultiClsHead(BaseModule):
         self.with_norm = norm_cfg['type'] != 'null'
 
         self.criterion = nn.CrossEntropyLoss()
+        self.post_process = nn.Softmax(dim=1)
 
         self.multi_pooling = MultiPooling(pool_type, in_indices, backbone)
 
@@ -85,12 +85,14 @@ class MultiClsHead(BaseModule):
                 if m.bias is not None:
                     nn.init.constant_(m.bias, 0)
 
-    def forward(self, x):
+    def forward(self, x, post_process=False, **kwargs):
         """Forward head.
 
         Args:
             x (list[Tensor] | tuple[Tensor]): Feature maps of backbone,
                 each tensor has shape (N, C, H, W).
+            post_process (bool): Whether to do post processing (e.g., softmax)
+                the inference results. It will convert the output to a list.
 
         Returns:
             list[Tensor]: A list of class scores.
@@ -104,7 +106,10 @@ class MultiClsHead(BaseModule):
         if self.with_last_layer_unpool:
             x.append(last_x)
         x = [xx.view(xx.size(0), -1) for xx in x]
-        x = [fc(xx) for fc, xx in zip(self.fcs, x)]
+        if not post_process:
+            x = [fc(xx) for fc, xx in zip(self.fcs, x)]
+        else:
+            x = [self.post_process(fc(xx)) for fc, xx in zip(self.fcs, x)]
         return x
 
     def loss(self, cls_score, labels):

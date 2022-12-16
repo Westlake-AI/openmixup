@@ -36,7 +36,7 @@ def seesaw_ce_loss(cls_score,
     Returns:
         torch.Tensor: The calculated loss
     """
-    assert len(cum_samples) == pred.size(-1)
+    assert len(cum_samples) == cls_score.size(-1)
 
     seesaw_weights = cls_score.new_ones(labels.size())
 
@@ -115,6 +115,9 @@ class SeesawLoss(nn.Module):
         self.loss_weight = loss_weight
 
         self.criterion = seesaw_ce_loss
+
+        self.post_process = "softmax" if not use_sigmoid \
+            else "sigmoid"  # multi-label classification
 
         # cumulative samples for each category
         self.register_buffer('cum_samples',

@@ -45,8 +45,18 @@ class ClusterContrastiveDataset(BaseDataset):
             {} vs {}".format(len(self.labels), len(labels))
         self.labels = labels[:]
 
-    def evaluate(self, scores, keyword, logger=None, topk=(1, 5)):
-        """ (supervised) classification evaluation """
+    def evaluate(self, scores, keyword, logger=None, topk=(1, 5), **kwargs):
+        """ Evaluation as supervised classification
+        
+        Args:
+            scores (tensor): The prediction values of output heads in (N, \*).
+            keyword (str): The corresponding head name in (N, \*).
+            logger (logging.Logger | str | None, optional): The defined logger
+                to be used. Defaults to None.
+            topk (tuple(int)): The output includes topk accuracy.
+        Returns:
+            dict: evaluation results
+        """
         assert self.predefined_label == True
         eval_res = {}
 

@@ -1,8 +1,28 @@
 ## Changelog
 
+### v0.2.7 (16/12/2022)
+
+Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI/openmixup/issues/35).
+
+#### Code Refactoring
+
+- Refactor `openmixup.core` (instead of `openmixup.hooks`) and `openmixup.models.augments` (contains mixup augmentation methods which are originally implemented in `openmixup.models.utils`). After code refactoring, the macro design of `OpenMixup` is similar to most projects of MMLab.
+- Support deployment of `ONNX` and `TorchScript` in `openmixup.core.export` and `tools/deployment`. We refactored the abstract class `BaseModel` (implemented in `openmixup/models/classifiers/base_model.py`) to support `forward_inference` (for custom inference and visualization). We also refactored `openmixup.models.heads` and `openmixup.models.losses` to support `forward_inference`. You can deploy the classification models in `OpenMixup` according to [deployment tutorials](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/tools).
+- Support testing API methods in `openmixup/apis/test.py` for evaluation and deployment of classification models.
+
+#### New Features
+
+- Support detailed usage instructions in README of config files for image classification methods in `configs/classification`, e.g., [mixups on ImageNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/README.md). READMEs of other methods in `configs/selfsup` and `configs/semisup` will also be updated.
+- Refine the origianzation of README files according to [README-Template](https://github.com/othneildrew/Best-README-Template).
+
+### Update Documents
+
+- Update documents of mixup benchmarks on ImageNet in [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
+- Update formats (figures, introductions and content tables) of awesome lists in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) and provide the latest methods.
+
 ### v0.2.6 (41/09/2022)
 
-Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20). Update new features and documents of `OpenMixup` v0.2.6 as issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), fix relevant issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#26](https://github.com/Westlake-AI/openmixup/issues/26), issue [#27](https://github.com/Westlake-AI/openmixup/issues/27), and issue [#31](https://github.com/Westlake-AI/openmixup/issues/31).
+Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI/openmixup/issues/20). Update new features and documents of `OpenMixup` v0.2.6 as issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), fix relevant issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#26](https://github.com/Westlake-AI/openmixup/issues/26), issue [#27](https://github.com/Westlake-AI/openmixup/issues/27), issue [#31](https://github.com/Westlake-AI/openmixup/issues/31), and issue [#33](https://github.com/Westlake-AI/openmixup/issues/33).
 
 #### New Features
 
@@ -30,6 +50,7 @@ Bump version to V0.2.6 with new features as [#20](https://github.com/Westlake-AI
 ### v0.2.5 (21/07/2022)
 
 Bump version to V0.2.5 with new features and updating documents as [#10](https://github.com/Westlake-AI/openmixup/issues/10). Update features and fix bugs in V0.2.5 as [#17](https://github.com/Westlake-AI/openmixup/issues/17). Update features and documents in V0.2.5 as [#18](https://github.com/Westlake-AI/openmixup/issues/18) and [#19](https://github.com/Westlake-AI/openmixup/issues/19).
+
 #### New Features
 
 - Support new attention mechanisms in backbone architectures ([Anti-Oversmoothing](https://arxiv.org/abs/2203.05962), `FlowAttention` in [FlowFormer](https://arxiv.org/abs/2202.06258) and `PoolAttention` in [MViTv2](https://arxiv.org/abs/2112.01526)).

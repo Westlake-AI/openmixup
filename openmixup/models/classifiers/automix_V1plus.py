@@ -154,7 +154,7 @@ class AutoMixup(BaseModel):
         else:
             self.head_one_k = None
         # for feature extract
-        self.fc = self.head_one_k if self.head_one_k is not None else self.head_one_q
+        self.head = self.head_one_k if self.head_one_k is not None else self.head_one_q
         # onehot and mixup heads for training
         self.weight_mix_q = head_weights.get("head_mix_q", 1.)
         self.weight_mix_k = head_weights.get("head_mix_k", 1.)
@@ -635,6 +635,21 @@ class AutoMixup(BaseModel):
             return self.augment_test(img)
         else:
             return self.simple_test(img)
+
+    def forward_inference(self, img, **kwargs):
+        """Forward output for inference.
+
+        Args:
+            img (Tensor): Input images of shape (N, C, H, W).
+                Typically these should be mean centered and std scaled.
+            kwargs (keyword arguments): Specific to concrete implementation.
+
+        Returns:
+            tuple[Tensor]: final model outputs.
+        """
+        x = self.backbone(img)[-1]
+        preds = self.head([x], post_process=True)
+        return preds[0]
 
     def forward_vis(self, img, gt_label, **kwargs):
         """" visualization by jupyter notebook """

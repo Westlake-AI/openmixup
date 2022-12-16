@@ -51,13 +51,15 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
     <li><a href="#license">License</a></li>
     <li><a href="#acknowledgement">Acknowledgement</a></li>
     <li><a href="#contributors">Contributors</a></li>
-    <li><a href="#contact">Contact</a></li>
+    <li><a href="#contributors-and-contact">Contributors and Contact</a></li>
   </ol>
 </details>
 
 ## News and Updates
 
-[2022-11-19] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), and issue [#31](https://github.com/Westlake-AI/openmixup/issues/31)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
+[2022-12-16] `OpenMixup` v0.2.7 is released (issue [#35](https://github.com/Westlake-AI/openmixup/issues/35)).
+
+[2022-12-02] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#31](https://github.com/Westlake-AI/openmixup/issues/31), and issue [#33](https://github.com/Westlake-AI/openmixup/issues/33)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
 
 [2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 

@@ -341,3 +341,51 @@ def imshow_infos(img,
             wait_time=wait_time,
             out_file=out_file)
     return img
+
+
+def show_result(img,
+                result,
+                text_color='white',
+                font_scale=0.5,
+                row_width=20,
+                show=False,
+                fig_size=(15, 10),
+                win_name='',
+                wait_time=0,
+                out_file=None):
+    """Draw `result` over `img`.
+
+    Args:
+        img (str or ndarray): The image to be displayed.
+        result (dict): The classification results to draw over `img`.
+        text_color (str or tuple or :obj:`Color`): Color of texts.
+        font_scale (float): Font scales of texts.
+        row_width (int): width between each row of results on the image.
+        show (bool): Whether to show the image.
+            Default: False.
+        fig_size (tuple): Image show figure size. Defaults to (15, 10).
+        win_name (str): The window name.
+        wait_time (int): How many seconds to display the image.
+            Defaults to 0.
+        out_file (str or None): The filename to write the image.
+            Default: None.
+
+    Returns:
+        img (ndarray): Image with overlaid results.
+    """
+    img = mmcv.imread(img)
+    img = img.copy()
+
+    img = imshow_infos(
+        img,
+        result,
+        text_color=text_color,
+        font_size=int(font_scale * 50),
+        row_width=row_width,
+        win_name=win_name,
+        show=show,
+        fig_size=fig_size,
+        wait_time=wait_time,
+        out_file=out_file)
+
+    return img

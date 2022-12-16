@@ -36,10 +36,10 @@ model = dict(
 
 # data
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+# sampler = "RepeatAugSampler"  # this repo reproduce the performance without `repeated_aug`
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
-# sampler = "RepeatAugSampler"  # the official repo uses repeated_aug
 
 # optimizer
 optimizer = dict(
@@ -65,7 +65,7 @@ lr_config = dict(
     policy='CosineAnnealing',
     by_epoch=False, min_lr=1e-5,  # 1e-5 yields better performances than 1e-6
     warmup='linear',
-    warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
+    warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
     warmup_ratio=1e-5,
 )
 

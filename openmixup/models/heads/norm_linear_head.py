@@ -72,9 +72,27 @@ class NormLinearClsHead(ClsHead):
 
         self.fc = NormLinear(self.in_channels, self.num_classes, bias,
                              feature_norm, weight_norm)
+        # post-process for inference
+        post_process = getattr(self.criterion, "post_process", "none")
+        if post_process == "softmax":
+            self.post_process = nn.Softmax(dim=1)
+        else:
+            self.post_process = nn.Identity()
 
-    def forward(self, x):
-        assert isinstance(x, (tuple, list)) and len(x) == 1
+    def forward(self, x, post_process=False, **kwargs):
+        """Inference without augmentation.
+
+        Args:
+            x (tuple[Tensor]): The input features. Multi-stage inputs are acceptable
+                but only the last stage will be used to classify. The shape of every
+                item should be ``(num_samples, in_channels)``.
+            post_process (bool): Whether to do post processing (e.g., softmax) the
+                inference results. It will convert the output to a list.
+
+        Returns:
+            Tensor | list: The inference results.
+        """
+        assert isinstance(x, (tuple, list)) and len(x) >= 1
         if self.fc is None:
             return x
         x = x[0]
@@ -86,4 +104,7 @@ class NormLinearClsHead(ClsHead):
             else:
                 assert x.dim() in [2, 3, 4], \
                     "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
-        return [self.fc(x)]
+        x = self.fc(x)
+        if post_process:
+            x = self.post_process(x)
+        return [x]

@@ -11,8 +11,9 @@ from torch.autograd import Variable
 from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
-                     attentivemix, puzzlemix, PlotTensor)
+from ..augments import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
+                     attentivemix, puzzlemix)
+from ..utils import PlotTensor
 
 
 @MODELS.register_module

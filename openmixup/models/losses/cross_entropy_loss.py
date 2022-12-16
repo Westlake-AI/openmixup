@@ -271,15 +271,17 @@ class CrossEntropyLoss(nn.Module):
         self.reduction = reduction
         self.loss_weight = loss_weight
         self.class_weight = class_weight
+        self.post_process = "softmax"
         # loss func
         if self.use_sigmoid:
             self.criterion = binary_cross_entropy
+            self.post_process = "sigmoid"  # multi-label classification
         elif self.use_soft:
             self.criterion = soft_mix_cross_entropy \
                 if self.use_mix_decouple else soft_cross_entropy
         else:
             self.criterion = cross_entropy
-    
+
     def forward(self,
                 cls_score,
                 label,

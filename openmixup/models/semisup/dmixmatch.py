@@ -8,7 +8,7 @@ from openmixup.utils import print_log
 from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
+from ..augments import cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix
 
 
 @MODELS.register_module
@@ -416,7 +416,8 @@ class DMixMatch(BaseModel):
         out_tensors = [out[0].cpu() for out in preds]  # NxC
         return dict(zip(keys, out_tensors))
 
-    def forward_calibration(self, img, **kwargs):
-        """ pred probs calibration """
-        preds = self.encoder_k(img)
-        return preds
+    def forward_inference(self, img, **kwargs):
+        """ inference prediction """
+        x = self.encoder_k[0](img)
+        preds = self.encoder_k[1](x, post_process=True)
+        return preds[0]

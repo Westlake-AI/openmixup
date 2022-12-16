@@ -170,7 +170,8 @@ class FixMatch(BaseModel):
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
-    def forward_calibration(self, img, **kwargs):
-        """ pred probs calibration """
-        preds = self.encoder_k(img)
-        return preds
+    def forward_inference(self, img, **kwargs):
+        """ inference prediction """
+        x = self.encoder_k[0](img)
+        preds = self.encoder_k[1](x, post_process=True)
+        return preds[0]

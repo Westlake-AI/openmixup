@@ -1,10 +1,10 @@
 from .image import (BaseFigureContextManager, ImshowInfosContextManager,
-                    color_val_matplotlib, imshow_infos)
+                    color_val_matplotlib, imshow_infos, show_result)
 from .draw_hog import hog_visualization
 from .plot_torch import PlotTensor
 
 __all__ = [
-    'BaseFigureContextManager', 'ImshowInfosContextManager', 'imshow_infos',
-    'color_val_matplotlib',
+    'BaseFigureContextManager', 'ImshowInfosContextManager',
+    'color_val_matplotlib', 'imshow_infos', 'show_result',
     'hog_visualization', 'PlotTensor',
 ]

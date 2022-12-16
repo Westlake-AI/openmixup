@@ -8,8 +8,9 @@ from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import build_runner, DistSamplerSeedHook, get_dist_info
 
 from openmixup.datasets import build_dataloader
-from openmixup.hooks import (build_hook, build_addtional_scheduler, build_optimizer,
-                             DistOptimizerHook, Fp16OptimizerHook)
+from openmixup.core.optimizers import build_optimizer
+from openmixup.core.hooks import (build_hook, build_addtional_scheduler,
+                                  DistOptimizerHook, Fp16OptimizerHook)
 from openmixup.utils import find_latest_checkpoint, get_root_logger, print_log
 
 # import fp16 supports

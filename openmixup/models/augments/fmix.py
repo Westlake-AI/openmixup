@@ -164,8 +164,16 @@ def sample_and_apply(x, alpha, decay_power, shape, max_soft=0.0, reformulate=Fal
 
 
 @torch.no_grad()
-def fmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
-        decay_power=3, size=(32,32), max_soft=0., reformulate=False, **kwargs):
+def fmix(img,
+         gt_label,
+         alpha=1.0,
+         lam=None,
+         dist_mode=False,
+         decay_power=3,
+         size=(32,32),
+         max_soft=0.,
+         reformulate=False,
+         **kwargs):
     r""" FMix augmentation.
 
     "FMix: Enhancing Mixed Sample Data Augmentation (https://arxiv.org/abs/2002.12047)".

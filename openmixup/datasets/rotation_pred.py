@@ -44,5 +44,5 @@ class RotationPredDataset(BaseDataset):
         rotation_labels = torch.LongTensor([0, 1, 2, 3])
         return dict(img=img, rot_label=rotation_labels)
 
-    def evaluate(self, scores, keyword, logger=None):
+    def evaluate(self, scores, keyword, logger=None, **kwargs):
         raise NotImplementedError

@@ -1,7 +1,6 @@
 # reference: https://github.com/open-mmlab/mmselfsup/tree/master/mmselfsup/models/algorithms
 # modified from mmselfsup cae.py
 import torch
-import torch.nn as nn
 
 from openmixup.utils import print_log
 

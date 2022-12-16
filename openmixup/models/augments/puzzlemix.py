@@ -1,7 +1,7 @@
 try:
     import gco
-except:
-    print("please install gco from https://github.com/Borda/pyGCO")
+except ImportError:
+    gco = None
 import numpy as np
 import torch
 import torch.nn.functional as F
@@ -132,7 +132,11 @@ def transport_image(img, plan, block_num, block_size):
 
 
 @torch.no_grad()
-def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
+def puzzlemix(img,
+              gt_label,
+              alpha=0.5,
+              lam=None,
+              dist_mode=False,
               features=None, block_num=2, beta=1.2, gamma=0.5, eta=0.2,
               neigh_size=2, n_labels=2, t_eps=10.0, t_size=-1,
               mean=None, std=None, transport=True,
@@ -168,6 +172,11 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
         transport (bool): Whether to use optimal-transport. Default: False.
         mp: Multi-process for graphcut (CPU). Default: None.
     """
+    if gco is None:
+        raise RuntimeError(
+            'Failed to import gco for PuzzleMix. Please install gco '
+            'according to https://github.com/Borda/pyGCO.')
+
     # 'alpha' in PuzzleMix used for graph-cut, equal to 'lam'
     alpha = np.random.beta(alpha, alpha)
     # basic mixup args
@@ -323,70 +332,5 @@ def puzzlemix(img, gt_label, alpha=0.5, lam=None, dist_mode=False,
     mask = F.interpolate(mask, size=width)
     lam = mask.reshape(batch_size, -1).mean(-1)
     img = mask * input1 + (1 - mask) * input2
-
-    return img, (y_a, y_b, lam)
-
-
-@torch.no_grad()
-def attentivemix(img, gt_label, alpha=1.0, lam=None, dist_mode=False,
-                 features=None, grid_scale=32, top_k=6, **kwargs):
-    r""" AttentiveMix augmentation
-
-    "Attentive CutMix: An Enhanced Data Augmentation Approach for Deep Learning
-    Based Image Classification (https://arxiv.org/abs/2003.13048)". In ICASSP, 2020.
-        https://github.com/xden2331/attentive_cutmix
-    
-    Args:
-        img (Tensor): Input images of shape (N, C, H, W).
-            Typically these should be mean centered and std scaled.
-        gt_label (Tensor): Ground-truth labels (one-hot).
-        alpha (float): To sample Beta distribution.
-        lam (float): The given mixing ratio. If lam is None, sample a lam
-            from Beta distribution.
-        dist_mode (bool): Whether to do cross gpus index shuffling and
-            return the mixup shuffle index, which support supervised
-            and self-supervised methods.
-        features (tensor): Feature maps for attentive regions.
-        grid_scale (float): The upsampling scale of attentive grids.
-        top_k (int): Using top_k attentive regions in feature maps.
-    """
-    
-    # basic mixup args
-    bs, _, att_size, _ = features.size()
-    att_grid = att_size**2
-    if att_size * grid_scale != img.size(2):
-        grid_scale = img.size(2) / att_size
-    if lam is None:
-        lam = np.random.beta(alpha, alpha)
-    # Notice: official attentivemix uses fixed lam by top_k, while attentivemix+
-    #   in this repo uses lam\in\Beta(a,a) to choose top_k for better preformances.
-    if top_k is None:
-        top_k = min(max(1, int(att_grid * lam)), att_grid)
-    
-    if not dist_mode:
-        # normal mixup process
-        rand_index = torch.randperm(img.size(0)).cuda()
-        if len(img.size()) == 4:  # [N, C, H, W]
-            img_ = img[rand_index]
-        else:
-            assert img.dim() == 5  # semi-supervised img [N, 2, C, H, W]
-            # Notice that the rank of two groups of img is fixed
-            img_ = img[:, 1, ...].contiguous()
-            img = img[:, 0, ...].contiguous()
-        y_a = gt_label
-        y_b = gt_label[rand_index]
-    
-    # select top_k attentive regions
-    features = features.mean(1)
-    _, att_idx = features.view(bs, att_grid).topk(top_k)
-    att_idx = torch.cat([
-        (att_idx // att_size).unsqueeze(1),
-        (att_idx  % att_size).unsqueeze(1),], dim=1)
-    mask = torch.zeros(bs, 1, att_size, att_size).cuda()
-    for i in range(bs):
-        mask[i, 0, att_idx[i, 0, :], att_idx[i, 1, :]] = 1
-    mask = F.upsample(mask, scale_factor=grid_scale, mode="nearest")
-    lam = float(mask[0, 0, ...].mean().cpu().numpy())
-    img = mask * img + (1 - mask) * img_
 
     return img, (y_a, y_b, lam)

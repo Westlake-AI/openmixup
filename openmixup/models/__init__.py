@@ -1,3 +1,4 @@
+from .augments import *
 from .backbones import *
 from .builder import (build_backbone, build_model, build_head, build_loss)
 from .heads import *

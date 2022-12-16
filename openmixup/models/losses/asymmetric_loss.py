@@ -96,6 +96,7 @@ class AsymmetricLoss(nn.Module):
         self.clip = clip
         self.reduction = reduction
         self.loss_weight = loss_weight
+        self.post_process = "sigmoid"  # multi-label classification
 
     def forward(self,
                 pred,
@@ -164,6 +165,7 @@ class ASLSingleLabel(nn.Module):
         self.disable_grad_focal = disable_grad_focal
         self.reduction = reduction
         self.loss_weight = loss_weight
+        self.post_process = "softmax"
 
     def forward(self,
                 pred,

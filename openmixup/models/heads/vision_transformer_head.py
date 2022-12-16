@@ -55,6 +55,12 @@ class VisionTransformerClsHead(BaseModule):
             self.criterion = build_loss(loss)
         if frozen:
             self.frozen()
+        # post-process for inference
+        post_process = getattr(self.criterion, "post_process", "none")
+        if post_process == "softmax":
+            self.post_process = nn.Softmax(dim=1)
+        else:
+            self.post_process = nn.Identity()
 
     def _init_layers(self):
         if self.hidden_dim is None:
@@ -90,11 +96,26 @@ class VisionTransformerClsHead(BaseModule):
         for param in self.layers.parameters():
             param.requires_grad = False
 
-    def forward(self, x):
-        assert isinstance(x, (tuple, list)) and len(x) == 1
+    def forward(self, x, post_process=False, **kwargs):
+        """Inference without augmentation.
+
+        Args:
+            x (tuple[Tensor]): The input features. Multi-stage inputs are acceptable
+                but only the last stage will be used to classify. The shape of every
+                item should be ``(num_samples, in_channels)``.
+            post_process (bool): Whether to do post processing (e.g., softmax) the
+                inference results. It will convert the output to a list.
+
+        Returns:
+            Tensor | list: The inference results.
+        """
+        assert isinstance(x, (tuple, list)) and len(x) >= 1
         x = x[0]
         x = self.pre_logits(x)
-        return [self.layers.head(x)]
+        x = self.layers.head(x)
+        if post_process:
+            x = self.post_process(x)
+        return [x]
 
     def loss(self, cls_score, labels, **kwargs):
         """" cls loss forward

@@ -49,7 +49,7 @@ class SelfTuning(BaseModel):
         self.projector_q = builder.build_neck(neck)
         self.projector_k = builder.build_neck(neck)
         self.backbone = self.encoder_q
-        self.head_cls = builder.build_head(head_cls)
+        self.head = builder.build_head(head_cls)
         self.init_weights(pretrained=pretrained)
 
         self.queue_size = queue_size
@@ -89,7 +89,7 @@ class SelfTuning(BaseModel):
             print_log('load encoder_q from: {}'.format(pretrained), logger='root')
         self.encoder_q.init_weights(pretrained=pretrained)
         self.projector_q.init_weights(init_linear='kaiming')
-        self.head_cls.init_weights(init_linear='normal')
+        self.head.init_weights(init_linear='normal')
         # init k
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
@@ -206,15 +206,15 @@ class SelfTuning(BaseModel):
 
         img_labeled_q = img[:, 0, ...].contiguous()
         x = self.encoder_q(img_labeled_q)[-1]
-        outs = self.head_cls([x])
-        CE_loss = self.head_cls.loss(outs, gt_labels)
+        outs = self.head([x])
+        CE_loss = self.head.loss(outs, gt_labels)
 
         # for unlabeled data
         img_unlabeled_q = img[:, 2, ...].contiguous()
         img_unlabeled_k = img[:, 3, ...].contiguous()
         with torch.no_grad():  # no gradient for q
             q_f_unlabeled = self.encoder_q(img_unlabeled_q)[-1]
-            logit_unlabeled = self.head_cls([q_f_unlabeled])[0]
+            logit_unlabeled = self.head([q_f_unlabeled])[0]
             prob_unlabeled = torch.softmax(logit_unlabeled.detach(), dim=-1)
             _, predict_unlabeled = torch.max(prob_unlabeled, dim=-1)
         PGC_logit_unlabeled, PGC_label_unlabeled, _ = \
@@ -231,13 +231,13 @@ class SelfTuning(BaseModel):
     def forward_test(self, img, **kwargs):
         """ original classification test """
         x = self.forward_backbone(img)  # tuple
-        outs = self.head_cls(x)
+        outs = self.head(x)
         keys = ['head{}'.format(i) for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
-    def forward_calibration(self, img, **kwargs):
-        """ pred probs calibration """
+    def forward_inference(self, img, **kwargs):
+        """ inference prediction """
         x = self.encoder_q(img)
-        preds_one_k = self.head_cls(x)
-        return preds_one_k
+        preds_one_k = self.head(x, post_process=True)
+        return preds_one_k[0]

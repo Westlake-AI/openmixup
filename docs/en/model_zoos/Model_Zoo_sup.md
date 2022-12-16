@@ -1,8 +1,17 @@
 # Model Zoo of Supervised Learning
 
-**OpenMixup provides mixup benchmarks on supervised learning on various tasks. Configs, experiment results, and training logs will be updated as soon as possible. More mixup variants will be supported!**
+**OpenMixup provides mixup benchmarks on supervised learning on various tasks. Config files and experiment results are available, and pre-trained models and training logs are updating. Moreover, more advanced mixup variants will be supported in the future. Issues and PRs are welcome!**
 
-Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 (or R-50) and sampling $\lambda$ from $\Beta(\alpha,8)$ as *AttentiveMix+*, which yields better performances. Moreover, you can summarize experiment results (JSON files) by tools in `openmixup/tools/summary/`.
+Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 (or R-50) and sampling $\lambda$ from $\Beta(\alpha,8)$ as *AttentiveMix+*, which yields better performances.
+
+**Note**
+
+* We summarize benchmark results in Markdown tables. You can convert them into other formats (e.g., LaTeX) with [online tools](https://www.tablesgenerator.com/markdown_tables).
+* As for evaluation, you can test pre-trained models with `tools/dist_test.sh`, and then you can extract experiment results (from JSON files) by tools in `openmixup/tools/summary/`. An example with 4 GPUs evaluation and summarization is as follows:
+  ```shell
+  CUDA_VISIBLE_DEVICES=1,2,3,4 bash tools/dist_test.sh ${CONFIG_FILE} 4 ${PATH_TO_MODEL}
+  python tools/summary/find_val_max_3times_average.py ${PATH_TO_JSON_LOG} head0_top1-head0_top5
+  ```
 
 <details open>
 <summary>Supported sample mixing policies</summary>
@@ -60,10 +69,10 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | SaliencyMix   |     1    |    69.16   |    73.56   |    77.14   |    79.32   |    80.27    |
 | AttentiveMix+ |     2    |    68.57   |      -     |    77.28   |      -     |      -      |
 | FMix*         |     1    |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
-| PuzzleMix     |     1    |    70.12   |    74.26   |    77.54   |    79.43   |    80.53    |
+| PuzzleMix     |     1    |    70.12   |    74.26   |    77.54   |    79.36   |    80.53    |
 | Co-Mixup📖     |     2    |      -     |      -     |    77.60   |      -     |      -      |
 | SuperMix📖     |     2    |      -     |      -     |    77.63   |      -     |      -      |
-| ResizeMix*    |     1    |    69.50   |    73.88   |    77.42   |    79.27   |    80.55    |
+| ResizeMix*    |     1    |    69.50   |    73.88   |    77.42   |    79.49   |    80.55    |
 | AlignMix📖     |     2    |      -     |      -     |    78.00   |      -     |      -      |
 | Grafting📖     |     1    |      -     |      -     |    77.74   |      -     |      -      |
 | AutoMix       |     2    |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
@@ -76,7 +85,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | MixUp       |    0.2   |    71.72   |    75.73   |    78.44   |    80.60   |
 | CutMix      |     1    |    71.01   |    75.16   |    78.69   |    80.59   |
 | ManifoldMix |    0.2   |    71.73   |    75.44   |    78.21   |    80.64   |
-| SaliencyMix |     1    |    70.21   |    75.01   |    78.46   |    80.45   |
+| SaliencyMix |     1    |    70.97   |    75.01   |    78.46   |    80.45   |
 | FMix*       |     1    |    70.30   |    75.12   |    78.51   |    80.20   |
 | PuzzleMix   |     1    |    71.64   |    75.84   |    78.86   |    80.67   |
 | ResizeMix*  |     1    |    71.32   |    75.64   |    78.91   |    80.52   |
@@ -120,20 +129,20 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 
 | Methods       | $\alpha$ | DeiT-T | DeiT-S | PVT-T | Swin-T | ConvNeXt-T | MogaNet-T |
 |---------------|:--------:|:------:|:------:|:-----:|:------:|:----------:|:---------:|
-| Vanilla       |     -    |        |  75.66 |       |  80.21 |    79.22   |   79.25   |
+| Vanilla       |     -    |  73.91 |  75.66 | 74.67 |  80.21 |    79.22   |   79.25   |
 | DeiT          |  0.8, 1  |  74.50 |  79.80 | 75.10 |  81.20 |    82.10   |   79.02   |
 | MixUp         |    0.2   |  74.69 |  77.72 | 75.24 |  81.01 |    80.88   |   79.29   |
-| CutMix        |    0.2   |  73.82 |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
+| CutMix        |    0.2   |  74.23 |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
 | ManifoldMix   |    0.2   |    -   |    -   |   -   |    -   |    80.57   |   79.07   |
 | AttentiveMix+ |     2    |  74.07 |  80.32 | 74.98 |  81.29 |    81.14   |   77.53   |
-| SaliencyMix   |    0.2   |        |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
+| SaliencyMix   |    0.2   |  74.17 |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
 | PuzzleMix     |     1    |  73.85 |  80.45 | 75.48 |  81.47 |    81.48   |   78.12   |
 | FMix*         |    0.2   |  74.41 |  77.37 | 75.28 |  79.60 |    81.04   |   79.05   |
 | ResizeMix*    |     1    |  74.79 |  78.61 | 76.05 |  81.36 |    81.64   |   78.77   |
-| TransMix📖     |  0.8, 1  |  72.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
+| TransMix📖     |  0.8, 1  |  74.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |        |  80.94 | 76.60 |  81.87 |    82.35   |           |
+| SAMix*        |     2    |        |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
 
 ### **Tiny-ImageNet Dataset**
 

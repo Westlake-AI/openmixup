@@ -18,6 +18,6 @@ model = dict(
         in_channels=512, num_classes=1000),
     init_cfg=[
         dict(type='TruncNormal', layer=['Conv2d', 'Linear'], std=0.02, bias=0.),
-        dict(type='Constant', layer='LayerNorm', val=1., bias=0.)
+        dict(type='Constant', layer=['LayerNorm', 'GroupNorm'], val=1., bias=0.)
     ],
 )

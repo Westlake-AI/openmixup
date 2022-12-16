@@ -11,8 +11,6 @@ from .extractor import Extractor, MultiExtractProcess
 from .lr_scheduler import StepFixCosineAnnealingLrUpdaterHook
 from .momentum_hook import CosineHook, StepHook, CosineScheduleHook, StepScheduleHook
 from .odc_hook import ODCHook
-from .optimizer import build_optimizer, DefaultOptimizerConstructor, \
-    TransformerFinetuneConstructor, LARS, LAMB
 from .optimizer_hook import DistOptimizerHook, Fp16OptimizerHook
 from .precise_bn_hook import PreciseBNHook
 from .registry import HOOKS
@@ -27,8 +25,7 @@ __all__ = [
     'InvLrAdditionalHook', 'CosineAnnealingLrAdditionalHook', 'CosineRestartLrAdditionalHook',
     'CyclicLrAdditionalHook', 'CustomFixedHook', 'CustomStepHook', 'CustomExpHook', 'CustomPolyHook',
     'CustomCosineAnnealingHook',
-    'build_hook', 'build_addtional_scheduler', 'build_optimizer',
-    'DefaultOptimizerConstructor', 'TransformerFinetuneConstructor', 'LARS', 'LAMB',
+    'build_hook', 'build_addtional_scheduler',
     'DeepClusterHook', 'DeepClusterAutoMixHook', 'ODCHook', 'PreciseBNHook', 'SwAVHook',
     'StepFixCosineAnnealingLrUpdaterHook', 'CosineHook', 'StepHook', 'CosineScheduleHook', 'StepScheduleHook',
     'EMAHook', 'Extractor', 'MultiExtractProcess', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',

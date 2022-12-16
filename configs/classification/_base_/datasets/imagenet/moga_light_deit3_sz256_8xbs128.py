@@ -18,8 +18,7 @@ train_pipeline = [
             dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=1.),
         ],
     ),
-    dict(type='ColorJitter',
-         brightness=0.3, contrast=0.3, saturation=0.3),
+    dict(type='ColorJitter', brightness=0.3, contrast=0.3, saturation=0.3),
 ]
 test_pipeline = [
     dict(type='Resize', size=284, interpolation=3),  # 0.90

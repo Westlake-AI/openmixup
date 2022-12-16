@@ -35,7 +35,8 @@ class RegressionDataset(BaseDataset):
                  scores, keyword, logger=None,
                  metric='mse',
                  metric_options=None,
-                 indices=None):
+                 indices=None,
+                 **kwargs):
         """The evaluation function to output regression error.
 
         Args:

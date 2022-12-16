@@ -10,8 +10,8 @@ from openmixup.utils import print_log
 from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import (GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp, \
-                     cutmix, mixup, saliencymix, resizemix, fmix)
+from ..augments import cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix
+from ..utils import (GatherLayer, batch_shuffle_ddp, batch_unshuffle_ddp)
 
 
 @MODELS.register_module

@@ -56,5 +56,5 @@ class BEiTDataset(BaseDataset):
             ]
         return dict(img=multi_views, idx=idx)
 
-    def evaluate(self, scores, keyword, logger=None):
+    def evaluate(self, scores, keyword, logger=None, **kwargs):
         raise NotImplementedError

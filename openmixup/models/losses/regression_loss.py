@@ -362,6 +362,7 @@ class BMCLoss(nn.Module):
         super(BMCLoss, self).__init__()
         self.noise_sigma = nn.Parameter(
             torch.tensor(init_noise_sigma), requires_grad=True)
+        self.post_process = "none"  # regression
 
     def bmc_loss(self, pred, target, noise_var):
         logits = - 0.5 * (pred - target.T).pow(2) / noise_var
@@ -414,6 +415,7 @@ class BNILoss(nn.Module):
             torch.tensor(init_noise_sigma), requires_grad=True)
         self.bucket_centers = torch.tensor(bucket_centers).cuda()
         self.bucket_weights = torch.tensor(bucket_weights).cuda()
+        self.post_process = "none"  # regression
 
     def bni_loss(self, pred, target, noise_var, bucket_centers, bucket_weights):
         mse_term = F.mse_loss(pred, target, reduction='none') / 2 / noise_var
@@ -528,7 +530,8 @@ class RegressionLoss(nn.Module):
             if self.mode == "general_kl_loss":
                 self.loss_kwargs['alpha'] = kwargs.get('alpha', 0.1)
             self.criterion = eval(self.mode)
-    
+        self.post_process = "none"  # regression
+
     def forward(self,
                 pred,
                 target,

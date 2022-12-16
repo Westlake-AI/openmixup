@@ -5,6 +5,16 @@
 **We summarize mixup methods proposed for self- and semi-supervised visual representation learning.**
 We are working on a survey of mixup methods. The list is on updating.
 
+* To find related papers and their relationships, check out [Connected Papers](https://www.connectedpapers.com/), which visualizes the academic field in a graph representation.
+* To export BibTeX citations of papers, check out [ArXiv](https://arxiv.org/) or [Semantic Scholar](https://www.semanticscholar.org/) of the paper for professional reference formats.
+
+## Table of Contents
+
+  - [Mixup for Self-supervised Learning](#mixup-for-self-supervised-learning)
+  - [Mixup for Semi-supervised Learning](#mixup-for-semi-supervised-learning)
+  - [Contribution](#contribution)
+
+
 ## Mixup for Self-supervised Learning
 
 * **MixCo**: Sungnyun Kim, Gihun Lee, Sangmin Bae, Se-Young Yun.

@@ -3,7 +3,10 @@
 
 import time
 import numpy as np
-import faiss
+try:
+    import faiss
+except ImportError:
+    faiss = None
 import torch
 from scipy.sparse import csr_matrix
 
@@ -121,6 +124,10 @@ class Kmeans():
     def __init__(self, k, pca_dim=256):
         self.k = k
         self.pca_dim = pca_dim
+        if faiss is None:
+            raise RuntimeError(
+                'Failed to import faiss-gpu for distributed clustering. '
+                'Please install faiss-gpu==1.6.0.')
 
     def cluster(self, feat, verbose=False):
         """Performs k-means clustering.
@@ -262,6 +269,10 @@ class PIC():
         self.nnn = nnn
         self.distribute_singletons = distribute_singletons
         self.pca_dim = pca_dim
+        if faiss is None:
+            raise RuntimeError(
+                'Failed to import faiss-gpu for distributed clustering. '
+                'Please install faiss-gpu==1.6.0.')
 
     def cluster(self, data, verbose=False):
         end = time.time()

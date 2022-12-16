@@ -9,7 +9,7 @@ from openmixup.utils import print_log
 from ..classifiers import BaseModel
 from .. import builder
 from ..registry import MODELS
-from ..utils import cutmix, mixup, saliencymix, resizemix, fmix
+from ..augments import cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix
 
 
 @MODELS.register_module
@@ -86,6 +86,7 @@ class DMixTuning(BaseModel):
         self.head_mix = None
         if head_one is not None:
             self.head_one = builder.build_head(head_one)
+            self.head = self.head_one
         if head_mix is not None:
             self.head_mix = builder.build_head(head_mix)
         self.init_weights(pretrained=pretrained)
@@ -453,8 +454,8 @@ class DMixTuning(BaseModel):
         out_tensors = [out[0].cpu() for out in preds]  # NxC
         return dict(zip(keys, out_tensors))
 
-    def forward_calibration(self, img, **kwargs):
-        """ pred probs calibration """
+    def forward_inference(self, img, **kwargs):
+        """ inference prediction """
         x = self.encoder_q(img)
-        preds = self.head_one(x)
-        return preds
+        preds = self.head_one(x, post_process=True)
+        return preds[0]

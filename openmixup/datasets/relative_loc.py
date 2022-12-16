@@ -62,5 +62,5 @@ class RelativeLocDataset(BaseDataset):
         patch_labels = torch.LongTensor([0, 1, 2, 3, 4, 5, 6, 7])
         return dict(img=torch.stack(perms), patch_label=patch_labels)  # 8(2C)HW, 8
 
-    def evaluate(self, scores, keyword, logger=None):
+    def evaluate(self, scores, keyword, logger=None, **kwargs):
         raise NotImplemented

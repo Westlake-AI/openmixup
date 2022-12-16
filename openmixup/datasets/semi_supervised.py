@@ -134,8 +134,18 @@ class SemiSupervisedDataset(Dataset):
         # provide data + labels
         return dict(img=img, gt_labels=gt_labels, ps_labels=pseudo_labels, gt_idx=idx_labeled)
     
-    def evaluate(self, scores, keyword, logger=None, topk=(1, 5)):
-        """ (original supervised) classification evaluation """
+    def evaluate(self, scores, keyword, logger=None, topk=(1, 5), **kwargs):
+        """ Evaluation as supervised classification
+        
+        Args:
+            scores (tensor): The prediction values of output heads in (N, \*).
+            keyword (str): The corresponding head name in (N, \*).
+            logger (logging.Logger | str | None, optional): The defined logger
+                to be used. Defaults to None.
+            topk (tuple(int)): The output includes topk accuracy.
+        Returns:
+            dict: evaluation results
+        """
         eval_res = {}
 
         target = torch.LongTensor(self.data_source_labeled.labels)

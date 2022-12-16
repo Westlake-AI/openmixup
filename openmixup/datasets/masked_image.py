@@ -109,13 +109,13 @@ class MaskedImageDataset(BaseDataset):
 
     def evaluate(self,
                  scores, keyword, logger=None,
-                 metric='accuracy', metric_options=None, topk=(1, 5)):
+                 metric='accuracy', metric_options=None, topk=(1, 5),
+                 **kwargs):
         """The evaluation function to output accuracy (supervised).
 
         Args:
-            scores (dict): The key-value pair is the output head name and
-                corresponding prediction values.
-            keyword (str): The corresponding head name.
+            scores (tensor): The prediction values of output heads in (N, \*).
+            keyword (str): The corresponding head name in (N, \*).
             logger (logging.Logger | str | None, optional): The defined logger
                 to be used. Defaults to None.
             metric (str | list[str]): Metrics to be evaluated. Default to `accuracy`.

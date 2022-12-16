@@ -76,6 +76,7 @@ class LabelSmoothLoss(nn.Module):
             f'LabelSmoothLoss supports reduction {accept_reduction}, ' \
             f'but gets {mode}.'
         self.reduction = reduction
+        self.post_process = "softmax"
 
         if mode is None:
             warnings.warn(
@@ -96,6 +97,7 @@ class LabelSmoothLoss(nn.Module):
         if mode == 'multi_label':
             self.ce = CrossEntropyLoss(use_sigmoid=True)
             self.smooth_label = self.multilabel_smooth_label
+            self.post_process = "sigmoid"  # multi-label classification
         elif mode == 'mix_decouple':
             self.ce = CrossEntropyLoss(use_soft=True, use_sigmoid=False, use_mix_decouple=True)
             self.smooth_label = self.original_smooth_label
