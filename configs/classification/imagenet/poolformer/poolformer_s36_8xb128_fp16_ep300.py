@@ -19,6 +19,7 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+        'layer_scale': dict(weight_decay=0.),
     })
 
 # apex

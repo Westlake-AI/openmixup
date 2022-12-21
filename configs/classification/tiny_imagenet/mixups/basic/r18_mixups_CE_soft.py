@@ -9,4 +9,3 @@ model = dict(
         with_avg_pool=True, multi_label=True, two_hot=False,
         in_channels=512, num_classes=200)
 )
-

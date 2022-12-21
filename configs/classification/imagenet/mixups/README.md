@@ -29,6 +29,26 @@ We provide three popular benchmarks on ImageNet-1k based on various network arch
 
 These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settings, training 100 and 300 epochs from stretch based on ResNet variants on [ImageNet-1k](http://www.image-net.org/challenges/LSVRC/2012/).
 
+<details open>
+<summary>Supported mixup algorithms</summary>
+
+- [X] [Mixup [ICLR'2018]](https://arxiv.org/abs/1710.09412)
+- [X] [CutMix [ICCV'2019]](https://arxiv.org/abs/1905.04899)
+- [X] [ManifoldMix [ICML'2019]](https://arxiv.org/abs/1806.05236)
+- [X] [FMix [ArXiv'2020]](https://arxiv.org/abs/2002.12047)
+- [X] [AttentiveMix [ICASSP'2020]](https://arxiv.org/abs/2003.13048)
+- [X] [SmoothMix [CVPRW'2020]](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)
+- [X] [SaliencyMix [ICLR'2021]](https://arxiv.org/abs/1710.09412)
+- [X] [PuzzleMix [ICML'2020]](https://arxiv.org/abs/2009.06962)
+- [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
+- [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
+- [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
+- [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
+- [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
+
+</details>
+
 **Setup**
 
 * Please refer to config files for experiment details: [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), [AutoMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/), [SAMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.

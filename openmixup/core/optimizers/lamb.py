@@ -1,123 +1,46 @@
+# Copyright (c) 2021, Habana Labs Ltd.  All rights reserved.
+
+# Copyright (c) 2019-2020, NVIDIA CORPORATION. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# MIT License
+#
+# Copyright (c) 2019 cybertronai
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 import math
 
 import torch
 from mmcv.runner.optimizer.builder import OPTIMIZERS
-from torch.optim.optimizer import Optimizer, required
-from torch.optim import *
-
-
-@OPTIMIZERS.register_module()
-class LARS(Optimizer):
-    r"""Implements layer-wise adaptive rate scaling for SGD.
-
-    Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float): base learning rate (\gamma_0)
-        momentum (float, optional): momentum factor (default: 0) ("m")
-        weight_decay (float, optional): weight decay (L2 penalty) (default: 0)
-            ("\beta")
-        dampening (float, optional): dampening for momentum (default: 0)
-        eta (float, optional): LARS coefficient
-        nesterov (bool, optional): enables Nesterov momentum (default: False)
-
-    Based on Algorithm 1 of the following paper by You, Gitman, and Ginsburg.
-    Large Batch Training of Convolutional Networks:
-        https://arxiv.org/abs/1708.03888
-
-    Example:
-        >>> optimizer = LARS(model.parameters(), lr=0.1, momentum=0.9,
-        >>>                  weight_decay=1e-4, eta=1e-3)
-        >>> optimizer.zero_grad()
-        >>> loss_fn(model(input), target).backward()
-        >>> optimizer.step()
-    """
-
-    def __init__(self,
-                 params,
-                 lr=required,
-                 momentum=0,
-                 dampening=0,
-                 weight_decay=0,
-                 eta=0.001,
-                 nesterov=False):
-        if lr is not required and lr < 0.0:
-            raise ValueError("Invalid learning rate: {}".format(lr))
-        if momentum < 0.0:
-            raise ValueError("Invalid momentum value: {}".format(momentum))
-        if weight_decay < 0.0:
-            raise ValueError(
-                "Invalid weight_decay value: {}".format(weight_decay))
-        if eta < 0.0:
-            raise ValueError("Invalid LARS coefficient value: {}".format(eta))
-
-        defaults = dict(
-            lr=lr, momentum=momentum, dampening=dampening,
-            weight_decay=weight_decay, nesterov=nesterov, eta=eta)
-        if nesterov and (momentum <= 0 or dampening != 0):
-            raise ValueError("Nesterov momentum requires a momentum and zero dampening")
-
-        super(LARS, self).__init__(params, defaults)
-
-    def __setstate__(self, state):
-        super(LARS, self).__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault('nesterov', False)
-
-    @torch.no_grad()
-    def step(self, closure=None):
-        """Performs a single optimization step.
-
-        Args:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
-        """
-        loss = None
-        if closure is not None:
-            with torch.enable_grad():
-                loss = closure()
-
-        for group in self.param_groups:
-            weight_decay = group['weight_decay']
-            momentum = group['momentum']
-            dampening = group['dampening']
-            eta = group['eta']
-            nesterov = group['nesterov']
-            lr = group['lr']
-            lars_exclude = group.get('lars_exclude', False)
-
-            for p in group['params']:
-                if p.grad is None:
-                    continue
-
-                d_p = p.grad
-
-                if lars_exclude:
-                    local_lr = 1.
-                else:
-                    weight_norm = torch.norm(p).item()
-                    grad_norm = torch.norm(d_p).item()
-                    # Compute local learning rate for this layer
-                    local_lr = eta * weight_norm / \
-                        (grad_norm + weight_decay * weight_norm)
-
-                actual_lr = local_lr * lr
-                d_p = d_p.add(p, alpha=weight_decay).mul(actual_lr)
-                if momentum != 0:
-                    param_state = self.state[p]
-                    if 'momentum_buffer' not in param_state:
-                        buf = param_state['momentum_buffer'] = \
-                                torch.clone(d_p).detach()
-                    else:
-                        buf = param_state['momentum_buffer']
-                        buf.mul_(momentum).add_(d_p, alpha=1 - dampening)
-                    if nesterov:
-                        d_p = d_p.add(buf, alpha=momentum)
-                    else:
-                        d_p = buf
-                p.add_(-d_p)
-
-        return loss
+from torch.optim.optimizer import Optimizer
 
 
 @OPTIMIZERS.register_module()

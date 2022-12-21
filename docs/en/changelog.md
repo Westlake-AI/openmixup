@@ -9,15 +9,17 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Refactor `openmixup.core` (instead of `openmixup.hooks`) and `openmixup.models.augments` (contains mixup augmentation methods which are originally implemented in `openmixup.models.utils`). After code refactoring, the macro design of `OpenMixup` is similar to most projects of MMLab.
 - Support deployment of `ONNX` and `TorchScript` in `openmixup.core.export` and `tools/deployment`. We refactored the abstract class `BaseModel` (implemented in `openmixup/models/classifiers/base_model.py`) to support `forward_inference` (for custom inference and visualization). We also refactored `openmixup.models.heads` and `openmixup.models.losses` to support `forward_inference`. You can deploy the classification models in `OpenMixup` according to [deployment tutorials](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/tools).
 - Support testing API methods in `openmixup/apis/test.py` for evaluation and deployment of classification models.
+- Refactor `openmixup.core.optimizers` to separate optimizers and builders and support the latest [Adan](https://arxiv.org/abs/2208.06677) optimizer.
 
 #### New Features
 
 - Support detailed usage instructions in README of config files for image classification methods in `configs/classification`, e.g., [mixups on ImageNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/README.md). READMEs of other methods in `configs/selfsup` and `configs/semisup` will also be updated.
 - Refine the origianzation of README files according to [README-Template](https://github.com/othneildrew/Best-README-Template).
+- Support the new mixup augmentation method ([AlignMix](https://arxiv.org/abs/2103.15375)) and provide the relevant config files in various datasets.
 
 ### Update Documents
 
-- Update documents of mixup benchmarks on ImageNet in [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
+- Update documents of mixup benchmarks on ImageNet in [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md). Update config files for supported mixup methods.
 - Update formats (figures, introductions and content tables) of awesome lists in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) and provide the latest methods.
 
 ### v0.2.6 (41/09/2022)

@@ -148,16 +148,17 @@ Please refer to [Model Zoos](docs/en/model_zoos) for various backbones, mixup me
     <details open>
     <summary>Currently supported mixup methods</summary>
 
-    - [x] [Mixup](https://arxiv.org/abs/1710.09412) (ICLR'2018)
-    - [x] [CutMix](https://arxiv.org/abs/1905.04899) (ICCV'2019)
-    - [x] [ManifoldMix](https://arxiv.org/abs/1806.05236) (ICML'2019)
-    - [x] [FMix](https://arxiv.org/abs/2002.12047) (ArXiv'2020)
-    - [x] [AttentiveMix](https://arxiv.org/abs/2003.13048) (ICASSP'2020)
-    - [x] [SmoothMix](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf) (CVPRW'2020)
-    - [x] [SaliencyMix](https://arxiv.org/abs/1710.09412) (ICLR'2021)
-    - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020)
-    - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021)
-    - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (ArXiv'2020)
+    - [x] [Mixup](https://arxiv.org/abs/1710.09412) (ICLR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [CutMix](https://arxiv.org/abs/1905.04899) (ICCV'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [ManifoldMix](https://arxiv.org/abs/1806.05236) (ICML'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [FMix](https://arxiv.org/abs/2002.12047) (ArXiv'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [AttentiveMix](https://arxiv.org/abs/2003.13048) (ICASSP'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [SmoothMix](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf) (CVPRW'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [SaliencyMix](https://arxiv.org/abs/1710.09412) (ICLR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (ArXiv'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [AlignMix](http://arxiv.org/abs/2103.15375) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
     - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
     - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]

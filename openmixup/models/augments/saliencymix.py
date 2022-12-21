@@ -9,7 +9,12 @@ from openmixup.models.utils import batch_shuffle_ddp
 
 
 @torch.no_grad()
-def saliencymix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
+def saliencymix(img,
+                gt_label,
+                alpha=1.0,
+                lam=None,
+                dist_mode=False,
+                **kwargs):
     r""" SaliencyMix augmentation.
 
     "SaliencyMix: A Saliency Guided Data Augmentation Strategy for Better

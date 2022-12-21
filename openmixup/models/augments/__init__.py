@@ -1,3 +1,4 @@
+from .alignmix import alignmix
 from .attentivemix import attentivemix
 from .cutmix import cutmix
 from .fmix import fmix
@@ -9,6 +10,6 @@ from .saliencymix import saliencymix
 from .smoothmix import smoothmix
 
 __all__ = [
-    'attentivemix', 'cutmix', 'fmix', 'mixup', 'gridmix',
+    'alignmix', 'attentivemix', 'cutmix', 'fmix', 'mixup', 'gridmix',
     'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix',
 ]

@@ -58,7 +58,9 @@ def attentivemix(img,
             img = img[:, 0, ...].contiguous()
         y_a = gt_label
         y_b = gt_label[rand_index]
-    
+    else:
+        raise ValueError("AttentiveMix cannot perform distributed mixup.")
+
     # select top_k attentive regions
     features = features.mean(1)
     _, att_idx = features.view(bs, att_grid).topk(top_k)

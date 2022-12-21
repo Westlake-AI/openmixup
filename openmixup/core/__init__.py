@@ -10,7 +10,7 @@ from .hooks import HOOKS, \
     EMAHook, Extractor, MultiExtractProcess, SAVEHook, SSLMetricHook, ValidateHook, \
     DistOptimizerHook, Fp16OptimizerHook
 from .optimizers import build_optimizer, \
-    TransformerFinetuneConstructor, DefaultOptimizerConstructor, LARS, LAMB
+    TransformerFinetuneConstructor, DefaultOptimizerConstructor, Adan, LARS, LAMB
 
 __all__ = [
     'ONNXRuntimeClassifier', 'TensorRTClassifier',
@@ -25,5 +25,5 @@ __all__ = [
     'EMAHook', 'Extractor', 'MultiExtractProcess', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',
     'DistOptimizerHook', 'Fp16OptimizerHook',
     'build_optimizer',
-    'TransformerFinetuneConstructor', 'DefaultOptimizerConstructor', 'LARS', 'LAMB'
+    'TransformerFinetuneConstructor', 'DefaultOptimizerConstructor', 'Adan', 'LARS', 'LAMB'
 ]

@@ -2,6 +2,7 @@ _base_ = "r18_mixups_CE_none.py"
 
 # model settings
 model = dict(
+    alpha=1,
     mix_mode="puzzlemix",
     head=dict(
         type='ClsMixupHead',  # mixup soft CE loss

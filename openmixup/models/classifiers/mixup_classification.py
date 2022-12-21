@@ -12,7 +12,7 @@ from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..augments import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
-                     attentivemix, puzzlemix)
+                        alignmix, attentivemix, puzzlemix)
 from ..utils import PlotTensor
 
 
@@ -47,6 +47,7 @@ class MixUpClassification(BaseModel):
                  alpha=1.0,
                  mix_mode="mixup",
                  mix_args=dict(
+                    alignmix=dict(eps=0.1, max_iter=100),
                     attentivemix=dict(grid_size=32, top_k=6, beta=8),
                     automix=dict(mask_adjust=0, lam_margin=0),
                     fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
@@ -88,7 +89,7 @@ class MixUpClassification(BaseModel):
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
         self.dynamic_mode = {
-            "attentivemix": attentivemix, "puzzlemix": puzzlemix,
+            "alignmix": alignmix, "attentivemix": attentivemix, "puzzlemix": puzzlemix,
             "automix": self._mixblock, "samix": self._mixblock}
         self.static_mode = {
             "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "gridmix": gridmix,
@@ -255,6 +256,11 @@ class MixUpClassification(BaseModel):
                 img = self._mixblock()
                 raise NotImplementedError
             x = self.backbone(img)
+        elif cur_mode == "alignmix":
+            x = self.backbone(img)[-1]  # the last layer feature of (N, C, H, W)
+            mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
+            feat, gt_label = self.dynamic_mode[cur_mode](x, gt_label, **mix_args)
+            x = [feat]
         # hand-crafted methods
         elif cur_mode not in ["manifoldmix",]:
             if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:

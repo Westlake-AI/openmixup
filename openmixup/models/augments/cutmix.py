@@ -5,7 +5,12 @@ from openmixup.models.utils import batch_shuffle_ddp
 
 
 @torch.no_grad()
-def cutmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
+def cutmix(img,
+           gt_label,
+           alpha=1.0,
+           lam=None,
+           dist_mode=False,
+           **kwargs):
     r""" CutMix augmentation.
 
     "CutMix: Regularization Strategy to Train Strong Classifiers with

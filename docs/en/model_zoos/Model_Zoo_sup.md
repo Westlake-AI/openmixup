@@ -28,7 +28,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
 - [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
-- [ ] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
+- [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
 - [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
@@ -76,7 +76,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | AlignMix📖     |     2    |      -     |      -     |    78.00   |      -     |      -      |
 | Grafting📖     |     1    |      -     |      -     |    77.74   |      -     |      -      |
 | AutoMix       |     2    |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
-| SAMix*        |     2    |    70.83   |    74.95   |    78.06   |    80.05   |    80.98    |
+| SAMix*        |     2    |    70.83   |    74.95   |    78.14   |    80.05   |    80.98    |
 
 | Backbones   |  $Beta$  |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 |
 |-------------|:--------:|:----------:|:----------:|:----------:|:----------:|
@@ -114,7 +114,7 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 | FMix*         |    0.2   |   77.76   |   79.05   |  73.71 |  77.33 |   70.10   |   72.79   |
 | PuzzleMix     |     1    |   78.02   |   79.78   |  74.10 |  77.35 |   70.04   |   72.85   |
 | ResizeMix*    |     1    |   77.85   |   79.74   |  73.67 |  77.27 |   69.94   |   72.50   |
-| AutoMix       |     2    |   78.44   |     -     |  74.61 |  77.58 |   71.16   |   73.19   |
+| AutoMix       |     2    |   78.44   |   80.05   |  74.61 |  77.58 |   71.16   |   73.19   |
 | SAMix         |     2    |   78.64   |     -     |  75.28 |  77.69 |   71.24   |   73.42   |
 
 ### **DeiT Training Settings with ViTs on ImageNet-1k**
@@ -142,7 +142,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | TransMix📖     |  0.8, 1  |  74.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |        |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
+| SAMix*        |     2    |  75.64 |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
 
 ### **Tiny-ImageNet Dataset**
 

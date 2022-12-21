@@ -5,7 +5,12 @@ from openmixup.models.utils import batch_shuffle_ddp
 
 
 @torch.no_grad()
-def mixup(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
+def mixup(img,
+          gt_label,
+          alpha=1.0,
+          lam=None,
+          dist_mode=False,
+          **kwargs):
     r""" MixUp augmentation.
 
     "Mixup: Beyond Empirical Risk Minimization (https://arxiv.org/abs/1710.09412)".

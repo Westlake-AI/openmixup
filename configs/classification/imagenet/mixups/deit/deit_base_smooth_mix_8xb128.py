@@ -37,7 +37,7 @@ model = dict(
 
 # data
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
-# sampler = "RepeatAugSampler"  # this repo reproduce the performance without `repeated_aug`
+sampler = "RepeatAugSampler"  # the official repo uses `repeated_aug` for more stable training
 
 # interval for accumulate gradient
 update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024

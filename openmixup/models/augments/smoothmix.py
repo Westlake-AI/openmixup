@@ -5,7 +5,12 @@ from openmixup.models.utils import batch_shuffle_ddp
 
 
 @torch.no_grad()
-def smoothmix(img, gt_label, alpha=1.0, lam=None, dist_mode=False, **kwargs):
+def smoothmix(img,
+              gt_label,
+              alpha=1.0,
+              lam=None,
+              dist_mode=False,
+              **kwargs):
     r""" SmoothMix augmentation.
 
     "SmoothMix: a Simple Yet Effective Data Augmentation to Train Robust

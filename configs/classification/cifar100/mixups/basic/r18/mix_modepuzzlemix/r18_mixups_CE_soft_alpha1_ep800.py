@@ -10,6 +10,7 @@ model = dict(
     alpha=1,
     mix_mode="puzzlemix",
     mix_args=dict(
+        alignmix=dict(eps=0.1, max_iter=100),
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
         fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
