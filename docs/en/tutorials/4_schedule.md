@@ -1,21 +1,25 @@
-# Tutorial 6: Customize Schedule
+# Tutorial 4: Customize Schedule
 
 In this tutorial, we will introduce some methods about how to construct optimizers, customize learning rate and momentum schedules, parameter-wise finely configuration, gradient clipping, gradient accumulation, and customize self-implemented methods for the project.
 
 <!-- TOC -->
 
-- [Customize optimizer supported by PyTorch](#customize-optimizer-supported-by-pytorch)
-- [Customize learning rate schedules](#customize-learning-rate-schedules)
-  - [Learning rate decay](#learning-rate-decay)
-  - [Warmup strategy](#warmup-strategy)
-- [Customize momentum schedules](#customize-momentum-schedules)
-- [Parameter-wise finely configuration](#parameter-wise-finely-configuration)
-- [Gradient clipping and gradient accumulation](#gradient-clipping-and-gradient-accumulation)
-  - [Gradient clipping](#gradient-clipping)
-  - [Gradient accumulation](#gradient-accumulation)
-- [Customize self-implemented methods](#customize-self-implemented-methods)
-  - [Customize self-implemented optimizer](#customize-self-implemented-optimizer)
-  - [Customize optimizer constructor](#customize-optimizer-constructor)
+- [Tutorial 4: Customize Schedule](#tutorial-4-customize-schedule)
+  - [Customize optimizer supported by PyTorch](#customize-optimizer-supported-by-pytorch)
+  - [Customize learning rate schedules](#customize-learning-rate-schedules)
+    - [Learning rate decay](#learning-rate-decay)
+    - [Warmup strategy](#warmup-strategy)
+  - [Customize momentum schedules](#customize-momentum-schedules)
+  - [Parameter-wise finely configuration](#parameter-wise-finely-configuration)
+  - [Gradient clipping and gradient accumulation](#gradient-clipping-and-gradient-accumulation)
+    - [Gradient clipping](#gradient-clipping)
+    - [Gradient accumulation](#gradient-accumulation)
+  - [Customize self-implemented methods](#customize-self-implemented-methods)
+    - [Customize self-implemented optimizer](#customize-self-implemented-optimizer)
+      - [1. Define a new optimizer](#1-define-a-new-optimizer)
+      - [2. Add the optimizer to registry](#2-add-the-optimizer-to-registry)
+      - [3. Specify the optimizer in the config file](#3-specify-the-optimizer-in-the-config-file)
+    - [Customize optimizer constructor](#customize-optimizer-constructor)
 
 <!-- TOC -->
 

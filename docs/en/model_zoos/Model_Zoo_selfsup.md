@@ -1,9 +1,9 @@
-# Model Zoo
+# Model Zoo of Self-supervised Learning
 
 **Current results of self-supervised learning benchmarks are based on [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [solo-learn](https://github.com/vturrisi/solo-learn). We will rerun the experiments and update more reliable results soon!**
 
 <details open>
-<summary>Supported sample mixing policies</summary>
+<summary>Currently supported self-supervised learning methods</summary>
 
 - [x] [Relative Location [ICCV'2015]](https://arxiv.org/abs/1505.05192)
 - [x] [Rotation Prediction [ICLR'2018]](https://arxiv.org/abs/1803.07728)

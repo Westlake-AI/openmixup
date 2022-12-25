@@ -1,5 +1,6 @@
 # Getting Started
 
+- [Getting Started](#getting-started)
   - [Introduction](#introduction)
   - [Train existing methods](#train-existing-methods)
     - [Train with single/multiple GPUs](#train-with-singlemultiple-gpus)
@@ -71,6 +72,10 @@ If you use `dist_train.sh` to launch training jobs:
 ```shell
 CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh ${CONFIG_FILE} 4
 CUDA_VISIBLE_DEVICES=4,5,6,7 PORT=29501 bash tools/dist_train.sh ${CONFIG_FILE} 4
+```
+For example, you can run the script below to train a mixup CIFAR100 classification algorithm with 4 GPUs:
+```shell
+CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh openmixup\configs\classification\cifar100\mixups\basic\r18_mixups_CE_none.py 4
 ```
 
 If you use launch training jobs with slurm:

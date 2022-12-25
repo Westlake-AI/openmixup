@@ -1,21 +1,23 @@
-# Tutorial 7: Customize Runtime Settings
+# Tutorial 5: Customize Runtime Settings
 
 In this tutorial, we will introduce some methods about how to customize workflow and hooks when running your own settings for the project.
 
 <!-- TOC -->
 
-- [Customize Workflow](#customize-workflow)
-- [Hooks](#hooks)
-  - [Default training hooks](#default-training-hooks)
-    - [CheckpointHook](#checkpointhook)
-    - [LoggerHooks](#loggerhooks)
-    - [EvalHook](#evalhook)
-  - [Use other implemented hooks](#use-other-implemented-hooks)
+- [Tutorial 5: Customize Runtime Settings](#tutorial-5-customize-runtime-settings)
+  - [Customize Workflow](#customize-workflow)
+  - [Hooks](#hooks)
+    - [default training hooks](#default-training-hooks)
+      - [CheckpointHook](#checkpointhook)
+      - [LoggerHooks](#loggerhooks)
+      - [EvalHook](#evalhook)
+    - [Use other implemented hooks](#use-other-implemented-hooks)
   - [Customize self-implemented hooks](#customize-self-implemented-hooks)
-    - [1. Implement a new hook](#1.-implement-a-new-hook)
-    - [2. Register the new hook](#2.-register-the-new-hook)
-    - [3. Modify the config](#3.-modify-the-config)
-- [FAQ](#faq)
+    - [1. Implement a new hook](#1-implement-a-new-hook)
+    - [2. Register the new hook](#2-register-the-new-hook)
+    - [3. Modify the config](#3-modify-the-config)
+  - [FAQ](#faq)
+    - [1. `resume_from` and `load_from` and `init_cfg.Pretrained`](#1-resume_from-and-load_from-and-init_cfgpretrained)
 
 <!-- TOC -->
 

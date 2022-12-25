@@ -4,15 +4,26 @@ OpenMixup mainly uses python files as configs. The design of our configuration f
 
 If you wish to inspect the config file, you may run `python tools/misc/print_config.py /PATH/TO/CONFIG` to see the complete config.
 
-- [Config  File and Checkpoint Naming Convention](#config-file-and-checkpoint-naming-convention)
-- [Config File Structure](#config-file-structure)
-- [Inherit and Modify Config File](#inherit-and-modify-config-file)
-  - [Use intermediate variables in configs](#use-intermediate-variables-in-configs)
-  - [Ignore some fields in the base configs](#ignore-some-fields-in-the-base-configs)
-  - [Use some fields in the base configs](#use-some-fields-in-the-base-configs)
-- [Modify config through script arguments](#modify-config-through-script-arguments)
-- [Import user-defined modules](#import-ser-defined-modules)
-- [FAQ](#faq)
+- [Tutorial 0: Learn about Configs](#tutorial-0-learn-about-configs)
+  - [Config File and Checkpoint Naming Convention](#config-file-and-checkpoint-naming-convention)
+    - [Algorithm information](#algorithm-information)
+    - [Module information](#module-information)
+    - [Training information](#training-information)
+    - [Data information](#data-information)
+    - [Config File Name Example](#config-file-name-example)
+    - [Checkpoint Naming Convention](#checkpoint-naming-convention)
+  - [Config File Structure](#config-file-structure)
+    - [model](#model)
+    - [data](#data)
+    - [training schedule](#training-schedule)
+    - [runtime setting](#runtime-setting)
+  - [Inherit and Modify Config File](#inherit-and-modify-config-file)
+    - [Use intermediate variables in configs](#use-intermediate-variables-in-configs)
+    - [Ignore some fields in the base configs](#ignore-some-fields-in-the-base-configs)
+    - [Use some fields in the base configs](#use-some-fields-in-the-base-configs)
+  - [Modify config through script arguments](#modify-config-through-script-arguments)
+  - [Import user-defined modules](#import-user-defined-modules)
+  - [FAQ](#faq)
 
 ## Config File and Checkpoint Naming Convention
 
@@ -27,6 +38,11 @@ We follow the below convention to name config files. Contributors are advised to
 - `training info`：Training information, some training schedule, including batch size, lr schedule, data augment and the like;
 - `data info`：Data information, dataset name, input size and so on, such as imagenet, cifar, etc.;
 
+For example, you can name a mixup classification algorithm config file that use `puzzlemix` based on`resnet18` with CIFAR mixup classification training setting (`CE`) as follows:
+```
+r18_mixups_CE_none.py
+```
+
 ### Algorithm information
 The main algorithm name and the corresponding branch architecture information. E.g：
 - `resnet50`
@@ -35,7 +51,8 @@ The main algorithm name and the corresponding branch architecture information. E
 - `seresnext101-32x4d`  : `SeResNet101` network structure, `32x4d` means that `groups` and `width_per_group` are 32 and 4 respectively in `Bottleneck`;
 
 ### Module information
-Some special `neck`, `head` and `pretrain` information. In classification tasks, `pretrain` information is the most commonly used:
+Some special `neck`, `head`, `pretrain` and `mixup methods` information. In classification tasks, `pretrain` information is the most commonly used:
+- `mixups` : apply mixup augmentation methods;
 - `in21k-pre` : pre-trained on ImageNet21k;
 - `in21k-pre-3rd-party` : pre-trained on ImageNet21k and the checkpoint is converted from a third-party repository;
 
@@ -99,7 +116,7 @@ There are four kinds of basic component file in the `configs/_base_` folders, na
 
 You can easily build your own training config file by inherit some base config files. And the configs that are composed by components from `_base_` are called _primitive_.
 
-For easy understanding, we use [ResNet50 primitive config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb32_in1k.py) as a example and comment the meaning of each line. For more detaile, please refer to the API documentation.
+For easy understanding, we use [ResNet50 primitive config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb32_in1k.py) as a example and comment the meaning of each line. For more details, please refer to the API documentation.
 
 ```python
 _base_ = [
@@ -111,6 +128,7 @@ _base_ = [
 ```
 
 The four parts are explained separately below, and the above-mentioned ResNet50 primitive config are also used as an example.
+
 
 ### model
 The parameter `"model"` is a python dictionary in the configuration file, which mainly includes information such as network structure and loss function:
@@ -144,6 +162,41 @@ model = dict(
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0), # Loss function configuration information
         topk=(1, 5),              # Evaluation index, Top-k accuracy rate, here is the accuracy rate of top1 and top5
     ))
+```
+For mixup classification tasks, here is an example for the ``model`` parameter for CIFAR based on `resnet18` backbone. As shown below, you can customize your own mixup classification strategies by designating different mixup mode, arguments and backbones.
+
+```python
+# model settings
+model = dict(
+    type='MixUpClassification',
+    pretrained=None,
+    alpha=1,
+    mix_mode="mixup",
+    mix_args=dict(
+        alignmix=dict(eps=0.1, max_iter=100),
+        attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
+        automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
+        fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
+        gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+            cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
+        manifoldmix=dict(layer=(0, 3)),
+        puzzlemix=dict(transport=True, t_batch_size=None, t_size=4,  # t_size for small-scale datasets
+            block_num=5, beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
+        resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
+        samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
+    ),
+    backbone=dict(
+        # type='ResNet_CIFAR',  # CIFAR version
+        type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
+        depth=18,
+        num_stages=4,
+        out_indices=(3,),  # no conv-1, x-1: stage-x
+        style='pytorch'),
+    head=dict(
+        type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
+        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
+        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100)
+)
 ```
 
 ### data

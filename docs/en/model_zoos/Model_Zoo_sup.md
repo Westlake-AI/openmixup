@@ -1,345 +1,224 @@
 # Model Zoo of Supervised Learning
 
-**OpenMixup provides mixup benchmarks on supervised learning on various tasks. Config files and experiment results are available, and pre-trained models and training logs are updating. Moreover, more advanced mixup variants will be supported in the future. Issues and PRs are welcome!**
-
-Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 (or R-50) and sampling $\lambda$ from $\Beta(\alpha,8)$ as *AttentiveMix+*, which yields better performances.
+**Some of the current results of supervised learning benchmarks are based on [MMClassification](https://github.com/open-mmlab/mmselfsup). We will rerun the experiments and update more reliable results soon!**
 
 **Note**
 
 * We summarize benchmark results in Markdown tables. You can convert them into other formats (e.g., LaTeX) with [online tools](https://www.tablesgenerator.com/markdown_tables).
-* As for evaluation, you can test pre-trained models with `tools/dist_test.sh`, and then you can extract experiment results (from JSON files) by tools in `openmixup/tools/summary/`. An example with 4 GPUs evaluation and summarization is as follows:
-  ```shell
-  CUDA_VISIBLE_DEVICES=1,2,3,4 bash tools/dist_test.sh ${CONFIG_FILE} 4 ${PATH_TO_MODEL}
-  python tools/summary/find_val_max_3times_average.py ${PATH_TO_JSON_LOG} head0_top1-head0_top5
-  ```
+* Models with \* are converted from the corresponding official repos, others are trained by ourselves.
+* For [MogaNet](https://arxiv.org/abs/2211.03295) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)], \* denotes the refined training setting of lightweight models with [3-Augment](https://arxiv.org/abs/2204.07118).
+  
+    <details open>
+    <summary>Currently supported backbones</summary>
+- [x] [AlexNet](https://dl.acm.org/doi/10.1145/3065386) (NIPS'2012) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/alexnet/)]
+- [x] [VGG](https://arxiv.org/abs/1409.1556) (ICLR'2015) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/)]
+- [x] [InceptionV3](https://arxiv.org/abs/1512.00567) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/inception_v3/)]
+- [x] [ResNet](https://openaccess.thecvf.com/content_cvpr_2016/html/He_Deep_Residual_Learning_CVPR_2016_paper.html) (CVPR'2016) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+- [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+- [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+- [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
+- [x] [ShuffleNetV1](https://arxiv.org/abs/1807.11164) (CVPR'2018)
+- [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
+- [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
+- [x] [MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV'2019)
+- [x] [EfficientNet](https://arxiv.org/abs/1905.11946) (ICML'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/)]
+- [x] [Res2Net](https://arxiv.org/abs/1904.01169) (ArXiv'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/res2net/)]
+- [x] [RegNet](https://arxiv.org/abs/2003.13678) (CVPR'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/)]
+- [x] [Vision-Transformer](https://arxiv.org/abs/2010.11929) (ICLR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/)]
+- [x] [Swin-Transformer](https://arxiv.org/abs/2103.14030) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/)]
+- [x] [PVT](https://arxiv.org/abs/2102.12122) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/pvt/)]
+- [x] [T2T-ViT](https://arxiv.org/abs/2101.11986) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/t2t_vit/)]
+- [x] [RepVGG](https://arxiv.org/abs/2101.03697) (CVPR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/)]
+- [x] [DeiT](https://arxiv.org/abs/2012.12877) (ICML'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/)]
+- [x] [MLP-Mixer](https://arxiv.org/abs/2105.01601) (NIPS'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/)]
+- [x] [Twins](https://proceedings.neurips.cc/paper/2021/hash/4e0928de075538c593fbdabb0c5ef2c3-Abstract.html) (NIPS'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/)]
+- [x] [ConvMixer](https://arxiv.org/abs/2201.09792) (Openreview'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/)]
+- [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
+- [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
+- [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
+- [x] [MViTV2](https://arxiv.org/abs/2112.01526) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/)]
+- [x] [RepMLP](https://arxiv.org/abs/2105.01883) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repmlp/)]
+- [x] [VAN](https://arxiv.org/abs/2202.09741) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/)]
+- [x] [DeiT-3](https://arxiv.org/abs/2204.07118) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit3/)]
+- [x] [LITv2](https://arxiv.org/abs/2205.13213) (NIPS'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/)]
+- [x] [HorNet](https://arxiv.org/abs/2207.14284) (NIPS'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/)]
+- [x] [EdgeNeXt](https://arxiv.org/abs/2206.10589) (ECCVW'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/)]
+- [x] [EfficientFormer](https://arxiv.org/abs/2206.01191) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/)]
+- [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
+    </details>
 
-<details open>
-<summary>Supported sample mixing policies</summary>
+## ImageNet
+ImageNet has multiple versions, but the most commonly used one is [ILSVRC 2012](http://www.image-net.org/challenges/LSVRC/2012/).
 
-- [X] [Mixup [ICLR'2018]](https://arxiv.org/abs/1710.09412)
-- [X] [CutMix [ICCV'2019]](https://arxiv.org/abs/1905.04899)
-- [X] [ManifoldMix [ICML'2019]](https://arxiv.org/abs/1806.05236)
-- [X] [FMix [ArXiv'2020]](https://arxiv.org/abs/2002.12047)
-- [X] [AttentiveMix [ICASSP'2020]](https://arxiv.org/abs/2003.13048)
-- [X] [SmoothMix [CVPRW'2020]](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf)
-- [X] [SaliencyMix [ICLR'2021]](https://arxiv.org/abs/1710.09412)
-- [X] [PuzzleMix [ICML'2020]](https://arxiv.org/abs/2009.06962)
-- [ ] [Co-Mixup [ICLR'2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
-- [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
-- [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
-- [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
-- [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
-- [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
-- [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
-
-</details>
-
-<details open>
-<summary>Supported label mixing policies</summary>
-
-- [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796)
-- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
-- [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
-- [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
-
-</details>
-
-## ImageNet Benchmarks
-
-We provide three popular benchmarks on ImageNet-1k based on various network architectures. We also provide results on Tiny-ImageNet for fast experiments. The **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs is reported for ResNet variants, and the **best** top-1 accuracy is reported for Transformer architectures.
-
-### **PyTorch-style Training Settings on ImageNet-1k**
-
-These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settings, training 100 and 300 epochs from stretch based on ResNet variants on [ImageNet-1k](http://www.image-net.org/challenges/LSVRC/2012/).
-
-**Note**
-
-* Please refer to config files for experiment details: [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), [AutoMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix/basic/), [SAMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/basic/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Since ResNet-18 might be under-fitted on ImageNet-1k, we adopt $\alpha=0.2$ for some cutting-based mixups (CutMix, SaliencyMix, FMix, ResizeMix) based on ResNet-18.
-* Notice that 📖 denotes original results reproduced by official implementations.
-
-| Backbones     |  $Beta$  |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 | ResNeXt-101 |
-|---------------|:--------:|:----------:|:----------:|:----------:|:----------:|:-----------:|
-| Epochs        | $\alpha$ | 100 epochs | 100 epochs | 100 epochs | 100 epochs |  100 epochs |
-| Vanilla       |     -    |    70.04   |    73.85   |    76.83   |    78.18   |    78.71    |
-| MixUp         |    0.2   |    69.98   |    73.97   |    77.12   |    78.97   |    79.98    |
-| CutMix        |     1    |    68.95   |    73.58   |    77.17   |    78.96   |    80.42    |
-| ManifoldMix   |    0.2   |    69.98   |    73.98   |    77.01   |    79.02   |    79.93    |
-| SaliencyMix   |     1    |    69.16   |    73.56   |    77.14   |    79.32   |    80.27    |
-| AttentiveMix+ |     2    |    68.57   |      -     |    77.28   |      -     |      -      |
-| FMix*         |     1    |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
-| PuzzleMix     |     1    |    70.12   |    74.26   |    77.54   |    79.36   |    80.53    |
-| Co-Mixup📖     |     2    |      -     |      -     |    77.60   |      -     |      -      |
-| SuperMix📖     |     2    |      -     |      -     |    77.63   |      -     |      -      |
-| ResizeMix*    |     1    |    69.50   |    73.88   |    77.42   |    79.49   |    80.55    |
-| AlignMix📖     |     2    |      -     |      -     |    78.00   |      -     |      -      |
-| Grafting📖     |     1    |      -     |      -     |    77.74   |      -     |      -      |
-| AutoMix       |     2    |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
-| SAMix*        |     2    |    70.83   |    74.95   |    78.14   |    80.05   |    80.98    |
-
-| Backbones   |  $Beta$  |  ResNet-18 |  ResNet-34 |  ResNet-50 | ResNet-101 |
-|-------------|:--------:|:----------:|:----------:|:----------:|:----------:|
-| Epochs      | $\alpha$ | 300 epochs | 300 epochs | 300 epochs | 300 epochs |
-| Vanilla     |     -    |    71.83   |    75.29   |    77.35   |    78.91   |
-| MixUp       |    0.2   |    71.72   |    75.73   |    78.44   |    80.60   |
-| CutMix      |     1    |    71.01   |    75.16   |    78.69   |    80.59   |
-| ManifoldMix |    0.2   |    71.73   |    75.44   |    78.21   |    80.64   |
-| SaliencyMix |     1    |    70.97   |    75.01   |    78.46   |    80.45   |
-| FMix*       |     1    |    70.30   |    75.12   |    78.51   |    80.20   |
-| PuzzleMix   |     1    |    71.64   |    75.84   |    78.86   |    80.67   |
-| ResizeMix*  |     1    |    71.32   |    75.64   |    78.91   |    80.52   |
-| AlignMix📖   |     2    |      -     |      -     |    79.32   |      -     |
-| AutoMix     |     2    |    72.05   |    76.10   |    79.25   |    80.98   |
-| SAMix*      |     2    |    72.27   |    76.28   |    79.39   |    81.10   |
-
-### **Timm RSB A2/A3 Training Settings on ImageNet-1k**
-
-These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models) [RSB A2/A3](https://arxiv.org/abs/2110.00476) settings based on ResNet-50, EfficientNet-B0, and MobileNet.V2. Training 300/100 epochs with the BCE loss on ImageNet-1k, RSB A3 is a fast training setting while RSB A2 can exploit the full representation ability of ConvNets.
-
-**Note**
-
-* Please refer to config files for experiment details: [RSB A3](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a3/) and [RSB A2](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/rsb_a2/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
-* Notice that the [RSB](https://arxiv.org/abs/2110.00476) settings employ Mixup with $\alpha=0.1$ and CutMix with $\alpha=1.0$. We report the **median** of top-1 accuracy in the last 5/10 training epochs for 100/300 epochs.
-
-| Backbones     |  $Beta$  | ResNet-50 | ResNet-50 | Eff-B0 | Eff-B0 | Mob.V2 1x | Mob.V2 1x |
-|---------------|:--------:|:---------:|:---------:|:------:|:------:|:---------:|:---------:|
-| Settings      | $\alpha$ |     A3    |     A2    |   A3   |   A2   |     A3    |     A2    |
-| RSB           |  0.1, 1  |   78.08   |   79.80   |  74.02 |  77.26 |   69.86   |   72.87   |
-| MixUp         |    0.2   |   77.66   |     -     |  73.87 |  77.19 |   70.17   |   72.78   |
-| CutMix        |    0.2   |   77.62   |   79.38   |  73.46 |  77.24 |   69.62   |   72.23   |
-| ManifoldMix   |    0.2   |   77.78   |   79.47   |  73.83 |  77.22 |   70.05   |   72.34   |
-| AttentiveMix+ |     2    |   77.46   |   79.34   |  72.16 |  75.95 |   67.32   |   70.30   |
-| SaliencyMix   |    0.2   |   77.93   |   79.42   |  73.42 |  77.67 |   69.69   |   72.07   |
-| FMix*         |    0.2   |   77.76   |   79.05   |  73.71 |  77.33 |   70.10   |   72.79   |
-| PuzzleMix     |     1    |   78.02   |   79.78   |  74.10 |  77.35 |   70.04   |   72.85   |
-| ResizeMix*    |     1    |   77.85   |   79.74   |  73.67 |  77.27 |   69.94   |   72.50   |
-| AutoMix       |     2    |   78.44   |   80.05   |  74.61 |  77.58 |   71.16   |   73.19   |
-| SAMix         |     2    |   78.64   |     -     |  75.28 |  77.69 |   71.24   |   73.42   |
-
-### **DeiT Training Settings with ViTs on ImageNet-1k**
-
-Since recently proposed transformer-based architectures adopt mixups as parts of essential augmentations, these benchmarks follow [DeiT](https://arxiv.org/abs/2012.12877) settings based on DeiT-Small, Swin-Tiny, and ConvNeXt-Tiny on ImageNet-1k.
-
-**Note**
-
-* Please refer to config files of various mixups for experiment details: [DeiT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit/), [PVT](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/pvt), [Swin](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/swin/), [ConvNeXt](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/convnext/), [MogaNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/moganet/). You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
-* Notice that the [DeiT](https://arxiv.org/abs/2012.12877) setting employs Mixup with $\alpha=0.8$ and CutMix with $\alpha=1.0$.
-* Notice that the performances of transformer-based architectures are more difficult to reproduce than ResNet variants, and the mean of the **best** performance in 3 trials is reported as their original paper. Notice that 📖 denotes original results reproduced by official implementations.
-
-| Methods       | $\alpha$ | DeiT-T | DeiT-S | PVT-T | Swin-T | ConvNeXt-T | MogaNet-T |
-|---------------|:--------:|:------:|:------:|:-----:|:------:|:----------:|:---------:|
-| Vanilla       |     -    |  73.91 |  75.66 | 74.67 |  80.21 |    79.22   |   79.25   |
-| DeiT          |  0.8, 1  |  74.50 |  79.80 | 75.10 |  81.20 |    82.10   |   79.02   |
-| MixUp         |    0.2   |  74.69 |  77.72 | 75.24 |  81.01 |    80.88   |   79.29   |
-| CutMix        |    0.2   |  74.23 |  80.13 | 75.53 |  81.23 |    81.57   |   78.37   |
-| ManifoldMix   |    0.2   |    -   |    -   |   -   |    -   |    80.57   |   79.07   |
-| AttentiveMix+ |     2    |  74.07 |  80.32 | 74.98 |  81.29 |    81.14   |   77.53   |
-| SaliencyMix   |    0.2   |  74.17 |  79.88 | 75.71 |  81.37 |    81.33   |   78.74   |
-| PuzzleMix     |     1    |  73.85 |  80.45 | 75.48 |  81.47 |    81.48   |   78.12   |
-| FMix*         |    0.2   |  74.41 |  77.37 | 75.28 |  79.60 |    81.04   |   79.05   |
-| ResizeMix*    |     1    |  74.79 |  78.61 | 76.05 |  81.36 |    81.64   |   78.77   |
-| TransMix📖     |  0.8, 1  |  74.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
-| TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
-| AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |  75.64 |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
-
-### **Tiny-ImageNet Dataset**
-
-This benchmark largely follows [PuzzleMix](https://arxiv.org/abs/2009.06962) settings. All compared methods adopt ResNet-18 and ResNeXt-50 (32x4d) architectures training 400 epochs on [Tiny-ImageNet](https://www.kaggle.com/c/tiny-imagenet). The training and testing image size is 64 (no CenterCrop in testing). We search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
-
-**Note**
-
-* Please refer to config files for experiment details: [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/mixups/), [AutoMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/automix/), [SAMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/samix/). As for config files of various mixups, please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Notice that 📖 denotes original results reproduced by official implementations.
-
-| Backbones     | $\alpha$ | ResNet-18 | ResNeXt-50 |
-|---------------|:--------:|:---------:|:----------:|
-| Vanilla       |     -    |   61.68   |    65.04   |
-| MixUp         |     1    |   63.86   |    66.36   |
-| CutMix        |     1    |   65.53   |    66.47   |
-| ManifoldMix   |    0.2   |   64.15   |    67.30   |
-| SmoothMix     |    0.2   |   66.65   |    69.65   |
-| SaliencyMix   |     1    |   64.60   |    66.55   |
-| AttentiveMix+ |     2    |   64.85   |    67.42   |
-| FMix*         |     1    |   63.47   |    65.08   |
-| PuzzleMix     |     1    |   65.81   |    67.83   |
-| Co-Mixup📖    |     2    |   65.92   |    68.02   |
-| ResizeMix*    |     1    |   63.74   |    65.87   |
-| GridMix       |    0.2   |   65.14   |    66.53   |
-| Grafting📖    |     1    |   64.84   |      -     |
-| AlignMix📖    |     2    |   66.87   |      -     |
-| AutoMix       |     2    |   67.33   |    70.72   |
-| SAMix*        |     2    |   68.89   |    72.18   |
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## CIFAR-10/100 Benchmarks
-
-CIFAR benchmarks based on ResNet variants. We report the **median** of top-1 accuracy in the last 10 training epochs.
-
-### **CIFAR-10 Dataset**
-
-These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from stretch based on the CIFAR version of ResNet variants on [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html).
-
-**Note**
-
-* Please refer to config files of [CIFAR-10](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/) for experiment details. You can modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts for various mixups.
-* Notice that 📖 denotes original results reproduced by official implementations.
-
-| Backbones     |  $Beta$   |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
-|---------------|:---------:|:----------:|:----------:|:----------:|:-----------:|
-| Epochs        |  $\alpha$ | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla       |     -     |    94.87   |    95.10   |    95.50   |    95.59    |
-| MixUp         |     1     |    95.70   |    96.55   |    96.62   |    96.84    |
-| CutMix        |    0.2    |    96.11   |    96.13   |    96.68   |    96.56    |
-| ManifoldMix   |     2     |    96.04   |    96.57   |    96.71   |    97.02    |
-| SmoothMix     |    0.5    |    95.29   |    95.88   |    96.17   |    96.17    |
-| SaliencyMix   |    0.2    |    96.05   |    96.42   |    96.20   |    96.18    |
-| AttentiveMix+ |     2     |    96.21   |    96.45   |    96.63   |    96.49    |
-| FMix*         |    0.2    |    96.17   |    96.53   |    96.18   |    96.01    |
-| PuzzleMix     |     1     |    96.42   |    96.87   |    97.10   |    97.13    |
-| GridMix       |    0.2    |    95.89   |    96.33   |    96.56   |    96.58    |
-| ResizeMix*    |     1     |    96.16   |    96.91   |    96.76   |    97.04    |
-| AlignMix📖    |     2     |      -     |      -     |      -     |    97.05    |
-| AutoMix       |     2     |    96.59   |    97.08   |    97.34   |    97.30    |
-| SAMix*        |     2     |    96.67   |    97.16   |    97.50   |    97.41    |
-
-| Backbones     |   $Beta$   | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |
-|---------------|:----------:|:----------:|:----------:|:----------:|:-----------:|
-| Epochs        |  $\alpha$  | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla       |      -     |    95.92   |    95.81   |    96.23   |    96.26    |
-| MixUp         |      1     |    96.88   |    97.19   |    97.30   |    97.33    |
-| CutMix        |     0.2    |    96.78   |    96.54   |    96.60   |    96.35    |
-| ManifoldMix   |      2     |    96.97   |    97.39   |    97.33   |    97.36    |
-| SmoothMix     |     0.2    |    95.87   |    96.37   |    96.49   |    96.77    |
-| SaliencyMix   |     0.2    |    96.65   |    96.89   |    96.70   |    96.60    |
-| AttentiveMix+ |      2     |    96.84   |    96.91   |    96.87   |    96.62    |
-| FMix*         |     0.2    |    96.72   |    96.76   |    96.76   |    96.10    |
-| PuzzleMix     |      1     |    97.05   |    97.24   |    97.37   |    97.34    |
-| GridMix       |     0.2    |    97.18   |    97.30   |    96.40   |    95.79    |
-| ResizeMix*    |      1     |    97.02   |    97.38   |    97.21   |    97.36    |
-| AutoMix       |      2     |    97.19   |    97.42   |    97.65   |    97.51    |
-| SAMix*        |      2     |    97.23   |    97.51   |    97.93   |    97.74    |
-
-### **CIFAR-100 Dataset**
-
-These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from stretch based on the CIFAR version of ResNet variants on [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html). When adopting ResNeXt-50 (32x4d) as the backbone, we use `wd=5e-4` for cutting-based methods (CutMix, AttributeMix+, SaliencyMix, FMix, ResizeMix) for better performances.
-
-**Note**
-
-* Please refer to config files for experiment details: [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/), [AutoMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/automix/), [SAMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/samix/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Notice that 📖 denotes original results reproduced by official implementations.
-
-| Backbones     |  $Beta$   |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
-|---------------|:---------:|:----------:|:----------:|:----------:|:-----------:|
-| Epoch         |  $\alpha$ | 200 epochs | 400 epochs | 800 epochs | 1200 epochs |
-| Vanilla       |     -     |    76.42   |    77.73   |    78.04   |    78.55    |
-| MixUp         |     1     |    78.52   |    79.34   |    79.12   |    79.24    |
-| CutMix        |    0.2    |    79.45   |    79.58   |    78.17   |    78.29    |
-| ManifoldMix   |     2     |    79.18   |    80.18   |    80.35   |    80.21    |
-| SmoothMix     |    0.2    |    77.90   |    78.77   |    78.69   |    78.38    |
-| SaliencyMix   |    0.2    |    79.75   |    79.64   |    79.12   |    77.66    |
-| AttentiveMix+ |     2     |    79.62   |    80.14   |    78.91   |    78.41    |
-| FMix*         |    0.2    |    78.91   |    79.91   |    79.69   |    79.50    |
-| PuzzleMix     |     1     |    79.96   |    80.82   |    81.13   |    81.10    |
-| Co-Mixup📖    |     2     |    80.01   |    80.87   |    81.17   |    81.18    |
-| GridMix       |    0.2    |    78.23   |    78.60   |    78.72   |    77.58    |
-| ResizeMix*    |     1     |    79.56   |    79.19   |    80.01   |    79.23    |
-| AlignMix📖    |     2     |      -     |      -     |      -     |    81.71    |
-| AutoMix       |     2     |    80.12   |    81.78   |    82.04   |    81.95    |
-| SAMix*        |     2     |    81.21   |    81.97   |    82.30   |    82.41    |
-
-| Backbones     |  $Beta$  | ResNeXt-50 | ResNeXt-50 | ResNeXt-50 |  ResNeXt-50 |  WRN-28-8  |
-|---------------|:--------:|:----------:|:----------:|:----------:|:-----------:|:----------:|
-| Epoch         | $\alpha$ | 200 epochs | 400 epochs | 800 epochs | 1200 epochs | 400 epochs |
-| Vanilla       |     -    |    79.37   |    80.24   |    81.09   |    81.32    |    81.63   |
-| MixUp         |     1    |    81.18   |    82.54   |    82.10   |    81.77    |    82.82   |
-| CutMix        |    0.2   |    81.52   |    78.52   |    78.32   |    77.17    |    84.45   |
-| ManifoldMix   |     2    |    81.59   |    82.56   |    82.88   |    83.28    |    83.24   |
-| SmoothMix     |    0.2   |    80.68   |    79.56   |    78.95   |    77.88    |    82.09   |
-| SaliencyMix   |    0.2   |    80.72   |    78.63   |    78.77   |    77.51    |    84.35   |
-| AttentiveMix+ |     2    |    81.69   |    81.53   |    80.54   |    79.60    |    84.34   |
-| FMix*         |    0.2   |    79.87   |    78.99   |    79.02   |    78.24    |    84.21   |
-| PuzzleMix     |     1    |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
-| Co-Mixup📖    |     2    |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
-| GridMix       |    0.2   |    81.11   |    79.80   |    78.90   |    76.11    |    84.24   |
-| ResizeMix*    |     1    |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
-| AutoMix       |     2    |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
-| SAMix*        |     2    |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
-
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-## Fine-grained and Scenic Classification Benchmarks
-
-We further provide benchmarks on downstream classification scenarios. We report the **median** of top-1 accuracy in the last 5/10 training epochs for 100/200 epochs.
-
-### **Transfer Learning on Small-scale Fine-grained Datasets**
-
-These benchmarks follow transfer learning settings on fine-grained datasets, using PyTorch official pre-trained models as initialization and training 200 epochs on [CUB-200](http://www.vision.caltech.edu/visipedia/CUB-200-2011.html) and [FGVC-Aircraft](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/).
-
-**Note**
-
-* Please refer to config files for experiment details: [CUB-200](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/mixups/basic) and [FGVC-Aircraft](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/mixups/basic). As for config files of various mixups, please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-
-| Datasets    |  $Beta$  |  CUB-200  |   CUB-200  |  Aircraft |  Aircraft  |
-|-------------|:--------:|:---------:|:----------:|:---------:|:----------:|
-| Backbones   | $\alpha$ | ResNet-18 | ResNeXt-50 | ResNet-18 | ResNeXt-50 |
-| Vanilla     |     -    |   77.68   |    83.01   |   80.23   |    85.10   |
-| MixUp       |    0.2   |   78.39   |    84.58   |   79.52   |    85.18   |
-| CutMix      |     1    |   78.40   |    85.68   |   78.84   |    84.55   |
-| ManifoldMix |    0.5   |   79.76   |    86.38   |   80.68   |    86.60   |
-| SaliencyMix |    0.2   |   77.95   |    83.29   |   80.02   |    84.31   |
-| FMix*       |    0.2   |   77.28   |    84.06   |   79.36   |    86.23   |
-| PuzzleMix   |     1    |   78.63   |    84.51   |   80.76   |    86.23   |
-| ResizeMix*  |     1    |   78.50   |    84.77   |   78.10   |    84.08   |
-| AutoMix     |     2    |   79.87   |    86.56   |   81.37   |    86.72   |
-| SAMix*      |     2    |   81.11   |    86.83   |   82.15   |    86.80   |
-
-### **Large-scale Fine-grained Datasets**
-
-These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNet-1k training settings, training 100 epochs from stretch on [iNat2017](https://github.com/visipedia/inat_comp/tree/master/2017) and [iNat2018](https://github.com/visipedia/inat_comp/tree/master/2018).
-
-**Note**
-
-* Please refer to config files for experiment details: [iNat2017](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/) and [iNat2018](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/). As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Download weights and logs: iNat2017 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-inat2017-weights), [Baidu (1e7w)](https://pan.baidu.com/s/1GsoXVpIBXPjyFKsCdnmp9Q)], iNat2018 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-inat2018-weights), [Baidu (wy2v)](https://pan.baidu.com/s/1P4VeJalFLV0chryjYCfveg)].
-
-| Datasets    |  $Beta$  |  iNat2017 |  iNat2017 |   iNat2017  |  iNat2018 |   iNat2018  |
-|-------------|:--------:|:---------:|:---------:|:-----------:|:---------:|:-----------:|
-| Backbones   | $\alpha$ | ResNet-18 | ResNet-50 | ResNeXt-101 | ResNet-50 | ResNeXt-101 |
-| Vanilla     |     -    |   51.79   |   60.23   |    63.70    |   62.53   |    66.94    |
-| MixUp       |    0.2   |   51.40   |   61.22   |    66.27    |   62.69   |    67.56    |
-| CutMix      |     1    |   51.24   |   62.34   |    67.59    |   63.91   |    69.75    |
-| ManifoldMix |    0.2   |   51.83   |   61.47   |    66.08    |   63.46   |    69.30    |
-| SaliencyMix |     1    |   51.29   |   62.51   |    67.20    |   64.27   |    70.01    |
-| FMix*       |     1    |   52.01   |   61.90   |    66.64    |   63.71   |    69.46    |
-| PuzzleMix   |     1    |     -     |   62.66   |    67.72    |   64.36   |    70.12    |
-| ResizeMix*  |     1    |   51.21   |   62.29   |    66.82    |   64.12   |    69.30    |
-| AutoMix     |     2    |   52.84   |   63.08   |    68.03    |   64.73   |    70.49    |
-| SAMix*      |     2    |   53.42   |   63.32   |    68.26    |   64.84   |    70.54    |
-
-### **Scenic Classification Dataset**
-
-This benchmark follows [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNet-1k training settings, training 100 epochs from stretch on [Places205](http://places2.csail.mit.edu/index.html).
-
-**Note**
-
-* Please refer to config files of [Places205](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/) for experiment details. As for config files of [various mixups](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/mixups/), please modify `max_epochs` and `mix_mode` in `auto_train_mixups.py` to generate configs and bash scripts.
-* Download weights and logs of Places205 [[github](https://github.com/Westlake-AI/openmixup/releases/tag/mixup-place205-weights), [Baidu (4m94)](https://pan.baidu.com/s/1ciAYxK6SwR13UNScp0W3bQ)].
-
-| Datasets    |  $Beta$  |  Places205 |  Places205 |
-|-------------|:--------:|:---------:|:---------:|
-| Backbones   | $\alpha$ | ResNet-18 | ResNet-50 |
-| Vanilla     |     -    |   59.63   |   63.10   |
-| MixUp       |    0.2   |   59.33   |   63.01   |
-| CutMix      |    0.2   |   59.21   |   63.75   |
-| ManifoldMix |    0.2   |   59.46   |   63.23   |
-| SaliencyMix |    0.2   |   59.50   |   63.33   |
-| FMix*       |    0.2   |   59.51   |   63.63   |
-| PuzzleMix   |     1    |   59.62   |   63.91   |
-| ResizeMix*  |     1    |   59.66   |   63.88   |
-| AutoMix     |     2    |   59.74   |   64.06   |
-| SAMix*      |     2    |   59.86   |   64.27   |
-
-<p align="right">(<a href="#top">back to top</a>)</p>
+| Model | Params(M) | Flops(G) | Top-1 (%) | Top-5 (%) | Config | Download |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| AlexNet | 61.1 | 0.72 | 62.5 | 83.0 | [config](./alexnet_4xb64_cos_ep100.py) |
+|  VGG-11   |  132.86   |   7.63   |   68.75   |   88.87   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg11_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_batch256_imagenet_20210208-4271cd6c.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_batch256_imagenet_20210208-4271cd6c.log.json) |
+|  VGG-13   |  133.05   |  11.34   |   70.02   |   89.46   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg13_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_batch256_imagenet_20210208-4d1d6080.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_batch256_imagenet_20210208-4d1d6080.log.json) |
+|  VGG-16   |  138.36   |   15.5   |   71.62   |   90.49   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg16_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_batch256_imagenet_20210208-db26f1a5.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_batch256_imagenet_20210208-db26f1a5.log.json) |
+|  VGG-19   |  143.67   |  19.67   |   72.41   |   90.80   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg19_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_batch256_imagenet_20210208-e6920e4a.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_batch256_imagenet_20210208-e6920e4a.log.json) |
+| VGG-11-BN |  132.87   |   7.64   |   70.67   |   90.16   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg11_bn_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_bn_batch256_imagenet_20210207-f244902c.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg11_bn_batch256_imagenet_20210207-f244902c.log.json) |
+| VGG-13-BN |  133.05   |  11.36   |   72.12   |   90.66   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg13_bn_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_bn_batch256_imagenet_20210207-1a8b7864.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg13_bn_batch256_imagenet_20210207-1a8b7864.log.json) |
+| VGG-16-BN |  138.37   |  15.53   |   73.74   |   91.66   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg16_bn_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_bn_batch256_imagenet_20210208-7e55cd29.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg16_bn_batch256_imagenet_20210208-7e55cd29.log.json) |
+| VGG-19-BN |  143.68   |   19.7   |   74.68   |   92.27   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vgg/vgg19_bn_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_bn_batch256_imagenet_20210208-da620c4f.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/vgg/vgg19_bn_batch256_imagenet_20210208-da620c4f.log.json) |
+| Inception V3\* | 23.83 | 5.75 | 77.57 | 93.58 | [config](./inception_v3_4xb64_cos_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/inception-v3/inception-v3_3rdparty_8xb32_in1k_20220615-dcd4d910.pth) |
+|     ResNet-18      |   11.69   |   1.82   |   69.90   |   89.43   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet18_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet18_8xb32_in1k_20210831-fbbb1da6.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet18_8xb32_in1k_20210831-fbbb1da6.log.json) |
+|     ResNet-34      |   21.8    |   3.68   |   73.62   |   91.59   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet34_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet34_8xb32_in1k_20210831-f257d4e6.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet34_8xb32_in1k_20210831-f257d4e6.log.json) |
+|     ResNet-50      |   25.56   |   4.12   |   76.55   |   93.06   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb32_in1k_20210831-ea4938fc.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb32_in1k_20210831-ea4938fc.log.json) |
+|     ResNet-101     |   44.55   |   7.85   |   77.97   |   94.06   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet101_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet101_8xb32_in1k_20210831-539c63f8.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet101_8xb32_in1k_20210831-539c63f8.log.json) |
+|     ResNet-152     |   60.19   |  11.58   |   78.48   |   94.13   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet152_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet152_8xb32_in1k_20210901-4d7582fa.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet152_8xb32_in1k_20210901-4d7582fa.log.json) |
+|    ResNetV1C-50    |   25.58   |   4.36   |   77.01   |   93.58   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1c50_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c50_8xb32_in1k_20220214-3343eccd.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c50_8xb32_in1k_20220214-3343eccd.log.json) |
+|   ResNetV1C-101    |   44.57   |   8.09   |   78.30   |   94.27   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1c101_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c101_8xb32_in1k_20220214-434fe45f.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c101_8xb32_in1k_20220214-434fe45f.log.json) |
+|   ResNetV1C-152    |   60.21   |  11.82   |   78.76   |   94.41   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1c152_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c152_8xb32_in1k_20220214-c013291f.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1c152_8xb32_in1k_20220214-c013291f.log.json) |
+|    ResNetV1D-50    |   25.58   |   4.36   |   77.54   |   93.57   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1d50_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d50_b32x8_imagenet_20210531-db14775a.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d50_b32x8_imagenet_20210531-db14775a.log.json) |
+|   ResNetV1D-101    |   44.57   |   8.09   |   78.93   |   94.48   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1d101_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d101_b32x8_imagenet_20210531-6e13bcd3.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d101_b32x8_imagenet_20210531-6e13bcd3.log.json) |
+|   ResNetV1D-152    |   60.21   |  11.82   |   79.41   |   94.70   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnetv1d152_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d152_b32x8_imagenet_20210531-278cf22a.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnetv1d152_b32x8_imagenet_20210531-278cf22a.log.json) |
+|  ResNet-50 (fp16)  |   25.56   |   4.12   |   76.30   |   93.07   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb32-fp16_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/fp16/resnet50_batch256_fp16_imagenet_20210320-b3964210.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/fp16/resnet50_batch256_fp16_imagenet_20210320-b3964210.log.json) |
+|  Wide-ResNet-50\*  |   68.88   |  11.44   |   78.48   |   94.08   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/wide-resnet50_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/wide-resnet50_3rdparty_8xb32_in1k_20220304-66678344.pth) |
+| Wide-ResNet-101\*  |  126.89   |  22.81   |   78.84   |   94.28   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet101_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/wide-resnet101_3rdparty_8xb32_in1k_20220304-8d5f9d61.pth) |
+| ResNet-50 (rsb-a1) |   25.56   |   4.12   |   80.12   |   94.78   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb256-rsb-a1-600e_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a1-600e_in1k_20211228-20e21305.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a1-600e_in1k_20211228-20e21305.log.json) |
+| ResNet-50 (rsb-a2) |   25.56   |   4.12   |   79.55   |   94.37   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb256-rsb-a2-300e_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a2-300e_in1k_20211228-0fd8be6e.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a2-300e_in1k_20211228-0fd8be6e.log.json) |
+| ResNet-50 (rsb-a3) |   25.56   |   4.12   |   78.30   |   93.80   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/resnet/resnet50_8xb256-rsb-a3-100e_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a3-100e_in1k_20211228-3493673c.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/resnet/resnet50_8xb256-rsb-a3-100e_in1k_20211228-3493673c.log.json) |
+| ShuffleNetV2 1.0x |   2.28    |  0.149   |   69.55   |   88.92   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/shufflenet_v2_1x_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/shufflenet_v2/shufflenet_v2_batch1024_imagenet_20200812-5bf4721e.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/shufflenet_v2/shufflenet_v2_batch1024_imagenet_20200804-8860eec9.log.json) |
+| MobileNet V2 |    3.5    |  0.319   |   71.86   |   90.42   | [config](https://github.com/open-mmlab/mmclassification/blob/master/configs/mobilenet_v2/mobilenet-v2_8xb32_in1k.py) | [model](https://download.openmmlab.com/mmclassification/v0/mobilenet_v2/mobilenet_v2_batch256_imagenet_20200708-3b2dc3af.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/mobilenet_v2/mobilenet_v2_batch256_imagenet_20200708-3b2dc3af.log.json) |
+|        EfficientNet-B0\*         |   5.29    |   0.02   |   76.74   |   93.17   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b0_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b0_3rdparty_8xb32_in1k_20220119-a7e2a0b1.pth) |
+|      EfficientNet-B0 (AA)\*      |   5.29    |   0.02   |   77.26   |   93.41   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b0_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b0_3rdparty_8xb32-aa_in1k_20220119-8d939117.pth) |
+| EfficientNet-B0 (AA + AdvProp)\* |   5.29    |   0.02   |   77.53   |   93.61   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b0_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b0_3rdparty_8xb32-aa-advprop_in1k_20220119-26434485.pth) |
+|        EfficientNet-B1\*         |   7.79    |   0.03   |   78.68   |   94.28   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b1_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b1_3rdparty_8xb32_in1k_20220119-002556d9.pth) |
+|      EfficientNet-B1 (AA)\*      |   7.79    |   0.03   |   79.20   |   94.42   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b1_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b1_3rdparty_8xb32-aa_in1k_20220119-619d8ae3.pth) |
+| EfficientNet-B1 (AA + AdvProp)\* |   7.79    |   0.03   |   79.52   |   94.43   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b1_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b1_3rdparty_8xb32-aa-advprop_in1k_20220119-5715267d.pth) |
+|        EfficientNet-B2\*         |   9.11    |   0.03   |   79.64   |   94.80   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b2_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b2_3rdparty_8xb32_in1k_20220119-ea374a30.pth) |
+|      EfficientNet-B2 (AA)\*      |   9.11    |   0.03   |   80.21   |   94.96   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b2_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b2_3rdparty_8xb32-aa_in1k_20220119-dd61e80b.pth) |
+| EfficientNet-B2 (AA + AdvProp)\* |   9.11    |   0.03   |   80.45   |   95.07   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b2_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b2_3rdparty_8xb32-aa-advprop_in1k_20220119-1655338a.pth) |
+|        EfficientNet-B3\*         |   12.23   |   0.06   |   81.01   |   95.34   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b3_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b3_3rdparty_8xb32_in1k_20220119-4b4d7487.pth) |
+|      EfficientNet-B3 (AA)\*      |   12.23   |   0.06   |   81.58   |   95.67   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b3_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b3_3rdparty_8xb32-aa_in1k_20220119-5b4887a0.pth) |
+| EfficientNet-B3 (AA + AdvProp)\* |   12.23   |   0.06   |   81.81   |   95.69   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b3_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b3_3rdparty_8xb32-aa-advprop_in1k_20220119-53b41118.pth) |
+|        EfficientNet-B4\*         |   19.34   |   0.12   |   82.57   |   96.09   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b4_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b4_3rdparty_8xb32_in1k_20220119-81fd4077.pth) |
+|      EfficientNet-B4 (AA)\*      |   19.34   |   0.12   |   82.95   |   96.26   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b4_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b4_3rdparty_8xb32-aa_in1k_20220119-45b8bd2b.pth) |
+| EfficientNet-B4 (AA + AdvProp)\* |   19.34   |   0.12   |   83.25   |   96.44   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b4_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b4_3rdparty_8xb32-aa-advprop_in1k_20220119-38c2238c.pth) |
+|        EfficientNet-B5\*         |   30.39   |   0.24   |   83.18   |   96.47   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b5_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b5_3rdparty_8xb32_in1k_20220119-e9814430.pth) |
+|      EfficientNet-B5 (AA)\*      |   30.39   |   0.24   |   83.82   |   96.76   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b5_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b5_3rdparty_8xb32-aa_in1k_20220119-2cab8b78.pth) |
+| EfficientNet-B5 (AA + AdvProp)\* |   30.39   |   0.24   |   84.21   |   96.98   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b5_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b5_3rdparty_8xb32-aa-advprop_in1k_20220119-f57a895a.pth) |
+|      EfficientNet-B6 (AA)\*      |   43.04   |   0.41   |   84.05   |   96.82   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b6_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b6_3rdparty_8xb32-aa_in1k_20220119-45b03310.pth) |
+| EfficientNet-B6 (AA + AdvProp)\* |   43.04   |   0.41   |   84.74   |   97.14   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b6_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b6_3rdparty_8xb32-aa-advprop_in1k_20220119-bfe3485e.pth) |
+|      EfficientNet-B7 (AA)\*      |   66.35   |   0.72   |   84.38   |   96.88   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b7_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b7_3rdparty_8xb32-aa_in1k_20220119-bf03951c.pth) |
+| EfficientNet-B7 (AA + AdvProp)\* |   66.35   |   0.72   |   85.14   |   97.23   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b7_4xb64_05norm.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b7_3rdparty_8xb32-aa-advprop_in1k_20220119-c6dbff10.pth) |
+| EfficientNet-B8 (AA + AdvProp)\* |   87.41   |   1.09   |   85.38   |   97.28   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/efficientnet_b8_4xb64.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b8_3rdparty_8xb32-aa-advprop_in1k_20220119-297ce1b7.pth) |
+| Res2Net-50-14w-8s\*  |   25.06   |   4.22   |   78.14   |   93.85   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/res2net/res2net50_w14_s8_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/res2net/res2net50-w14-s8_3rdparty_8xb32_in1k_20210927-bc967bf1.pth) |
+| Res2Net-50-26w-8s\*   |   48.40   |   8.39   |   79.20   |   94.36   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/res2net/res2net50_w26_s8_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/res2net/res2net50-w26-s8_3rdparty_8xb32_in1k_20210927-f547a94b.pth) |
+| Res2Net-101-26w-4s\*  |   45.21   |   8.12   |   79.19   |   94.44   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/res2net/res2net101_w26_s4_4xb64_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/res2net/res2net101-w26-s4_3rdparty_8xb32_in1k_20210927-870b6c36.pth) |
+|  RegNetX-400MF  |   5.16    |   0.41   |   72.56   |   90.78   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_400mf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-400mf_8xb128_in1k_20211213-89bfc226.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-400mf_8xb128_in1k_20211208_143316.log.json) |
+|  RegNetX-800MF  |   7.26    |   0.81   |   74.76   |   92.32   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_800mf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-800mf_8xb128_in1k_20211213-222b0f11.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-800mf_8xb128_in1k_20211207_143037.log.json) |
+|  RegNetX-1.6GF  |   9.19    |   1.63   |   76.84   |   93.31   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_1_6gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-1.6gf_8xb128_in1k_20211213-d1b89758.pth) \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-1.6gf_8xb128_in1k_20211208_143018.log.json) |
+|  RegNetX-3.2GF  |   15.3    |   3.21   |   78.09   |   94.08   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_3_2gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-3.2gf_8xb64_in1k_20211213-1fdd82ae.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-3.2gf_8xb64_in1k_20211208_142720.log.json) |
+|  RegNetX-4.0GF  |   22.12   |   4.0    |   78.60   |   94.17   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_4_0gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-4.0gf_8xb64_in1k_20211213-efed675c.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-4.0gf_8xb64_in1k_20211207_150431.log.json) |
+|  RegNetX-6.4GF  |   26.21   |   6.51   |   79.38   |   94.65   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_6_4gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-6.4gf_8xb64_in1k_20211215-5c6089da.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-6.4gf_8xb64_in1k_20211213_172748.log.json) |
+|  RegNetX-8.0GF  |   39.57   |   8.03   |   79.12   |   94.51   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_8_0gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-8.0gf_8xb64_in1k_20211213-9a9fcc76.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-8.0gf_8xb64_in1k_20211208_103250.log.json) |
+|  RegNetX-12GF   |   46.11   |  12.15   |   79.67   |   95.03   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_12gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-12gf_8xb64_in1k_20211213-5df8c2f8.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/regnet/regnetx-12gf_8xb64_in1k_20211208_143713.log.json) |
+| RegNetX-400MF\* |   5.16    |   0.41   |   72.55   |   90.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_400mf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-400MF-0db9f35c.pth) |
+| RegNetX-800MF\* |   7.26    |   0.81   |   75.21   |   92.37   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_800mf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-800MF-4f9d1e8a.pth) |
+| RegNetX-1.6GF\* |   9.19    |   1.63   |   77.04   |   93.51   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_1_6gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-1.6GF-cfb32375.pth) |
+| RegNetX-3.2GF\* |   15.3    |   3.21   |   78.26   |   94.20   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_3_2gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-3.2GF-82c43fd5.pth) |
+| RegNetX-4.0GF\* |   22.12   |   4.0    |   78.72   |   94.22   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_4_0gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-4.0GF-ef8bb32c.pth) |
+| RegNetX-6.4GF\* |   26.21   |   6.51   |   79.22   |   94.61   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_6_4gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-6.4GF-6888c0ea.pth) |
+| RegNetX-8.0GF\* |   39.57   |   8.03   |   79.31   |   94.57   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_8_0gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-8.0GF-cb4c77ec.pth) |
+| RegNetX-12GF\*  |   46.11   |  12.15   |   79.91   |   94.78   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/regnet/regnetx_12gf_8xb128_ep100.py) | [model](https://download.openmmlab.com/mmclassification/v0/regnet/convert/RegNetX-12GF-0574538f.pth) |
+|   ViT-B16\*   |   86.86   |  33.03   |   85.43   |   97.77   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/vit_base_p16_sz384_8xb64_accu8_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/vit/finetune/vit-base-p16_in21k-pre-3rdparty_ft-64xb64_in1k-384_20210928-98e8652b.pth) |
+|   ViT-B32\*   |   88.30   |   8.56   |   84.01   |   97.08   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/vit_base_p32_sz384_8xb64_accu8_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/vit/finetune/vit-base-p32_in21k-pre-3rdparty_ft-64xb64_in1k-384_20210928-9cea8599.pth) |
+|   ViT-L16\*   |  304.72   |  116.68  |   85.63   |   97.63   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vision_transformer/vit_large_p16_sz384_8xb64_accu8_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/vit/finetune/vit-large-p16_in21k-pre-3rdparty_ft-64xb64_in1k-384_20210928-b20ba619.pth) |
+|  Swin-T  |   28.29   |   4.36   |   81.18   |   95.61   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/swin_tiny_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_tiny_224_b16x64_300e_imagenet_20210616_090925-66df6be6.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_tiny_224_b16x64_300e_imagenet_20210616_090925.log.json) |
+|  Swin-S  |   49.61   |   8.52   |   83.02   |   96.29   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/swin_small_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_small_224_b16x64_300e_imagenet_20210615_110219-7f9d988b.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_small_224_b16x64_300e_imagenet_20210615_110219.log.json) |
+|  Swin-B  |   87.77   |  15.14   |   83.36   |   96.44   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/swin_transformer/swin_base_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_base_224_b16x64_300e_imagenet_20210616_190742-93230b0d.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/swin-transformer/swin_base_224_b16x64_300e_imagenet_20210616_190742.log.json) |
+|  PVT-Tiny\*  |    13.2   |   1.60   |    75.1   | - |[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/pvt/pvt_tiny_8xb128_ep300.py)  |  [model](https://github.com/whai362/PVT/releases/download/v2/pvt_tiny.pth) / log  |
+|  PVT-Small\* |    24.5   |   3.80   |    79.8   | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/pvt/pvt_small_8xb128_ep300.py) |  [model](https://github.com/whai362/PVT/releases/download/v2/pvt_small.pth) / log |
+| PVT-Medium\* |    44.2   |   6.70   |    81.2   | - |[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/pvt/pvt_medium_8xb128_ep300.py) |  [model](https://github.com/whai362/PVT/releases/download/v2/pvt_small.pth) / log |
+|  PVT-Large\* |    61.2   |   9.80   |    81.7   | - |[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/pvt/pvt_large_8xb128_ep300.py) | [model](https://github.com/whai362/PVT/releases/download/v2/pvt_small.pth)  / log |
+| T2T-ViT_t-14 |   21.47   |   4.34   |   81.83   |   95.84   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/t2t_vit/t2t_vit_tiny_14_ema_8xb64_ep310.py) | [model](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-14_8xb64_in1k_20211220-f7378dd5.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-14_8xb64_in1k_20211220-f7378dd5.log.json) |
+| T2T-ViT_t-19 |   39.08   |   7.80   |   82.63   |   96.18   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/t2t_vit/t2t_vit_tiny_19_ema_8xb64_ep310.py) | [model](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-19_8xb64_in1k_20211214-7f5e3aaf.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-19_8xb64_in1k_20211214-7f5e3aaf.log.json) |
+| T2T-ViT_t-24 |   64.00   |  12.69   |   82.71   |   96.09   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/t2t_vit/t2t_vit_tiny_24_ema_8xb64_ep310.py) | [model](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-24_8xb64_in1k_20211214-b2a68ae3.pth)  \| [log](https://download.openmmlab.com/mmclassification/v0/t2t-vit/t2t-vit-t-24_8xb64_in1k_20211214-b2a68ae3.log.json) |
+|  RepVGG-A0\*  |   9.11（train) \| 8.31 (deploy)   |  1.52 (train) \| 1.36 (deploy)  |   72.41   |   90.50   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_A0_4xb64_ep120.py) \| [config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_A0_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-A0_3rdparty_4xb64-coslr-120e_in1k_20210909-883ab98c.pth) |
+|  RepVGG-A1\*  |  14.09 (train) \| 12.79 (deploy)  |  2.64 (train) \| 2.37 (deploy)  |   74.47   |   91.85   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_A1_4xb64_ep120.py) \| [config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_A1_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-A1_3rdparty_4xb64-coslr-120e_in1k_20210909-24003a24.pth) |
+|  RepVGG-A2\*  |  28.21 (train) \| 25.5 (deploy)   |  5.7 (train)  \| 5.12 (deploy)  |   76.48   |   93.01   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_A2_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_A2_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-A2_3rdparty_4xb64-coslr-120e_in1k_20210909-97d7695a.pth) |
+|  RepVGG-B0\*  |  15.82 (train) \| 14.34 (deploy)  |  3.42 (train) \| 3.06 (deploy)  |   75.14   |   92.42   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B0_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B0_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B0_3rdparty_4xb64-coslr-120e_in1k_20210909-446375f4.pth) |
+|  RepVGG-B1\*  |  57.42 (train) \| 51.83 (deploy)  | 13.16 (train) \| 11.82 (deploy) |   78.37   |   94.11   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B1_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B1_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B1_3rdparty_4xb64-coslr-120e_in1k_20210909-750cdf67.pth) |
+| RepVGG-B1g2\* |  45.78 (train) \| 41.36 (deploy)  |  9.82 (train) \| 8.82 (deploy)  |   77.79   |   93.88   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B1g2_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B1g2_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B1g2_3rdparty_4xb64-coslr-120e_in1k_20210909-344f6422.pth) |
+| RepVGG-B1g4\* |  39.97 (train) \| 36.13 (deploy)  |  8.15 (train) \| 7.32 (deploy)  |   77.58   |   93.84   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B1g4_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B1g4_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B1g4_3rdparty_4xb64-coslr-120e_in1k_20210909-d4c1a642.pth) |
+|  RepVGG-B2\*  |  89.02 (train) \| 80.32 (deploy)  | 20.46 (train) \| 18.39 (deploy) |   78.78   |   94.42   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B2_4xb64_ep120.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B2_deploy_4xb64_ep120.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B2_3rdparty_4xb64-coslr-120e_in1k_20210909-bd6b937c.pth) |
+| RepVGG-B2g4\* |  61.76 (train) \| 55.78 (deploy)  | 12.63 (train) \| 11.34 (deploy) |   79.38   |   94.68   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B2g4_autoaug_mixup_4xb64_ep200.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B2g4_deploy_autoaug_mixup_4xb64_ep200.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B2g4_3rdparty_4xb64-autoaug-lbs-mixup-coslr-200e_in1k_20210909-7b7955f0.pth) |
+|  RepVGG-B3\*  | 123.09 (train) \| 110.96 (deploy) | 29.17 (train) \| 26.22 (deploy) |   80.52   |   95.26   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_B3_autoaug_mixup_4xb64_ep200.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_B3_deploy_autoaug_mixup_4xb64_ep200.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-B3_3rdparty_4xb64-autoaug-lbs-mixup-coslr-200e_in1k_20210909-dda968bf.pth) |
+| RepVGG-D2se\* | 133.33 (train) \| 120.39 (deploy) | 36.56 (train) \| 32.85 (deploy) |   81.81   |   95.94   | [config (train)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/repvgg_D2se_autoaug_mixup_4xb64_ep200.py) \|[config (deploy)](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repvgg/deploy/repvgg_D2se_deploy_autoaug_mixup_4xb64_ep200.py) | [model](https://download.openmmlab.com/mmclassification/v0/repvgg/repvgg-D2se_3rdparty_4xb64-autoaug-lbs-mixup-coslr-200e_in1k_20210909-cf3139b7.pth) |
+|  DeiT-T   |   5.72    |   1.08   |   73.56   |   91.16   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_tiny_8xb128_ep300.py) | model | log |
+|  DeiT-T distilled\* |   5.72    |   1.08   |   72.20   |   91.10   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_tiny_8xb128_ep300.py) | [model](https://dl.fbaipublicfiles.com/deit/deit_tiny_patch16_224-a1311bcf.pth) |
+|  DeiT-S   |   22.05   |   4.24   |   79.93   |   95.14   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_small_8xb128_ep300.py) | model | log |
+|  DeiT-S distilled\* |    22.05   |   4.24   |   79.90   |   95.10   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_small_8xb128_ep300.py) | [model](https://dl.fbaipublicfiles.com/deit/deit_small_patch16_224-cd65a155.pth) |
+|  DeiT-B   |   86.57   |   16.86  |   81.82   |   95.57   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_base_8xb128_ep300.py) | model | log |
+|  DeiT-B distilled\* |   86.57   |   16.86  |   81.80   |   95.60   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/deit/deit_base_8xb128_ep300.py) | [model](https://dl.fbaipublicfiles.com/deit/deit_base_patch16_224-b5f2ef4d.pth) |
+| Mixer-B/16\* |   59.88   |  12.61   |   76.68   |   92.25   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/mlp_mixer_base_p16_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mlp-mixer/mixer-base-p16_3rdparty_64xb64_in1k_20211124-1377e3e0.pth) |
+| Mixer-L/16\* |   208.2   |  44.57   |   72.34   |   88.02   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/mlp_mixer_large_p16_8xb64_accu2_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mlp-mixer/mixer-large-p16_3rdparty_64xb64_in1k_20211124-5a2519d2.pth) |
+| PCPVT-small\* |   24.11   |   3.67   |   81.14   |   95.69   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_pcpvt_small_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-pcpvt-small_3rdparty_8xb128_in1k_20220126-ef23c132.pth) |
+| PCPVT-base\*  |   43.83   |   6.45   |   82.66   |   96.26   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_pcpvt_base_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-pcpvt-base_3rdparty_8xb128_in1k_20220126-f8c4b0d5.pth) |
+| PCPVT-large\* |   60.99   |   9.51   |   83.09   |   96.59   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_pcpvt_large_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-pcpvt-large_3rdparty_16xb64_in1k_20220126-c1ef8d80.pth) |
+|  SVT-small\*  |   24.06   |   2.82   |   81.77   |   95.57   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_svt_small_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-svt-small_3rdparty_8xb128_in1k_20220126-8fe5205b.pth) |
+|  SVT-base\*   |   56.07   |   8.35   |   83.13   |   96.29   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_svt_base_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-svt-base_3rdparty_8xb128_in1k_20220126-e31cc8e9.pth) |
+|  SVT-large\*  |   99.27   |  14.82   |   83.60   |   96.50   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/twins_svt_large_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/twins/twins-svt-large_3rdparty_16xb64_in1k_20220126-4817645f.pth) |
+| ConvMixer-768/32\*  |   21.11   |  19.62   |   80.16   |   95.08   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/convmixer_768_d32_8xb80_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convmixer/convmixer-768-32_3rdparty_10xb64_in1k_20220323-bca1f7b8.pth) |
+| ConvMixer-1024/20\* |   24.38   |   5.55   |   76.94   |   93.36   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/convmixer_1024_d20_8xb60_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convmixer/convmixer-1024-20_3rdparty_10xb64_in1k_20220323-48f8aeba.pth) |
+| ConvMixer-1536/20\* |   51.63   |  48.71   |   81.37   |   95.61   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/convmixer_1535_d20_8xb60_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convmixer/convmixer-1536_20_3rdparty_10xb64_in1k_20220323-ea5786f3.pth) |
+| UniFormer-T       |   5.55    |   0.88   |   78.02   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | model / log |
+| UniFormer-S       |   21.5    |   3.44   |   82.56   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | model / log |
+| UniFormer-S\*     |   21.5    |   3.44   |   82.90   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-S + ConvStem\*    |   24.0    |   4.21   |   83.40   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-B\*     |   49.8    |   8.27   |   83.90   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-S + Token Labeling\*  |   21.5    |   3.44   |   83.40   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| UniFormer-B + Token Labeling\*  |   49.8    |   8.27   |   85.10   | -| [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/) | [model](https://drive.google.com/file/d/1-uepH3Q3BhTmWU6HK-sGAGQC_MpfIiPD/view?usp=sharing) | [log](https://drive.google.com/file/d/10ThKb9YOpCiHW8HL10dRuZ0lQSPJidO7/view?usp=sharing) |
+| PoolFormer-S12\* |   11.92   |   1.87   |   77.24   |   93.51   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/poolformer_s12_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/poolformer/poolformer-s12_3rdparty_32xb128_in1k_20220414-f8d83051.pth) |
+| PoolFormer-S24\* |   21.39   |   3.51   |   80.33   |   95.05   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/poolformer_s24_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/poolformer/poolformer-s24_3rdparty_32xb128_in1k_20220414-d7055904.pth) |
+| PoolFormer-S36\* |   30.86   |   5.15   |   81.43   |   95.45   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/poolformer_s36_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/poolformer/poolformer-s36_3rdparty_32xb128_in1k_20220414-d78ff3e8.pth) |
+| PoolFormer-M36\* |   56.17   |   8.96   |   82.14   |   95.71   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/poolformer_m36_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/poolformer/poolformer-m36_3rdparty_32xb128_in1k_20220414-c55e0949.pth) |
+| PoolFormer-M48\* |   73.47   |  11.80   |   82.51   |   95.95   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/poolformer_m48_8xb128_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/poolformer/poolformer-m48_3rdparty_32xb128_in1k_20220414-9378f3eb.pth) |
+| ConvNeXt-T    |   28.59   |   4.46   |   82.16   |   95.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_tiny_8xb256_accu2_fp16_ep300.py) | model | log |
+| ConvNeXt-T\*  |   28.59   |   4.46   |   82.05   |   95.86   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_tiny_8xb256_accu2_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-tiny_3rdparty_32xb128_in1k_20220124-18abde00.pth) |
+| ConvNeXt-S\*  |   50.22   |   8.69   |   83.13   |   96.44   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_small_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-small_3rdparty_32xb128_in1k_20220124-d39b5192.pth) |
+| ConvNeXt-B\*  |   88.59   |  15.36   |   83.85   |   96.74   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_base_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-base_3rdparty_32xb128_in1k_20220124-d0915162.pth) |
+| ConvNeXt-L\*  |  197.77   |  34.37   |   84.30   |   96.89   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_large_8xb64_accu8_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-large_3rdparty_64xb64_in1k_20220124-f8a0ded0.pth) |
+| ConvNeXt-XL\* |  350.20   |  60.93   |   86.97   |   98.20   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_xlarge_8xb64_accu8_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-xlarge_in21k-pre-3rdparty_64xb64_in1k_20220124-76b6863d.pth) |
+| MViTv2-tiny\*  |   24.17   |   4.70   |   82.33   |   96.15   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/mvit_v2_tiny_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mvit/mvitv2-tiny_3rdparty_in1k_20220722-db7beeef.pth) |
+| MViTv2-small\* |   34.87   |   7.00   |   83.63   |   96.51   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/mvit_v2_small_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mvit/mvitv2-small_3rdparty_in1k_20220722-986bd741.pth) |
+| MViTv2-base\*  |   51.47   |  10.20   |   84.34   |   96.86   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/mvit_v2_base_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mvit/mvitv2-base_3rdparty_in1k_20220722-9c4f0a17.pth) |
+| MViTv2-large\* |  217.99   |  42.10   |   85.25   |   97.14   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mvit/mvit_v2_large_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/mvit/mvitv2-large_3rdparty_in1k_20220722-2b57b983.pth) |
+| RepMLP-B224\* |   68.24   |   6.71   |   80.41   |   95.12   | [train_cfg](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repmlp/repmlp_base_8xb64_ep300.py) \| [deploy_cfg](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repmlp/repmlp_base_deploy_8xb64_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/repmlp/repmlp-base_3rdparty_8xb64_in1k_20220330-1cb1f11b.pth) |
+| RepMLP-B256\* |   96.45   |   9.69   |   81.11   |   95.5    | [train_cfg](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repmlp/repmlp_base_sz256_8xb64_ep300.py) \| [deploy_cfg](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/repmlp/repmlp_base_deploy_sz256_8xb64_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/repmlp/repmlp-base_3rdparty_8xb64_in1k-256px_20220330-7c5a91ce.pth) |
+|  VAN-T  |   4.11   |   0.88   |   75.77   |   92.99   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_tiny_8xb128_ep300.py) |                                               model / log                                               |
+| VAN-T\* |   4.11   |   0.88   |   75.41   |   93.02   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_tiny_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-tiny_8xb128_in1k_20220501-385941af.pth) |
+|  VAN-S  |   13.86   |   2.52   |   81.03   |   95.56   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_small_8xb128_ep300.py) |                                               model / log                                               |
+| VAN-S\* |   13.86   |   2.52   |   81.01   |   95.63   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_small_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-small_8xb128_in1k_20220501-17bc91aa.pth) |
+| VAN-B    |  26.58   |   5.03   |   82.65   |   96.17   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_base_8xb128_ep300.py) |                                               model / log                                               |
+| VAN-B\*  |  26.58   |   5.03   |   82.80   |   96.21   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_base_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-base_8xb128_in1k_20220501-6a4cc31b.pth) |
+| VAN-L\*  |  44.77   |   8.99   |   83.86   |   96.73   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_large_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-large_8xb128_in1k_20220501-f212ba21.pth) |
+| VAN-B4\* |   60.28   |  12.22   |   84.13   |   96.86   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/van/van_b4_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/van/van-b4_3rdparty_in1k_20220909-f4665b92.pth) |
+|  LITv2-S  |     28    |    3.7                 |    81.7   | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_small_8xb128_cos_fp16_ep300.py) | model / log |
+| LITv2-S\* |     28    |    3.7                 |    82.0   | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_small_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_s.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m_log.txt) |
+| LITv2-M\* |     49    |    7.5                    |    83.3   | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_medium_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_m_log.txt) |
+| LITv2-B\* |     87    |   13.2                   |    84.7   | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/lit_v2/lit_v2_base_8xb128_cos_fp16_ep300.py) | [model](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_b.pth) / [log](https://github.com/ziplab/LITv2/releases/download/v1.0/litv2_b_log.txt) |
+|  HorNet-T\*   |   22.41   |   3.98   |   82.84   |   96.24   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_tiny_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-tiny_3rdparty_in1k_20220909-13316b34.pth) |
+| HorNet-T-GF\* |   22.99   |   3.9    |   82.98   |   96.38   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_tiny_gf_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-tiny-gf_3rdparty_in1k_20220909-954c0361.pth) |
+|  HorNet-S\*   |   49.53   |   8.83   |   83.79   |   96.75   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_small_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-small_3rdparty_in1k_20220909-fab3bfc3.pth) |
+| HorNet-S-GF\* |   50.4    |   8.71   |   83.98   |   96.77   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_small_gf_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-small-gf_3rdparty_in1k_20220909-cd269a14.pth) |
+|  HorNet-B\*   |   87.26   |  15.59   |   84.24   |   96.94   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_base_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-base_3rdparty_in1k_20220909-41ea3439.pth) |
+| HorNet-B-GF\* |   88.42   |  15.42   |   84.32   |   96.95   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/hornet/hornet_base_gf_8xb128_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/hornet/hornet-base-gf_3rdparty_in1k_20220909-759d587c.pth) |
+|   EdgeNeXt-Base\*    |   18.51   |   3.84   |   82.48   |   96.2    | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/edgenext_base_sz256_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/edgenext/edgenext-base_3rdparty_8xb256_in1k_20220801-9ade408b.pth) |
+|   EdgeNeXt-Small\*   |   5.59    |   1.26   |   79.41   |   94.53   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/edgenext_base_sz256_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/edgenext/edgenext-small_3rdparty_8xb256_in1k_20220801-d00db5f8.pth) |
+|  EdgeNeXt-X-Small\*  |   2.34    |  0.538   |   74.86   |   92.31   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/edgenext_base_sz256_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/edgenext/edgenext-xsmall_3rdparty_8xb256_in1k_20220801-974f9fe7.pth) |
+| EdgeNeXt-XX-Small\*  |   1.33    |  0.261   |   71.2    |   89.91   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/edgenext_base_sz256_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/edgenext/edgenext-xxsmall_3rdparty_8xb256_in1k_20220801-7ca8a81d.pth) |
+| EfficientFormer-l1\* |   12.19   |   1.30   |   80.46   |   94.99   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/efficientformer_l1_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientformer/efficientformer-l1_3rdparty_in1k_20220803-d66e61df.pth) |
+| EfficientFormer-l3\* |   31.41   |   3.93   |   82.45   |   96.18   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/efficientformer_l3_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientformer/efficientformer-l3_3rdparty_in1k_20220803-dde1c8c5.pth) |
+| EfficientFormer-l7\* |   82.23   |  10.16   |   83.40   |   96.60   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/efficientformer_l7_8xb256_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/efficientformer/efficientformer-l7_3rdparty_in1k_20220803-41a552bb.pth) |
+| MogaNet-XT | 2.97 | 0.80 | 76.5 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz224_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_sz224_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_sz224_8xb128_fp16_ep300.log.json) |
+| MogaNet-XT | 2.97 | 1.04 | 77.2 | - |[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_sz256_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_sz256_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_sz256_8xb128_fp16_ep300.log.json) |
+| MogaNet-XT\* | 2.97 | 1.04 | 77.6 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_xtiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_xtiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.log.json) |
+| MogaNet-T | 5.20 | 1.10 | 79.0 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz224_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_sz224_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_sz224_8xb128_fp16_ep300.log.json) |
+| MogaNet-T | 5.20 | 1.44 | 79.6 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_sz256_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_sz256_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_sz256_8xb128_fp16_ep300.log.json) |
+| MogaNet-T\* | 5.20 | 1.44 | 80.0 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_tiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_tiny_deit3_sz256_lr2e_3_8xb128_fp16_ep300.log.json) |
+| MogaNet-S | 25.3 | 4.97 | 83.4 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_small_ema_sz224_8xb128_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_small_ema_sz224_8xb128_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_small_ema_sz224_8xb128_ep300.log.json) |
+| MogaNet-B | 43.9 | 9.93 | 84.2 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_base_ema_sz224_8xb128_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_base_ema_sz224_8xb128_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_base_ema_sz224_8xb128_ep300.log.json) |
+| MogaNet-L | 82.5 | 15.9 | 84.6 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_large_ema_sz224_8xb64_accu2_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_large_ema_sz224_8xb64_accu2_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_large_ema_sz224_8xb64_accu2_ep300.log.json) 
