@@ -1,7 +1,9 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import re
+from typing import Dict, Optional
 
 import torch.distributed as dist
+
 from mmcv.runner.optimizer.builder import OPTIMIZER_BUILDERS, OPTIMIZERS
 from mmcv.utils import build_from_cfg, print_log
 
@@ -33,14 +35,36 @@ class DefaultOptimizerConstructor:
         >>> optim_builder = DefaultOptimizerConstructor(
         >>>     optimizer_cfg, paramwise_cfg)
         >>> optimizer = optim_builder(model)
+
+    Example 2:
+        >>> # assume model have attribute model.backbone and model.cls_head
+        >>> optimizer_cfg = dict(type='SGD', lr=0.01, weight_decay=0.95)
+        >>> paramwise_cfg = dict(custom_keys={
+                'backbone': dict(lr_mult=0.1, decay_mult=0.9)})
+        >>> optim_builder = DefaultOptimizerConstructor(
+        >>>     optimizer_cfg, paramwise_cfg)
+        >>> optimizer = optim_builder(model)
+        >>> # Then the `lr` and `weight_decay` for model.backbone is
+        >>> # (0.01 * 0.1, 0.95 * 0.9). `lr` and `weight_decay` for
+        >>> # model.cls_head is (0.01, 0.95).
     """
 
-    def __init__(self, optimizer_cfg, paramwise_cfg=None):
+    def __init__(self,
+                 optimizer_cfg: Dict,
+                 paramwise_cfg: Optional[Dict] = None):
         if not isinstance(optimizer_cfg, dict):
             raise TypeError('optimizer_cfg should be a dict',
                             f'but got {type(optimizer_cfg)}')
         self.optimizer_cfg = optimizer_cfg
         self.paramwise_cfg = {} if paramwise_cfg is None else paramwise_cfg
+        self.base_lr = optimizer_cfg.get('lr', None)
+        self.base_wd = optimizer_cfg.get('weight_decay', None)
+        self._validate_cfg()
+
+    def _validate_cfg(self):
+        if not isinstance(self.paramwise_cfg, dict):
+            raise TypeError('paramwise_cfg should be None or a dict, '
+                            f'but got {type(self.paramwise_cfg)}')
 
     def __call__(self, model):
         """ add `paramwise_cfg` option for `DefaultOptimizerConstructor` """

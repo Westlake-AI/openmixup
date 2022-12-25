@@ -16,6 +16,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Support detailed usage instructions in README of config files for image classification methods in `configs/classification`, e.g., [mixups on ImageNet](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/README.md). READMEs of other methods in `configs/selfsup` and `configs/semisup` will also be updated.
 - Refine the origianzation of README files according to [README-Template](https://github.com/othneildrew/Best-README-Template).
 - Support the new mixup augmentation method ([AlignMix](https://arxiv.org/abs/2103.15375)) and provide the relevant config files in various datasets.
+- Refine the setup for the local installation and PyPi release in `setup.py` and `setup.cfg`. View PyPi project of [OpenMixup](https://pypi.org/project/openmixup).
 
 ### Update Documents
 

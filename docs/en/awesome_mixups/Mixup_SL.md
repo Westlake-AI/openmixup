@@ -3,7 +3,7 @@
 ![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-green) [![Awesome](https://awesome.re/badge.svg)](https://awesome.re) ![GitHub stars](https://img.shields.io/github/stars/Westlake-AI/openmixup?color=blue) ![GitHub forks](https://img.shields.io/github/forks/Westlake-AI/openmixup?color=yellow&label=Fork)
 
 **We summarize fundamental mixup methods proposed for supervised visual representation learning from two aspects: *sample mixup policy* and *label mixup policy*. Then, we summarize mixup techniques used in downstream tasks.**
-We are working on a survey of mixup methods. The list of awesome mixup methods is summarized in chronological order and is on updating.
+The list of awesome mixup methods is summarized in chronological order and is on updating. And we will add more papers according to [Awesome-Mix](https://github.com/ChengtaiCao/Awesome-Mix).
 
 * To find related papers and their relationships, check out [Connected Papers](https://www.connectedpapers.com/), which visualizes the academic field in a graph representation.
 * To export BibTeX citations of papers, check out [ArXiv](https://arxiv.org/) or [Semantic Scholar](https://www.semanticscholar.org/) of the paper for professional reference formats.
@@ -233,6 +233,8 @@ We are working on a survey of mixup methods. The list of awesome mixup methods i
    - An overview of mixing augmentation methods and augmentation strategies. [[Artificial Intelligence Review'2022](https://link.springer.com/article/10.1007/s10462-022-10227-z)]
 * Suorong Yang, Weikang Xiao, Mengcheng Zhang, Suhan Guo, Jian Zhao, Furao Shen.
    - Image Data Augmentation for Deep Learning: A Survey. [[ArXiv'2022](https://arxiv.org/abs/2204.08610)]
+* Chengtai Cao, Fan Zhou, Yurou Dai, Jianping Wang.
+   - A Survey of Mix-based Data Augmentation: Taxonomy, Methods, Applications, and Explainability. [[ArXiv'2022](https://arxiv.org/abs/2212.10888)] [[code](https://github.com/ChengtaiCao/Awesome-Mix)]
 
 
 ## Contribution
@@ -248,4 +250,5 @@ Feel free to send [pull requests](https://github.com/Westlake-AI/openmixup/pulls
 ## Related Project
 
 - [Awesome-Mixup](https://github.com/Westlake-AI/Awesome-Mixup): Awesome List of Mixup Augmentation Papers for Visual Representation Learning.
+- [Awesome-Mix](https://github.com/ChengtaiCao/Awesome-Mix): An awesome list of papers for `A Survey of Mix-based Data Augmentation: Taxonomy, Methods, Applications, and Explainability, we categorize them based on our proposed taxonomy`.
 - [awesome-mixup](https://github.com/demoleiwang/awesome-mixup): A collection of awesome papers about mixup.

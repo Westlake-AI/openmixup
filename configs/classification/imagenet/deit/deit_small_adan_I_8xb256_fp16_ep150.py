@@ -1,8 +1,22 @@
 _base_ = [
     '../../_base_/models/deit/deit_small_p16_sz224.py',
-    '../../_base_/datasets/imagenet/swin_sz224_8xbs128.py',
+    '../../_base_/datasets/imagenet/deit_adan_sz224_8xbs256.py',
     '../../_base_/default_runtime.py',
 ]
+
+# model settings
+model = dict(
+    alpha=[0.2, 1.0,],  # Adan I
+    mix_mode=["mixup", "cutmix",],
+    backbone=dict(
+        drop_path_rate=0.05,
+    ),
+    head=dict(
+        type='VisionTransformerClsHead',  # mixup BCE + label smooth
+        loss=dict(type='LabelSmoothLoss',
+            label_smooth_val=0.1, num_classes=1000, mode='multi_label', loss_weight=1.0),
+        in_channels=384, num_classes=1000)
+)
 
 # data
 data = dict(imgs_per_gpu=256, workers_per_gpu=12)

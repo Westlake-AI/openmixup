@@ -1,0 +1,3 @@
+include requirements/*.txt
+recursive-include openmixup/.mim/configs *.py *.yml
+recursive-include openmixup/.mim/tools *.sh *.py

@@ -5,3 +5,6 @@ model = dict(
     alpha=[0.8, 1.0,],  # deit setting
     mix_mode=["mixup", "cutmix",],
 )
+
+# runtime settings
+runner = dict(type='EpochBasedRunner', max_epochs=300)

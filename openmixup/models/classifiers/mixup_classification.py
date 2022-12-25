@@ -132,7 +132,7 @@ class MixUpClassification(BaseModel):
         """
         if self.init_cfg is not None:
             super(MixUpClassification, self).init_weights()
-            return
+
         # init pre-trained params
         if pretrained_k is not None:
             print_log('load pre-training from: {}'.format(pretrained_k), logger='root')
@@ -143,8 +143,8 @@ class MixUpClassification(BaseModel):
         # init trainable params
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
-        self.backbone.init_weights(pretrained=pretrained)
-        self.head.init_weights()
+            self.backbone.init_weights(pretrained=pretrained)
+            self.head.init_weights()
         if self.backbone_k is not None and pretrained_k is None:
             for param_q, param_k in zip(self.backbone.parameters(),
                                         self.backbone_k.parameters()):

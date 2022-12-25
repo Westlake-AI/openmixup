@@ -104,17 +104,15 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-openmixup/version.py
-version.py
+# custom
 data
 .vscode
 .idea
-
-# custom
 *.pkl
 *.pkl.json
 *.log.json
 work_dirs/
+/openmixup/.mim
 tools/exp_bash/
 pretrains
 
@@ -137,4 +135,5 @@ configs/selfsup_IP89
 # configs/semisup
 # configs/selfsup
 *.json
+*.toml
 openmixup/models/classifiers/backup

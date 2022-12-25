@@ -6,6 +6,7 @@ _base_ = [
 
 # data
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+sampler = "RepeatAugSampler"  # the official repo uses `repeated_aug` for more stable training
 
 # additional hooks
 update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024

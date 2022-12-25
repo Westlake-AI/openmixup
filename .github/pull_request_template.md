@@ -1,4 +1,4 @@
-Thanks for your contribution to OpenMixup and we appreciate it a lot. The following instructions would make your pull request more healthy and more easily get feedback. We follow the standard in MMLab, e.g., [MMClassification](https://github.com/open-mmlab/mmclassification). If you do not understand some items, don't worry, just make the pull request and seek help from maintainers.
+Thanks for your contribution to [OpenMixup](https://github.com/Westlake-AI/openmixup) and we appreciate it a lot. The following instructions would make your pull request more healthy and more easily get feedback. Currently, we follow the standard in MMLab, e.g., [MMClassification](https://github.com/open-mmlab/mmclassification). If you do not understand some items, don't worry, just make the pull request and seek help from maintainers.
 
 ## Motivation
 

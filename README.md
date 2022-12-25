@@ -1,6 +1,7 @@
 # OpenMixup
-[![Release](https://img.shields.io/badge/release-V0.2.7-%09%2360004F)](https://github.com/Westlake-AI/openmixup/releases)
-[![Docs](https://img.shields.io/badge/docs-latest-%23002FA7)](https://openmixup.readthedocs.io/en/latest/)
+[![release](https://img.shields.io/badge/release-V0.2.7-%09%2360004F)](https://github.com/Westlake-AI/openmixup/releases)
+[![PyPI](https://img.shields.io/pypi/v/openmixup)](https://pypi.org/project/openmixup)
+[![docs](https://img.shields.io/badge/docs-latest-%23002FA7)](https://openmixup.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-%23B7A800)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
 ![open issues](https://img.shields.io/github/issues-raw/Westlake-AI/openmixup?color=%23FF9600)
 [![issue resolution](https://img.shields.io/badge/issue%20resolution-1%20d-%23009763)](https://github.com/Westlake-AI/openmixup/issues)
@@ -11,14 +12,6 @@
 [👀Awesome Mixup](https://openmixup.readthedocs.io/en/latest/awesome_mixups/Mixup_SL.html) |
 [🔍Awesome MIM](https://openmixup.readthedocs.io/en/latest/awesome_selfsup/MIM.html) |
 [🆕News](https://openmixup.readthedocs.io/en/latest/changelog.html)
-
-## News and Updates
-
-[2022-12-16] `OpenMixup` v0.2.7 is released (issue [#35](https://github.com/Westlake-AI/openmixup/issues/35)).
-
-[2022-12-02] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#31](https://github.com/Westlake-AI/openmixup/issues/31), and issue [#33](https://github.com/Westlake-AI/openmixup/issues/33)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
-
-[2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 
 ## Introduction
 
@@ -63,13 +56,18 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
   </ol>
 </details>
 
-<p align="right">(<a href="#top">back to top</a>)</p>
+## News and Updates
+
+[2022-12-16] `OpenMixup` v0.2.7 is released (issue [#35](https://github.com/Westlake-AI/openmixup/issues/35)).
+
+[2022-12-02] Update new features and documents of `OpenMixup` v0.2.6 (issue [#24](https://github.com/Westlake-AI/openmixup/issues/24), issue [#25](https://github.com/Westlake-AI/openmixup/issues/25), issue [#31](https://github.com/Westlake-AI/openmixup/issues/31), and issue [#33](https://github.com/Westlake-AI/openmixup/issues/33)). Update the official implementation of [MogaNet](https://arxiv.org/abs/2211.03295).
+
+[2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
 
 ## Installation
 
-OpenMixup is compatible with **Python 3.7/3.8/3.9** and **PyTorch >= 1.8**. Here are installation steps for development:
+OpenMixup is compatible with **Python 3.6/3.7/3.8/3.9** and **PyTorch >= 1.6**. Here are quick installation steps for development:
 
-### From Source
 ```shell
 conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
 conda activate openmixup
@@ -79,63 +77,30 @@ git clone https://github.com/Westlake-AI/openmixup.git
 cd openmixup
 python setup.py develop
 ```
-### From PyPI
-```shell
-conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
-conda activate openmixup
-pip install openmim
-mim install mmcv-full
-pip install openmixup
-cd openmixup
-python setup.py develop
-```
 
-Please refer to [install.md](docs/en/install.md) for more detailed installation and dataset preparation instructions.
+Please refer to [install.md](docs/en/install.md) for more detailed installation and dataset preparation.
 
 ## Getting Started
 
-OpenMixup supports Linux, macOS and Windows. It enables easy implementation and extensions of mixup data augmentation methods in existing supervised, self-, and semi-supervised visual recognition models. Please see [get_started.md](docs/en/get_started.md) for the basic usage of OpenMixup.
+OpenMixup supports Linux and macOS. It enables easy implementation and extensions of mixup data augmentation methods in existing supervised, self-, and semi-supervised visual recognition models. Please see [get_started.md](docs/en/get_started.md) for the basic usage of OpenMixup.
 
-### Quick Start
-This is an example of how to quickly set up the OpenMixup on your device. You can get a local copy up by running the belowing example steps.
-#### Step0: Create your environment
-```shell
-conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
-conda activate openmixup
-```
-#### Step1: Install the required packages
-```shell
-pip install -U openmim
-mim install mmcv-full
-```
+### Training and Evaluation Scripts
 
-#### Step2: Clone and develop the project
-```shell
-git clone https://github.com/Westlake-AI/openmixup.git
-cd openmixup
-python setup.py develop
-```
-Now you can use the image you just built for your own project. 
-
-### Training Script
-
-Here, we provide example scripts for you to quickly start the accelerated end-to-end multiple GPUs training with specified `CONFIG_FILE`. 
+Here, we provide scripts for starting a quick end-to-end training with multiple `GPUs` and the specified `CONFIG_FILE`. 
 ```shell
 bash tools/dist_train.sh ${CONFIG_FILE} ${GPUS} [optional arguments]
 ```
-To be more specific, you can run the script below to train a designated mixup CIFAR100 classification algorithm with 4 GPUs:
+For example, you can run the script below to train a ResNet-50 classifier on ImageNet with 4 GPUs:
 ```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash tools/dist_train.sh openmixup\configs\classification\cifar100\mixups\basic\r18_mixups_CE_none.py 4
+CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh configs/classification/imagenet/resnet/resnet50_4xb64_cos_ep100.py 4
+```
+After trianing, you can test the trained models with the corresponding evaluation script:
+```shell
+bash tools/dist_test.sh ${CONFIG_FILE} ${GPUS} ${PATH_TO_MODEL} [optional arguments]
 ```
 
-### Evaluation Script
-After trianing, you can test the trained models with the corresponding evaluation script. An example with 4 GPUs evaluation is as follows:
+### Development
 
-```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 bash tools/dist_test.sh ${CONFIG_FILE} ${GPUS} ${PATH_TO_MODEL} [optional arguments]
-```
-
-### Develop
 Please see [Tutorials](docs/en/tutorials) for more developing examples and tech details:
 
 - [config files](docs/en/tutorials/0_config.md)
@@ -276,7 +241,7 @@ This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` 
 
 ## Citation
 
-If you find this project useful in your research, please consider cite our GitHub repo or [tech report](https://arxiv.org/abs/2209.04851):
+If you find this project useful in your research, please consider star our GitHub repo and cite [tech report](https://arxiv.org/abs/2209.04851):
 
 ```BibTeX
 @misc{2022openmixup,
@@ -301,14 +266,12 @@ If you find this project useful in your research, please consider cite our GitHu
 
 ## Contributors and Contact
 
-For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), Zicheng Liu ([@pone7](https://github.com/pone7)), Di Wu ([@wudi-bu](https://github.com/wudi-bu)), Tengfei Wang ([@wang-tf](https://github.com/wang-tf)), and Minglong Liu ([@minhlong94](https://github.com/minhlong94)). We thank contributors from MMSelfSup and MMClassification and all public contributors!
+For help, new features, or reporting bugs associated with OpenMixup, please open a [GitHub issue](https://github.com/Westlake-AI/openmixup/issues) and [pull request](https://github.com/Westlake-AI/openmixup/pulls) with the tag "help wanted" or "enhancement". For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Zicheng Liu ([@pone7](https://github.com/pone7)). We thank all public contributors and contributors from MMSelfSup and MMClassification!
 
 This repo is currently maintained by:
 
 - Siyuan Li (lisiyuan@westlake.edu.cn), Westlake University
 - Zedong Wang (wangzedong@westlake.edu.cn), Westlake University
 - Zicheng Liu (liuzicheng@westlake.edu.cn), Westlake University
-
-If you have suggestions that would make OpenMixup better, please fork the repo and create a pull request. It is also encouraged to open an issue with the tag "help wanted" or "enhancement". Don't forget to give our OpenMixup a star! Thanks again!
 
 <p align="right">(<a href="#top">back to top</a>)</p>

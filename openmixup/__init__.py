@@ -3,7 +3,7 @@ import warnings
 import mmcv
 from packaging.version import parse
 
-from .version import __version__, short_version
+from .version import __version__
 
 
 def digit_version(version_str: str, length: int = 4):
@@ -57,4 +57,4 @@ assert (mmcv_version >= digit_version(mmcv_minimum_version)
     f'Please install mmcv>={mmcv_minimum_version}, <={mmcv_maximum_version}.'
 
 
-__all__ = ['__version__', 'short_version']
+__all__ = ['__version__', 'digit_version']

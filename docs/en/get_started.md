@@ -73,9 +73,13 @@ If you use `dist_train.sh` to launch training jobs:
 CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh ${CONFIG_FILE} 4
 CUDA_VISIBLE_DEVICES=4,5,6,7 PORT=29501 bash tools/dist_train.sh ${CONFIG_FILE} 4
 ```
-For example, you can run the script below to train a mixup CIFAR100 classification algorithm with 4 GPUs:
+For examples, you can run the script below to train a ResNet-18 classifier on CIFAR-100 with 1 GPU:
 ```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh openmixup\configs\classification\cifar100\mixups\basic\r18_mixups_CE_none.py 4
+CUDA_VISIBLE_DEVICES=0 PORT=29500 bash tools/dist_train.sh configs/classification/cifar100/mixups/basic/r18_mixups_CE_none.py 1
+```
+or you can run the script below to train a ResNet-50 classifier on ImageNet with 4 GPUs:
+```shell
+CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh configs/classification/imagenet/resnet/resnet50_4xb64_cos_ep100.py 4
 ```
 
 If you use launch training jobs with slurm:

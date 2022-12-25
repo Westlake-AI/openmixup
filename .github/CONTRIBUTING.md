@@ -1,1 +1,1 @@
-We appreciate all contributions to improve OpenMixup. We follow the developing standard of MMLab. Please refer to [CONTRIBUTING.md](https://github.com/open-mmlab/mmcv/blob/master/CONTRIBUTING.md) in MMCV for more details about the contributing guideline.
+We appreciate all contributions to improve OpenMixup. Currently, we follow the developing standard of MMLab. Please refer to [CONTRIBUTING.md](https://github.com/open-mmlab/mmcv/blob/master/CONTRIBUTING.md) in MMCV for more details about the contributing guideline.
