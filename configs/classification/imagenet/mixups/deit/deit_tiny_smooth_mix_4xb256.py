@@ -21,6 +21,7 @@ model = dict(
             beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
+        transmix=dict(mix_mode="cutmix"),
     ),
     backbone=dict(
         type='VisionTransformer',

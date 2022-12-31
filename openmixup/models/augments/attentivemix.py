@@ -12,6 +12,7 @@ def attentivemix(img,
                  features=None,
                  grid_scale=32,
                  top_k=6,
+                 return_mask=False,
                  **kwargs):
     r""" AttentiveMix augmentation
 
@@ -32,8 +33,10 @@ def attentivemix(img,
         features (tensor): Feature maps for attentive regions.
         grid_scale (float): The upsampling scale of attentive grids.
         top_k (int): Using top_k attentive regions in feature maps.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
-    
+
     # basic mixup args
     bs, _, att_size, _ = features.size()
     att_grid = att_size**2
@@ -45,7 +48,7 @@ def attentivemix(img,
     #   in this repo uses lam\in\Beta(a,a) to choose top_k for better preformances.
     if top_k is None:
         top_k = min(max(1, int(att_grid * lam)), att_grid)
-    
+
     if not dist_mode:
         # normal mixup process
         rand_index = torch.randperm(img.size(0)).cuda()
@@ -73,5 +76,7 @@ def attentivemix(img,
     mask = F.upsample(mask, scale_factor=grid_scale, mode="nearest")
     lam = float(mask[0, 0, ...].mean().cpu().numpy())
     img = mask * img + (1 - mask) * img_
+    if return_mask:
+        img = (img, mask)
 
     return img, (y_a, y_b, lam)

@@ -14,6 +14,7 @@ def resizemix(img,
               lam=None,
               use_alpha=False,
               interpolate_mode="nearest",
+              return_mask=False,
               **kwargs):
     r""" ResizeMix augmentation.
 
@@ -37,9 +38,11 @@ def resizemix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
 
-    def rand_bbox_tao(size, tao):
+    def rand_bbox_tao(size, tao, return_mask=False):
         """ generate random box by tao (scale) """
         W = size[2]
         H = size[3]
@@ -55,10 +58,16 @@ def resizemix(img,
         bbx2 = np.clip(cx + cut_w // 2, 0, W)
         bby2 = np.clip(cy + cut_h // 2, 0, H)
 
-        return bbx1, bby1, bbx2, bby2
-    
+        if not return_mask:
+            return bbx1, bby1, bbx2, bby2
+        else:
+            mask = torch.zeros((1, 1, W, H)).cuda()
+            mask[:, :, bbx1:bbx2, bby1:bby2] = 1
+            mask = mask.expand(size[0], 1, W, H)  # (N, 1, H, W)
+            return bbx1, bby1, bbx2, bby2, mask
+
     assert len(scope) == 2
-    
+
     # normal mixup process
     if not dist_mode:
         rand_index = torch.randperm(img.size(0))
@@ -84,9 +93,12 @@ def resizemix(img,
                 tao = np.random.uniform(scope[0], scope[1])
         else:
             tao = min(max(lam, scope[0]), scope[1])
-        
-        bbx1, bby1, bbx2, bby2 = rand_bbox_tao(img.size(), tao)
 
+        # random box
+        if not return_mask:
+            bbx1, bby1, bbx2, bby2 = rand_bbox_tao(img.size(), tao)
+        else:
+            bbx1, bby1, bbx2, bby2, mask = rand_bbox_tao(img.size(), tao, True)
         img_resize = interpolate(
             img_resize, (bby2 - bby1, bbx2 - bbx1), mode=interpolate_mode
         )
@@ -94,8 +106,11 @@ def resizemix(img,
         img[:, :, bby1:bby2, bbx1:bbx2] = img_resize
         # adjust lambda to exactly match pixel ratio
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
+        if return_mask:
+            img = (img, mask)
+
         return img, (gt_label, shuffled_gt, lam)
-    
+
     # dist mixup with cross gpus shuffle
     else:
         if len(img.size()) == 5:  # self-supervised img [N, 2, C, H, W]
@@ -120,15 +135,19 @@ def resizemix(img,
                 tao = np.random.uniform(scope[0], scope[1])
         else:
             tao = lam
-        
-        # random box
-        bbx1, bby1, bbx2, bby2 = rand_bbox_tao(img.size(), tao)
 
+        # random box
+        if not return_mask:
+            bbx1, bby1, bbx2, bby2 = rand_bbox_tao(img.size(), tao)
+        else:
+            bbx1, bby1, bbx2, bby2, mask = rand_bbox_tao(img.size(), tao, True)
         img_ = interpolate(img_, (bby2 - bby1, bbx2 - bbx1), mode=interpolate_mode)
         
         img[:, :, bby1:bby2, bbx1:bbx2] = img_
         # adjust lambda to exactly match pixel ratio
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
+        if return_mask:
+            img = (img, mask)
 
         if gt_label is not None:
             y_a = gt_label

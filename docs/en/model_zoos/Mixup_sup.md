@@ -31,7 +31,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
+- [ ] [RecursiveMix [NIPS'2022]](https://arxiv.org/abs/2203.06844)
 
 </details>
 
@@ -39,7 +39,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 <summary>Supported label mixing policies</summary>
 
 - [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796)
-- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
+- [X] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 - [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
 
@@ -65,10 +65,12 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | Vanilla       |     -    |    70.04   |    73.85   |    76.83   |    78.18   |    78.71    |
 | MixUp         |    0.2   |    69.98   |    73.97   |    77.12   |    78.97   |    79.98    |
 | CutMix        |     1    |    68.95   |    73.58   |    77.17   |    78.96   |    80.42    |
+| DeiT          |  0.8, 1  |            |            |    77.27   |            |             |
 | ManifoldMix   |    0.2   |    69.98   |    73.98   |    77.01   |    79.02   |    79.93    |
 | SaliencyMix   |     1    |    69.16   |    73.56   |    77.14   |    79.32   |    80.27    |
 | AttentiveMix+ |     2    |    68.57   |      -     |    77.28   |      -     |      -      |
 | FMix*         |     1    |    69.96   |    74.08   |    77.19   |    79.09   |    80.06    |
+| GridMix       |    0.2   |      -     |      -     |    77.04   |      -     |      -      |
 | PuzzleMix     |     1    |    70.12   |    74.26   |    77.54   |    79.36   |    80.53    |
 | Co-Mixup📖     |     2    |      -     |      -     |    77.60   |      -     |      -      |
 | SuperMix📖     |     2    |      -     |      -     |    77.63   |      -     |      -      |
@@ -87,6 +89,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | ManifoldMix |    0.2   |    71.73   |    75.44   |    78.21   |    80.64   |
 | SaliencyMix |     1    |    70.97   |    75.01   |    78.46   |    80.45   |
 | FMix*       |     1    |    70.30   |    75.12   |    78.51   |    80.20   |
+| GridMix     |    0.2   |      -     |      -     |    78.50   |      -     |
 | PuzzleMix   |     1    |    71.64   |    75.84   |    78.86   |    80.67   |
 | ResizeMix*  |     1    |    71.32   |    75.64   |    78.91   |    80.52   |
 | AlignMix📖   |     2    |      -     |      -     |    79.32   |      -     |
@@ -142,7 +145,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | TransMix📖     |  0.8, 1  |  74.92 |  80.70 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |  75.64 |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
+| SAMix*        |     2    |  75.83 |  80.94 | 76.60 |  81.87 |    82.35   |   79.62   |
 
 ### **Tiny-ImageNet Dataset**
 

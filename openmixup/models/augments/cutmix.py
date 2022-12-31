@@ -10,6 +10,7 @@ def cutmix(img,
            alpha=1.0,
            lam=None,
            dist_mode=False,
+           return_mask=False,
            **kwargs):
     r""" CutMix augmentation.
 
@@ -27,9 +28,11 @@ def cutmix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
 
-    def rand_bbox(size, lam):
+    def rand_bbox(size, lam, return_mask=False):
         """ generate random box by lam """
         W = size[2]
         H = size[3]
@@ -46,7 +49,13 @@ def cutmix(img,
         bbx2 = np.clip(cx + cut_w // 2, 0, W)
         bby2 = np.clip(cy + cut_h // 2, 0, H)
 
-        return bbx1, bby1, bbx2, bby2
+        if not return_mask:
+            return bbx1, bby1, bbx2, bby2
+        else:
+            mask = torch.zeros((1, 1, W, H)).cuda()
+            mask[:, :, bbx1:bbx2, bby1:bby2] = 1
+            mask = mask.expand(size[0], 1, W, H)  # (N, 1, H, W)
+            return bbx1, bby1, bbx2, bby2, mask
 
     if lam is None:
         lam = np.random.beta(alpha, alpha)
@@ -64,12 +73,18 @@ def cutmix(img,
         _, _, h, w = img.size()
         y_a = gt_label
         y_b = gt_label[rand_index]
-        
-        bbx1, bby1, bbx2, bby2 = rand_bbox(img.size(), lam)
+
+        if not return_mask:
+            bbx1, bby1, bbx2, bby2 = rand_bbox(img.size(), lam)
+        else:
+            bbx1, bby1, bbx2, bby2, mask = rand_bbox(img.size(), lam, True)
         img[:, :, bbx1:bbx2, bby1:bby2] = img_[:, :, bbx1:bbx2, bby1:bby2]
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
+        if return_mask:
+            img = (img, mask)
+
         return img, (y_a, y_b, lam)
-    
+
     # dist mixup with cross gpus shuffle
     else:
         if len(img.size()) == 5:  # self-supervised img [N, 2, C, H, W]
@@ -82,10 +97,16 @@ def cutmix(img,
             img_, idx_shuffle, idx_unshuffle = batch_shuffle_ddp(  # N
                 img, idx_shuffle=kwargs.get("idx_shuffle_mix", None), no_repeat=True)
         _, _, h, w = img.size()
-        bbx1, bby1, bbx2, bby2 = rand_bbox(img.size(), lam)
+
+        if not return_mask:
+            bbx1, bby1, bbx2, bby2 = rand_bbox(img.size(), lam)
+        else:
+            bbx1, bby1, bbx2, bby2, mask = rand_bbox(img.size(), lam, True)
         img[:, :, bbx1:bbx2, bby1:bby2] = img_[:, :, bbx1:bbx2, bby1:bby2]
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
-        
+        if return_mask:
+            img = (img, mask)
+
         if gt_label is not None:
             y_a = gt_label
             y_b, _, _ = batch_shuffle_ddp(

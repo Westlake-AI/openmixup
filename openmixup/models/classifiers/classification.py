@@ -68,7 +68,7 @@ class Classification(BaseModel):
 
     def simple_test(self, img):
         """Test without augmentation."""
-        x = self.backbone(img)  # tuple
+        x = self.backbone(img)[-1:]  # classifying with the last layer
         if self.with_neck:
             x = self.neck(x)
         outs = self.head(x)
@@ -81,9 +81,9 @@ class Classification(BaseModel):
         x = list()
         for _img in img:
             if self.with_neck:
-                x.append(self.neck(self.backbone(_img))[0])
+                x.append(self.neck(self.backbone(_img))[-1:])
             else:
-                x.append(self.backbone(_img)[0])
+                x.append(self.backbone(_img)[-1])
         outs = self.head(x)
         keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC

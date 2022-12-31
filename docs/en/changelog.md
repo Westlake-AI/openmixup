@@ -2,7 +2,7 @@
 
 ### v0.2.7 (16/12/2022)
 
-Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI/openmixup/issues/35).
+Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI/openmixup/issues/35). Update new features of `OpenMixup` v0.2.7 as issue [#36](https://github.com/Westlake-AI/openmixup/issues/36).
 
 #### Code Refactoring
 
@@ -10,6 +10,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Support deployment of `ONNX` and `TorchScript` in `openmixup.core.export` and `tools/deployment`. We refactored the abstract class `BaseModel` (implemented in `openmixup/models/classifiers/base_model.py`) to support `forward_inference` (for custom inference and visualization). We also refactored `openmixup.models.heads` and `openmixup.models.losses` to support `forward_inference`. You can deploy the classification models in `OpenMixup` according to [deployment tutorials](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/tools).
 - Support testing API methods in `openmixup/apis/test.py` for evaluation and deployment of classification models.
 - Refactor `openmixup.core.optimizers` to separate optimizers and builders and support the latest [Adan](https://arxiv.org/abs/2208.06677) optimizer.
+- Refactor [`mixup_classification.py`](https://github.com/Westlake-AI/openmixup/blob/main/openmixup/models/classifiers/mixup_classification.py) to support label mixup methods, add `return_mask` for mixup methods in [`augments`](https://github.com/Westlake-AI/openmixup/tree/main/openmixup/models/augments) and add `return_attn` in ViT backbone.
 
 #### New Features
 
@@ -17,6 +18,8 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Refine the origianzation of README files according to [README-Template](https://github.com/othneildrew/Best-README-Template).
 - Support the new mixup augmentation method ([AlignMix](https://arxiv.org/abs/2103.15375)) and provide the relevant config files in various datasets.
 - Refine the setup for the local installation and PyPi release in `setup.py` and `setup.cfg`. View PyPi project of [OpenMixup](https://pypi.org/project/openmixup).
+- Support a new mixup method [TransMix](https://arxiv.org/abs/2111.09833) and provide config files in [mixups/deit](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit).
+- Update config files. Provide full config files of mixup methods based on ViT-T/S/B on ImageNet and update [RSB A3](https://arxiv.org/abs/2110.00476) config files for popular backbones.
 
 ### Update Documents
 

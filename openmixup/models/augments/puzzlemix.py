@@ -330,7 +330,7 @@ def puzzlemix(img,
 
     # final mask and mixing ratio lam
     mask = F.interpolate(mask, size=width)
-    lam = mask.reshape(batch_size, -1).mean(-1)
+    lam = mask.reshape(batch_size, -1).mean(-1)  # (N,)
     img = mask * input1 + (1 - mask) * input2
 
     return img, (y_a, y_b, lam)

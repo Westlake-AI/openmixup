@@ -12,7 +12,7 @@ from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..augments import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
-                        alignmix, attentivemix, puzzlemix)
+                        alignmix, attentivemix, puzzlemix, transmix)
 from ..utils import PlotTensor
 
 
@@ -21,8 +21,8 @@ class MixUpClassification(BaseModel):
     """MixUp classification.
 
     Args:
-        backbone (dict): Config dict for module of backbone ConvNet.
-        head (dict): Config dict for module of loss functions. Default: None.
+        backbone (dict): Config dict for module of a backbone architecture.
+        head (dict): Config dict for module of loss functions.
         backbone_k (dict, optional): Config dict for pre-trained backbone. Default: None.
         mix_block (dict, optional): Config dict for mix_block in AutoMix/SAMix.
         alpha (float or list): To sample Beta distribution in MixUp methods. Build a
@@ -30,10 +30,11 @@ class MixUpClassification(BaseModel):
         mix_mode (str or list): Basice mixUp methods in input space. Similarly, build
             a list for various mix_mode, and randomly choose one mix_mode for each iter.
             Default: "mixup".
-        mix_args (dict): Args for manifoldmix, resizeMix, fmix mode.
-        mix_prob (list): List of applying prob for given mixup modes. Default: None.
-        mix_repeat (bool or int): How many time to repeat mixup within a mini-batch. If
-            mix_repeat > 1, mixup with different alpha and shuffle idx. Default: False.
+        mix_args (dict): Dict of args (hyper-parameters) for various mixup methods.
+        mix_prob (list, optional): List of applying prob for given mixup modes. Default: None.
+        mix_repeat (bool or int, optional): How many time to repeat mixup within a mini-batch.
+            If mix_repeat > 1, mixup with different alpha and shuffle idx. Default: False.
+        momentum_k (float, optional): Momentum update from the backbone k. Default: None.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
         pretrained_k (str, optional): Path to pre-trained weights for backbone_k or
             mix_block. Default: None.
@@ -46,19 +47,7 @@ class MixUpClassification(BaseModel):
                  mix_block=None,
                  alpha=1.0,
                  mix_mode="mixup",
-                 mix_args=dict(
-                    alignmix=dict(eps=0.1, max_iter=100),
-                    attentivemix=dict(grid_size=32, top_k=6, beta=8),
-                    automix=dict(mask_adjust=0, lam_margin=0),
-                    fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
-                    gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
-                        cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
-                    manifoldmix=dict(layer=(0, 3)),
-                    puzzlemix=dict(transport=True, t_batch_size=None, block_num=5, beta=1.2,
-                        gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=4),
-                    resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
-                    samix=dict(mask_adjust=0, lam_margin=0.08),
-                 ),
+                 mix_args=dict(),
                  mix_prob=None,
                  mix_repeat=False,
                  momentum_k=-1,
@@ -70,8 +59,8 @@ class MixUpClassification(BaseModel):
                  **kwargs):
         super(MixUpClassification, self).__init__(init_cfg, **kwargs)
         # networks
+        assert isinstance(backbone, dict) and isinstance(head, dict)
         self.backbone = builder.build_backbone(backbone)
-        assert isinstance(head, dict)
         self.head = builder.build_head(head)
         self.mix_block = None
         self.backbone_k = None
@@ -90,22 +79,47 @@ class MixUpClassification(BaseModel):
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
         self.dynamic_mode = {
             "alignmix": alignmix, "attentivemix": attentivemix, "puzzlemix": puzzlemix,
-            "automix": self._mixblock, "samix": self._mixblock}
+            "automix": self._mixblock, "samix": self._mixblock,
+            "transmix": transmix,  # label mixup methods
+        }
         self.static_mode = {
             "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "gridmix": gridmix,
             "manifoldmix": self._manifoldmix, "saliencymix": saliencymix,
             "smoothmix": smoothmix, "resizemix": resizemix,
         }
-        for _mode in self.mix_mode:
-            assert _mode in ["vanilla"] + list(self.dynamic_mode.keys()) + list(self.static_mode.keys())
+        self.mix_args = dict(  # default settings
+            alignmix=dict(eps=0.1, max_iter=100),
+            attentivemix=dict(grid_size=32, top_k=6, beta=8),
+            automix=dict(mask_adjust=0, lam_margin=0),
+            cutmix=dict(),
+            fmix=dict(decay_power=3, size=(32,32), max_soft=0., reformulate=False),
+            gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
+                cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
+            mixup=dict(),
+            manifoldmix=dict(layer=(0, 3)),
+            puzzlemix=dict(transport=True, t_batch_size=None, block_num=5, beta=1.2,
+                gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=4),
+            resizemix=dict(scope=(0.1, 0.8), use_alpha=False),
+            saliencymix=dict(),
+            samix=dict(mask_adjust=0, lam_margin=0.08),
+            smoothmix=dict(),
+            transmix=dict(mix_mode="cutmix"),
+            vanilla=dict(),
+        )
+        _supported_mode = ["vanilla"] + list(self.dynamic_mode.keys()) + list(self.static_mode.keys())
+        for _mode in _supported_mode:
+            self.mix_args[_mode].update(mix_args.get(_mode, dict()))  # update mix_args
             if _mode == "manifoldmix":
-                assert 0 <= min(mix_args[_mode]["layer"]) and max(mix_args[_mode]["layer"]) < 4
+                _layer_ = self.mix_args[_mode]["layer"]
+                assert 0 <= min(_layer_) and max(_layer_) < 4
             if _mode == "resizemix":
-                assert 0 <= min(mix_args[_mode]["scope"]) and max(mix_args[_mode]["scope"]) <= 1
+                _scope_ = self.mix_args[_mode]["scope"]
+                assert 0 <= min(_scope_) and max(_scope_) <= 1
+        for _mode in self.mix_mode:
+            assert _mode in _supported_mode, "The mix_mode={} is not supported!".format(_mode)
         self.alpha = alpha if isinstance(alpha, list) else [float(alpha)]
         assert len(self.alpha) == len(self.mix_mode) and len(self.mix_mode) < 6
         self.idx_list = [i for i in range(len(self.mix_mode))]
-        self.mix_args = mix_args
         self.mix_prob = mix_prob if isinstance(mix_prob, list) else None
         if self.mix_prob is not None:
             assert len(self.mix_prob) == len(self.alpha) and abs(sum(self.mix_prob)-1e-10) <= 1, \
@@ -243,44 +257,72 @@ class MixUpClassification(BaseModel):
             random_state = np.random.RandomState(random.randint(0, 2**32 - 1))
             cur_idx = random_state.choice(candidate_list, p=self.mix_prob)
         cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
-        
-        # applying dynamic methods
+
+        # selecting label mixup methods
+        label_mix_mode = "default"
+        return_mask, mask = False, None  # return sample mixup mask in [N, 1, H, W]
+        if cur_mode == "transmix":
+            label_mix_mode, return_mask = "transmix", True
+            cur_mode = self.mix_args["transmix"].get("mix_mode", "cutmix")  # sample mixup mode
+
+        # applying dynamic sample mixup methods
         if cur_mode in ["attentivemix", "automix", "puzzlemix", "samix",]:
             if cur_mode in ["attentivemix", "puzzlemix"]:
                 features = self._features(
                     img, gt_label=gt_label, cur_mode=cur_mode, **self.mix_args[cur_mode])
-                mix_args = dict(alpha=cur_alpha, dist_mode=False,
+                mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask,
                                 features=features, **self.mix_args[cur_mode])
                 img, gt_label = self.dynamic_mode[cur_mode](img, gt_label, **mix_args)
             elif cur_mode in ["automix", "samix"]:
                 img = self._mixblock()
                 raise NotImplementedError
+            if return_mask:
+                img, mask = img  # (img, mask): get mixup mask
             x = self.backbone(img)
         elif cur_mode == "alignmix":
-            x = self.backbone(img)[-1]  # the last layer feature of (N, C, H, W)
+            assert return_mask == False
+            x = self.backbone(img)[-1]  # using the last layer
             mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
-            feat, gt_label = self.dynamic_mode[cur_mode](x, gt_label, **mix_args)
+            feat, gt_label = alignmix(x, gt_label, **mix_args)
             x = [feat]
-        # hand-crafted methods
+
+        # applying hand-crafted sample mixup methods
         elif cur_mode not in ["manifoldmix",]:
             if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
-                img, gt_label = self.static_mode[cur_mode](img, gt_label, cur_alpha, dist_mode=False)
+                img, gt_label = self.static_mode[cur_mode](
+                    img, gt_label, cur_alpha, dist_mode=False, return_mask=return_mask)
             elif cur_mode in ["resizemix", "fmix", "gridmix",]:
-                mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
+                mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask,
+                                **self.mix_args[cur_mode])
                 img, gt_label = self.static_mode[cur_mode](img, gt_label, **mix_args)
             else:
-                assert cur_mode == "vanilla"
+                assert cur_mode == "vanilla" and return_mask == False
+            if return_mask:
+                img, mask = img  # (img, mask): get mixup mask
             x = self.backbone(img)
         else:
             # manifoldmix
+            assert return_mask == False
             rand_index, _layer, _mask, gt_label = self._manifoldmix(img, gt_label, cur_alpha)
-            
             # args for mixup backbone
             mix_args = dict(
                 layer=_layer, cross_view=False, mask=_mask, BN_shuffle=False, idx_shuffle_BN=None,
                 idx_shuffle_mix=rand_index, dist_shuffle=False)
             x = self.backbone(img, mix_args)
-        
+
+        # applying label mixup methods
+        if label_mix_mode == "transmix":
+            assert mask is not None, "TransMix requires pre-defined sample mixup mask"
+            y_a, y_b, lam0 = gt_label  # (y_a, y_b, lam): get lam
+            x, cls_token, attn = x[-1]  # using the last layer feature and attention map
+            patch_shape = (x.size(2), x.size(3))  # feature shape
+            mix_args = dict(dist_mode=False, lam=lam0, attn=attn, patch_shape=patch_shape, mask=mask)
+            _, gt_label = transmix(img, gt_label=y_a, **mix_args)
+            gt_label = (y_a, y_b, gt_label[2])  # (y_a, y_b, lam'): update lam
+            x = [[x, cls_token]]
+        else:
+            pass
+
         # save mixed img
         if self.save:
             plot_lam = gt_label[2] if len(gt_label) == 3 else None
@@ -332,7 +374,7 @@ class MixUpClassification(BaseModel):
 
     def simple_test(self, img):
         """Test without augmentation."""
-        x = self.backbone(img)  # tuple
+        x = self.backbone(img)[-1:]  # classifying with the last layer
         outs = self.head(x)
         keys = ['head{}'.format(i) for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
@@ -340,7 +382,7 @@ class MixUpClassification(BaseModel):
 
     def augment_test(self, img):
         """Test function with test time augmentation."""
-        x = [self.backbone(_img)[0] for _img in img]
+        x = [self.backbone(_img)[-1] for _img in img]
         outs = self.head(x)
         keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
@@ -365,4 +407,5 @@ class MixUpClassification(BaseModel):
         title_name = "{}, lam={}".format(mix_mode, str(round(lam, 6))) \
             if isinstance(lam, float) else mix_mode
         assert self.save_name.find(".png") != -1
-        self.ploter.plot(img, nrow=4, title_name=title_name, save_name=self.save_name)
+        self.ploter.plot(
+            img, nrow=4, title_name=title_name, save_name=self.save_name)

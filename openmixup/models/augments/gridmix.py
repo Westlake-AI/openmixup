@@ -16,6 +16,7 @@ def gridmix(img,
             cut_area_ratio=1.,
             cut_aspect_ratio=1.,
             dist_mode=False,
+            return_mask=False,
             **kwargs):
     r""" GridMix augmentation.
 
@@ -39,6 +40,8 @@ def gridmix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
 
     def rand_grid(lam, size, cut_area_ratio, cut_aspect_ratio,
@@ -124,6 +127,10 @@ def gridmix(img,
                          n_holes, hole_aspect_ratio)
         img = img * (1 - mask) + img_ * mask
         lam = 1 - (mask[0, 0, ...].sum() / (img.shape[-1] * img.shape[-2]))
+        if return_mask:
+            N, _, H, W = img.size()
+            img = (img, mask.expand(N, 1, H, W))
+
         return img, (y_a, y_b, lam)
 
     # dist mixup with cross gpus shuffle
@@ -141,6 +148,9 @@ def gridmix(img,
                          n_holes, hole_aspect_ratio)
         img = img * (1 - mask) + img_ * mask
         lam = 1 - (mask[0, 0, ...].sum() / (img.shape[-1] * img.shape[-2]))
+        if return_mask:
+            N, _, H, W = img.size()
+            img = (img, mask.expand(N, 1, H, W))
 
         if gt_label is not None:
             y_a = gt_label

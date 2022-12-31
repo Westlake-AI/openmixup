@@ -173,6 +173,7 @@ def fmix(img,
          size=(32,32),
          max_soft=0.,
          reformulate=False,
+         return_mask=False,
          **kwargs):
     r""" FMix augmentation.
 
@@ -193,6 +194,8 @@ def fmix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised and
             self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
 
     # fmix mask
@@ -205,7 +208,7 @@ def fmix(img,
         if lam_ < lam:
             mask = 1 - mask
             lam = 1 - lam_
-    
+
     # normal mixup process
     if not dist_mode:
         indices = torch.randperm(img.size(0)).cuda()
@@ -219,8 +222,12 @@ def fmix(img,
         y_a = gt_label
         y_b = gt_label[indices]
         img = mask * img + (1 - mask) * img_
+        if return_mask:
+            N, _, H, W = img.shape
+            img = (img, mask.expand(N, 1, H, W))
+
         return img, (y_a, y_b, lam)
-    
+
     # dist mixup with cross gpus shuffle
     else:
         if len(img.size()) == 5:  # self-supervised img [N, 2, C, H, W]
@@ -234,6 +241,9 @@ def fmix(img,
                 img, idx_shuffle=kwargs.get("idx_shuffle_mix", None), no_repeat=True)
         # mixup by mask
         img = mask * img + (1 - mask) * img_
+        if return_mask:
+            N, _, H, W = img.shape
+            img = (img, mask.expand(N, 1, H, W))
 
         if gt_label is not None:
             y_a = gt_label

@@ -200,6 +200,9 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **LUMix**: Shuyang Sun, Jie-Neng Chen, Ruifei He, Alan Yuille, Philip Torr, Song Bai.
    - LUMix: Improving Mixup by Better Modelling Label Uncertainty. [[arXiv'2022](https://arxiv.org/abs/2211.15846)] [[code](https://github.com/kevin-ssy/LUMix)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/205531445-dc4b7790-e0b7-4c41-b9d2-708efa5e4198.png" /></p>
+* **MixupE**: Vikas Verma, Sarthak Mittal, Wai Hoh Tang, Hieu Pham, Juho Kannala, Yoshua Bengio, Arno Solin, Kenji Kawaguchi.
+   - MixupE: Understanding and Improving Mixup from Directional Derivative Perspective. [[arXiv'2022](https://arxiv.org/abs/2212.13381)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/209991074-3dd41cdf-4e64-42e2-8bf4-ebc60e8212d0.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

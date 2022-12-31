@@ -8,8 +8,9 @@ from .puzzlemix import puzzlemix
 from .resizemix import resizemix
 from .saliencymix import saliencymix
 from .smoothmix import smoothmix
+from .transmix import transmix
 
 __all__ = [
     'alignmix', 'attentivemix', 'cutmix', 'fmix', 'mixup', 'gridmix',
-    'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix',
+    'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix', 'transmix',
 ]

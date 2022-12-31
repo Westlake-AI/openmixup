@@ -10,6 +10,7 @@ def smoothmix(img,
               alpha=1.0,
               lam=None,
               dist_mode=False,
+              return_mask=False,
               **kwargs):
     r""" SmoothMix augmentation.
 
@@ -26,6 +27,8 @@ def smoothmix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
 
     def gaussian_kernel(kernel_size, rand_w, rand_h, sigma):
@@ -59,7 +62,7 @@ def smoothmix(img,
             # * notice that the rank of two groups of img is fixed
             img_ = img[:, 1, ...].contiguous()
             img = img[:, 0, ...].contiguous()
-        _, _, h, w = img.size()
+        b, _, h, w = img.size()
         y_a = gt_label
         y_b = gt_label[rand_index]
         
@@ -69,9 +72,11 @@ def smoothmix(img,
         kernel = gaussian_kernel(h, rand_h, rand_w, sigma).cuda()
         img = img * (1 - kernel) + img_ * kernel
         lam = torch.sum(kernel) / (h * w)
+        if return_mask:
+            img = (img, kernel.expand(b, 1, h, w))
 
         return img, (y_a, y_b, lam)
-    
+
     # dist mixup with cross gpus shuffle
     else:
         if len(img.size()) == 5:  # self-supervised img [N, 2, C, H, W]
@@ -83,14 +88,16 @@ def smoothmix(img,
             assert len(img.size()) == 4  # normal img [N, C, H, w]
             img_, idx_shuffle, idx_unshuffle = batch_shuffle_ddp(  # N
                 img, idx_shuffle=kwargs.get("idx_shuffle_mix", None), no_repeat=True)
-        _, _, h, w = img.size()
+        b, _, h, w = img.size()
         rand_w = int(torch.randint(0, w, (1,)) - w / 2)
         rand_h = int(torch.randint(0, h, (1,)) - h / 2)
         sigma = (torch.rand(1) / 4 + 0.25) * h
         kernel = gaussian_kernel(h, rand_h, rand_w, sigma).cuda()
         img = img * (1 - kernel) + img_ * kernel
         lam = torch.sum(kernel) / (h * w)
-        
+        if return_mask:
+            img = (img, kernel.expand(b, 1, h, w))
+
         if gt_label is not None:
             y_a = gt_label
             y_b, _, _ = batch_shuffle_ddp(

@@ -8,7 +8,7 @@ from ..utils import accuracy, MultiPooling
 
 @HEADS.register_module
 class MultiClsHead(BaseModule):
-    """Multiple classifier heads.
+    """Multiple classifier heads (designed for fine-tuning).
 
     This head inputs feature maps from different stages of backbone, average
     pools each feature map to around 9000 dimensions, and then appends a

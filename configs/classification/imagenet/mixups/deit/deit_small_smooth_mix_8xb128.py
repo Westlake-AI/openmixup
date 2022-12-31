@@ -7,8 +7,8 @@ _base_ = [
 model = dict(
     type='MixUpClassification',
     pretrained=None,
-    alpha=0.2,
-    mix_mode="cutmix",
+    alpha=0.8,
+    mix_mode="mixup",
     mix_args=dict(
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
@@ -21,6 +21,7 @@ model = dict(
             beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
+        transmix=dict(mix_mode="cutmix"),
     ),
     backbone=dict(
         type='VisionTransformer',
@@ -39,7 +40,7 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 # sampler = "RepeatAugSampler"  # this repo reproduce the performance without `repeated_aug`
 
 # interval for accumulate gradient
-update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
+update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
 
 # optimizer
 optimizer = dict(
@@ -55,7 +56,7 @@ optimizer = dict(
     })
 
 # fp16
-use_fp16 = True
+use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)

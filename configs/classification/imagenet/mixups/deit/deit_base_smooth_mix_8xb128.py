@@ -21,6 +21,7 @@ model = dict(
             beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
+        transmix=dict(mix_mode="cutmix"),
     ),
     backbone=dict(
         type='VisionTransformer',
@@ -40,7 +41,7 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 sampler = "RepeatAugSampler"  # the official repo uses `repeated_aug` for more stable training
 
 # interval for accumulate gradient
-update_interval = 1  # total: 4 x bs256 x 1 accumulates = bs1024
+update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
 custom_hooks = [
     dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
         momentum=0.99996,

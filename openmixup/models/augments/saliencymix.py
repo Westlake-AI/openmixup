@@ -14,6 +14,7 @@ def saliencymix(img,
                 alpha=1.0,
                 lam=None,
                 dist_mode=False,
+                return_mask=False,
                 **kwargs):
     r""" SaliencyMix augmentation.
 
@@ -31,6 +32,8 @@ def saliencymix(img,
         dist_mode (bool): Whether to do cross gpus index shuffling and
             return the mixup shuffle index, which support supervised
             and self-supervised methods.
+        return_mask (bool): Whether to return the cutting-based mask of
+            shape (N, 1, H, W). Defaults to False.
     """
     if StaticSaliencyFineGrained_create is None:
         raise RuntimeError(
@@ -66,7 +69,7 @@ def saliencymix(img,
         bby2 = np.clip(y + cut_h // 2, 0, H)
 
         return bbx1, bby1, bbx2, bby2
-    
+
     if lam is None:
         lam = np.random.beta(alpha, alpha)
 
@@ -80,16 +83,22 @@ def saliencymix(img,
             # * notice that the rank of two groups of img is fixed
             img_ = img[:, 1, ...].contiguous()
             img = img[:, 0, ...].contiguous()
-        _, _, h, w = img.size()
+        b, _, h, w = img.size()
         y_a = gt_label
         y_b = gt_label[rand_index]
-        
+
         # detect saliency box
         bbx1, bby1, bbx2, bby2 = saliency_bbox(img[rand_index[0]], lam)
         img[:, :, bbx1:bbx2, bby1:bby2] = img_[:, :, bbx1:bbx2, bby1:bby2]
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
+        if return_mask:
+            mask = torch.zeros((1, 1, h, w)).cuda()
+            mask[:, :, bbx1:bbx2, bby1:bby2] = 1
+            mask = mask.expand(b, 1, h, w)  # (N, 1, H, W)
+            img = (img, mask)
+
         return img, (y_a, y_b, lam)
-    
+
     # dist mixup with cross gpus shuffle
     else:
         if len(img.size()) == 5:  # self-supervised img [N, 2, C, H, W]
@@ -101,12 +110,18 @@ def saliencymix(img,
             assert len(img.size()) == 4  # normal img [N, C, H, w]
             img_, idx_shuffle, idx_unshuffle = batch_shuffle_ddp(  # N
                 img, idx_shuffle=kwargs.get("idx_shuffle_mix", None), no_repeat=True)
-        _, _, h, w = img.size()
+        b, _, h, w = img.size()
+
         # detect saliency box
         bbx1, bby1, bbx2, bby2 = saliency_bbox(img_[0], lam)
         img[:, :, bbx1:bbx2, bby1:bby2] = img_[:, :, bbx1:bbx2, bby1:bby2]
         lam = 1 - ((bbx2 - bbx1) * (bby2 - bby1) / (w * h))
-        
+        if return_mask:
+            mask = torch.zeros((1, 1, h, w)).cuda()
+            mask[:, :, bbx1:bbx2, bby1:bby2] = 1
+            mask = mask.expand(b, 1, h, w)  # (N, 1, H, W)
+            img = (img, mask)
+
         if gt_label is not None:
             y_a = gt_label
             y_b, _, _ = batch_shuffle_ddp(

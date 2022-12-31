@@ -171,8 +171,8 @@ class ClsHead(BaseModule):
         else:
             # mixup classification
             y_a, y_b, lam = labels
-            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,1]
-                lam = lam.unsqueeze(-1)
+            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,\*]
+                lam = lam.view(-1, 1)
             # whether is the single label cls [N,] or multi-label cls [N,C]
             single_label = \
                 y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)

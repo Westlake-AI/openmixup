@@ -10,6 +10,14 @@ sampler = "RepeatAugSampler"  # the official repo uses `repeated_aug` for more s
 
 # additional hooks
 update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
+custom_hooks = [
+    dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
+        momentum=0.99996,
+        warmup='linear',
+        warmup_iters=20 * 1252, warmup_ratio=0.9,
+        update_interval=update_interval,
+    ),
+]
 
 # optimizer
 optimizer = dict(
@@ -24,15 +32,16 @@ optimizer = dict(
         'pos_embed': dict(weight_decay=0.),
     })
 
-# apex
-use_fp16 = False
+# fp16
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
-optimizer_config = dict(update_interval=update_interval)
+optimizer_config = dict(
+    grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-6,
+    by_epoch=False, min_lr=1e-5,
     warmup='linear',
     warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
     warmup_ratio=1e-6,

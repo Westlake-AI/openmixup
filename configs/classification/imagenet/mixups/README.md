@@ -43,6 +43,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 - [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
 - [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
+- [x] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)

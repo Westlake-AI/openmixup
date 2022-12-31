@@ -137,6 +137,9 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 * **DILEMMA**: Sepehr Sameni, Simon Jenni, Paolo Favaro.
    - DILEMMA: Self-Supervised Shape and Texture Learning with Transformers. [[AAAI'2023](https://arxiv.org/abs/2204.04788)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/206920238-6f520585-e9c1-4e7a-89eb-3d9379931279.png" /></p>
+* **MaskCLIP**: Xiaoyi Dong, Yinglin Zheng, Jianmin Bao, Ting Zhang, Dongdong Chen, Hao Yang, Ming Zeng, Weiming Zhang, Lu Yuan, Dong Chen, Fang Wen, Nenghai Yu.
+   - MaskCLIP: Masked Self-Distillation Advances Contrastive Language-Image Pretraining. [[ArXiv'2022](https://arxiv.org/abs/2208.12262)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/209704378-5c467c07-8096-441d-b8a4-37fe27d1ac07.png" /></p>
 * **EVA**: Yuxin Fang, Wen Wang, Binhui Xie, Quan Sun, Ledell Wu, Xinggang Wang, Tiejun Huang, Xinlong Wang, Yue Cao.
    - EVA: Exploring the Limits of Masked Visual Representation Learning at Scale. [[ArXiv'2022](https://arxiv.org/abs/2211.07636)] [[code](https://github.com/baaivision/EVA)]
    <p align="center"><img width="60%" src="https://user-images.githubusercontent.com/44519745/206920442-4d896aca-1765-4e66-9afb-c76017bc3521.png" /></p>
@@ -144,8 +147,14 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - CAE v2: Context Autoencoder with CLIP Target. [[ArXiv'2022](https://arxiv.org/abs/2211.09799)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/206920593-c703518b-47f9-4f61-a319-5ba0099c902d.png" /></p>
 * **Data2Vec.V2**: Alexei Baevski, Arun Babu, Wei-Ning Hsu, and Michael Auli.
-   - Efficient Self-supervised Learning with Contextualized Target Representations for Vision, Speech and Language. [[ArXiv'2022](https://ai.facebook.com/research/publications/efficient-self-supervised-learning-with-contextualized-target-representations-for-vision-speech-and-language)] [[code](https://github.com/facebookresearch/fairseq/tree/main/examples/data2vec)]
+   - Efficient Self-supervised Learning with Contextualized Target Representations for Vision, Speech and Language. [[ArXiv'2022](https://arxiv.org/abs/2212.07525)] [[code](https://github.com/facebookresearch/fairseq/tree/main/examples/data2vec)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/207722013-4fc539f7-3d45-4eb8-8037-c4fa210738d6.png" /></p>
+* **FLIP**: Yanghao Li, Haoqi Fan, Ronghang Hu, Christoph Feichtenhofer, Kaiming He.
+   - Scaling Language-Image Pre-training via Masking. [[ArXiv'2022](https://arxiv.org/abs/2212.00794)]
+   <p align="center"><img width="55%" src="https://user-images.githubusercontent.com/44519745/209705278-368b8125-cb14-4800-8523-09800b1728d4.png" /></p>
+* **A-CLIP**: Yifan Yang, Weiquan Huang, Yixuan Wei, Houwen Peng, Xinyang Jiang, Huiqiang Jiang, Fangyun Wei, Yin Wang, Han Hu, Lili Qiu, Yuqing Yang.
+   - Attentive Mask CLIP. [[ArXiv'2022](https://arxiv.org/abs/2212.08653)]
+   <p align="center"><img width="55%" src="https://user-images.githubusercontent.com/44519745/209704869-a0eee2b2-0b21-4be1-8bfa-074758f3b4a2.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

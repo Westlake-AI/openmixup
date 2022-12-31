@@ -50,6 +50,8 @@ class TransformerEncoderLayer(BaseModule):
             high-pass components, then rescales and combines these two filters
             to produce an all-pass self-attention matrix.
             Defaults to False.
+        return_attn (bool): Whether to return the softmax attention matrix.
+            Defaults to False.
         act_cfg (dict): The activation config for FFNs.
             Defaluts to ``dict(type='GELU')``.
         norm_cfg (dict): Config dict for normalization layer.
@@ -71,6 +73,7 @@ class TransformerEncoderLayer(BaseModule):
                  qkv_bias=True,
                  feat_scale=False,
                  attn_scale=False,
+                 return_attn=False,
                  act_cfg=dict(type='GELU'),
                  norm_cfg=dict(type='LN'),
                  init_values=0,
@@ -79,6 +82,7 @@ class TransformerEncoderLayer(BaseModule):
         super(TransformerEncoderLayer, self).__init__(init_cfg)
 
         self.embed_dims = embed_dims
+        self.return_attn = return_attn
 
         self.norm1_name, norm1 = build_norm_layer(
             norm_cfg, self.embed_dims, postfix=1)
@@ -92,7 +96,8 @@ class TransformerEncoderLayer(BaseModule):
                 attn_drop=attn_drop_rate,
                 proj_drop=drop_rate,
                 qkv_bias=qkv_bias,
-                attn_scale=attn_scale)
+                attn_scale=attn_scale,
+                return_attn=return_attn)
         else:
             # attention with relative position bias
             self.attn = MultiheadAttentionWithRPE(
@@ -102,7 +107,8 @@ class TransformerEncoderLayer(BaseModule):
                 attn_drop=attn_drop_rate,
                 proj_drop=drop_rate,
                 qkv_bias=qkv_bias,
-                attn_scale=attn_scale)
+                attn_scale=attn_scale,
+                return_attn=return_attn)
 
         self.norm2_name, norm2 = build_norm_layer(
             norm_cfg, self.embed_dims, postfix=2)
@@ -169,11 +175,19 @@ class TransformerEncoderLayer(BaseModule):
 
     def forward(self, x):
         if self.gamma_1 is not None:
-            x = x + self.drop_path(self.gamma_1 * self.freq_scale(self.attn(self.norm1(x))))
+            _x = self.attn(self.norm1(x))
+            if self.return_attn:
+                _x, attn = _x
+            x = x + self.drop_path(self.gamma_1 * self.freq_scale(_x))
             x = x + self.drop_path(self.gamma_2 * self.ffn(self.norm2(x)))
         else:
-            x = x + self.drop_path(self.freq_scale(self.attn(self.norm1(x))))
+            _x = self.attn(self.norm1(x))
+            if self.return_attn:
+                _x, attn = _x
+            x = x + self.drop_path(self.freq_scale(_x))
             x = x + self.drop_path(self.ffn(self.norm2(x)))
+        if self.return_attn:
+            return x, attn
         return x
 
 
@@ -219,6 +233,8 @@ class VisionTransformer(BaseBackbone):
             AttnScale decomposes a self-attention block into low-pass and
             high-pass components, then rescales and combines these two filters
             to produce an all-pass self-attention matrix.
+            Defaults to False.
+        return_attn (bool): Whether to return the softmax attention matrix.
             Defaults to False.
         norm_cfg (dict): Config dict for normalization layer.
             Defaults to ``dict(type='LN')``.
@@ -302,6 +318,7 @@ class VisionTransformer(BaseBackbone):
                  qkv_bias=True,
                  feat_scale=False,
                  attn_scale=False,
+                 return_attn=False,
                  norm_cfg=dict(type='LN', eps=1e-6),
                  final_norm=True,
                  with_cls_token=True,
@@ -336,6 +353,7 @@ class VisionTransformer(BaseBackbone):
         self.num_layers = self.arch_settings['num_layers']
         self.img_size = to_2tuple(img_size)
         self.patch_size = patch_size
+        self.return_attn = return_attn
         self.frozen_stages = frozen_stages
         self.norm_eval = norm_eval
         self.init_cfg = init_cfg
@@ -400,6 +418,7 @@ class VisionTransformer(BaseBackbone):
                 qkv_bias=qkv_bias,
                 feat_scale=feat_scale,
                 attn_scale=attn_scale,
+                return_attn=return_attn and (i in self.out_indices),
                 norm_cfg=norm_cfg)
             _layer_cfg.update(layer_cfgs[i])
             self.layers.append(TransformerEncoderLayer(**_layer_cfg))
@@ -512,6 +531,9 @@ class VisionTransformer(BaseBackbone):
         for i, layer in enumerate(self.layers):
             x = layer(x)
 
+            if i in self.out_indices and self.return_attn:
+                x, attn = x
+
             if i == len(self.layers) - 1 and self.final_norm:
                 x = self.norm1(x)
 
@@ -528,7 +550,9 @@ class VisionTransformer(BaseBackbone):
                 if self.output_cls_token and i == len(self.layers) - 1:
                     out = [patch_token, cls_token]
                 else:
-                    out = patch_token
+                    out = [patch_token]
+                if self.return_attn:
+                    out.append(attn)
                 outs.append(out)
 
         return outs

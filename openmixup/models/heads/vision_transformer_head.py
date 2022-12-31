@@ -80,17 +80,25 @@ class VisionTransformerClsHead(BaseModule):
             lecun_normal_init(
                 self.layers.pre_logits,
                 mode='fan_in', distribution='truncated_normal')
-    
+
     def pre_logits(self, x):
+        """ Preprocess of ViT outputs: classifying with cls_token """
         if isinstance(x, tuple):
             x = x[-1]
-        _, cls_token = x
+        if len(x) == 1:
+            x = x[0]  # [patch_token] instead of cls_token
+            if x.dim() == 3:
+                x = x.mean(dim=1)
+        elif len(x) == 2:
+            _, x = x  # [patch_token, cls_token]
+        elif len(x) == 3:
+            _, x, _ = x  # [patch_token, cls_token, attn]
         if self.hidden_dim is None:
-            return cls_token
+            return x
         else:
-            x = self.layers.pre_logits(cls_token)
+            x = self.layers.pre_logits(x)
             return self.layers.act(x)
-    
+
     def frozen(self):
         self.layers.eval()
         for param in self.layers.parameters():
@@ -157,8 +165,8 @@ class VisionTransformerClsHead(BaseModule):
         else:
             # mixup classification
             y_a, y_b, lam = labels
-            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,1]
-                lam = lam.unsqueeze(-1)
+            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,\*]
+                lam = lam.view(-1, 1)
             # whether is the single label cls [N,] or multi-label cls [N,C]
             single_label = \
                 y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)

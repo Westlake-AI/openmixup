@@ -386,6 +386,8 @@ class MultiheadAttention(BaseModule):
         v_shortcut (bool): Add a shortcut from value to output. It's usually
             used if ``input_dims`` is different from ``embed_dims``.
             Defaults to False.
+        return_attn (bool): Whether to return the softmax attention matrix.
+            Defaults to False.
         use_layer_scale (bool): Whether to use the layer init scale. Defaults
             to False.
         init_cfg (dict, optional): The Config for initialization.
@@ -404,6 +406,7 @@ class MultiheadAttention(BaseModule):
                  proj_bias=True,
                  attn_scale=False,
                  v_shortcut=False,
+                 return_attn=False,
                  use_layer_scale=False,
                  init_cfg=None):
         super(MultiheadAttention, self).__init__(init_cfg=init_cfg)
@@ -412,6 +415,7 @@ class MultiheadAttention(BaseModule):
         self.embed_dims = embed_dims
         self.num_heads = num_heads
         self.v_shortcut = v_shortcut
+        self.return_attn = return_attn
 
         self.head_dims = embed_dims // num_heads
         self.scale = qk_scale or self.head_dims**-0.5
@@ -450,6 +454,8 @@ class MultiheadAttention(BaseModule):
             attn_h = attn_h * (1. + self.lamb[None, :, None, None]
                                )  # [B, N, l, l]
             attn = attn_d + attn_h  # [B, N, l, l]
+        if self.return_attn:
+            attn_softmax = attn.detach().clone()
 
         attn = self.attn_drop(attn)
 
@@ -459,6 +465,8 @@ class MultiheadAttention(BaseModule):
 
         if self.v_shortcut:
             x = v.squeeze(1) + x
+        if self.return_attn:
+            return (x, attn_softmax)
         return x
 
 
@@ -495,6 +503,8 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             high-pass components, then rescales and combines these two filters
             to produce an all-pass self-attention matrix.
             Defaults to False.
+        return_attn (bool): Whether to return the softmax attention matrix.
+            Defaults to False.
         init_cfg (dict, optional): The Config for initialization.
             Defaults to None.
     """
@@ -510,6 +520,7 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
                  qk_scale: float = None,
                  proj_bias: bool = True,
                  attn_scale: bool = False,
+                 return_attn: bool = False,
                  init_cfg: dict = None) -> None:
         super().__init__(
             embed_dims=embed_dims,
@@ -521,6 +532,7 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             qk_scale=qk_scale,
             proj_bias=proj_bias,
             attn_scale=attn_scale,
+            return_attn=return_attn,
             init_cfg=init_cfg)
 
         self.qkv = nn.Linear(self.input_dims, embed_dims * 3, bias=False)
@@ -611,12 +623,16 @@ class MultiheadAttentionWithRPE(MultiheadAttention):
             attn_h = attn_h * (1. + self.lamb[None, :, None, None]
                                )  # [B, N, l, l]
             attn = attn_d + attn_h  # [B, N, l, l]
+        if self.return_attn:
+            attn_softmax = attn.detach().clone()
 
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B, N, self.embed_dims)
         x = self.proj(x)
         x = self.proj_drop(x)
+        if self.return_attn:
+            return (x, attn_softmax)
         return x
 
 

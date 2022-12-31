@@ -1,4 +1,4 @@
-_base_ = "../deit_small_smooth_mix_8xb128.py"
+_base_ = "../deit_small_smooth_mix_4xb256_fp16.py"
 
 # model settings
 model = dict(
