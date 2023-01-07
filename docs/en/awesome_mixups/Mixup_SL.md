@@ -156,6 +156,10 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **TransformMix** Anonymous.
    - TransformMix: Learning Transformation and Mixing Strategies for Sample-mixing Data Augmentation. [[OpenReview'2022](https://openreview.net/forum?id=-1vpxBUtP0B)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204575385-0b2d7470-0ffd-4b6b-977b-ef28b1617954.png" /></p>
+   
+* **R-Mix and RL-Mix**: Minh-Long Luu, Zeyi Huang, Eric P.Xing, Yong Jae Lee, Haohan Wang.
+   - Expeditious Saliency-guided Mix-up through Random Gradient Thresholding. [[2nd Practical-DL Workshop @ AAAI'23](https://arxiv.org/abs/2212.04875)] [[code](https://github.com/minhlong94/Random-Mixup)]
+   <p align="center"><img width="85%" src="https://raw.githubusercontent.com/minhlong94/Random-Mixup/main/assets/Mixups.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
