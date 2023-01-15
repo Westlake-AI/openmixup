@@ -19,16 +19,15 @@ custom_hooks = [
 
 # optimizer
 optimizer = dict(
-    weight_decay=0.03,  # for faster convergence
+    weight_decay=0.05,
 )
 
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5,  # 1e-5 yields better performances than 1e-6
+    by_epoch=False, min_lr=1e-4,
     warmup='linear',
-    warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
-    # warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
+    warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
     warmup_ratio=1e-5,
 )
 

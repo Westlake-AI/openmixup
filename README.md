@@ -242,17 +242,8 @@ This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` 
 
 ## Citation
 
-If you find this project useful in your research, please consider star our GitHub repo and cite [tech report](https://arxiv.org/abs/2209.04851):
+If you find this project useful in your research, please consider star our [tech report](https://arxiv.org/abs/2209.04851):
 
-```BibTeX
-@misc{2022openmixup,
-    title = {{OpenMixup}: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
-    author = {Siyuan Li and Zicheng Liu and Zedong Wang and Di Wu and Stan Z. Li},
-    journal = {GitHub repository},
-    howpublished = {\url{https://github.com/Westlake-AI/openmixup}},
-    year = {2022}
-}
-```
 ```BibTeX
 @article{li2022openmixup,
   title = {OpenMixup: Open Mixup Toolbox and Benchmark for Visual Representation Learning},

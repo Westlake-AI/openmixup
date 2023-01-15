@@ -6,7 +6,7 @@ from .addtional_scheduler import \
 from .builder import build_hook, build_addtional_scheduler
 from .deepcluster_hook import DeepClusterHook
 from .deepcluster_automix_hook import DeepClusterAutoMixHook
-from .ema_hook import EMAHook
+from .ema_hook import EMAHook, SwitchEMAHook
 from .extractor import Extractor, MultiExtractProcess
 from .lr_scheduler import StepFixCosineAnnealingLrUpdaterHook
 from .momentum_hook import CosineHook, StepHook, CosineScheduleHook, StepScheduleHook
@@ -28,6 +28,6 @@ __all__ = [
     'build_hook', 'build_addtional_scheduler',
     'DeepClusterHook', 'DeepClusterAutoMixHook', 'ODCHook', 'PreciseBNHook', 'SwAVHook',
     'StepFixCosineAnnealingLrUpdaterHook', 'CosineHook', 'StepHook', 'CosineScheduleHook', 'StepScheduleHook',
-    'EMAHook', 'Extractor', 'MultiExtractProcess', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',
+    'EMAHook', 'SwitchEMAHook', 'Extractor', 'MultiExtractProcess', 'SAVEHook', 'SSLMetricHook', 'ValidateHook',
     'DistOptimizerHook', 'Fp16OptimizerHook',
 ]

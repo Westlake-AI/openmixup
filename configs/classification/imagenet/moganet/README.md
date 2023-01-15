@@ -12,7 +12,13 @@ Since the recent success of Vision Transformers (ViTs), explorations toward tran
 
 ## Results and models
 
-Here, we provide ImageNet classification results and pre-trained models. You can download all files from [moganet-in1k-weights](https://github.com/Westlake-AI/openmixup/releases/tag/moganet-in1k-weights) or **Baidu Cloud**: [MogaNet (z8mf)](https://pan.baidu.com/s/1d5MTTC66gegehmfZvCQRUA?pwd=z8mf). Please refer to [MogaNet](https://github.com/Westlake-AI/MogaNet) for full implementations of classification and dense prediction tasks (COCO object detection and ADE20K semantic segmentation).
+Here, we provide ImageNet classification results and pre-trained models. You can download all files from [openmixup-moganet-in1k-weights](https://github.com/Westlake-AI/openmixup/releases/tag/moganet-in1k-weights), [timm-moganet-in1k-weights](https://github.com/Westlake-AI/MogaNet/releases/tag/moganet-in1k-weights), or **Baidu Cloud**: [MogaNet (z8mf)](https://pan.baidu.com/s/1d5MTTC66gegehmfZvCQRUA?pwd=z8mf). Please refer to [MogaNet](https://github.com/Westlake-AI/MogaNet) for replementations of classification and full implementations of dense prediction tasks (COCO object detection and ADE20K semantic segmentation).
+
+### Usage
+
+* Demo: A simple Google Colab [demo](https://github.com/Westlake-AI/MogaNet/demo.ipynb) of MogaNet which run the steps to perform inference for image classification.
+* Analysis tools: In OpenMixup, use [vis_cam.py](https://github.com/Westlake-AI/openmixup/tools/visualizations/vis_cam.py) and [get_flops.py](https://github.com/Westlake-AI/openmixup/tools/analysis_tools/get_flops.py) to visualize Grad-CAM activation maps and caculate FLOPs. In [MogaNet](https://github.com/Westlake-AI/MogaNet), the analysis can be conducted by [cam_image.py](https://github.com/Westlake-AI/MogaNet/cam_image.py) and [get_flops.py](https://github.com/Westlake-AI/MogaNet/get_flops.py).
+* Warning of `attn_force_fp32`: During fp16 training, we force to run the gating functions with fp32 to avoid inf or nan. We found that if we use `attn_force_fp32=True` during training, it should also keep `attn_force_fp32=True` during evaluation. This might be caused by the difference between the output results of using `attn_force_fp32` or not. It will not affect performances of fully fine-tuning but the results of transfer learning (e.g., COCO Mask-RCNN freezes the parameters of the first stage). We set it to true by default in OpenMixup while removing it in [MogaNet](https://github.com/Westlake-AI/MogaNet) implementation.
 
 ### ImageNet-1k
 

@@ -247,6 +247,12 @@ class MultiOrderGatedAggregation(BaseModule):
 
     @force_fp32()
     def forward_gating(self, g, v):
+        """ Force to computing gating with fp32
+        
+        Warning: If you use `attn_force_fp32=True` during training, you
+            should also keep it during evaluation, because the output results
+            of whether to use `attn_force_fp32` are slightly different.
+        """
         g = g.to(torch.float32)
         v = v.to(torch.float32)
         return self.proj_2(self.act_gate(g) * self.act_gate(v))
@@ -455,6 +461,21 @@ class MogaNet(BaseBackbone):
             Defaults to ``dict(type='LN')``.
         conv_norm_cfg (dict): Config dict for convolution normalization layer.
             Defaults to ``dict(type='BN')``.
+        patchembed_types (list): The type of PatchEmbedding in each stage.
+            Defaults to ``['ConvEmbed', 'Conv', 'Conv', 'Conv',]``.
+        attn_dw_dilation (list): The dilate rate of depth-wise convolutions in
+            Moga Blocks. Defaults to ``[1, 2, 3]``.
+        attn_channel_split (list): The channel split rate of three depth-wise
+            convolutions in Moga Blocks. Defaults to ``[1, 3, 4]``, i.e.,
+            divided into ``[1/8, 3/8, 4/8]``.
+        attn_act_cfg (dict): Config dict for activation of gating in Moga
+            Blocks. Defaults to ``dict(type='SiLU')``.
+        attn_final_dilation (bool): Whether to adopt dilated depth-wise
+            convolutions in the final stage. Defaults to True.
+        attn_force_fp32 (bool): Whether to force the gating running with fp32.
+            Warning: If you use `attn_force_fp32=True` during training, you
+            should also keep it during evaluation, because the output results
+            of whether to use `attn_force_fp32` are different. Defaults to True.
         block_cfgs (Sequence[dict] | dict): The extra config of each block.
             Defaults to empty dicts.
         init_cfg (dict, optional): The Config for initialization.

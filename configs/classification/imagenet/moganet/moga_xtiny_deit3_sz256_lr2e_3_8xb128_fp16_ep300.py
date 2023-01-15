@@ -4,6 +4,9 @@ _base_ = [
     '../../_base_/default_runtime.py',
 ]
 
+# model settings
+model = dict(backbone=dict(attn_force_fp32=True))  # force fp32 of gating for fp16 training
+
 # data
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
