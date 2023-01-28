@@ -135,6 +135,9 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **StackMix**: John Chen, Samarth Sinha, Anastasios Kyrillidis.
    - StackMix: A complementary Mix algorithm. [[Arxiv'2021](https://arxiv.org/abs/2011.12618)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/204574552-fb5e9865-86b0-4d51-977c-82a840d81a18.png" /></p>
+* **SalfMix**: Jaehyeop Choi, Chaehyeon Lee, Donggyu Lee, Heechul Jung.
+   - SalfMix: A Novel Single Image-Based Data Augmentation Technique Using a Saliency Map. [[Sensor'2021](https://pdfs.semanticscholar.org/1db9/c80edeed50858783c69237aeba764750e8b7.pdf?_ga=2.182064935.1813772674.1674154381-1810295069.1625160008)]
+   <p align="center"><img width="80%" src="https://user-images.githubusercontent.com/44519745/213535188-5255eb4c-83c8-40ca-86b9-44459b84d9a8.png" /></p>
 * **AlignMix**: Shashanka Venkataramanan, Ewa Kijak, Laurent Amsaleg, Yannis Avrithis.
    - AlignMix: Improving representation by interpolating aligned features. [[CVPR'2022](https://arxiv.org/abs/2103.15375)] [[code](https://github.com/shashankvkt/AlignMixup_CVPR22)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/204574666-fcb694b0-c6bf-438a-bbd0-020635fe4b51.png" /></p>
@@ -153,12 +156,15 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **SciMix** Rémy Sun, Clément Masson, Gilles Hénaff, Nicolas Thome, Matthieu Cord.
    - Swapping Semantic Contents for Mixing Images. [[ICPR'2022](https://arxiv.org/abs/2205.10158)]
    <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/204575557-ddc6644e-a5e4-49ae-a95d-59856cc99a25.png" /></p>
-* **TransformMix** Anonymous.
+* **TransformMix** Tsz-Him Cheung, Dit-Yan Yeung.
    - TransformMix: Learning Transformation and Mixing Strategies for Sample-mixing Data Augmentation. [[OpenReview'2022](https://openreview.net/forum?id=-1vpxBUtP0B)]
-   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204575385-0b2d7470-0ffd-4b6b-977b-ef28b1617954.png" /></p>   
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204575385-0b2d7470-0ffd-4b6b-977b-ef28b1617954.png" /></p>
 * **R-Mix and RL-Mix**: Minh-Long Luu, Zeyi Huang, Eric P.Xing, Yong Jae Lee, Haohan Wang.
    - Expeditious Saliency-guided Mix-up through Random Gradient Thresholding. [[2nd Practical-DL Workshop @ AAAI'23](https://arxiv.org/abs/2212.04875)] [[code](https://github.com/minhlong94/Random-Mixup)]
    <p align="center"><img width="85%" src="https://raw.githubusercontent.com/minhlong94/Random-Mixup/main/assets/Mixups.png" /></p>
+* **SMMix** Mengzhao Chen, Mingbao Lin, ZhiHang Lin, Yuxin Zhang, Fei Chao, Rongrong Ji.
+   - SMMix: Self-Motivated Image Mixing for Vision Transformers. [[Arxiv'2022](https://arxiv.org/abs/2212.12977)] [[code](https://github.com/chenmnz/smmix)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/213537624-7359689e-b5af-4db1-a4ad-07876dd44089.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

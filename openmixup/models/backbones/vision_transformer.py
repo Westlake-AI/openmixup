@@ -550,8 +550,10 @@ class VisionTransformer(BaseBackbone):
                 if self.output_cls_token and i == len(self.layers) - 1:
                     out = [patch_token, cls_token]
                 else:
-                    out = [patch_token]
+                    out = patch_token
                 if self.return_attn:
+                    if not isinstance(out, list):
+                        out = [out]
                     out.append(attn)
                 outs.append(out)
 

@@ -29,7 +29,6 @@ model = dict(
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
         lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
-        att_norm_cfg=None,  # Not use attention_norm for better performance
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
         att_norm_cfg=None,  # AutoMix: attention norm for fp16
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
@@ -54,7 +53,8 @@ model = dict(
 )
 
 # dataset
-data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+# data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+data = dict(imgs_per_gpu=16, workers_per_gpu=4)
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024

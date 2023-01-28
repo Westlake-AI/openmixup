@@ -49,7 +49,7 @@ data = dict(
 
 # validation hook
 evaluation = dict(
-    initial=True,
+    initial=False,
     interval=1,
     imgs_per_gpu=128,
     workers_per_gpu=4,

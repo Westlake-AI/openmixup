@@ -5,7 +5,8 @@ _base_ = [
 ]
 
 # data
-data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+# data = dict(imgs_per_gpu=128, workers_per_gpu=8)
+data = dict(imgs_per_gpu=8, workers_per_gpu=2)
 
 # additional hooks
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024

@@ -2,8 +2,6 @@ import os
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
-import torchvision
-from torchvision import transforms
 
 import logging
 from mmcv.runner import auto_fp16, force_fp32, load_checkpoint
@@ -12,6 +10,7 @@ from openmixup.utils import print_log
 from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
+from ..utils import PlotTensor
 
 
 @MODELS.register_module
@@ -112,6 +111,7 @@ class AutoMixup(BaseModel):
             if isinstance(mask_up_override, (str, list)) else None
         self.save = bool(save)
         self.save_name = str(save_name)
+        self.ploter = PlotTensor(apply_inv=True)
         self.debug = bool(debug)
         self.mix_shuffle_no_repeat = bool(mix_shuffle_no_repeat)
         assert 0 <= self.momentum and self.lam_margin < 1 and self.mask_adjust <= 1
@@ -353,22 +353,13 @@ class AutoMixup(BaseModel):
     @force_fp32(apply_to=('im_mixed', 'im_q', 'im_k',))
     def plot_mix(self, im_mixed, im_q, im_k, lam, debug_plot=None, name="k"):
         """ visualize mixup results, supporting 'debug' mode """
-        invTrans = transforms.Compose([
-            transforms.Normalize(
-                mean=[ 0., 0., 0. ], std=[1/0.2023, 1/0.1994, 1/0.201]),
-            transforms.Normalize(
-                mean=[-0.4914, -0.4822, -0.4465], std=[ 1., 1., 1. ])])
         # plot mixup results
         img = torch.cat((im_q[:4], im_k[:4], im_mixed[:4]), dim=0)
-        img_grid = torchvision.utils.make_grid(img, nrow=4, pad_value=0)
-        img = np.transpose(invTrans(img_grid).detach().cpu().numpy(), (1, 2, 0))
-        fig = plt.figure()
-        plt.imshow(img)
-        plt.title('lambda {}={}'.format(name, lam))
+        title_name = 'lambda {}={}'.format(name, lam)
         assert self.save_name.find(".png") != -1
-        if not os.path.exists(self.save_name):
-            plt.savefig(self.save_name)
-        plt.close()
+        self.ploter.plot(
+            img, nrow=4, title_name=title_name, save_name=self.save_name)
+
         # debug: plot intermediate results, fp32
         if self.debug:
             assert isinstance(debug_plot, dict)

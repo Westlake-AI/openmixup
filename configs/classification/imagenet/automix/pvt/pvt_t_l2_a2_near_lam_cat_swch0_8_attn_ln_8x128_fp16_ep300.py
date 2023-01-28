@@ -34,7 +34,6 @@ model = dict(
         x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
         att_norm_cfg=dict(type='LN2d', eps=1e-6),  # AutoMix: attention norm for fp16 (fast training)
         mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
-        mask_mode="none_v_",
         frozen=False),
     head_one=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
