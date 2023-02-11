@@ -176,7 +176,7 @@ class EMAHook(Hook):
 @HOOKS.register_module()
 class SwitchEMAHook(Hook):
     r"""Exponential Moving Average Hook.
-    IP120 v01.10
+    IP120 v01.10, v02.08
 
     Use Exponential Moving Average on all parameters of model in training
     process. All parameters have a ema backup, which update by the formula
@@ -212,6 +212,7 @@ class SwitchEMAHook(Hook):
                  switch_params=False,
                  switch_by_iter=False,
                  switch_start=0,
+                 switch_end=None,
                  switch_interval=100,
                  full_params_ema=False,
                  update_interval=1,
@@ -234,6 +235,8 @@ class SwitchEMAHook(Hook):
         self.switch_params = switch_params
         self.switch_by_iter = switch_by_iter
         self.switch_start = switch_start
+        self.switch_end = switch_end \
+            if isinstance(switch_end, int) and self.switch_params else 1e100
         self.switch_interval = switch_interval
         self.full_params_ema = full_params_ema
 
@@ -287,21 +290,25 @@ class SwitchEMAHook(Hook):
                     parameter.data, alpha=1. - self.regular_momentum)
         # copy EMA to the model
         if self.switch_params and self.switch_by_iter:
-            if curr_iter > self.switch_start:
+            if self.switch_start < curr_iter < self.switch_end:
                 if not self.every_n_iters(runner, self.switch_interval):
                     self._switch_ema_parameters()
 
     def after_train_epoch(self, runner):
         """We load parameter values from ema backup to model before the
         EvalHook."""
+        if self.switch_end < runner.epoch:
+            return
         self._swap_ema_parameters()
 
     def before_train_epoch(self, runner):
         """We recover model's parameter from ema backup after last epoch's
         EvalHook."""
+        if self.switch_end < runner.epoch:
+            return
         self._swap_ema_parameters()
         if self.switch_params and not self.switch_by_iter:  # copy EMA to the model
-            if runner.epoch > self.switch_start:
+            if self.switch_start < runner.epoch:
                 if not self.every_n_epochs(runner, self.switch_interval):
                     self._switch_ema_parameters()
 

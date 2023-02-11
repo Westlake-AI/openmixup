@@ -200,6 +200,8 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **TokenMix**: Jihao Liu, Boxiao Liu, Hang Zhou, Hongsheng Li, Yu Liu.
    - TokenMix: Rethinking Image Mixing for Data Augmentation in Vision Transformers. [[ECCV'2022](https://arxiv.org/abs/2207.08409)] [[code](https://github.com/Sense-X/TokenMix)]
    <p align="center"><img width="70%" src="https://user-images.githubusercontent.com/44519745/204578736-7b2dd349-7214-4d49-ade8-30b1caa2f1ea.png" /></p>
+* **GDPMix**: Donghao Li, Yang Cao, Yuan Yao.
+   - Optimizing Random Mixup with Gaussian Differential Privacy. [[arXiv'2022](https://arxiv.org/abs/2202.06467)]
 * **TokenMixup**: Hyeong Kyu Choi, Joonmyung Choi, Hyunwoo J. Kim.
    - TokenMixup: Efficient Attention-guided Token-level Data Augmentation for Transformers. [[NIPS'2022](https://arxiv.org/abs/2210.07562)] [[code](https://github.com/mlvlab/TokenMixup)]
    <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/204578884-b9d7d466-b26b-4e4b-8a23-22199a6dca26.png" /></p>
@@ -232,6 +234,9 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * Linjun Zhang, Zhun Deng, Kenji Kawaguchi, James Zou.
    - When and How Mixup Improves Calibration. [[ICML'2022](https://arxiv.org/abs/2102.06289)]
    <p align="center"><img width="50%" src="https://user-images.githubusercontent.com/44519745/204827323-b854f0a0-803f-46f8-9b74-44970998b311.png" /></p>
+* Zixuan Liu, Ziqiao Wang, Hongyu Guo, Yongyi Mao.
+   - Over-Training with Mixup May Hurt Generalization. [[ICLR'2023](https://openreview.net/forum?id=JmkjrlVE-DG)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/216831436-704b0427-61a0-42ff-b4e6-ab361be8b634.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -265,3 +270,4 @@ Feel free to send [pull requests](https://github.com/Westlake-AI/openmixup/pulls
 - [Awesome-Mix](https://github.com/ChengtaiCao/Awesome-Mix): An awesome list of papers for `A Survey of Mix-based Data Augmentation: Taxonomy, Methods, Applications, and Explainability, we categorize them based on our proposed taxonomy`.
 - [awesome-mixup](https://github.com/demoleiwang/awesome-mixup): A collection of awesome papers about mixup.
 - [awesome-mixed-sample-data-augmentation](https://github.com/JasonZhang156/awesome-mixed-sample-data-augmentation): A collection of awesome things about mixed sample data augmentation.
+- [data-augmentation-review](https://github.com/AgaMiko/data-augmentation-review): List of useful data augmentation resources.

@@ -502,6 +502,10 @@ class MogaNet(BaseBackbone):
                         {'embed_dims': [64, 160, 320, 640],
                          'depths': [4, 6, 44, 4],
                          'ffn_ratios': [8, 8, 4, 4]}),
+        **dict.fromkeys(['xl', 'x-large'],
+                        {'embed_dims': [96, 192, 480, 960],
+                         'depths': [6, 6, 44, 4],
+                         'ffn_ratios': [8, 8, 4, 4]}),
     }  # yapf: disable
 
     def __init__(self,

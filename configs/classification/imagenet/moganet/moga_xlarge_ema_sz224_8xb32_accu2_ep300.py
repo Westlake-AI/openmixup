@@ -1,19 +1,19 @@
 _base_ = [
-    '../../_base_/models/moganet/moga_base.py',
+    '../../_base_/models/moganet/moga_xlarge.py',
     '../../_base_/datasets/imagenet/moga_sz224_8xbs128.py',
     '../../_base_/default_runtime.py',
 ]
 
 # data
-data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+data = dict(imgs_per_gpu=32, workers_per_gpu=8)
 
 # additional hooks
-update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
+update_interval = 4  # 32 x 8gpus x 4 accumulates = bs1024
 custom_hooks = [
     dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
         momentum=0.9999,
         warmup='linear',
-        warmup_iters=20 * 1252, warmup_ratio=0.9,
+        warmup_iters=20 * 5005, warmup_ratio=0.9,
         update_interval=update_interval,
     ),
     dict(type='PreciseBNHook',
@@ -26,7 +26,7 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3,  # lr = 1e-3 / bs1024
+    lr=1e-3,  # lr = 1e-3 / bs512
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
@@ -44,7 +44,7 @@ optimizer_config = dict(update_interval=update_interval)
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5,
+    by_epoch=False, min_lr=1e-4,
     warmup='linear',
     warmup_iters=5, warmup_by_epoch=True,
     warmup_ratio=1e-6,

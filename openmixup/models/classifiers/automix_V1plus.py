@@ -149,7 +149,7 @@ class AutoMixup(BaseModel):
             self.head_one_q = builder.build_head(head_one)
         else:
             self.head_one_q = None
-        if "head_one_k" in head_weights.keys() and "head_one_q" in head_weights.keys():
+        if "head_one_k" in head_weights.keys():
             self.head_one_k = builder.build_head(head_one_k)
         else:
             self.head_one_k = None
@@ -296,7 +296,7 @@ class AutoMixup(BaseModel):
         """
         if isinstance(img, list):
             img = img[0]
-        batch_size = img.size()[0]
+        batch_size = img.size(0)
         self._update_loss_weights()
         
         lam = np.random.beta(self.alpha, self.alpha, 2)  # 0: mb, 1: bb

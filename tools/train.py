@@ -35,7 +35,7 @@ def parse_args():
         action='store_true',
         help='resume from the latest checkpoint automatically')
     parser.add_argument(
-        '--pretrained', default=None, help='pretrained model file')
+        '--pretrained', default=None, help='pretrained model file for backbone')
     parser.add_argument(
         '--load_checkpoint', default=None, help='load the checkpoint file of full models')
     group_gpus = parser.add_mutually_exclusive_group()
@@ -180,6 +180,8 @@ def main():
     if args.pretrained is not None:
         assert isinstance(args.pretrained, str) and args.load_checkpoint is None
         cfg.model.pretrained = args.pretrained
+        if cfg.model.get('init_cfg', None) is not None:
+            cfg.model.init_cfg = None  # only initialize the backbone with args.pretrained
     model = build_model(cfg.model)
     if args.load_checkpoint is not None:
         assert isinstance(args.load_checkpoint, str) and args.pretrained is None
