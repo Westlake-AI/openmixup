@@ -17,7 +17,7 @@ from .mim_vit import BEiTViT, MAEViT, MIMVisionTransformer, SimMIMViT
 from .mlp_mixer import MlpMixer
 from .mobilenet_v2 import MobileNetV2
 from .mobilenet_v3 import MobileNetV3
-from .moganet import MogaNet, MogaNet_Mix
+from .moganet import MogaNet, MogaNet_Mix, MIMMogaNet
 from .mvit import MViT
 from .poolformer import PoolFormer
 from .pvt import PyramidVisionTransformer
@@ -46,7 +46,7 @@ __all__ = [
     'DistilledVisionTransformer', 'DeiT3', 'DenseNet',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
-    'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MViT',
+    'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MViT',
     'PoolFormer', 'PyramidVisionTransformer', 'PCPVT', 'SVT',
     'RegNet', 'RepMLPNet', 'RepVGG', 'Res2Net', 'ResNeSt',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',

@@ -16,7 +16,7 @@ def main():
     """
 
     # *** default CE ***
-    base_path = "configs/classification/tiny_imagenet/mixups/baseline/r18_mixups_CE_none.py"
+    base_path = "configs/classification/tiny_imagenet/mixups/basic/r18_mixups_CE_none.py"
     # base_path = "configs/classification/tiny_imagenet/mixups/basic/rx50_mixups_CE_none.py"
     # base_path = "configs/classification/tiny_imagenet/mixups/basic/wrn28_8_mixups_CE_none.py"
     

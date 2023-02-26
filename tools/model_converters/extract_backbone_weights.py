@@ -1,3 +1,9 @@
+"""
+Extract only the backbone parameters.
+
+Example command:
+python tools/extract_backbone_weights.py [PATH/to/checkpoint] [PATH/to/output]
+"""
 import copy
 import torch
 import argparse
@@ -47,6 +53,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# usage exam:
-# python tools/extract_backbone_weights.py [PATH of the checkpoints]
