@@ -218,7 +218,7 @@ Please refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for the benchmarkin
     - [x] [BEiT](https://arxiv.org/abs/2106.08254) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/beit/)
     - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
     - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
-    - [x] [MaskFeat](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/maskfeat/)]
+    - [x] [MaskFeat](https://arxiv.org/pdf/2112.09133.pdf) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/maskfeat/)]
     - [x] [CAE](https://arxiv.org/abs/2202.03026) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/cae/)]
     - [x] [A2MIM](https://arxiv.org/abs/2205.13943) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/)]
     </details>
