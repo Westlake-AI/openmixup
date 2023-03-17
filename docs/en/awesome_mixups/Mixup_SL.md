@@ -162,9 +162,15 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **R-Mix and RL-Mix**: Minh-Long Luu, Zeyi Huang, Eric P.Xing, Yong Jae Lee, Haohan Wang.
    - Expeditious Saliency-guided Mix-up through Random Gradient Thresholding. [[2nd Practical-DL Workshop @ AAAI'23](https://arxiv.org/abs/2212.04875)] [[code](https://github.com/minhlong94/Random-Mixup)]
    <p align="center"><img width="85%" src="https://raw.githubusercontent.com/minhlong94/Random-Mixup/main/assets/Mixups.png" /></p>
+* **MixPro** Qihao Zhao, Yangyu Huang, Wei Hu, Fan Zhang, Jun Liu.
+   - MixPro: Data Augmentation with MaskMix and Progressive Attention Labeling for Vision Transformer. [[ICLR'2023](https://openreview.net/forum?id=dRjWsd3gwsm)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/224795935-afb936b2-fc77-4018-a681-72887f96fa59.png" /></p>
 * **SMMix** Mengzhao Chen, Mingbao Lin, ZhiHang Lin, Yuxin Zhang, Fei Chao, Rongrong Ji.
    - SMMix: Self-Motivated Image Mixing for Vision Transformers. [[Arxiv'2022](https://arxiv.org/abs/2212.12977)] [[code](https://github.com/chenmnz/smmix)]
    <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/213537624-7359689e-b5af-4db1-a4ad-07876dd44089.png" /></p>
+* **MultiMix** Shashanka Venkataramanan, Ewa Kijak, Laurent Amsaleg, Yannis Avrithis.
+   - Teach me how to Interpolate a Myriad of Embeddings. [[Arxiv'2022](https://arxiv.org/abs/2206.14868)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/224786198-a85b76b9-0f8b-434d-be59-bbc41438aac9.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

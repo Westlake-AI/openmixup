@@ -250,7 +250,9 @@ class SEResNet(ResNet):
     arch_settings = {
         50: (SEBottleneck, (3, 4, 6, 3)),
         101: (SEBottleneck, (3, 4, 23, 3)),
-        152: (SEBottleneck, (3, 8, 36, 3))
+        152: (SEBottleneck, (3, 8, 36, 3)),
+        200: (SEBottleneck, (3, 24, 36, 3)),
+        269: (SEBottleneck, (3, 30, 48, 8))
     }
 
     def __init__(self, depth, se_ratio=16, **kwargs):
@@ -353,7 +355,9 @@ class SEResNeXt(SEResNet):
     arch_settings = {
         50: (SEGroupBottleneck, (3, 4, 6, 3)),
         101: (SEGroupBottleneck, (3, 4, 23, 3)),
-        152: (SEGroupBottleneck, (3, 8, 36, 3))
+        152: (SEGroupBottleneck, (3, 8, 36, 3)),
+        200: (SEGroupBottleneck, (3, 24, 36, 3)),
+        269: (SEGroupBottleneck, (3, 30, 48, 8))
     }
 
     def __init__(self, depth, groups=32, width_per_group=4, **kwargs):

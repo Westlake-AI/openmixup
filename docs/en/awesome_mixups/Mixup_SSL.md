@@ -94,9 +94,15 @@ We are working on a survey of mixup methods. The list is on updating.
 * **Core-Tuning**: Yifan Zhang, Bryan Hooi, Dapeng Hu, Jian Liang, Jiashi Feng.
    - Unleashing the Power of Contrastive Self-Supervised Visual Models via Contrast-Regularized Fine-Tuning. [[NIPS'2021](https://arxiv.org/abs/2102.06605)] [[code](https://github.com/vanint/core-tuning)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204580135-ed6ba8b7-b69c-4683-90f0-9aa9cdd530bc.png" /></p>
+* **MUM**: JongMok Kim, Jooyoung Jang, Seunghyeon Seo, Jisoo Jeong, Jongkeun Na, Nojun Kwak.
+   - MUM : Mix Image Tiles and UnMix Feature Tiles for Semi-Supervised Object Detection. [[CVPR'2022](https://user-images.githubusercontent.com/44519745/225082975-4143e7f5-8873-433c-ab6f-6caa615f7120.png)] [[code](https://github.com/jongmokkim/mix-unmix)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/225082975-4143e7f5-8873-433c-ab6f-6caa615f7120.png" /></p>
 * **DFixMatch**: Zicheng Liu, Siyuan Li, Ge Wang, Cheng Tan, Lirong Wu, Stan Z. Li.
    - Decoupled Mixup for Data-efficient Learning. [[Arxiv'2022](https://arxiv.org/abs/2203.10761)] [[code](https://github.com/Westlake-AI/openmixup)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204578387-4be9567c-963a-4d2d-8c1f-c7c5ade527b8.png" /></p>
+* **LaserMix**: Lingdong Kong, Jiawei Ren, Liang Pan, Ziwei Liu.
+   - LaserMix for Semi-Supervised LiDAR Semantic Segmentation. [[CVPR'2023](https://arxiv.org/abs/2207.00026)] [[code](https://github.com/ldkong1205/LaserMix)] [[project](https://ldkong.com/LaserMix)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/209255964-69cab84b-ae54-4e74-be4f-a23a836c665c.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

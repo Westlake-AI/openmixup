@@ -11,6 +11,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Support testing API methods in `openmixup/apis/test.py` for evaluation and deployment of classification models.
 - Refactor `openmixup.core.optimizers` to separate optimizers and builders and support the latest [Adan](https://arxiv.org/abs/2208.06677) optimizer.
 - Refactor [`mixup_classification.py`](https://github.com/Westlake-AI/openmixup/blob/main/openmixup/models/classifiers/mixup_classification.py) to support label mixup methods, add `return_mask` for mixup methods in [`augments`](https://github.com/Westlake-AI/openmixup/tree/main/openmixup/models/augments) and add `return_attn` in ViT backbone.
+- Refactor `ValidateHook` to support new features as `EvalHook` in mmcv, e.g., `save_best="auto"` during training.
 
 #### New Features
 
@@ -20,11 +21,13 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Refine the setup for the local installation and PyPi release in `setup.py` and `setup.cfg`. View PyPi project of [OpenMixup](https://pypi.org/project/openmixup).
 - Support a new mixup method [TransMix](https://arxiv.org/abs/2111.09833) and provide config files in [mixups/deit](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit).
 - Update config files. Provide full config files of mixup methods based on ViT-T/S/B on ImageNet and update [RSB A3](https://arxiv.org/abs/2110.00476) config files for popular backbones.
+- Update `target_generators` to support the latest MIM pre-training methods (fixed requirements).
 
 ### Update Documents
 
 - Update documents of mixup benchmarks on ImageNet in [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md). Update config files for supported mixup methods.
-- Update formats (figures, introductions and content tables) of awesome lists in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) and provide the latest methods.
+- Update formats (figures, introductions and content tables) of awesome lists in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) and provide the latest methods (updated to 18/03/2023).
+- Update `api` that describes the overall code structures in `docs/en/api` for the readthedocs page.
 
 ### v0.2.6 (41/09/2022)
 

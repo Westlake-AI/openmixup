@@ -136,7 +136,9 @@ class ResNeXt(ResNet):
     arch_settings = {
         50: (Bottleneck, (3, 4, 6, 3)),
         101: (Bottleneck, (3, 4, 23, 3)),
-        152: (Bottleneck, (3, 8, 36, 3))
+        152: (Bottleneck, (3, 8, 36, 3)),
+        200: (Bottleneck, (3, 24, 36, 3)),
+        269: (Bottleneck, (3, 30, 48, 8))
     }
 
     def __init__(self, depth, groups=32, width_per_group=4, **kwargs):
@@ -244,7 +246,9 @@ class ResNeXt_Mix(ResNet):
     arch_settings = {
         50: (Bottleneck, (3, 4, 6, 3)),
         101: (Bottleneck, (3, 4, 23, 3)),
-        152: (Bottleneck, (3, 8, 36, 3))
+        152: (Bottleneck, (3, 8, 36, 3)),
+        200: (Bottleneck, (3, 24, 36, 3)),
+        269: (Bottleneck, (3, 30, 48, 8))
     }
 
     def __init__(self, depth, groups=32, width_per_group=4, **kwargs):
@@ -367,7 +371,9 @@ class ResNeXt_CIFAR_Mix(ResNet):
     arch_settings = {
         50: (Bottleneck, (3, 4, 6, 3)),
         101: (Bottleneck, (3, 4, 23, 3)),
-        152: (Bottleneck, (3, 8, 36, 3))
+        152: (Bottleneck, (3, 8, 36, 3)),
+        200: (Bottleneck, (3, 24, 36, 3)),
+        269: (Bottleneck, (3, 30, 48, 8))
     }
 
     def __init__(self, depth, groups=32, width_per_group=4, deep_stem=False, **kwargs):

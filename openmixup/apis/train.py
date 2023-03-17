@@ -83,22 +83,23 @@ def train_model(model,
 
     # prepare data loaders
     dataset = dataset if isinstance(dataset, (list, tuple)) else [dataset]
+    data_loader_cfg = dict(
+        imgs_per_gpu=cfg.data.imgs_per_gpu,
+        workers_per_gpu=cfg.data.workers_per_gpu,
+        # `num_gpus` will be ignored if distributed
+        num_gpus=len(cfg.gpu_ids),
+        dist=distributed,
+        sampler=getattr(cfg, 'sampler', 'DistributedSampler'),
+        shuffle=True,
+        replace=getattr(cfg.data, 'sampling_replace', False),
+        seed=cfg.seed,
+        drop_last=getattr(cfg.data, 'drop_last', False),
+        prefetch=getattr(cfg, 'prefetch', False),
+        persistent_workers=getattr(cfg, 'persistent_workers', True),
+        img_norm_cfg=cfg.img_norm_cfg
+    )
     data_loaders = [
-        build_dataloader(
-            ds,
-            cfg.data.imgs_per_gpu,
-            cfg.data.workers_per_gpu,
-            # `num_gpus` will be ignored if distributed
-            num_gpus=len(cfg.gpu_ids),
-            dist=distributed,
-            sampler=getattr(cfg, 'sampler', 'DistributedSampler'),
-            shuffle=True,
-            replace=getattr(cfg.data, 'sampling_replace', False),
-            seed=cfg.seed,
-            drop_last=getattr(cfg.data, 'drop_last', False),
-            prefetch=getattr(cfg, 'prefetch', False),
-            persistent_workers=getattr(cfg, 'persistent_workers', True),
-            img_norm_cfg=cfg.img_norm_cfg) for ds in dataset
+        build_dataloader(ds, **data_loader_cfg) for ds in dataset
     ]
 
     # if you have addtional_scheduler, select chosen params
@@ -192,20 +193,20 @@ def train_model(model,
 
     # register evaluation hook
     if cfg.get('evaluation', None):
-        eval_cfg = cfg.get('evaluation', dict())
         eval_cfg = dict(
             type='ValidateHook',
             dataset=cfg.data.val,
             dist_mode=distributed,
-            initial=eval_cfg.get('initial', True),
-            interval=eval_cfg.get('interval', 1),
-            save_val=eval_cfg.get('save_val', False),
-            imgs_per_gpu=eval_cfg.get('imgs_per_gpu', cfg.data.imgs_per_gpu),
-            workers_per_gpu=eval_cfg.get('imgs_per_gpu', cfg.data.workers_per_gpu),
-            eval_param=eval_cfg.get('eval_param', dict(topk=(1, 5))),
+            initial=True,
+            interval=1,
+            save_val=False,
+            imgs_per_gpu=data_loader_cfg['imgs_per_gpu'],
+            workers_per_gpu=data_loader_cfg['workers_per_gpu'],
+            eval_param=dict(topk=(1, 5)),
             prefetch=cfg.data.val.get('prefetch', False),
-            img_norm_cfg=cfg.img_norm_cfg,
+            img_norm_cfg=data_loader_cfg['img_norm_cfg'],
         )
+        eval_cfg.update(cfg.get('evaluation', dict()))
         # We use `ValidationHook` instead of `EvalHook` in mmcv. `EvalHook` needs to be
         # executed after `IterTimerHook`, or it will cause a bug if use `IterBasedRunner`.
         runner.register_hook(build_hook(eval_cfg), priority='LOW')

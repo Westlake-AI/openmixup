@@ -2,7 +2,6 @@ from .attention import CrossMultiheadAttention, ChannelMultiheadAttention, FlowA
     MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA
 from .channel_shuffle import channel_shuffle
 from .conv_ws import ConvWS2d, conv_ws_2d
-from .dall_e import Decoder, Encoder
 from .drop import DropPath
 from .inverted_residual import InvertedResidual
 from .layer_scale import LayerScale
@@ -19,8 +18,13 @@ from .smoothing import Smoothing
 from .transformer import CAETransformerRegressorLayer, RelativePositionBias
 from .weight_init import lecun_normal_init, trunc_normal_init, lecun_normal_, trunc_normal_
 
+try:
+    from .res_layer_extra_norm import ResLayerExtraNorm
+except ImportError:
+    ResLayerExtraNorm = None
+
 __all__ = [
-    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'Decoder', 'DropPath', 'Encoder', 'InvertedResidual',
+    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual',
     'LayerScale', 'make_divisible',
     'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
     'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
@@ -32,4 +36,5 @@ __all__ = [
     'FourierEmbed', 'RotaryEmbed', 'PositionEncodingFourier',
     'CAETransformerRegressorLayer', 'RelativePositionBias',
     'lecun_normal_init', 'trunc_normal_init', 'lecun_normal_', 'trunc_normal_',
+    'ResLayerExtraNorm',
 ]

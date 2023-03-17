@@ -284,7 +284,9 @@ class Res2Net(ResNet):
     arch_settings = {
         50: (Bottle2neck, (3, 4, 6, 3)),
         101: (Bottle2neck, (3, 4, 23, 3)),
-        152: (Bottle2neck, (3, 8, 36, 3))
+        152: (Bottle2neck, (3, 8, 36, 3)),
+        200: (Bottle2neck, (3, 24, 36, 3)),
+        269: (Bottle2neck, (3, 30, 48, 8))
     }
 
     def __init__(self,

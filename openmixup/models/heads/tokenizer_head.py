@@ -7,7 +7,7 @@ from mmcv.runner import BaseModule
 from torch import nn
 
 from ..builder import HEADS
-from ..utils import Encoder
+from ..utils import DALLEncoder
 
 
 @HEADS.register_module()
@@ -32,7 +32,7 @@ class BEiTHead(BaseModule):
         self.loss_cross_entropy = nn.CrossEntropyLoss()
 
     def _load_encoder(self) -> nn.Module:
-        encoder = Encoder()
+        encoder = DALLEncoder()
         if os.path.exists(self.tokenizer_path):
             state_dict = torch.load(self.tokenizer_path)
             encoder.load_state_dict(state_dict)
@@ -102,7 +102,7 @@ class CAEHead(BaseModule):
         self.loss_mse = nn.MSELoss()
 
     def _load_encoder(self) -> nn.Module:
-        encoder = Encoder()
+        encoder = DALLEncoder()
         if os.path.exists(self.tokenizer_path):
             state_dict = torch.load(self.tokenizer_path)
             encoder.load_state_dict(state_dict)

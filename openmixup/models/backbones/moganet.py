@@ -630,19 +630,16 @@ class MogaNet(BaseBackbone):
             m.eval()
             for param in m.parameters():
                 param.requires_grad = False
-
             # freeze blocks
             m = getattr(self, f'blocks{i + 1}')
             m.eval()
             for param in m.parameters():
                 param.requires_grad = False
-
             # freeze norm
-            if i in self.out_indices:
-                m = getattr(self, f'norm{i + 1}')
-                m.eval()
-                for param in m.parameters():
-                    param.requires_grad = False
+            m = getattr(self, f'norm{i + 1}')
+            m.eval()
+            for param in m.parameters():
+                param.requires_grad = False
 
     def forward(self, x):
         outs = []

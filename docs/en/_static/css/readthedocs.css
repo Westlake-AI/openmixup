@@ -4,3 +4,24 @@
     height: 40px;
     width: 160px;
 }
+
+pre {
+    white-space: pre;
+}
+
+article.pytorch-article section code {
+  padding: .2em .4em;
+  background-color: #f3f4f7;
+  border-radius: 5px;
+}
+
+/* Disable the change in tables */
+article.pytorch-article section table code {
+  padding: unset;
+  background-color: unset;
+  border-radius: unset;
+}
+
+table.autosummary td {
+  width: 50%
+}
