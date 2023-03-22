@@ -463,3 +463,95 @@ class ConvNeXt_Mix(ConvNeXt):
                 x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
 
         return outs
+
+
+@BACKBONES.register_module()
+class MIMConvNeXt(ConvNeXt):
+    """ConvNeXt backbone for MIM pre-training.
+
+    Args:
+        mask_layer (int): Layer to start MIM (mask img and add mask_token).
+            Defaults to 0.
+        mask_token (str): Mode of applying mask token in {None, 'randn', 'zero',
+            'learnable', 'mean'}. Defaults to 'learnable'.
+        mask_init (float): The init values of mask_token gamma. Defaults to 0.0.
+    """
+
+    def __init__(self,
+                 mask_layer=0,
+                 mask_token='learnable',
+                 mask_init=0,
+                 replace=True,
+                 detach=False,
+                 **kwargs):
+        super(MIMConvNeXt, self).__init__(**kwargs)
+        self.mask_layer = mask_layer
+        self.mask_mode = mask_token
+        self.replace = replace
+        self.detach = detach
+        assert self.mask_layer in [0, 1, 2, 3]
+        assert self.mask_mode in [
+            None, 'randn', 'zero', 'mean', 'learnable']
+        self.mask_dims = self.channels[self.mask_layer]
+        if self.mask_mode is not None:
+            self.mask_token = nn.Parameter(torch.zeros(1, self.mask_dims, 1, 1))
+        if mask_init > 0 and not replace:
+            self.mask_gamma = nn.Parameter(
+                mask_init * torch.ones((1, self.mask_dims, 1, 1)), requires_grad=True)
+        else:
+            self.mask_gamma = None
+
+    def init_weights(self, pretrained=None):
+        """Initialize weights."""
+        super(MIMConvNeXt, self).init_weights(pretrained)
+
+        if pretrained is None:
+            if self.mask_mode is not None:
+                if self.mask_mode != 'zero':
+                    trunc_normal_init(self.mask_token, mean=0., std=0.02, bias=0)
+                if self.mask_mode != 'learnable':
+                    self.mask_token.requires_grad = False
+
+    def forward_mask(self, x, mask=None):
+        """ perform MIM with mask and mask_token """
+        B, _, H, W = x.size()
+        if self.mask_mode is None:
+            return x
+        else:
+            if self.mask_mode == 'mean':
+                self.mask_token.data = x.mean(dim=[0, 2, 3], keepdim=True)
+            mask_token = self.mask_token.expand(B, -1, H, W)
+        assert mask is not None
+        mask = mask.view(B, 1, H, W).type_as(mask_token)
+        if self.replace:
+            x = x * (1. - mask) + mask_token * mask
+        else:
+            if self.detach:
+                x = x * (1. - mask) + x.clone().detach() * mask
+            if self.mask_gamma is not None:
+                x = x * (1. - mask) + (x * mask) * self.mask_gamma
+            x = x + mask_token * mask  # residual
+        return x
+
+    def forward(self, x, mask=None):
+        outs = []
+        for i, stage in enumerate(self.stages):
+            x = self.downsample_layers[i](x)
+
+            if self.mask_layer == i:  # mask, add mask token
+                x = self.forward_mask(x, mask)
+            x = stage(x)
+
+            if i in self.out_indices:
+                if i == 3:
+                    norm_layer = getattr(self, f'norm{i}')
+                    if self.gap_before_final_norm and i == 3:
+                        gap = x.mean([-2, -1], keepdim=True)
+                        x = norm_layer(gap).flatten(1)
+                    else:
+                        x = norm_layer(x)
+                outs.append(x)
+                if len(self.out_indices) == 1:
+                    return outs
+
+        return outs

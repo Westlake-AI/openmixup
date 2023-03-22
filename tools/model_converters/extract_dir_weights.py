@@ -1,3 +1,18 @@
+"""
+Extract only the backbone parameters under a folder.
+
+It requires the folder built as follows:
+└── [PATH/to/checkpoint/folder]
+    └── xxx_ep100
+        ├── epoch_100.pth
+        ├── ...
+    └── xxx_ep300
+        ├── epoch_300.pth
+        ├── ...
+
+Example command:
+python tools/model_converters/extract_dir_weights.py [PATH/to/checkpoint/folder]
+"""
 import os
 import torch
 import argparse
@@ -59,6 +74,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# usage exam:
-# python tools/extract_dir_weights.py [PATH of the dir to checkpoints]

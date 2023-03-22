@@ -1,3 +1,18 @@
+"""
+Summarize the median results of the key from json logs
+
+It requires the folder built as follows:
+└── [PATH/to/exp_dir]
+    └── xxx_ep100
+        ├── [PATH/to/xxx.json] (i.e., xxx_ep100_yyy.log.json)
+        ├── ...
+
+Usage 1: summary results of a json file.
+   python tools/summary/find_classification_val_median.py [PATH/to/xxx.json] [total eposh] [last n epoch for median] [keys]
+Usage 2: summary results of a dir of training results (as json files).
+   python tools/summary/find_classification_val_median.py [PATH/to/exp_dir] [total eposh] [last n epoch for median] [keys]
+"""
+
 import argparse
 import numpy as np
 import json
@@ -99,9 +114,3 @@ if __name__ == '__main__':
         args["print_all"] = True
         args["keyword"] = keyword
         read_json(**args)
-
-
-# Usage 1: summary results of a json file.
-#    python tools/summary/find_classification_val_median.py [full_path to xxx.json] [total eposh] [last n epoch for median] [keys]
-# Usage 2: summary results of a dir of training results (as json files).
-#    python tools/summary/find_classification_val_median.py [full_path to the dir] [total eposh] [last n epoch for median] [keys]

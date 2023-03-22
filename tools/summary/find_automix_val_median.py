@@ -1,3 +1,31 @@
+"""
+Summarize results of the key from json logs for AutoMix
+
+Usage 1: summary results of a json file.
+   python tools/summary/find_automix_val_median.py [PATH/to/xxx.json] [total eposh] [last n epoch for median]
+Usage 2: summary results of a dir of training results (as json files).
+   python tools/summary/find_automix_val_median.py [PATH/to/exp_dir] [total eposh] [last n epoch for median]
+
+It requires the folder built as follows:
+└── [PATH/to/exp_dir]
+    └── xxx_ep100
+        ├── [PATH/to/xxx.json] (i.e., xxx_ep100_yyy.log.json)
+        ├── ...
+    └── xxx_ep300
+        ├── xxx_300_zzz.log.json
+        ├── ...
+
+For example:
+└── work_dirs/classification/cifar100/automix/r18
+    └── r18_1_400ep
+        ├── xxx.json
+    └── r18_2_400ep
+        ├── yyy.json
+
+Usage 1: [PATH/to/xxx.json] = 'work_dirs/classification/cifar100/automix/r18/r18_1_400ep/xxx.json'
+Usage 2: [PATH/to/exp_dir] = 'work_dirs/classification/cifar100/automix/r18/r18_1_400ep'
+"""
+
 import argparse
 import numpy as np
 import json
@@ -36,7 +64,8 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
                     if line.get("acc_mix_k_top1", None) is None:
                         line["acc_mix_k_top1"] = line["acc_mix_q_top1"]
                     record_str.append("{}e, mix_k_top1: {:.2f}, one_k_top1: {:.2f}, mix_q_top1: {:.2f}, one_q_top1: {:.2f}".format(
-                        line["epoch"], line["acc_mix_k_top1"], line["acc_one_k_top1"], line["acc_mix_q_top1"], line["acc_one_q_top1"]))
+                        line["epoch"], line["acc_mix_k_top1"], line["acc_one_k_top1"],
+                        line["acc_mix_q_top1"], line["acc_one_q_top1"]))
                     record_one_q_top1.append(line["acc_one_q_top1"])
                     record_mix_q_top1.append(line["acc_mix_q_top1"])
                     record_one_k_top1.append(line["acc_one_k_top1"])
@@ -102,14 +131,3 @@ if __name__ == '__main__':
     else:
         read_json(**args)
     print("\n *** finished ***")
-
-# Usage 1: summary results of a json file.
-#    python tools/summary/find_automix_val_median.py [full_path to xxx.json] [total eposh] [last n epoch for median]
-# Usage 2: summary results of a dir of training results (as json files).
-#    python tools/summary/find_automix_val_median.py [full_path to the dir] [total eposh] [last n epoch for median]
-#
-# For example: 
-# - work_dirs/classification/cifar100/automix/r18/r18_1_400ep/xxx.json
-# - work_dirs/classification/cifar100/automix/r18/r18_2_400ep/xxx.json
-# Usage 1: [full_path to xxx.json]=work_dirs/classification/cifar100/automix/r18/r18_1_400ep/xxx.json
-# Usage 2: [full_path to the dir]=work_dirs/classification/cifar100/automix/r18/r18_1_400ep

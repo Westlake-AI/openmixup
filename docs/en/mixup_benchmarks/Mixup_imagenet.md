@@ -145,7 +145,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | TransMix      |  0.8, 1  |  74.56 |  80.68 |  82.51 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 |  82.90 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 |  82.18 | 76.38 |  81.80 |    82.28   |   79.43   |
-| SAMix*        |     2    |  75.83 |  80.94 |        | 76.60 |  81.87 |    82.35   |   79.62   |
+| SAMix*        |     2    |  75.83 |  80.94 |  82.85 | 76.60 |  81.87 |    82.35   |   79.62   |
 
 ### **Tiny-ImageNet Dataset**
 

@@ -1,4 +1,9 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+"""
+Count parameters and FLOPs of the model from a config.
+
+Example command:
+python tools/analysis_tools/count_parameters.py [PATH/to/config] --shape 224
+"""
 import argparse
 
 from mmcv import Config

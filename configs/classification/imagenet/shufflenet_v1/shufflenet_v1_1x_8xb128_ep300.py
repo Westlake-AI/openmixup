@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/models/shufflenet/shufflenet_v2_1x.py',
+    '../../_base_/models/shufflenet_v1/shufflenet_v1_1x.py',
     '../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
     '../../_base_/default_runtime.py',
 ]

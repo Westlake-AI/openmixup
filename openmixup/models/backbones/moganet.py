@@ -820,7 +820,7 @@ class MIMMogaNet(MogaNet):
         """Initialize weights."""
         super(MIMMogaNet, self).init_weights(pretrained)
 
-        if pretrained is not None:
+        if pretrained is None:
             if self.mask_mode is not None:
                 if self.mask_mode != 'zero':
                     trunc_normal_init(self.mask_token, mean=0., std=0.02, bias=0)

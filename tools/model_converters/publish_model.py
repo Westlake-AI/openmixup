@@ -2,7 +2,7 @@
 Extract parameters and publish the model.
 
 Example command:
-python tools/publish_model.py [PATH/to/checkpoint] [PATH/to/output]
+python tools/model_converters/publish_model.py [PATH/to/checkpoint] [PATH/to/output]
 """
 import argparse
 import subprocess

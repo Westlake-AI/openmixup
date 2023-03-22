@@ -1,4 +1,12 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+"""
+Analyze statistics from some log.json files
+
+Example 1: Plot top-1 accuracy of `exp_1` and `exp_2`
+python tools/analysis_tools/analyze_logs.py plot_curve exp_1.log.json exp_2.log.json --out tmp.png --key head0_top1
+
+Example 1: Print training times of `exp_1`
+python tools/analysis_tools/analyze_logs.py cal_train_time exp_1.log.json
+"""
 import argparse
 import json
 from collections import defaultdict

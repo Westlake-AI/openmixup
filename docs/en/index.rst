@@ -35,13 +35,7 @@ Welcome to OpenMixup's documentation!
    :maxdepth: 1
    :caption: Tutorials
 
-   tutorials/0_config.md
-   tutorials/1_new_dataset.md
-   tutorials/2_data_pipeline.md
-   tutorials/3_new_module.md
-   tutorials/4_schedule.md
-   tutorials/5_runtime.md
-   tutorials/6_benchmarks.md
+   tutorials/index.rst
 
 
 .. toctree::

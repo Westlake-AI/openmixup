@@ -1,3 +1,9 @@
+"""
+Count parameters of the model from a config.
+
+Example command:
+python tools/analysis_tools/count_parameters.py [PATH/to/config]
+"""
 import argparse
 from mmcv import Config
 

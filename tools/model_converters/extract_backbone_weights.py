@@ -2,7 +2,7 @@
 Extract only the backbone parameters.
 
 Example command:
-python tools/extract_backbone_weights.py [PATH/to/checkpoint] [PATH/to/output]
+python tools/model_converters/extract_backbone_weights.py [PATH/to/checkpoint] [PATH/to/output]
 """
 import copy
 import torch

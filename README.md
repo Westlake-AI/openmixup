@@ -129,8 +129,8 @@ Please refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for the benchmarkin
     - [x] [ResNeXt](https://arxiv.org/abs/1611.05431) (CVPR'2017) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [SE-ResNet](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
     - [x] [SE-ResNeXt](https://arxiv.org/abs/1709.01507) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/resnet/)]
-    - [x] [ShuffleNetV1](https://arxiv.org/abs/1807.11164) (CVPR'2018)
-    - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet/)]
+    - [x] [ShuffleNetV1](https://arxiv.org/abs/1807.11164) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet_v1/)]
+    - [x] [ShuffleNetV2](https://arxiv.org/abs/1807.11164) (ECCV'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/shufflenet_v2/)]
     - [x] [MobileNetV2](https://arxiv.org/abs/1801.04381) (CVPR'2018) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobilenet_v2/)]
     - [x] [MobileNetV3](https://arxiv.org/abs/1905.02244) (ICCV'2019)
     - [x] [EfficientNet](https://arxiv.org/abs/1905.11946) (ICML'2019) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientnet/)]

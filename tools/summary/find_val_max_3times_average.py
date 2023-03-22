@@ -1,3 +1,18 @@
+"""
+Summarize the maximum results (3 times) of the key from the folder
+
+It requires the folder built as follows:
+└── [PATH/to/exp_dir]
+    └── xxx_ep100
+        ├── xxx_ep100_1_yyy.log.json
+        ├── xxx_ep100_2_yyy.log.json
+        ├── xxx_ep100_3_yyy.log.json
+        ├── ...
+
+Example command:
+python tools/summary/find_val_max_3times_average.py [PATH/to/exp_dir] [metric_name]
+"""
+
 import argparse
 import numpy as np
 import json
@@ -110,8 +125,3 @@ if __name__ == '__main__':
         args["print_all"] = True
         args["keyword"] = keyword
         read_json_max(**args)
-
-# The usage of this tools is similar to find_automix_val_median.py
-#
-# Usage: summary results of a dir of training results (as json files).
-#    python tools/summary/find_val_max_3times_average.py [full_path to the dir] [metric_name]

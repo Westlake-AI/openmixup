@@ -274,6 +274,9 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 * **MIMDet**: Yuxin Fang, Shusheng Yang, Shijie Wang, Yixiao Ge, Ying Shan, Xinggang Wang.
    - Unleashing Vanilla Vision Transformer with Masked Image Modeling for Object Detection. [[ArXiv'2022](https://arxiv.org/abs/2204.02964)] [[code](https://github.com/hustvl/MIMDet)]
    <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/207723589-e1fd22e3-0719-422e-b94d-371c51b164e5.png" /></p>
+* **SeqCo-DETR**: Guoqiang Jin, Fan Yang, Mingshan Sun, Ruyi Zhao, Yakun Liu, Wei Li, Tianpeng Bao, Liwei Wu, Xingyu Zeng, Rui Zhao.
+   - SeqCo-DETR: Sequence Consistency Training for Self-Supervised Object Detection with Transformers. [[ArXiv'2022](https://arxiv.org/abs/2303.08481)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/226742022-7b823b2b-a08c-4579-8f33-8f35b282069a.png" /></p>
 
 ### Video Rrepresentation
 
@@ -393,6 +396,8 @@ The list of awesome MIM methods is summarized in chronological order and is on u
    - How Mask Matters: Towards Theoretical Understandings of Masked Autoencoders. [[NIP'2022](https://openreview.net/forum?id=WOppMAJtvhv)]
 * Kevin Zhang, Zhiqiang Shen.
    - i-MAE: Are Latent Representations in Masked Autoencoders Linearly Separable?. [[ArXiv'2022](https://arxiv.org/abs/2210.11470)] [[code](https://github.com/vision-learning-acceleration-lab/i-mae)]
+* Yann Dubois, Tatsunori Hashimoto, Percy Liang.
+   - Evaluating Self-Supervised Learning via Risk Decomposition. [[ArXiv'2022](https://arxiv.org/abs/2302.03068)] [[code](https://github.com/yanndubs/ssl-risk-decomposition)]
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -54,7 +54,7 @@ class MIMResNet(ResNet):
         """Initialize weights."""
         super(MIMResNet, self).init_weights(pretrained)
 
-        if pretrained is not None:
+        if pretrained is None:
             if self.mask_mode not in [None, 'instance_mean',]:
                 if self.mask_mode != 'zero':
                     trunc_normal_(self.mask_token, mean=0, std=.02)

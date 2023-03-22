@@ -1,4 +1,9 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+"""
+Print information of a config file
+
+Example command:
+python tools/analysis_tools/print_config.py [PATH/to/config]
+"""
 import argparse
 
 from mmcv import Config, DictAction

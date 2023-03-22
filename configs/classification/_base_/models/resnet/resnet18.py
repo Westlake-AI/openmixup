@@ -9,7 +9,7 @@ model = dict(
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
     head=dict(
-        type='ClsHead',
+        type='ClsHead',  # normal CE loss
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, in_channels=512, num_classes=1000)
+        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=1000)
 )

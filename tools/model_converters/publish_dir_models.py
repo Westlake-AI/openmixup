@@ -1,3 +1,18 @@
+"""
+Extract parameters and publish the model.
+
+It requires the folder built as follows:
+└── [PATH/to/checkpoint/folder]
+    └── xxx_ep100
+        ├── epoch_100.pth
+        ├── ...
+    └── xxx_ep300
+        ├── epoch_300.pth
+        ├── ...
+
+Example command:
+python tools/model_converters/publish_dir_models.py [PATH/to/checkpoint/folder]
+"""
 import copy
 import os
 import torch
@@ -78,6 +93,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-# usage exam:
-# python tools/publish_dir_models.py [PATH of the dir to checkpoints]

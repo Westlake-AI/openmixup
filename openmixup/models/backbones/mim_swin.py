@@ -47,7 +47,7 @@ class SimMIMSwinTransformer(SwinTransformer):
         """Initialize weights."""
         super(SimMIMSwinTransformer, self).init_weights(pretrained)
 
-        if pretrained is not None:
+        if pretrained is None:
             # init pos embed
             if self.use_abs_pos_embed:
                 trunc_normal_(self.absolute_pos_embed, std=0.02)

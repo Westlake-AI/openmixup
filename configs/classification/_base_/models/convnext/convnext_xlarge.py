@@ -10,7 +10,7 @@ model = dict(
         arch='xlarge',
         out_indices=(3,),  # x-1: stage-x
         act_cfg=dict(type='GELU'),
-        drop_path_rate=0.5,
+        drop_path_rate=0.6,
         gap_before_final_norm=True,
         init_cfg=[
             dict(type='TruncNormal', layer=['Conv2d', 'Linear'], std=0.02, bias=0.),

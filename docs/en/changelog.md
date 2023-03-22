@@ -22,12 +22,14 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Support a new mixup method [TransMix](https://arxiv.org/abs/2111.09833) and provide config files in [mixups/deit](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/deit).
 - Update config files. Provide full config files of mixup methods based on ViT-T/S/B on ImageNet and update [RSB A3](https://arxiv.org/abs/2110.00476) config files for popular backbones.
 - Update `target_generators` to support the latest MIM pre-training methods (fixed requirements).
+- Update config files and scripts for SSL downstream tasks benchmarks (classification, detection, and segmentation).
 
 ### Update Documents
 
 - Update documents of mixup benchmarks on ImageNet in [Model_Zoo_sup.md](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md). Update config files for supported mixup methods.
 - Update formats (figures, introductions and content tables) of awesome lists in [Awesome Mixups](docs/en/awesome_selfsup/MIM.md) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) and provide the latest methods (updated to 18/03/2023).
 - Update `api` that describes the overall code structures in `docs/en/api` for the readthedocs page.
+- Reorganize and update tutorials for SSL downstream tasks benchmarks (classification, detection, and segmentation).
 
 ### v0.2.6 (41/09/2022)
 
