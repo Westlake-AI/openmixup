@@ -12,7 +12,8 @@ from .utils import to_numpy
 try:
     from skimage.feature import hog, local_binary_pattern
 except:
-    print("Please install scikit-image.")
+    hog, local_binary_pattern = None, None
+    print("Please install scikit-image with PyPi")
 
 
 @DATASETS.register_module

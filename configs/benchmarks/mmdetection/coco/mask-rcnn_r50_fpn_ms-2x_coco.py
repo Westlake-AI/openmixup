@@ -1,5 +1,9 @@
-_base_ = 'mmdet::mask_rcnn/mask-rcnn_r50_fpn_1x_coco.py'
-# https://github.com/open-mmlab/mmdetection/blob/dev-3.x/configs/mask_rcnn/mask-rcnn_r50_fpn_1x_coco.py
+_base_ = [
+    '../_base_/models/mask_rcnn_r50_fpn.py',
+    '../_base_/datasets/coco_instance.py',
+    '../_base_/schedules/schedule_2x.py', '../_base_/default_runtime.py'
+]
+# https://github.com/open-mmlab/mmdetection/tree/master/configs/mask_rcnn/mask-rcnn_r50_fpn_1x_coco.py
 
 norm_cfg = dict(type='SyncBN', requires_grad=True)
 model = dict(
@@ -8,20 +12,6 @@ model = dict(
     roi_head=dict(
         bbox_head=dict(type='Shared4Conv1FCBBoxHead', norm_cfg=norm_cfg),
         mask_head=dict(norm_cfg=norm_cfg)))
-
-train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=24)
-param_scheduler = [
-    dict(
-        type='LinearLR', start_factor=0.001, by_epoch=False, begin=0,
-        end=1000),
-    dict(
-        type='MultiStepLR',
-        begin=0,
-        end=24,
-        by_epoch=True,
-        milestones=[16, 22],
-        gamma=0.1)
-]
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -36,3 +26,11 @@ train_pipeline = [
 ]
 
 train_dataloader = dict(dataset=dict(pipeline=train_pipeline))
+
+evaluation = dict(save_best='auto')
+checkpoint_config = dict(max_keep_ckpts=1)
+
+# learning policy
+lr_config = dict(
+    warmup_iters=1000,
+    step=[16, 23])

@@ -109,7 +109,19 @@ Please see [Tutorials](docs/en/tutorials) for more developing examples and tech 
 - [add new modules](docs/en/tutorials/3_new_module.md)
 - [customize schedules](docs/en/tutorials/4_schedule.md)
 - [customize runtime](docs/en/tutorials/5_runtime.md)
-- [benchmarks](docs/en/tutorials/6_benchmarks.md)
+
+Downetream Tasks for Self-supervised Learning
+
+- [Classification](docs/en/tutorials/ssl_classification.md)
+- [Detection](docs/en/tutorials/ssl_detection.md)
+- [Segmentation](docs/en/tutorials/ssl_segmentation.md)
+
+Useful Tools
+
+- [Analysis](docs/en/tutorials/analysis.md)
+- [Visualization](docs/en/tutorials/visualization.md)
+- [pytorch2onnx](docs/en/tutorials/pytorch2onnx.md)
+- [pytorch2torchscript](docs/en/tutorials/pytorch2torchscript.md)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -30,7 +30,7 @@ bash benchmarks/mmsegmentation/mim_slurm_train.sh ${PARTITION} ${CONFIG} ${PRETR
 Remarks:
 
 - `CONFIG`: Use config files under `configs/benchmarks/mmsegmentation/` or write your own config files
-- `PRETRAIN`: the pre-trained model file (the full parameters).
+- `PRETRAIN`: the pre-trained model file (the backbone parameters only).
 - `${GPUS}`: The number of GPUs that you want to use to train. We adopt 4 GPUs for segmentation tasks by default.
 
 Example:

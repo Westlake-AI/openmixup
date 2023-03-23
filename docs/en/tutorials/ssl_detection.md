@@ -26,17 +26,17 @@ After installation MMDet, you can run MMDetection with simple command. We provid
 ```shell
 # distributed version
 bash benchmarks/mmdetection/mim_dist_train_c4.sh ${CONFIG} ${PRETRAIN} ${GPUS}
-bash benchmarks/mmdetection/mim_dist_train_fpn.sh ${CONFIG} ${PRETRAIN} ${GPUS}
+bash benchmarks/mmdetection/mim_dist_train.sh ${CONFIG} ${PRETRAIN} ${GPUS}
 
 # slurm version
 bash benchmarks/mmdetection/mim_slurm_train_c4.sh ${PARTITION} ${CONFIG} ${PRETRAIN}
-bash benchmarks/mmdetection/mim_slurm_train_fpn.sh ${PARTITION} ${CONFIG} ${PRETRAIN}
+bash benchmarks/mmdetection/mim_slurm_train.sh ${PARTITION} ${CONFIG} ${PRETRAIN}
 ```
 
 Remarks:
 
 - `CONFIG`: Use config files under `configs/benchmarks/mmdetection/` or write your own config files
-- `PRETRAIN`: the pre-trained model file (the full parameters).
+- `PRETRAIN`: the pre-trained model file (the backbone parameters only).
 - `${GPUS}`: The number of GPUs that you want to use to train. We adopt 8 GPUs for detection tasks by default.
 - Since repositories of OpenMMLab have support referring config files across different repositories, we can easily leverage the configs from MMDetection like:
 ```shell

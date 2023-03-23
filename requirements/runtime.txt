@@ -1,6 +1,5 @@
 attrs
 einops
-faiss-gpu==1.6.1
 future
 matplotlib
 mmcv-full>=1.4.7
@@ -9,7 +8,6 @@ packaging
 pandas
 terminaltables
 scipy
-scikit-image
 scikit-learn
 seaborn
 six

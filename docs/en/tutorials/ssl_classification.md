@@ -64,7 +64,7 @@ Remarks:
 
 - The default GPU number is 8. When changing GPUS, please also change `imgs_per_gpu` in the config file accordingly to ensure the total batch size.
 - `CONFIG`: Use config files under `configs/benchmarks/classification/`. Specifically, `imagenet` .
-- `PRETRAIN`: the pre-trained model file.
+- `PRETRAIN`: the pre-trained model file (the backbone parameters only).
 
 Example:
 
@@ -92,7 +92,7 @@ Remarks:
 
 - The default GPU number is 4.
 - `CONFIG`: Use config files under `configs/benchmarks/classification/imagenet/`, named `imagenet_*percent` folders.
-- `PRETRAIN`: the pre-trained model file.
+- `PRETRAIN`: the pre-trained model file (the backbone parameters only).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
