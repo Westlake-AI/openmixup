@@ -4,6 +4,7 @@ _base_ = [
 ]
 
 model = dict(
+    backbone=dict(type='ResNetV1c'),
     decode_head=dict(num_classes=150), auxiliary_head=dict(num_classes=150))
 
 # By default, models are trained on 4 GPUs with 4 images per GPU

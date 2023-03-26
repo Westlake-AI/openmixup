@@ -127,7 +127,7 @@ Useful Tools
 
 ## Overview of Model Zoo
 
-Please refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for the benchmarking results of existing mixup methods, and [Model Zoos](docs/en/model_zoos) for comprehensive collection of mainstream backbones and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) for your reference. Checkpoints and training logs will be updated soon!
+Please run experiments or find results on each config page. Refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for the benchmarking results of mixup methods, and [Model Zoos](docs/en/model_zoos) for a comprehensive collection of mainstream backbones and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) for your reference. Checkpoints and training logs are on updating!
 
 * Backbone architectures for supervised image classification on ImageNet.
 
@@ -254,7 +254,7 @@ This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` 
 
 ## Citation
 
-If you find this project useful in your research, please consider star our [tech report](https://arxiv.org/abs/2209.04851):
+If you find this project useful in your research, please consider star `OpenMixup` or cite our [tech report](https://arxiv.org/abs/2209.04851):
 
 ```BibTeX
 @article{li2022openmixup,

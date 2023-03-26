@@ -81,6 +81,8 @@ data = dict(train=dict(pipeline=train_pipeline))
 optimizer = dict(_delete_=True, type='AdamW', lr=0.0003, betas=(0.9, 0.999), weight_decay=0.05,
                 paramwise_cfg=dict(
                     custom_keys={
+                        'bias': dict(decay_multi=0.),
+                        'pos_embed': dict(decay_mult=0.),
                         'absolute_pos_embed': dict(decay_mult=0.),
                         'relative_position_bias_table': dict(decay_mult=0.),
                         'norm': dict(decay_mult=0.)

@@ -33,13 +33,14 @@ Learning discriminative visual representation efficiently that facilitates downs
 bash tools/dist_train.sh ${CONFIG_FILE} ${GPUS} [optional arguments]
 ```
 Optional arguments are:
-- `--resume_from ${CHECKPOINT_FILE}`: Resume from a previous checkpoint file.
+- `--resume_from ${CHECKPOINT_FILE}`: Resume from a previous checkpoint file. Or you can use `--auto_resume` to resume from `latest.pth` automatically.
 - `--pretrained ${PRETRAIN_WEIGHTS}`: Load pretrained weights for the backbone.
+- `--load_checkpoint ${CHECKPOINT_FILE}`: Load the whole network from the checkpoint file.
 - `--deterministic`: Switch on "deterministic" mode which slows down training but the results are reproducible.
 
-An example: Run the following command, training results (checkpoints, jsons, logs) saved in `WORK_DIR=work_dirs/classification/imagenet/mixups/basic/r50/mix_modevanilla/r50_mixups_CE_none_ep100/`.
+An example: Run the following command to train ResNet-50 for ImageNet classification, training results (checkpoints, jsons, logs) saved in `WORK_DIR=work_dirs/classification/imagenet/resnet/resnet50_rsb_a3_sz160_8xb256_ep100/`.
 ```shell
-bash tools/dist_train.sh configs/classification/imagenet/mixups/basic/r50/mix_modevanilla/r50_mixups_CE_none_ep100.py 8
+bash tools/dist_train.sh configs/classification/imagenet/resnet/resnet50_rsb_a3_sz160_8xb256_ep100.py 8 --auto_resume
 ```
 **Note**: During training, checkpoints and logs are saved in the same folder structure as the config file under `work_dirs/`. Custom work directory is not recommended since evaluation scripts infer work directories from the config file name. If you want to save your weights somewhere else, please use symlink, for example:
 
@@ -52,9 +53,9 @@ Alternatively, if you run OpenMixup on a cluster managed with [slurm](https://sl
 SRUN_ARGS="${SRUN_ARGS}" bash tools/srun_train.sh ${PARTITION} ${CONFIG_FILE} ${GPUS} [optional arguments]
 ```
 
-An example:
+An example: Run the following command to train ResNet-50 for self-supervised learning.
 ```shell
-SRUN_ARGS="-w xx.xx.xx.xx" bash tools/srun_train.sh Dummy configs/selfsup/odc/r50_v1.py 8 --resume_from work_dirs/selfsup/odc/r50_v1/epoch_100.pth
+SRUN_ARGS="-w xx.xx.xx.xx" bash tools/srun_train.sh Dummy configs/selfsup/mocov2/imagenet/r50_4xb64_cos_fp16_ep200.py 4 --resume_from work_dirs/selfsup/mocov2/imagenet/r50_4xb64_cos_fp16_ep200/latest.pth
 ```
 
 ### Train with multiple machines

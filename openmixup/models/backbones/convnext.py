@@ -555,3 +555,30 @@ class MIMConvNeXt(ConvNeXt):
                     return outs
 
         return outs
+
+
+@BACKBONES.register_module()
+class ConvNeXt_CIFAR(ConvNeXt):
+    """ConvNeXt backbone for CIFAR.
+
+    Compared to standard ConvNeXt, it uses `kernel_size=3` and `stride=1` in
+    the stem, which is more efficient than standard ConvNeXt on CIFAR.
+
+    A PyTorch implementation of : `A ConvNet for the 2020s
+    <https://arxiv.org/pdf/2201.03545.pdf>`_
+    """
+
+    def __init__(self, in_channels=3, norm_cfg=dict(type='LN2d', eps=1e-6), **kwargs):
+        super(ConvNeXt_CIFAR, self).__init__(
+            in_channels=in_channels, norm_cfg=norm_cfg, **kwargs)
+
+        # the first stem layer
+        stem = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                self.channels[0],
+                kernel_size=3,
+                stride=1),
+            build_norm_layer(norm_cfg, self.channels[0])[1],
+        )
+        self.downsample_layers[0] = stem
