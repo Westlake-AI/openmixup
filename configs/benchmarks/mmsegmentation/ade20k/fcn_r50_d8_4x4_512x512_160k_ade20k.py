@@ -9,3 +9,6 @@ model = dict(
 
 # By default, models are trained on 4 GPUs with 4 images per GPU
 data = dict(samples_per_gpu=4)
+
+# mixed precision
+fp16 = dict(loss_scale='dynamic')

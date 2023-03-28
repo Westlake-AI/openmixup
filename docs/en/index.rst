@@ -15,6 +15,20 @@ Welcome to OpenMixup's documentation!
 
 .. toctree::
    :maxdepth: 1
+   :caption: Tutorials
+
+   tutorials/index.rst
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Model Zoos
+
+   model_zoos/Model_Zoo_sup.md
+   model_zoos/Model_Zoo_selfsup.md
+   model_zoos/Model_Zoo_semisup.md
+
+.. toctree::
+   :maxdepth: 1
    :caption: Tools
 
    tools/analysis.md
@@ -29,23 +43,6 @@ Welcome to OpenMixup's documentation!
    mixup_benchmarks/Mixup_imagenet.md
    mixup_benchmarks/Mixup_cifar.md
    mixup_benchmarks/Mixup_downstream.md
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Tutorials
-
-   tutorials/index.rst
-
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Model Zoos
-
-   model_zoos/Model_Zoo_sup.md
-   model_zoos/Model_Zoo_selfsup.md
-   model_zoos/Model_Zoo_semisup.md
-   
 
 .. toctree::
    :maxdepth: 1

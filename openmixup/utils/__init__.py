@@ -12,6 +12,7 @@ from .dist_utils import (allreduce_grads, allreduce_params, all_reduce,
 from .fp16_utils import LossScaler, auto_fp16, force_fp32, wrap_fp16_model
 from .flops_counter import get_model_complexity_info
 from .logger import get_root_logger, print_log, load_json_log
+from .loss_landscape_utils import *
 from .misc import find_latest_checkpoint, multi_apply, tensor2imgs, unmap
 from .registry import Registry, build_from_cfg
 from .setup_env import setup_multi_processes
