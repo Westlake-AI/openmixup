@@ -105,6 +105,8 @@ The naming of the weight mainly includes the configuration file name, date and h
 {config_name}_{date}-{hash}.pth
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Config File Structure
 
 There are four kinds of basic component file in the `configs/_base_` folders, namely：
@@ -303,6 +305,8 @@ workflow = [('train', 1)]      # Workflow for runner. [('train', 1)] means there
 work_dir = 'work_dir'          # Directory to save the model checkpoints and logs for the current experiments.
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Inherit and Modify Config File
 
 For easy understanding, we recommend contributors to inherit from existing methods.
@@ -407,6 +411,8 @@ data = dict(
 evaluation = dict(interval=1, metric='accuracy')
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Modify config through script arguments
 
 When users use the script "tools/train.py" or "tools/test.py" to submit tasks or use some other tools, they can directly modify the content of the configuration file used by specifying the `--cfg-options` parameter.
@@ -450,3 +456,5 @@ custom_imports = dict(
 
 ## FAQ
 - None
+
+<p align="right">(<a href="#top">back to top</a>)</p>

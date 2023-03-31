@@ -9,8 +9,11 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 import seaborn as sns
 import numpy as np
-import h5py
 import torch
+try:
+    import h5py
+except ImportError:
+    h5py = None  # pip install h5py
 
 from mmcv.runner import load_checkpoint, load_state_dict
 from sklearn.decomposition import PCA
@@ -379,7 +382,7 @@ def load_directions(dir_file):
 """
 
 def tensorlist_to_tensor(weights):
-    """ Concatnate a list of tensors into one tensor.
+    """ Concatnate a list of tensors into one tensor (on CPU).
 
         Args:
             weights: a list of parameter tensors, e.g. net_plotter.get_weights(net).
@@ -388,7 +391,7 @@ def tensorlist_to_tensor(weights):
             concatnated 1D tensor
     """
     return torch.cat(
-        [w.view(w.numel()) if w.dim() > 1 else torch.FloatTensor(w) for w in weights])
+        [w.view(w.numel()).cpu() if w.dim() > 1 else torch.FloatTensor(w.cpu()) for w in weights])
 
 
 def nplist_to_tensor(nplist):
@@ -498,7 +501,7 @@ def project_trajectory(dir_file, w, s, model, model_files,
           w: weights of the final model
           s: states of the final model
           model: the network model (nn.Module)
-          model_files: the checkpoint files
+          model_files: list of the checkpoint files
           dir_type: the type of the direction, weights or states
           proj_method: cosine projection
 
@@ -506,7 +509,7 @@ def project_trajectory(dir_file, w, s, model, model_files,
           proj_file: the projection filename
     """
 
-    proj_file = dir_file + '_proj_' + proj_method + '.h5'
+    proj_file = dir_file + '_proj_' + proj_method + '.npy'
     if os.path.exists(proj_file):
         print('The projection file exists! No projection is performed unless %s is deleted' % proj_file)
         return proj_file
@@ -535,10 +538,9 @@ def project_trajectory(dir_file, w, s, model, model_files,
         xcoord.append(x)
         ycoord.append(y)
 
-    f = h5py.File(proj_file, 'w')
-    f['proj_xcoord'] = np.array(xcoord)
-    f['proj_ycoord'] = np.array(ycoord)
-    f.close()
+    proj_dict = dict(proj_xcoord=np.array(xcoord),
+                     proj_ycoord=np.array(ycoord))
+    np.save(proj_file, proj_dict)
 
     return proj_file
 
@@ -554,9 +556,10 @@ def setup_PCA_directions(args, model, model_files, w, s):
 
     # Name the .h5 file that stores the PCA directions.
     folder_name = args.model_folder + '/PCA_' + args.dir_type
-    if args.ignore:
+    if args.xignore or args.yignore:
+        args.ignore = args.xignore if args.xignore else args.yignore
         folder_name += '_ignore=' + args.ignore
-    folder_name += '_save_epoch=' + str(args.save_epoch)
+    folder_name += '_save_interval=' + str(args.save_interval)
     os.system('mkdir ' + folder_name)
     dir_name = folder_name + '/directions.h5'
 
@@ -852,12 +855,11 @@ def plot_trajectory(proj_file, dir_file, format='pdf', show=False):
     """ Plot optimization trajectory on the plane spanned by given directions."""
 
     assert exists(proj_file), 'Projection file does not exist.'
-    f = h5py.File(proj_file, 'r')
+    f = np.load(proj_file, allow_pickle=True).flat[0]
     fig = plt.figure()
     plt.plot(f['proj_xcoord'], f['proj_ycoord'], marker='.')
     plt.tick_params('y', labelsize='x-large')
     plt.tick_params('x', labelsize='x-large')
-    f.close()
 
     if exists(dir_file):
         f2 = h5py.File(dir_file,'r')
@@ -892,7 +894,7 @@ def plot_contour_trajectory(surf_file, dir_file, proj_file, surf_name='loss_vals
     CS2 = plt.contour(X, Y, Z, levels=np.logspace(1, 8, num=8))
 
     # plot trajectories
-    pf = h5py.File(proj_file, 'r')
+    pf = np.load(proj_file, allow_pickle=True).flat[0]
     plt.plot(pf['proj_xcoord'], pf['proj_ycoord'], marker='.')
 
     # plot red points when learning rate decays
@@ -910,7 +912,6 @@ def plot_contour_trajectory(surf_file, dir_file, proj_file, surf_name='loss_vals
     plt.clabel(CS2, inline=1, fontsize=6)
     fig.savefig(proj_file + '_' + surf_name + f'_2dcontour_proj.{format}', dpi=300,
                 bbox_inches='tight', format=format)
-    pf.close()
     if show:
         plt.show()
 

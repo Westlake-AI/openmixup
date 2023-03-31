@@ -2,6 +2,14 @@
 
 In this section we demonstrate how to prepare an environment with PyTorch.
 
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Install openmixup](#install-openmixup)
+  - [Customized installation](#customized-installation)
+  - [Prepare datasets](#prepare-datasets)
+  - [A from-scratch setup script](#a-from-scratch-setup-script)
+  - [Common Issues](#common-issues)
+
 ## Requirements
 
 - Linux (Windows is not officially supported)
@@ -78,6 +86,7 @@ If some errors occur when you install Apex from the source, you can try `python 
 3. If you would like to use `opencv-python-headless` instead of `opencv-python`,
 you can install it before installing MMCV.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Customized installation
 
@@ -139,7 +148,7 @@ bash tools/prepare_data/prepare_voc07_cls.sh $YOUR_DATA_ROOT
 At last, the folder looks like:
 
 ```
-OpenSelfSup
+openmixup
 ├── openmixup
 ├── benchmarks
 ├── configs
@@ -149,8 +158,8 @@ OpenSelfSup
 │   │   |   ├── images (contains all train & val)
 │   ├── cifar10
 │   ├── cifar100
-│   │   ├── cifar-10-batches-py
-│   │   ├── cifar-10-python.tar
+│   │   ├── cifar-100-batches-py
+│   │   ├── cifar-100-python.tar
 │   │── Cars
 │   │── CUB200
 │   ├── ImageNet
@@ -208,7 +217,11 @@ ln -s $TINY_ROOT data/TinyImagenet
 bash tools/prepare_data/prepare_voc07_cls.sh $YOUR_DATA_ROOT
 ```
 
-## Using multiple openmixup versions
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Common Issues
+
+### Using multiple openmixup versions
 
 If there are more than one `openmixup` on your machine, and you want to use them alternatively, the recommended way is to create multiple conda environments and use different environments for different versions. The `develop` mode is recommanded if you want to add your own codes in `openmixup`.
 
@@ -224,6 +237,10 @@ Or run the following command in the terminal of corresponding folder to temporal
 export PYTHONPATH=`pwd`:$PYTHONPATH
 ```
 
-## Common Issues
+### Issues of bugs
 
-1. The training hangs / deadlocks in some intermediate iteration. See this [issue](https://github.com/open-mmlab/OpenSelfSup/issues/6). We haven't found this issue when using higher versions of PyTorch.
+1. PyTorch-1.8 has a bug in the AdamW optimizer, which will cause some errors in DDP training. See this [issue](https://github.com/pytorch/pytorch/pull/52944).
+2. PyTorch-1.8 or higher has a bug in printing logs to the console. The log and log.json files are not affected.
+3. The training hangs / deadlocks in some intermediate iterations. See this [issue](https://github.com/open-mmlab/OpenSelfSup/issues/6). This bug is fixed in the higher versions of PyTorch>=1.6.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

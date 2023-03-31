@@ -270,3 +270,4 @@ Assuming that we want to mimic a probabilistic distribution generated from anoth
     ```python
     loss=dict(type='L1Loss', loss_weight=1.0))
     ```
+<p align="right">(<a href="#top">back to top</a>)</p>

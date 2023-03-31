@@ -121,6 +121,8 @@ Here are some examples
 After completing your configuration file，you could use [learning rate visualization tool](https://mmclassification.readthedocs.io/en/latest/tools/visualization.html#learning-rate-schedule-visualization) to draw the corresponding learning rate adjustment curve.
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Customize momentum schedules
 
 We support the momentum scheduler to modify the model's momentum according to learning rate, which could make the model converge in a faster way.
@@ -199,6 +201,8 @@ We provide some examples here and more usages refer to [DefaultOptimizerConstruc
             custom_keys={'backbone': dict(lr_mult=0.1, decay_mult=0.9)}))
     ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Gradient clipping and gradient accumulation
 
 Besides the basic function of PyTorch optimizers, we also provide some enhancement functions, such as gradient clipping, gradient accumulation, etc., refer to [MMCV](https://github.com/open-mmlab/mmcv/blob/master/mmcv/runner/hooks/optimizer.py).
@@ -246,6 +250,8 @@ optimizer_config = dict(type="OptimizerHook")
 ```{note}
 When the optimizer hook type is not specified in `optimizer_config`, `OptimizerHook` is used by default.
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Customize self-implemented methods
 
@@ -344,3 +350,5 @@ class MyOptimizerConstructor:
 ```
 
 The default optimizer constructor is implemented [here](https://github.com/open-mmlab/mmcv/blob/9ecd6b0d5ff9d2172c49a182eaa669e9f27bb8e7/mmcv/runner/optimizer/default_constructor.py#L11), which could also serve as a template for new optimizer constructor.
+
+<p align="right">(<a href="#top">back to top</a>)</p>

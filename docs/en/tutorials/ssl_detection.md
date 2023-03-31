@@ -51,8 +51,6 @@ configs/benchmarks/mmdetection/coco/mask-rcnn_r50-c4_ms-1x_coco.py \
 https://download.openmmlab.com/mmselfsup/1.x/byol/byol_resnet50_16xb256-coslr-200e_in1k/byol_resnet50_16xb256-coslr-200e_in1k_20220825-de817331.pth 8
 ```
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
 ### Detectron2
 
 If you want to do detection task with [detectron2](https://github.com/facebookresearch/detectron2), we also provide some config files.
@@ -64,6 +62,8 @@ cd tools/benchmarks/detectron2
 python convert-pretrain-to-detectron2.py ${WEIGHT_FILE} ${OUTPUT_FILE} # must use .pkl as the output extension.
 bash run.sh ${DET_CFG} ${OUTPUT_FILE}
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Test
 

@@ -1,11 +1,22 @@
+"""
+Visualizing the Loss Landscape of Neural Nets (NeurIPS, 2018).
+    Modified from https://github.com/tomgoldstein/loss-landscape
+
+Example command (plotting loss 1D surface):
+bash tools/visualizations/dist_vis_loss.sh [PATH/to/config] 1 [PATH/to/checkpoint] \
+    --x=-1:1:51 --dir_type weights --xnorm filter --xignore biasbn
+"""
+
 import argparse
 import importlib
 import os
 import os.path as osp
-import time
 import copy
-import h5py
 import numpy as np
+try:
+    import h5py
+except ImportError:
+    h5py = None  # pip install h5py
 
 import mmcv
 import torch
@@ -27,6 +38,7 @@ from openmixup.utils import (dist_forward_collect, setup_multi_processes,
 """
 
 def name_surface_file(args, dir_file):
+    os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"  # avoid `BlockingIOError` in h5f.open
     # skip if surf_file is specified in args
     if args.surf_file:
         return args.surf_file
@@ -66,8 +78,8 @@ def setup_surface_file(args, surf_file, dir_file):
     return surf_file
 
 
-def crunch(surf_file, net, net_w, net_s, net_d,
-           data_loader, dataset, loss_key, acc_key, args=None):
+def crunch_surface(surf_file, net, net_w, net_s, net_d,
+                   data_loader, dataset, loss_key, acc_key, args=None):
     """ Calculate the loss values and accuracies of modified models in DDP. """
 
     rank, _ = get_dist_info()
@@ -155,7 +167,8 @@ def multi_gpu_test(model, data_loader):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='MMDet test (and eval) a model')
+        description='Plotting loss landscape by testing (and eval) models')
+    # Testing setups
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', type=str, default='',
                         help='checkpoint file as the "model_file1"')
@@ -175,6 +188,21 @@ def parse_args():
     parser.add_argument('--local_rank', type=int, default=0)
     parser.add_argument('--port', type=int, default=29500,
                         help='port only works when launcher=="slurm"')
+    parser.add_argument('--cfg-options',
+                        nargs='+',
+                        action=DictAction,
+                        help='override some settings in the used config, the key-value pair '
+                        'in xxx=yyy format will be merged into config file. If the value to '
+                        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
+                        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
+                        'Note that the quotation marks are necessary and that no white space '
+                        'is allowed.')
+
+    # Loss surface setups
+    parser.add_argument('--plot_mode',
+                        choices=['surface', 'trajectory', 'surface+trajectory'],
+                        type=str, default='surface',
+                        help='plot mode of loss landscape (defaults to "surface")')
     parser.add_argument('--model_file2', type=str, default='',
                         help='using (model_file2 - model_file1) as the xdirection')
     parser.add_argument('--model_file3', type=str, default='',
@@ -214,16 +242,20 @@ def parse_args():
     parser.add_argument('--log', action='store_true', default=False,
                         help='Whether to use log scale for loss values')
     parser.add_argument('--plot_format', type=str, default='png',
-                        help='The save format of ploted matplotlib images')
-    parser.add_argument('--cfg-options',
-                        nargs='+',
-                        action=DictAction,
-                        help='override some settings in the used config, the key-value pair '
-                        'in xxx=yyy format will be merged into config file. If the value to '
-                        'be overwritten is a list, it should be like key="[a,b]" or key=a,b '
-                        'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
-                        'Note that the quotation marks are necessary and that no white space '
-                        'is allowed.')
+                        help='The save format of plotted matplotlib images')
+
+    # Loss trajectory setups
+    parser.add_argument('--model_folder', default=None, type=str,
+                        help='folders for models to be projected (defaults to work_dirs)')
+    parser.add_argument('--prefix', default='epoch', type=str,
+                        help='prefix for the checkpint model for plotting the trajectory')
+    parser.add_argument('--start_epoch', default=0, type=int,
+                        help='min index of epochs for plotting the trajectory')
+    parser.add_argument('--max_epoch', default=200, type=int,
+                        help='max number of epochs for plotting the trajectory')
+    parser.add_argument('--save_interval', default=1, type=int,
+                        help='interval to save models for plotting the trajectory')
+
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -294,49 +326,84 @@ def main():
             model.cuda(),
             device_ids=[torch.cuda.current_device()],
             broadcast_buffers=False)
+    rank, _ = get_dist_info()
 
     #--------------------------------------------------------------------------
     # Calculate and visualize the loss surface (1D or 2D) in `plot_surface.py`
     #--------------------------------------------------------------------------
-    try:
-        args.xmin, args.xmax, args.xnum = [int(a) for a in args.x.split(':')]  # or it will cause TypeError
-        args.ymin, args.ymax, args.ynum = (None, None, None)
-        if args.y:
-            args.ymin, args.ymax, args.ynum = [int(a) for a in args.y.split(':')]
-            assert args.ymin and args.ymax and args.ynum, \
-            'You specified some arguments for the y axis, but not all'
-    except:
-        raise Exception('Improper format for x- or y-coordinates. Try something like -1:1:51')
+    if 'surface' in args.plot_mode:
+        try:
+            args.xmin, args.xmax, args.xnum = [int(a) for a in args.x.split(':')]  # or it will cause TypeError
+            args.ymin, args.ymax, args.ynum = (None, None, None)
+            if args.y:
+                args.ymin, args.ymax, args.ynum = [int(a) for a in args.y.split(':')]
+                assert args.ymin and args.ymax and args.ynum, \
+                'You specified some arguments for the y axis, but not all'
+        except:
+            raise Exception('Improper format for x- or y-coordinates. Try something like -1:1:51')
 
-    model_w = helper.get_weights(model) # initial parameters
-    model_s = copy.deepcopy(model.state_dict()) # deepcopy since state_dict are references
-    dir_file = helper.name_direction_file(args) # name the direction file
-    helper.setup_direction(args, dir_file, model)
-    surf_file = name_surface_file(args, dir_file)
-    setup_surface_file(args, surf_file, dir_file)
+        model_w = helper.get_weights(model) # initial parameters
+        model_s = copy.deepcopy(model.state_dict()) # deepcopy since state_dict are references
+        dir_file = helper.name_direction_file(args) # name the direction file
+        helper.setup_direction(args, dir_file, model)
+        surf_file = name_surface_file(args, dir_file)
+        setup_surface_file(args, surf_file, dir_file)
 
-    # load directions
-    model_d = helper.load_directions(dir_file)
-    # calculate the consine similarity of the two directions
-    if len(model_d) == 2:
-        similarity = helper.cal_angle(
-            helper.nplist_to_tensor(model_d[0]), helper.nplist_to_tensor(model_d[1]))
-        print('cosine similarity between x-axis and y-axis: %f' % similarity)
+        # load directions
+        model_d = helper.load_directions(dir_file)
+        # calculate the consine similarity of the two directions
+        if len(model_d) == 2:
+            similarity = helper.cal_angle(
+                helper.nplist_to_tensor(model_d[0]), helper.nplist_to_tensor(model_d[1]))
+            print('cosine similarity between x-axis and y-axis: %f' % similarity)
 
-    crunch(surf_file, model, model_w, model_s, model_d, data_loader=data_loader, dataset=dataset,
-           loss_key='train_loss', acc_key='train_acc', args=args)
+        crunch_surface(surf_file, model, model_w, model_s, model_d, data_loader=data_loader, dataset=dataset,
+            loss_key='train_loss', acc_key='train_acc', args=args)
 
-    rank, _ = get_dist_info()
-    if rank == 0:
-        if args.y and args.proj_file:
+        if rank == 0:
+            if args.y:
+                helper.plot_2d_contour(
+                    surf_file, 'train_loss', args.vmin, args.vmax, args.vlevel, format=args.plot_format)
+            else:
+                helper.plot_1d_loss_err(
+                    surf_file, args.xmin, args.xmax, args.loss_max, args.log, format=args.plot_format)
+
+    #--------------------------------------------------------------------------
+    # Caculate a projected optimization trajectory in `plot_trajectory.py` (2D)
+    #--------------------------------------------------------------------------
+    if 'trajectory' in args.plot_mode:
+        # the loaded ckpt as the final model
+        model_w = helper.get_weights(model) # initial parameters
+        model_s = copy.deepcopy(model.state_dict()) # deepcopy since state_dict are references
+        dir_file = helper.name_direction_file(args) # name the direction file
+
+        # collect models to be projected
+        if args.model_folder is None:
+            args.model_folder = cfg.work_dir
+        model_files = []
+        for epoch in range(args.start_epoch, args.max_epoch + args.save_interval, args.save_interval):
+            model_file = args.model_folder + f'/{args.prefix}_{str(epoch)}.pth'
+            assert os.path.isfile(model_file), 'model %s does not exist' % model_file
+            model_files.append(model_file)
+
+        # load or create projection directions
+        if args.dir_file:
+            dir_file = args.dir_file
+        else:
+            dir_file = helper.setup_PCA_directions(args, model, model_files, model_w, model_s)
+
+        # projection trajectory to given directions
+        proj_file = helper.project_trajectory(dir_file, model_w, model_s, model, model_files,
+                                              dir_type=args.dir_type, proj_method='cos')
+        if rank == 0:
+            helper.plot_trajectory(proj_file, dir_file, format=args.plot_format)
+
+    if args.plot_mode == 'surface+trajectory':
+        args.proj_file = proj_file if not args.proj_file else args.proj_file
+        if rank == 0:
+            assert args.y
             helper.plot_contour_trajectory(
                 surf_file, dir_file, args.proj_file, 'train_loss', format=args.plot_format)
-        elif args.y:
-            helper.plot_2d_contour(
-                surf_file, 'train_loss', args.vmin, args.vmax, args.vlevel, format=args.plot_format)
-        else:
-            helper.plot_1d_loss_err(
-                surf_file, args.xmin, args.xmax, args.loss_max, args.log, format=args.plot_format)
 
 
 if __name__ == '__main__':

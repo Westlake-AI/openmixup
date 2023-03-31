@@ -124,6 +124,8 @@ pip install Pillow-SIMD or CC="cc -mavx2" pip install -U --force-reinstall pillo
 ```
 We test it using MoCoV2 using a total batch size of 256 on Tesla V100. The training time per step is decreased to 0.17s from 0.23s.
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Benchmarks
 
 We provide several standard benchmarks to evaluate representation learning (supervised and self-supervised pre-trained models), and you can refer to [Benchmarks](./tutorials/6_benchmarks.md) for the details. The config files or scripts for evaluation mentioned are NOT recommended to be changed if you want to use this repo in your publications. We hope that all methods are under a fair comparison.
@@ -202,3 +204,5 @@ custom_hooks = [
     dict(type='CosineScheduleHook', ...),
 ]
 ```
+
+<p align="right">(<a href="#top">back to top</a>)</p>

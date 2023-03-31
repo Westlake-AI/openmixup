@@ -50,6 +50,8 @@ By default, we recommend using **`EvalHook`** to do evaluation after the trainin
    Therefore, the only difference between `[('train', 1), ('val', 1)]` and ``[('train', 1)]`` is that the runner will calculate losses on the validation set after each training epoch.
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Hooks
 
 The hook mechanism is widely used in the OpenMMLab open-source algorithm library. Combined with the `Runner`, the entire life cycle of the training process can be managed easily. You can learn more about the hook through [related article](https://www.calltutors.com/blog/what-is-hook/).
@@ -181,6 +183,8 @@ custom_hooks = [
 ]
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
 ## Customize self-implemented hooks
 
 ### 1. Implement a new hook
@@ -265,3 +269,5 @@ By default, the hook's priority is set as `NORMAL` during registration.
 - `resume_from` : not only import model weights, but also optimizer information, current epoch information, mainly used to continue training from the checkpoint.
 
 - `init_cfg.Pretrained` : Load weights during weight initialization, and you can specify which module to load. This is usually used when fine-tuning a model, refer to [Tutorial 2: Fine-tune Models](./finetune.md).
+
+<p align="right">(<a href="#top">back to top</a>)</p>

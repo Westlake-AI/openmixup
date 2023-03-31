@@ -23,6 +23,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Update config files. Provide full config files of mixup methods based on ViT-T/S/B on ImageNet and update [RSB A3](https://arxiv.org/abs/2110.00476) config files for popular backbones.
 - Update `target_generators` to support the latest MIM pre-training methods (fixed requirements).
 - Update config files and scripts for SSL downstream tasks benchmarks (classification, detection, and segmentation).
+- Support more visualization tools ([vis_loss_landscape](https://github.com/Westlake-AI/openmixup/tree/main/tools/visualizations/vis_loss_landscape.py)) and update [model converters](https://github.com/Westlake-AI/openmixup/tree/main/tools/model_converters) tools. 
 
 ### Update Documents
 

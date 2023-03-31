@@ -3,6 +3,7 @@
 - [Visualization](#visualization)
   - [Learning Rate Schedule Visualization](#learning-rate-schedule-visualization)
   - [Class Activation Map Visualization](#class-activation-map-visualization)
+  - [Loss Landscape Visualization](#loss-landscape-visualization)
   - [FAQs](#faqs)
 
 
@@ -47,10 +48,11 @@ When using ImageNet, directly specify the size of ImageNet, as below:
 python tools/visualizations/vis_lr.py configs/classification/imagenet/resnet/resnet50_4xb64_step_ep100.py --dataset-size 1281167 --ngpus 4 --save-path ./resnet50_4xb64_step_ep100.jpg
 ```
 
+<p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Class Activation Map Visualization
 
-OpenMixup provides `tools\visualizations\vis_cam.py` tool to visualize class activation map. Please use `pip install "grad-cam>=1.3.6"` command to install [pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam).
+OpenMixup provides `tools\visualizations\vis_cam.py` tool to visualize class activation map. Please use `pip install "grad-cam>=1.3.6"` command to install [pytorch-grad-cam](https://github.com/jacobgil/pytorch-grad-cam). The implementation is modified according to [MMClassification](https://github.com/open-mmlab/mmclassification) (thanks to their contributions).
 
 The supported methods are as follows:
 
@@ -216,6 +218,108 @@ To exclude these extra tokens, we need know the number of extra tokens. Almost a
 | --------------------------------------- | ------------------------------------------ | -------------------------------------- | --------------------------------------- | ------------------------------------------ |
 | <div align=center><img src='https://user-images.githubusercontent.com/18586273/144429496-628d3fb3-1f6e-41ff-aa5c-1b08c60c32a9.JPEG' height="auto" width="165" ></div> | <div align=center><img src=https://user-images.githubusercontent.com/18586273/144431491-a2e19fe3-5c12-4404-b2af-a9552f5a95d9.jpg  height="auto" width="150" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/18586273/144436218-245a11de-6234-4852-9c08-ff5069f6a739.jpg' height="auto" width="150" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/18586273/144436168-01b0e565-442c-4e1e-910c-17c62cff7cd3.jpg' height="auto" width="150" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/18586273/144436198-51dbfbda-c48d-48cc-ae06-1a923d19b6f6.jpg' height="auto" width="150" ></div> |
 
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+## Loss Landscape Visualization
+
+OpenMixup provides `tools\visualizations\vis_loss_landscape.py` tool to visualize loss landscapes of classification models. Please use `pip install h5py` command to install [h5py](http://docs.h5py.org/en/stable/build.html#install). The implementation is borrowed and modified from [loss-landscape](https://github.com/tomgoldstein/loss-landscape) in [Visualizing the Loss Landscape of Neural Nets](https://arxiv.org/abs/1712.09913). Thanks to their contributions.
+
+We run [vis_loss_landscape.py](https://github.com/Westlake-AI/openmixup/tree/main/tools/visualizations/vis_loss_landscape.py) by [dist_vis_loss.sh](https://github.com/Westlake-AI/openmixup/tree/main/tools/visualizations/dist_vis_loss.sh) as DDP testing. This tool calculates and visualizes the loss surface along random direction(s) near the optimal parameters in parallel with multiple GPUs. To avoid the blocking error from `h5py`, you can use `export HDF5_USE_FILE_LOCKING=FALSE` before running the visualization experiment.
+
+**Command**
+
+```bash
+bash tools/visualizations/dist_vis_loss.sh \
+    ${CONFIG_FILE} \
+    ${GPUS} \
+    ${CHECKPOINT} \
+    [--plot_mode ${surface | trajectory | surface+trajectory}] \
+    [--dir_type ${weights | states}] \
+    [--dir_type ${weights | states}] \
+    [--x ${xmin:x_max:xnum}] \
+    [--y ${ymin:y_max:ynum}] \
+    [--xnorm ${filter | layer | weight}] \
+    [--ynorm ${filter | layer | weight}] \
+    [--xignore ${biasbn}] \
+    [--yignore ${biasbn}] \
+    [--cfg-options ${CFG-OPTIONS}]
+```
+
+**Description of all arguments**：
+
+- `config` : The path of the model config file.
+- `gpu` : The number of GPUs to evaluate the model.
+- `checkpoint` : The path of the checkpoint.
+- `--plot_mode` : The plot mode of loss landscape ('surface' | 'trajectory' | 'surface+trajectory').
+- `--model_file2` : Using (model_file2 - model_file1) as the xdirection.
+- `--model_file3` : Using (model_file3 - model_file1) as the ydirection.
+- `--dir_file` : Specify the name of direction file, or the path to a direction file.
+- `--dir_type` : The plotting direction type ('weights' | 'states'). Note that 'states' indicates the direction contains dimensions for all parameters as well as the statistics of the BN layers (`running_mean` and `running_var`), while 'weights' indicates the direction has the same dimensions as the learned parameters, including bias and parameters in the BN layers.
+- `--x` : A string with format ('xmin:x_max:xnum').
+- `--y` : A string with format ('ymin:ymax:ynum').
+- `--xnorm` : The direction normalization ('filter' | 'layer' | 'weight').
+- `--ynorm` : The direction normalization ('filter' | 'layer' | 'weight').
+- `--xignore` : To ignore the direction corresponding to bias and BN parameters (fill the corresponding entries in the random vector with zeros) in the x-axis ("biasbn").
+- `--yignore` : To ignore bias and BN parameters the y-axis ("biasbn").
+- `--surf_file` : The customize the name of surface file, could be an existing file.
+- `--proj_file` : The .h5 file contains projected optimization trajectory.
+- `--loss_max` : Maximum value to show in 1D plot.
+- `--vmax` : Maximum value to map in the plot.
+- `--vmin` : Miminum value to map in the plot.
+- `--vlevel` : Plot contours every vlevel.
+- `--log` : Whether to use log scale for loss values.
+- `--plot_format` : The save format of plotted matplotlib images (defaults to "png").
+- `--model_folder` : Folders for models to be projected (defaults to work_dirs).
+- `--prefix` : The prefix for the checkpint model for plotting the trajectory (defaults to "epoch").
+- `--start_epoch` : The min index of epochs for plotting the trajectory.
+- `--max_epoch` : The max number of epochs for plotting the trajectory.
+- `--save_interval` : The interval to save models for plotting the trajectory.
+- `--cfg-options` : Modifications to the configuration file, refer to [Tutorial 1: Learn about Configs](https://openmixup.readthedocs.io/en/latest/tutorials/0_config.html).
+
+**Examples**：
+
+1. Visualizing 1D linear interpolations. The 1D linear interpolation method evaluates the loss values along the direction between two minimizers of the same network loss function.
+
+    ```shell
+    bash tools/visualizations/dist_vis_loss.sh \
+        configs/classification/cifar100/wa/resnet18_CE_bs100.py 1 ${CHECKPOINT} \
+        --plot_mode surface --x=-1:1:51 --dir_type weights --xnorm filter --xignore biasbn
+    ```
+
+    * `--x=-1:1:51` sets the range and resolution for the plot. The x-coordinates in the plot will run from -1 to 1 (the minimizers are located at 0 and 1), and the loss value will be evaluated at 51 locations along this line.
+    * `--dir_type weights` indicates the direction has the same dimensions as the learned parameters, including bias and parameters in the BN layers.
+    * `--xnorm filter` normalizes the random direction at the filter level. Here, a "filter" refers to the parameters that produce a single feature map. For fully connected layers, a "filter" contains the weights that contribute to a single neuron.
+    * `--xignore biasbn` ignores the direction corresponding to bias and BN parameters (fill the corresponding entries in the random vector with zeros).
+
+    <p align="center">
+    <img src="https://user-images.githubusercontent.com/44519745/228991095-e0a63c1a-1d57-43e3-af2b-95c8840668ea.png" width=50% class="center">
+    </p>
+
+2. Visualizing 2D loss contours and 3D loss surfaces. To plot the loss landscape, we choose two random directions and normalize them in the same way as the 1D plotting.
+
+    ```shell
+    bash tools/visualizations/dist_vis_loss.sh \
+        configs/classification/cifar100/wa/resnet18_CE_bs100.py 1 ${CHECKPOINT} \
+        --plot_mode surface --x=-1:1:51 --y=-1:1:51 --dir_type weights \
+        --xnorm filter --xignore biasbn --ynorm filter --yignore biasbn --vlevel 0.1
+    ```
+
+    | 2D contours | 3D surfaces |
+    | :---: | :---: |
+    | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991449-05f304ee-f66f-406c-90a7-cfe76ecf370b.png' height="auto" width="265" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991893-22efdb41-c9b2-4cf3-8a76-33a626d36718.png' height="auto" width="240" ></div> |
+
+3. Visualizing the loss trajectory in 2D loss contours. We plot the loss surfaces and the optimization trajectory in a 2D plot, which requires a list of models (saved in the path to `work_dirs`).
+
+    ```shell
+    bash tools/visualizations/dist_vis_loss.sh \
+        configs/classification/cifar100/wa/resnet18_CE_bs100.py 1 ${CHECKPOINT} \
+        --plot_mode surface+trajectory --x=-1:1:51 --y=-1:1:51 --dir_type weights \
+        --xnorm filter --xignore biasbn --ynorm filter --yignore biasbn \
+        --start_epoch 0 --max_epoch 200 --save_interval 10
+    ```
+
 ## FAQs
 
 - None
+
+<p align="right">(<a href="#top">back to top</a>)</p>

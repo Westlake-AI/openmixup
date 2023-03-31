@@ -138,3 +138,5 @@ dataset_A_train = dict(
 ```
 
 You may refer to [source code](https://github.com/open-mmlab/mmclassification/tree/master/mmcls/datasets/dataset_wrappers.py) for details.
+
+<p align="right">(<a href="#top">back to top</a>)</p>
