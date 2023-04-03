@@ -4,7 +4,8 @@ import torch.nn.functional as F
 from mmcv.cnn import kaiming_init, normal_init
 from mmcv.runner import BaseModule
 
-from ..utils import accuracy, accuracy_mixup, trunc_normal_init
+from ..utils import (accuracy, accuracy_mixup, accuracy_semantic_softmax,
+                     trunc_normal_init)
 from ..registry import HEADS
 from ..builder import build_loss
 
@@ -53,6 +54,7 @@ class ClsHead(BaseModule):
             assert multi_label == False
             loss = dict(type='CrossEntropyLoss', loss_weight=1.0)
             self.criterion = build_loss(loss)
+        self.processor = getattr(self.criterion, "processor", None)
         # fc layer
         self.fc = None
         if num_classes is not None:
@@ -150,7 +152,16 @@ class ClsHead(BaseModule):
             cls_score = cls_score[0]
 
         # computing loss
-        if not isinstance(labels, tuple):
+        if self.processor is not None:
+            # whether is the single label cls [N,] or multi-label cls [N,C]
+            single_label = \
+                labels.dim() == 1 or (labels.dim() == 2 and labels.shape[1] == 1)
+            assert single_label, "the semantic softmax needs single labels"
+            # onehot cls with semantic_softmax
+            losses['loss'] = self.criterion(cls_score, labels)
+            # compute accuracy
+            losses['acc'] = accuracy_semantic_softmax(cls_score, labels, self.processor)
+        elif not isinstance(labels, tuple):
             # whether is the single label cls [N,] or multi-label cls [N,C]
             single_label = \
                 labels.dim() == 1 or (labels.dim() == 2 and labels.shape[1] == 1)

@@ -285,12 +285,15 @@ bash tools/visualizations/dist_vis_loss.sh \
         configs/classification/cifar100/wa/resnet18_CE_bs100.py 1 ${CHECKPOINT} \
         --plot_mode surface --x=-1:1:51 --dir_type weights --xnorm filter --xignore biasbn
     ```
-
-    * `--x=-1:1:51` sets the range and resolution for the plot. The x-coordinates in the plot will run from -1 to 1 (the minimizers are located at 0 and 1), and the loss value will be evaluated at 51 locations along this line.
-    * `--dir_type weights` indicates the direction has the same dimensions as the learned parameters, including bias and parameters in the BN layers.
-    * `--xnorm filter` normalizes the random direction at the filter level. Here, a "filter" refers to the parameters that produce a single feature map. For fully connected layers, a "filter" contains the weights that contribute to a single neuron.
-    * `--xignore biasbn` ignores the direction corresponding to bias and BN parameters (fill the corresponding entries in the random vector with zeros).
-
+    ```{note}
+    `--x=-1:1:51` sets the range and resolution for the plot. The x-coordinates in the plot will run from -1 to 1 (the minimizers are located at 0 and 1), and the loss value will be evaluated at 51 locations along this line.
+    
+    `--dir_type weights` indicates the direction has the same dimensions as the learned parameters, including bias and parameters in the BN layers.
+    
+    `--xnorm filter` normalizes the random direction at the filter level. Here, a "filter" refers to the parameters that produce a single feature map. For fully connected layers, a "filter" contains the weights that contribute to a single neuron.
+    
+    `--xignore biasbn` ignores the direction corresponding to bias and BN parameters (fill the corresponding entries in the random vector with zeros).
+    ```
     <p align="center">
     <img src="https://user-images.githubusercontent.com/44519745/228991095-e0a63c1a-1d57-43e3-af2b-95c8840668ea.png" width=50% class="center">
     </p>
@@ -303,10 +306,9 @@ bash tools/visualizations/dist_vis_loss.sh \
         --plot_mode surface --x=-1:1:51 --y=-1:1:51 --dir_type weights \
         --xnorm filter --xignore biasbn --ynorm filter --yignore biasbn --vlevel 0.1
     ```
-
     | 2D contours | 3D surfaces |
     | :---: | :---: |
-    | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991449-05f304ee-f66f-406c-90a7-cfe76ecf370b.png' height="auto" width="265" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991893-22efdb41-c9b2-4cf3-8a76-33a626d36718.png' height="auto" width="240" ></div> |
+    | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991449-05f304ee-f66f-406c-90a7-cfe76ecf370b.png' height="auto" width="285" ></div> | <div align=center><img src='https://user-images.githubusercontent.com/44519745/228991893-22efdb41-c9b2-4cf3-8a76-33a626d36718.png' height="auto" width="250" ></div> |
 
 3. Visualizing the loss trajectory in 2D loss contours. We plot the loss surfaces and the optimization trajectory in a 2D plot, which requires a list of models (saved in the path to `work_dirs`).
 

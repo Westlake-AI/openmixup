@@ -16,6 +16,7 @@ except ImportError:
     h5py = None  # pip install h5py
 
 from mmcv.runner import load_checkpoint, load_state_dict
+from mmcv.parallel import is_module_wrapper
 from sklearn.decomposition import PCA
 
 
@@ -281,7 +282,10 @@ def setup_direction(args, dir_file, net):
         print("Setting up the plotting directions...")
         if args.model_file2:
             net2 = copy.deepcopy(net)
-            load_checkpoint(net2, args.model_file2, map_location='cpu')
+            if is_module_wrapper(net2):
+                load_checkpoint(net2.module, args.model_file2, map_location='cpu')
+            else:
+                load_checkpoint(net2, args.model_file2, map_location='cpu')
             net2 = net2.cuda()
             xdirection = create_target_direction(net, net2, args.dir_type)
         else:
@@ -293,7 +297,10 @@ def setup_direction(args, dir_file, net):
                 ydirection = xdirection
             elif args.model_file3:
                 net3 = copy.deepcopy(net)
-                load_checkpoint(net3, args.model_file2, map_location='cpu')
+                if is_module_wrapper(net3):
+                    load_checkpoint(net3.module, args.model_file3, map_location='cpu')
+                else:
+                    load_checkpoint(net3, args.model_file3, map_location='cpu')
                 net3 = net3.cuda()
                 ydirection = create_target_direction(net, net3, args.dir_type)
             else:
@@ -522,7 +529,10 @@ def project_trajectory(dir_file, w, s, model, model_files,
     xcoord, ycoord = [], []
     for model_file in model_files:
         net2 = copy.deepcopy(model)
-        load_checkpoint(net2, model_file, map_location='cpu')
+        if is_module_wrapper(net2):
+            load_checkpoint(net2.module, model_file, map_location='cpu')
+        else:
+            load_checkpoint(net2, model_file, map_location='cpu')
         net2 = net2.cuda()
         if dir_type == 'weights':
             w2 = get_weights(net2)
@@ -575,7 +585,10 @@ def setup_PCA_directions(args, model, model_files, w, s):
     for model_file in model_files:
         print (model_file)
         net2 = copy.deepcopy(model)
-        load_checkpoint(net2, model_file, map_location='cpu')
+        if is_module_wrapper(net2):
+            load_checkpoint(net2.module, model_file, map_location='cpu')
+        else:
+            load_checkpoint(net2, model_file, map_location='cpu')
         net2 = net2.cuda()
         if args.dir_type == 'weights':
             w2 = get_weights(net2)

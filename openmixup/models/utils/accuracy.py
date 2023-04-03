@@ -1,5 +1,6 @@
 from numbers import Number
 
+import torch
 import torch.nn as nn
 
 
@@ -81,6 +82,40 @@ def accuracy_mixup(pred, targets):
     res_lam_ = correct_lam_.mul_(100.0 / pred.size(0))
 
     return res_lam * lam + res_lam_ * lam_
+
+
+def accuracy_semantic_softmax(pred, target, processor):
+    """Forward function to calculate the semantic softmax accuracy.
+
+    Args:
+        pred (torch.Tensor): Prediction of models.
+        target (torch.Tensor): Target for each prediction.
+
+    Returns:
+        list[torch.Tensor]: The accuracies under different topk criterions.
+    """
+    with torch.no_grad():
+        semantic_logit_list = processor.split_logits_to_semantic_logits(pred)
+        semantic_targets = processor.convert_targets_to_semantic_targets(target)
+        accuracy_list = []
+        accuracy_valid_list = []
+        result = 0
+        for i in range(len(semantic_logit_list)):  # scanning hirarchy_level_list
+            logits_i = semantic_logit_list[i]
+            targets_i = semantic_targets[:, i]
+            pred_i = logits_i.argmax(dim=-1)
+            ind_valid = (targets_i >= 0)
+            num_valids = torch.sum(ind_valid)
+            accuracy_valid_list.append(num_valids)
+            if num_valids > 0:
+                accuracy_list.append((
+                    pred_i[ind_valid] == targets_i[ind_valid]).float().mean())
+            else:
+                accuracy_list.append(0)
+            result += accuracy_list[-1] * accuracy_valid_list[-1]
+        num_valids_total = sum(accuracy_valid_list)
+
+    return [result / num_valids_total * 100]
 
 
 class Accuracy(nn.Module):

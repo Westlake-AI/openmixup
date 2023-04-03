@@ -158,12 +158,12 @@ class TransformerFinetuneConstructor:
 
         # generate layer-wise lr decay
         if self.layer_decay > 0:
-            if self.model_type == 'swin':
-                self._generate_swin_layer_wise_lr_decay(
-                    model, paramwise_options)
+            if self.model_type == 'convnext':
+                self._generate_convnext_layer_wise_lr_decay(model, paramwise_options)
+            elif self.model_type == 'swin':
+                self._generate_swin_layer_wise_lr_decay(model, paramwise_options)
             elif self.model_type == 'vit':
-                self._generate_vit_layer_wise_lr_decay(model,
-                                                       paramwise_options)
+                self._generate_vit_layer_wise_lr_decay(model, paramwise_options)
             else:
                 raise NotImplementedError(
                     f'Currently, we do not support layer-wise lr decay for {self.model_type}')
@@ -199,6 +199,44 @@ class TransformerFinetuneConstructor:
 
             optimizer_cfg['params'] = params
             return build_from_cfg(optimizer_cfg, OPTIMIZERS)
+
+    def _generate_convnext_layer_wise_lr_decay(self, model, paramwise_options):
+        """Generate layer-wise learning rate decay for ConvNeXt."""
+        num_layers = 12 if len(model.backbone.stages[-2]) > 9 else 6
+        layer_scales = list(self.layer_decay ** (num_layers + 1 - i)
+                            for i in range(num_layers + 2))
+
+        for name, _ in model.named_parameters():
+            layer_id = self._get_convnext_layer(name, num_layers=num_layers)
+            paramwise_options[name] = dict(lr_mult=layer_scales[layer_id])
+
+    def _get_convnext_layer(self, name, num_layers=12):
+        """
+        Divide [3, 3, 27, 3] layers into 12 groups; each group is three 
+        consecutive blocks, including possible neighboring downsample layers;
+        adapted from https://github.com/microsoft/unilm/blob/master/beit/optim_factory.py
+        """
+        if name.startswith("backbone.downsample_layers"):
+            stage_id = int(name.split('.')[2])
+            if stage_id == 0:
+                layer_id = 0
+            elif stage_id == 1 or stage_id == 2:
+                layer_id = stage_id + 1
+            elif stage_id == 3:
+                layer_id = num_layers
+            return layer_id
+        elif name.startswith("backbone.stages"):
+            stage_id = int(name.split('.')[2])
+            block_id = int(name.split('.')[3])
+            if stage_id == 0 or stage_id == 1:
+                layer_id = stage_id + 1
+            elif stage_id == 2:
+                layer_id = 3 + block_id // 3 
+            elif stage_id == 3:
+                layer_id = num_layers
+            return layer_id
+        else:
+            return num_layers + 1  # after backbone
 
     def _generate_swin_layer_wise_lr_decay(self, model, paramwise_options):
         """Generate layer-wise learning rate decay for Swin Transformer."""
