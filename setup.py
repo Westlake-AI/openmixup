@@ -169,7 +169,8 @@ if __name__ == '__main__':
         long_description_content_type='text/markdown',
         author='CAIRI Westlake University Contributors',
         author_email='lisiyuan@westlake.edu.com',
-        keywords='mixup classification, semi- and self-supervised learning',
+        keywords='computer vision, image classification, '
+        'mixup classification, semi- and self-supervised learning',
         url='https://github.com/Westlake-AI/openmixup',
         packages=find_packages(exclude=('configs', 'tools', 'demo')),
         classifiers=[
@@ -181,6 +182,9 @@ if __name__ == '__main__':
             'Programming Language :: Python :: 3.7',
             'Programming Language :: Python :: 3.8',
             'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Topic :: Scientific/Engineering :: Artificial Intelligence',
         ],
         license='Apache License 2.0',
         tests_require=parse_requirements('requirements/tests.txt'),

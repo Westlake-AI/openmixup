@@ -1,6 +1,6 @@
 attrs
 einops
-future
+importlib-metadata
 matplotlib
 mmcv-full>=1.4.7
 numpy
