@@ -3,7 +3,7 @@ from .convmixer import ConvMixer
 from .convnext import ConvNeXt, ConvNeXt_Mix, MIMConvNeXt, ConvNeXt_CIFAR
 from .deit import DistilledVisionTransformer
 from .deit3 import DeiT3
-from .densenet import DenseNet
+from .densenet import DenseNet, DenseNet_CIFAR
 from .edgenext import EdgeNeXt
 from .efficientformer import EfficientFormer
 from .efficientnet import EfficientNet
@@ -43,7 +43,7 @@ from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
     'AlexNet', 'BEiTViT', 'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvMixer',
-    'DistilledVisionTransformer', 'DeiT3', 'DenseNet',
+    'DistilledVisionTransformer', 'DeiT3', 'DenseNet', 'DenseNet_CIFAR',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
     'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MViT',

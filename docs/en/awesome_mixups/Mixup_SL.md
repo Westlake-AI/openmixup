@@ -73,9 +73,12 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **MoEx**: Boyi Li, Felix Wu, Ser-Nam Lim, Serge Belongie, Kilian Q. Weinberger.
    - On Feature Normalization and Data Augmentation. [[CVPR'2021](https://arxiv.org/abs/2002.11102)] [[code](https://github.com/Boyiliee/MoEx)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204569196-3641255a-56f3-407a-986a-209b5c7eeff6.png" /></p>
-* **k-Mixup**: Kristjan Greenewald, Anming Gu, Mikhail Yurochkin, Justin Solomon, Edward Chien.
-   - k-Mixup Regularization for Deep Learning via Optimal Transport. [[ArXiv'2021](https://arxiv.org/abs/2106.02933)]
-   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204569488-d4862400-3304-488d-ad24-06eff4e0c0b2.png" /></p>
+* **GIF**: Chen Chen, Jingfeng Zhang, Xilie Xu, Tianlei Hu, Gang Niu, Gang Chen, Masashi Sugiyama.
+   - Guided Interpolation for Adversarial Training. [[ArXiv'2021](https://arxiv.org/abs/2102.07327)]
+   <p align="center"><img width="85%" src="https://user-images.githubusercontent.com/44519745/230494660-e99cf522-8fd7-4aa4-a4e4-d0385f82d032.png" /></p>
+* **DCutMix**: Joonhyun Jeong, Sungmin Cha, Youngjoon Yoo, Sangdoo Yun, Taesup Moon, Jongwon Choi.
+   - Observations on K-image Expansion of Image-Mixing Augmentation for Classification. [[IEEE Access'2021](https://arxiv.org/abs/2110.04248)] [[code](https://github.com/yjyoo3312/DCutMix-PyTorch)]
+   <p align="center"><img width="75%" src="https://user-images.githubusercontent.com/44519745/230492924-e9008de1-913f-44f5-ac2e-3d21f07d1b7f.png" /></p>
 * **NFM**: Soon Hoe Lim, N. Benjamin Erichson, Francisco Utrera, Winnie Xu, Michael W. Mahoney.
    - Noisy Feature Mixup. [[ICLR'2022](https://arxiv.org/abs/2110.02180)] [[code](https://github.com/erichson/NFM)]
    <p align="center"><img width="45%" src="https://user-images.githubusercontent.com/44519745/204569704-7de07797-b607-4750-9a46-c4387a539ac0.png" /></p>
@@ -138,6 +141,9 @@ The list of awesome mixup methods is summarized in chronological order and is on
 * **SalfMix**: Jaehyeop Choi, Chaehyeon Lee, Donggyu Lee, Heechul Jung.
    - SalfMix: A Novel Single Image-Based Data Augmentation Technique Using a Saliency Map. [[Sensor'2021](https://pdfs.semanticscholar.org/1db9/c80edeed50858783c69237aeba764750e8b7.pdf?_ga=2.182064935.1813772674.1674154381-1810295069.1625160008)]
    <p align="center"><img width="80%" src="https://user-images.githubusercontent.com/44519745/213535188-5255eb4c-83c8-40ca-86b9-44459b84d9a8.png" /></p>
+* **k-Mixup**: Kristjan Greenewald, Anming Gu, Mikhail Yurochkin, Justin Solomon, Edward Chien.
+   - k-Mixup Regularization for Deep Learning via Optimal Transport. [[ArXiv'2021](https://arxiv.org/abs/2106.02933)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204569488-d4862400-3304-488d-ad24-06eff4e0c0b2.png" /></p>
 * **AlignMix**: Shashanka Venkataramanan, Ewa Kijak, Laurent Amsaleg, Yannis Avrithis.
    - AlignMix: Improving representation by interpolating aligned features. [[CVPR'2022](https://arxiv.org/abs/2103.15375)] [[code](https://github.com/shashankvkt/AlignMixup_CVPR22)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/204574666-fcb694b0-c6bf-438a-bbd0-020635fe4b51.png" /></p>

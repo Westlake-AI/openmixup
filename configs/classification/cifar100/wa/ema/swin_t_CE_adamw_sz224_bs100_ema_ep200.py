@@ -1,4 +1,4 @@
-_base_ = 'wrn28_10_CE_bs100.py'
+_base_ = '../swin_t_CE_adamw_sz224_bs100.py'
 
 # additional hooks
 custom_hooks = [
@@ -9,3 +9,6 @@ custom_hooks = [
         update_interval=1,  # bs100 x 1gpu
     ),
 ]
+
+# runtime settings
+runner = dict(type='EpochBasedRunner', max_epochs=200)

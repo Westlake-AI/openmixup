@@ -77,6 +77,12 @@ We are working on a survey of mixup methods. The list is on updating.
 * **CropMix**: Junlin Han, Lars Petersson, Hongdong Li, Ian Reid.
    - CropMix: Sampling a Rich Input Distribution via Multi-Scale Cropping. [[ArXiv'2022](https://arxiv.org/abs/2205.15955)] [[code](https://github.com/JunlinHan/CropMix)]
    <p align="center"><img width="75%" src="https://user-images.githubusercontent.com/44519745/204585732-680295fe-4768-4199-af72-bda10edda644.png" /></p>
+* **MixMIM**: Jihao Liu, Xin Huang, Yu Liu, Hongsheng Li.
+   - MixMIM: Mixed and Masked Image Modeling for Efficient Visual Representation Learning. [[ArXiv'2022](https://arxiv.org/abs/2205.13137)] [[code](https://github.com/Sense-X/MixMIM)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204315480-5c59ed60-7b5f-4da9-85fb-551a961fd731.png" /></p>
+* **MixedAE**: Kai Chen, Zhili Liu, Lanqing Hong, Hang Xu, Zhenguo Li, Dit-Yan Yeung.
+   - Mixed Autoencoder for Self-supervised Visual Representation Learning. [[CVPR'2023](https://arxiv.org/abs/2303.17152)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/229929023-1ea53237-ebfb-4203-8b93-dd761d937b27.png" /></p>
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -91,6 +97,9 @@ We are working on a survey of mixup methods. The list is on updating.
 * **ReMixMatch**: David Berthelot, dberth@google.com, Nicholas Carlini, Ekin D. Cubuk, Alex Kurakin, Kihyuk Sohn, Han Zhang, Colin Raffel.
    - ReMixMatch: Semi-Supervised Learning with Distribution Matching and Augmentation Anchoring. [[ICLR'2020](https://openreview.net/forum?id=HklkeR4KPB)] [[code](https://github.com/google-research/remixmatch)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204579631-529bb505-a858-441f-9030-4a9b44273330.png" /></p>
+* **DivideMix**: Junnan Li, Richard Socher, Steven C.H. Hoi.
+   - DivideMix: Learning with Noisy Labels as Semi-supervised Learning. [[ICLR'2020](https://arxiv.org/abs/2002.07394)] [[code](https://github.com/LiJunnan1992/DivideMix)]
+   <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/230495626-f0f3f52e-9f8a-472d-8ff2-b33356993e09.png" /></p>
 * **Core-Tuning**: Yifan Zhang, Bryan Hooi, Dapeng Hu, Jian Liang, Jiashi Feng.
    - Unleashing the Power of Contrastive Self-Supervised Visual Models via Contrast-Regularized Fine-Tuning. [[NIPS'2021](https://arxiv.org/abs/2102.06605)] [[code](https://github.com/vanint/core-tuning)]
    <p align="center"><img width="90%" src="https://user-images.githubusercontent.com/44519745/204580135-ed6ba8b7-b69c-4683-90f0-9aa9cdd530bc.png" /></p>

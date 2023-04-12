@@ -5,10 +5,8 @@ _base_ = [
 
 # model settings
 model = dict(
-    type='MixUpClassification',
+    type='Classification',
     pretrained=None,
-    alpha=1,
-    mix_mode="vanilla",
     backbone=dict(
         type='WideResNet',  # normal
         first_stride=1,  # CIFAR version

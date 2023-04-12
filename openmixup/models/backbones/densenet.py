@@ -348,3 +348,27 @@ class DenseNet(BaseBackbone):
     def train(self, mode=True):
         super(DenseNet, self).train(mode)
         self._freeze_stages()
+
+
+@BACKBONES.register_module()
+class DenseNet_CIFAR(DenseNet):
+    """DenseNet backbone for CIFAR.
+
+    Compared to standard DenseNet, it uses `kernel_size=3` and `stride=1` in
+    conv1, and does not apply MaxPoolinng after stem. It has been proven to
+    be more efficient than standard ResNet in other public codebase.
+
+    """
+
+    def __init__(self, in_channels=3, **kwargs):
+        super(DenseNet_CIFAR, self).__init__(in_channels=in_channels, **kwargs)
+
+        # Set stem layers
+        self.stem = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                self.init_channels,
+                kernel_size=3,
+                stride=1,
+                padding=1,
+                bias=False))

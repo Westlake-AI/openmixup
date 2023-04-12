@@ -9,10 +9,10 @@ model = dict(
     pretrained=None,
     backbone=dict(
         type='ConvNeXt_CIFAR',
-        arch='small',
+        arch='tiny',
         out_indices=(3,),  # x-1: stage-x
         act_cfg=dict(type='GELU'),
-        drop_path_rate=0.5,
+        drop_path_rate=0.3,
         gap_before_final_norm=True,
     ),
     head=dict(

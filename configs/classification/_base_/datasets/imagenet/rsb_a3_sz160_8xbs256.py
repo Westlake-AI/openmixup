@@ -48,7 +48,7 @@ test_pipeline = [
     dict(type='Normalize', **img_norm_cfg),
 ]
 # prefetch
-prefetch = True
+prefetch = False
 if not prefetch:
     train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
 

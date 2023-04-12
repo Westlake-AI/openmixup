@@ -5,10 +5,8 @@ _base_ = [
 
 # model settings
 model = dict(
-    type='MixUpClassification',
+    type='Classification',
     pretrained=None,
-    alpha=1,
-    mix_mode="vanilla",
     backbone=dict(
         type='ResNet_CIFAR',  # CIFAR version
         depth=18,
@@ -34,6 +32,3 @@ lr_config = dict(policy='CosineAnnealing', min_lr=0.)
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=200)
-
-# Flops: 0.56 GFLOPs
-# Params: 11.22 M

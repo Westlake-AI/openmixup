@@ -81,10 +81,9 @@ If some errors occur when you install Apex from the source, you can try `python 
 
 1. The git commit id will be written to the version number with step d, e.g. 0.1.0+2e7045c. The version will also be saved in trained models.
 
-2. Following the above instructions, openmixup is installed on `dev` mode, any local modifications made to the code will take effect without the need to reinstall it (unless you submit some commits and want to update the version number).
+2. Following the above instructions, openmixup is installed on `dev` (editable) mode, and any local modifications made to the code will take effect immediately (except for the running experiments). You can install it to `pip/conda` by `pip install .` and the local modifications will not take effect without reinstalling it.
 
-3. If you would like to use `opencv-python-headless` instead of `opencv-python`,
-you can install it before installing MMCV.
+3. If you would like to use `opencv-python-headless` instead of `opencv-python`, you can install it before installing MMCV.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -145,7 +144,7 @@ cd $OPENMIXUP
 bash tools/prepare_data/prepare_voc07_cls.sh $YOUR_DATA_ROOT
 ```
 
-At last, the folder looks like:
+At last, the folder with all related datasets looks like:
 
 ```
 openmixup
@@ -154,14 +153,15 @@ openmixup
 ├── configs
 ├── data
 │   ├── meta [used for 'ImageList' dataset]
-│   ├── Aircrafts
-│   │   |   ├── images (contains all train & val)
+│   ├── ade
 │   ├── cifar10
 │   ├── cifar100
 │   │   ├── cifar-100-batches-py
 │   │   ├── cifar-100-python.tar
-│   │── Cars
+│   │── coco
 │   │── CUB200
+│   ├── FGVC_Aircrafts
+│   │   |   ├── images (contains all train & val)
 │   ├── ImageNet
 │   │   ├── train
 │   │   |   ├── n01440764
@@ -180,7 +180,12 @@ openmixup
 │   │   |   ├── b
 │   │   |   ...
 │   │   |   ├── y
+│   │── StanfordCars
+│   │   ├── test
+│   │   ├── train
 │   │── STL10
+│   │   ├── test
+│   │   ├── train
 │   ├── TinyImageNet
 │   │   ├── train
 │   │   |   ├── n01443537
