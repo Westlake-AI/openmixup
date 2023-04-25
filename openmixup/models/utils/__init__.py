@@ -5,9 +5,10 @@ from .grad_weight import GradWeighter, get_grad_norm
 from .helpers import is_tracing, to_2tuple, to_3tuple, to_4tuple, to_ntuple
 from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedResidual, \
    LayerScale, make_divisible, \
+   build_norm_layer, GRN, LayerNorm2d, \
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
    Scale, SELayer, Canny, HOG, Laplacian, Sobel, Smoothing, \
-   CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
+   BEiTAttention, CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
    MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
    build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
@@ -30,9 +31,10 @@ __all__ = [
    'is_tracing', 'to_2tuple', 'to_3tuple', 'to_4tuple', 'to_ntuple',
    'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual',
    'LayerScale', 'make_divisible',
+   'build_norm_layer', 'GRN', 'LayerNorm2d',
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
    'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
-   'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
+   'BEiTAttention', 'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
    'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
    'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
    'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',

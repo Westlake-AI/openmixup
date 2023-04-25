@@ -39,8 +39,8 @@ The classification benchmarks are conducted on **ImageNet-1K** dataset and we re
 
 Based on the setting of ImageNet, we also perform fast experiments on ImageNet-100 for 800-epoch pre-training and 100-epoch fine-tuning.
 
-|  Backbone  | Pre-train epoch | Fine-tuning Top-1 |                                                           Pre-train Config                                                           |                                                                 Fine-tuning Config                                                                  |                                                                                                                           Download                                                                                                                            |
-| :--------: | :-------------: | :---------------: | :----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+|  Backbone  | Pre-train epoch | Fine-tuning Top-1 | Pre-train Config | Fine-tuning Config | Download |
+| :--------: | :-------------: | :---------------: | :--------------: | :----------------: | :-------: |
 | DeiT-Small |       800       |       87.24       | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/imagenet100/deit_small_l8_sz192_4xb256_accu2_cos_ep800.py) | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/imagenet100/deit_small_p16_swin_ft_sz224_4xb256_cos_ep100.py) |   -   |
 | ResNet-50  |       800       |       89.32       | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/a2mim/imagenet100/r50_l3_sz192_4xb256_accu2_cos_fp16_ep800.py) | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/benchmarks/classification/imagenet100/r50_swin_ft_sz224_4xb256_accu2_cos_ep100.py) |   -   |
 
@@ -48,11 +48,10 @@ Based on the setting of ImageNet, we also perform fast experiments on ImageNet-1
 ## Citation
 
 ```bibtex
-@article{Li2022A2MIM,
+@inproceedings{zbontar2021barlow,
   title={Architecture-Agnostic Masked Image Modeling -- From ViT back to CNN},
-  author={Li, Siyuan and Wu, Di and Wu, Fang and Zang, Zelin and Wang, Kai and Shang, Lei and Sun, Baigui and Li, Hao and Li, Stan. Z.},
-  journal={ArXiv},
-  url={https://arxiv.org/abs/2205.13943},
-  year={2022}
+  author={Li, Siyuan and Wu, Di and Wu, Fang and Zang, Zelin and Li, Stan. Z.},
+  booktitle={International Conference on Machine Learning},
+  year={2023},
 }
 ```

@@ -10,7 +10,7 @@ from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 
 from ..builder import BACKBONES
 from ..utils import ChannelMultiheadAttention, PositionEncodingFourier
-from .convnext import ConvNeXtBlock, LayerNorm2d
+from .convnext import ConvNeXtBlock
 from .base_backbone import BaseBackbone
 
 
@@ -365,7 +365,7 @@ class EdgeNeXt(BaseBackbone):
                     if isinstance(m, (nn.Linear)):
                         trunc_normal_init(m, std=0.02)
                     elif isinstance(m, (
-                        nn.LayerNorm, LayerNorm2d, nn.BatchNorm2d, nn.SyncBatchNorm)):
+                        nn.LayerNorm, nn.BatchNorm2d, nn.SyncBatchNorm)):
                         constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):

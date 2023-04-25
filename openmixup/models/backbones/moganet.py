@@ -872,3 +872,25 @@ class MIMMogaNet(MogaNet):
                 outs.append(x)
 
         return outs
+
+
+@BACKBONES.register_module()
+class MogaNet_CIFAR(MogaNet):
+    """MogaNet backbone for CIFAR.
+
+    Compared to standard MogaNet, it uses `kernel_size=3` and `stride=1` in
+    the stem, which is more efficient than standard ConvNeXt on CIFAR.
+    """
+
+    def __init__(self, in_channels=3, conv_norm_cfg=dict(type='BN', eps=1e-5), **kwargs):
+        super(MogaNet_CIFAR, self).__init__(
+            in_channels=in_channels, conv_norm_cfg=conv_norm_cfg, **kwargs)
+
+        # the first stem layer
+        self.patch_embed1 = StackConvPatchEmbed(
+            in_channels=in_channels,
+            embed_dims=self.embed_dims[0],
+            kernel_size=3,
+            stride=1,
+            norm_cfg=conv_norm_cfg,
+        )

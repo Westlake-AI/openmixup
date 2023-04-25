@@ -1,4 +1,6 @@
 from .alexnet import AlexNet
+from .beit import BEiTVisionTransformer
+from .context_cluster import ContextCluster
 from .convmixer import ConvMixer
 from .convnext import ConvNeXt, ConvNeXt_Mix, MIMConvNeXt, ConvNeXt_CIFAR
 from .deit import DistilledVisionTransformer
@@ -17,7 +19,7 @@ from .mim_vit import BEiTViT, MAEViT, MIMVisionTransformer, SimMIMViT
 from .mlp_mixer import MlpMixer
 from .mobilenet_v2 import MobileNetV2
 from .mobilenet_v3 import MobileNetV3
-from .moganet import MogaNet, MogaNet_Mix, MIMMogaNet
+from .moganet import MogaNet, MogaNet_Mix, MIMMogaNet, MogaNet_CIFAR
 from .mvit import MViT
 from .poolformer import PoolFormer
 from .pvt import PyramidVisionTransformer
@@ -42,11 +44,12 @@ from .vision_transformer import TransformerEncoderLayer, VisionTransformer
 from .wide_resnet import WideResNet, WideResNet_Mix
 
 __all__ = [
-    'AlexNet', 'BEiTViT', 'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvMixer',
+    'AlexNet', 'BEiTViT', 'BEiTVisionTransformer', 'ContextCluster',
+    'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvMixer',
     'DistilledVisionTransformer', 'DeiT3', 'DenseNet', 'DenseNet_CIFAR',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
-    'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MViT',
+    'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MIMMogaNet', 'MViT',
     'PoolFormer', 'PyramidVisionTransformer', 'PCPVT', 'SVT',
     'RegNet', 'RepMLPNet', 'RepVGG', 'Res2Net', 'ResNeSt',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',

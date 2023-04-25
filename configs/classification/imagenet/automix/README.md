@@ -37,12 +37,11 @@ We will update configs and models for AutoMix soon. Please refer to [Model Zoo](
 ## Citation
 
 ```bibtex
-@misc{liu2021automix,
+@@InProceedings{liu2022automix,
       title={AutoMix: Unveiling the Power of Mixup for Stronger Classifiers},
       author={Zicheng Liu and Siyuan Li and Di Wu and Zhiyuan Chen and Lirong Wu and Jianzhu Guo and Stan Z. Li},
-      year={2021},
-      eprint={2103.13027},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
+      booktitle={European Conference on Computer Vision},
+      pages={441--458},
+      year={2022},
 }
 ```

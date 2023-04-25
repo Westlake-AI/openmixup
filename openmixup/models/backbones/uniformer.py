@@ -629,6 +629,7 @@ class UniFormer(BaseBackbone):
                     continue
                 norm_layer = build_norm_layer(conv_norm_cfg, self.embed_dims[i])[1]
                 self.add_module(f'norm{i}', norm_layer)
+        self._freeze_stages()
 
     def init_weights(self, pretrained=None):
         super(UniFormer, self).init_weights(pretrained)

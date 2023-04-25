@@ -17,7 +17,7 @@
 
 The main branch works with **PyTorch 1.8** (required by some self-supervised methods) or higher (we recommend **PyTorch 1.12**). You can still use **PyTorch 1.6** for supervised classification methods.
 
-`OpenMixup` is an open-source toolbox for supervised, self-, and semi-supervised visual representation learning with mixup based on PyTorch, especially for mixup-related methods.
+`OpenMixup` is an open-source toolbox for supervised, self-, and semi-supervised visual representation learning with mixup based on PyTorch, especially for mixup-related methods. *Recently, `OpenMixup` is on updating to adopt new features and code structures of OpenMMLab 2.0 ([#42](https://github.com/Westlake-AI/openmixup/issues/42)).*
 
 <div align="center">
   <img src="https://user-images.githubusercontent.com/44519745/179018883-a166f0fa-4d51-4ef1-aed1-d0d4643bcffd.jpg" width="100%"/>
@@ -58,9 +58,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## News and Updates
 
-[2022-12-16] `OpenMixup` v0.2.7 is released (issue [#35](https://github.com/Westlake-AI/openmixup/issues/35)).
-
-[2022-09-14] `OpenMixup` v0.2.6 is released (issue [#20](https://github.com/Westlake-AI/openmixup/issues/20)).
+[2022-12-16] `OpenMixup` v0.2.7 is released (issue [#35](https://github.com/Westlake-AI/openmixup/issues/35)), which is on updating of some new features.
 
 ## Installation
 
@@ -155,6 +153,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [MLP-Mixer](https://arxiv.org/abs/2105.01601) (NIPS'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mlp_mixer/)]
     - [x] [Twins](https://proceedings.neurips.cc/paper/2021/hash/4e0928de075538c593fbdabb0c5ef2c3-Abstract.html) (NIPS'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/twins/)]
     - [x] [ConvMixer](https://arxiv.org/abs/2201.09792) (Openreview'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convmixer/)]
+    - [x] [BEiT](https://arxiv.org/abs/2106.08254) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/beit/)]
     - [x] [UniFormer](https://arxiv.org/abs/2201.09450) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/uniformer/)]
     - [x] [PoolFormer](https://arxiv.org/abs/2111.11418) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/poolformer/)]
     - [x] [ConvNeXt](https://arxiv.org/abs/2201.03545) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/)]
@@ -167,6 +166,8 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [EdgeNeXt](https://arxiv.org/abs/2206.10589) (ECCVW'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/)]
     - [x] [EfficientFormer](https://arxiv.org/abs/2206.01191) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/)]
     - [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
+    - [x] [ConvNeXtV2](http://arxiv.org/abs/2301.00808) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext_v2/)]
+    - [x] [CoC](http://arxiv.org/abs/2301.00808) (ICLR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/context_cluster/)]
     </details>
 
 * Mixup methods for supervised image classification.
