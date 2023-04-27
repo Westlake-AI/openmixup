@@ -2,7 +2,7 @@
 
 **OpenMixup provides mixup benchmarks on supervised learning on various tasks. Config files and experiment results are available, and pre-trained models and training logs are updating. Moreover, more advanced mixup variants will be supported in the future. Issues and PRs are welcome!**
 
-Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 (or R-50) and sampling $\lambda$ from $\Beta(\alpha,8)$ as *AttentiveMix+*, which yields better performances.
+Now, we have supported 13 popular mixup methods! Notice that * denotes open-source arXiv pre-prints reproduced by us, and 📖 denotes original results reproduced by official implementations. We modified the original AttentiveMix by using pre-trained R-18 (or R-50) and sampling $\lambda$ from $\Beta(\alpha,8)$ as *AttentiveMix+*, which yields better performances. We will update pretrained models and logs soon (please contact us if you want the models right now).
 
 **Note**
 

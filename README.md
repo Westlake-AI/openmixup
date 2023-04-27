@@ -27,7 +27,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 <summary>Major Features</summary>
 
 - **Modular Design.**
-  OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplantable to OpenMMLab projects (e.g., [MMSelfSup](https://github.com/open-mmlab/mmselfsup)).
+  OpenMixup follows a similar code architecture of OpenMMLab projects, which decompose the framework into various components, and users can easily build a customized model by combining different modules. OpenMixup is also transplantable to OpenMMLab projects (e.g., [MMPreTrain](https://github.com/open-mmlab/mmpretrain)).
 
 - **All in One.**
   OpenMixup provides popular backbones, mixup methods, semi-supervised, and self-supervised algorithms. Users can perform image classification (CNN & Transformer) and self-supervised pre-training (contrastive and autoregressive) under the same framework.
@@ -246,8 +246,8 @@ This project is released under the [Apache 2.0 license](LICENSE). See `LICENSE` 
 
 ## Acknowledgement
 
-- OpenMixup is an open-source project for mixup methods created by researchers in **CAIRI AI Lab**. We encourage researchers interested in visual representation learning and mixup methods to contribute to OpenMixup!
-- This repo borrows the architecture design and part of the code from [MMSelfSup](https://github.com/open-mmlab/mmselfsup) and [MMClassification](https://github.com/open-mmlab/mmclassification).
+- OpenMixup is an open-source project for mixup methods and visual representation learning created by researchers in **CAIRI AI Lab**. We encourage researchers interested in backbone architectures, mixup augmentations, and self-supervised learning methods to contribute to OpenMixup!
+- This project borrows the architecture design and part of the code from [MMPreTrain](https://github.com/open-mmlab/mmpretrain) and the official implementations of supported algorisms.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -269,7 +269,7 @@ If you find this project useful in your research, please consider star `OpenMixu
 
 ## Contributors and Contact
 
-For help, new features, or reporting bugs associated with OpenMixup, please open a [GitHub issue](https://github.com/Westlake-AI/openmixup/issues) and [pull request](https://github.com/Westlake-AI/openmixup/pulls) with the tag "help wanted" or "enhancement". For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Zicheng Liu ([@pone7](https://github.com/pone7)). We thank all public contributors and contributors from MMSelfSup and MMClassification!
+For help, new features, or reporting bugs associated with OpenMixup, please open a [GitHub issue](https://github.com/Westlake-AI/openmixup/issues) and [pull request](https://github.com/Westlake-AI/openmixup/pulls) with the tag "help wanted" or "enhancement". For now, the direct contributors include: Siyuan Li ([@Lupin1998](https://github.com/Lupin1998)), Zedong Wang ([@Jacky1128](https://github.com/Jacky1128)), and Zicheng Liu ([@pone7](https://github.com/pone7)). We thank all public contributors and contributors from MMPreTrain (MMSelfSup and MMClassification)!
 
 This repo is currently maintained by:
 

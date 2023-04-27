@@ -152,6 +152,9 @@ The list of awesome MIM methods is summarized in chronological order and is on u
 * **EVA**: Yuxin Fang, Wen Wang, Binhui Xie, Quan Sun, Ledell Wu, Xinggang Wang, Tiejun Huang, Xinlong Wang, Yue Cao.
    - EVA: Exploring the Limits of Masked Visual Representation Learning at Scale. [[CVPR'2023](https://arxiv.org/abs/2211.07636)] [[code](https://github.com/baaivision/EVA)]
    <p align="center"><img width="60%" src="https://user-images.githubusercontent.com/44519745/206920442-4d896aca-1765-4e66-9afb-c76017bc3521.png" /></p>
+* **CAE**: Xiaokang Chen, Mingyu Ding, Xiaodi Wang, Ying Xin, Shentong Mo, Yunhao Wang, Shumin Han, Ping Luo, Gang Zeng, Jingdong Wang.
+   - Context Autoencoder for Self-Supervised Representation Learning. [[ArXiv'2022](https://arxiv.org/abs/2202.03026)] [[code](https://github.com/lxtGH/CAE)]
+   <p align="center"><img width="75%" src="https://user-images.githubusercontent.com/44519745/234667973-6f98f65e-662c-4934-be85-efa60f3fc20a.png" /></p>
 * **CAE.V2**: Xinyu Zhang, Jiahui Chen, Junkun Yuan, Qiang Chen, Jian Wang, Xiaodi Wang, Shumin Han, Xiaokang Chen, Jimin Pi, Kun Yao, Junyu Han, Errui Ding, Jingdong Wang.
    - CAE v2: Context Autoencoder with CLIP Target. [[ArXiv'2022](https://arxiv.org/abs/2211.09799)]
    <p align="center"><img width="95%" src="https://user-images.githubusercontent.com/44519745/206920593-c703518b-47f9-4f61-a319-5ba0099c902d.png" /></p>

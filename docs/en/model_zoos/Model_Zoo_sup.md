@@ -48,7 +48,7 @@
     </details>
 
 ## ImageNet
-ImageNet has multiple versions, but the most commonly used one is [ILSVRC 2012](http://www.image-net.org/challenges/LSVRC/2012/). We summarize image classification results of the official settings.
+ImageNet has multiple versions, but the most commonly used one is [ILSVRC 2012](http://www.image-net.org/challenges/LSVRC/2012/). We summarize image classification results of the official settings. You can download model files from [OpenMMLab](https://github.com/open-mmlab/mmpretrain) or [OpenMixup](https://github.com/Westlake-AI/openmixup/releases/tag/open-in1k-weights).
 
 | Model | Params(M) | Flops(G) | Top-1 (%) | Top-5 (%) | Config | Download |
 |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -225,7 +225,7 @@ ImageNet has multiple versions, but the most commonly used one is [ILSVRC 2012](
 | MogaNet-L | 82.5 | 15.9 | 84.6 | - | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/moga_large_ema_sz224_8xb64_accu2_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_large_ema_sz224_8xb64_accu2_ep300.pth) / [log](https://github.com/Westlake-AI/openmixup/releases/download/moganet-in1k-weights/moga_large_ema_sz224_8xb64_accu2_ep300.log.json) |
 
 
-We also provide fast training results using [RSB A3](https://arxiv.org/abs/2110.00476) setting on [ILSVRC 2012](http://www.image-net.org/challenges/LSVRC/2012/). You can download all files from [**Baidu Cloud** (ss3j)](https://pan.baidu.com/s/1WgUn0zOtrmN2GBZ3aFjONw?pwd=ss3j).
+We also provide fast training results using [RSB A3](https://arxiv.org/abs/2110.00476) setting on [ILSVRC 2012](http://www.image-net.org/challenges/LSVRC/2012/). You can download all files from [GitHub](https://github.com/Westlake-AI/openmixup/releases/tag/rsb-a3-weights) / [**Baidu Cloud** (ss3j)](https://pan.baidu.com/s/1WgUn0zOtrmN2GBZ3aFjONw?pwd=ss3j).
 
 | Model | Date | Train / test size | Params(M) | Top-1 (\%) | Top-5 (\%) | Config | Download |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|

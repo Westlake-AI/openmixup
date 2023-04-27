@@ -18,12 +18,15 @@ This page is based on the [official repo](https://github.com/ma-xu/Context-Clust
 
 | Model | Params(M) | Flops(G) | Top-1 (%) | Throughputs | Config | Download |
 | :---: | :-------: | :------: | :-------: | :---------: | :----: | :------: |
-| ContextCluster-tiny\* | 5.3 | 1.0 | 71.8 | 518.4 | [config](coc_tiny_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1Q_6W3xKMX63aQOBaqiwX5y1fCj4hVOIA?usp=sharing) |
-| ContextCluster-tiny_plain\* | 5.3 | 1.0 | 72.9 |  -  | [config](coc_tiny_plain_8xb256_ep300.py) | [model](https://web.northeastern.edu/smilelab/xuma/ContextCluster/checkpoints/coc_tiny_plain/coc_tiny_plain.pth.tar) |
-| ContextCluster-small\* | 5.3 | 1.0 | 71.8 | 518.4 | [config](coc_small_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1WSmnbSgy1I1HOTTTAQgOKEzXSvd3Kmh-?usp=sharing) |
-| ContextCluster-medium\* | 5.3 | 1.0 | 71.8 | 518.4 | [config](coc_medium_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1sPxnEHb2AHDD9bCQh6MA0I_-7EBrvlT5?usp=sharing) |
+| ContextCluster-tiny\* | 5.6 | 1.10 | 71.8 | 518.4 | [config](coc_tiny_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1Q_6W3xKMX63aQOBaqiwX5y1fCj4hVOIA?usp=sharing) |
+| ContextCluster-tiny_plain\* (w/o region partition) | 5.6 | 1.10 | 72.9 |  -  | [config](coc_tiny_plain_8xb256_ep300.py) | [model](https://web.northeastern.edu/smilelab/xuma/ContextCluster/checkpoints/coc_tiny_plain/coc_tiny_plain.pth.tar) |
+| ContextCluster-small\* | 14.7 | 2.78 | 77.5 | 513.0 | [config](coc_small_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1WSmnbSgy1I1HOTTTAQgOKEzXSvd3Kmh-?usp=sharing) |
+| ContextCluster-medium\* | 29.3 | 5.90 | 81.0 | 325.2 | [config](coc_medium_8xb256_ep300.py) | [model](https://drive.google.com/drive/folders/1sPxnEHb2AHDD9bCQh6MA0I_-7EBrvlT5?usp=sharing) |
+| ContextCluster-tiny | 5.6 | 1.10 | 72.7 | 518.4 | [config](coc_tiny_8xb256_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/coc_tiny_8xb256_ep300.pth) \| [log](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/) |
+| ContextCluster-tiny_plain (w/o region partition) | 5.6 | 1.10 | 73.2 |  -  | [config](coc_tiny_plain_8xb256_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/coc_tiny_plain_8xb256_ep300.pth) \| [log](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/coc_tiny_plain_8xb256_ep300.log.json) |
+| ContextCluster-small | 14.7 | 2.78 | 77.7 | 513.0 | [config](coc_small_8xb256_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/coc_small_8xb256_ep300.pth) \| [log](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/coc_small_8xb256_ep300.log.json) |
 
-We follow the original training setting provided by the [official repo](https://github.com/ma-xu/Context-Cluster). *Models with * are converted from the [official repo](https://github.com/ma-xu/Context-Cluster).*
+We follow the original training setting provided by the [official repo](https://github.com/ma-xu/Context-Cluster) to reproduce better performance of ContextCluster variants. *Models with * are converted from the [official repo](https://github.com/ma-xu/Context-Cluster).*
 
 ## Citation
 

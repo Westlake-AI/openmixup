@@ -1,10 +1,12 @@
 # Detection
 
 - [Detection](#detection)
-  - [Train](#train)
-    - [MMDetection](#mmdetection)
-    - [Detectron2](#detectron2)
-  - [Test](#test)
+  - [MMDetection](#mmdetection)
+    - [Evaluation](#evaluation)
+  - [Detectron2](#detectron2)
+    - [Evaluation](#evaluation)
+
+## MMDetection
 
 Here, we prefer to use MMDetection to do the detection task. First, make sure you have installed [MIM](https://github.com/open-mmlab/mim), which is also a project of OpenMMLab.
 
@@ -17,11 +19,9 @@ It is very easy to install the package.
 
 Besides, please refer to MMDet for [installation](https://github.com/open-mmlab/mmdetection/blob/master/docs/en/get_started.md) and [data preparation](https://github.com/open-mmlab/mmdetection/blob/master/docs/en/1_exist_data_model.md)
 
-## Train
+### Evaluation
 
-### MMDetection
-
-After installation MMDet, you can run MMDetection with simple command. We provide scripts for the stage-4 only (`C4`) and `FPN` setting of object detection models.
+After installing MMDet, you can run MMDetection with simple command. We provide scripts for the stage-4 only (`C4`) and `FPN` setting of object detection models.
 
 ```shell
 # distributed version
@@ -51,7 +51,7 @@ configs/benchmarks/mmdetection/coco/mask-rcnn_r50-c4_ms-1x_coco.py \
 https://download.openmmlab.com/mmselfsup/1.x/byol/byol_resnet50_16xb256-coslr-200e_in1k/byol_resnet50_16xb256-coslr-200e_in1k_20220825-de817331.pth 8
 ```
 
-### Detectron2
+## Detectron2
 
 If you want to do detection task with [detectron2](https://github.com/facebookresearch/detectron2), we also provide some config files.
 Please refer to [INSTALL.md](https://github.com/facebookresearch/detectron2/blob/main/INSTALL.md) for installation and follow the [directory structure](https://github.com/facebookresearch/detectron2/tree/main/datasets) to prepare your datasets required by detectron2.
@@ -65,16 +65,16 @@ bash run.sh ${DET_CFG} ${OUTPUT_FILE}
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
-## Test
+### Evaluation
 
-After training, you can also run the command below to test your model.
+After training, you can also run the command below with 8 GPUs (per node) to test your model.
 
 ```shell
 # distributed version
-bash benchmarks/mmdetection/mim_dist_test.sh ${CONFIG} ${CHECKPOINT} ${GPUS}
+bash benchmarks/mmdetection/mim_dist_test.sh ${CONFIG} ${CHECKPOINT}
 
 # slurm version
-bash benchmarks/mmdetection/mim_slurm_test.sh ${PARTITION} ${CONFIG} ${CHECKPOINT}
+bash benchmarks/mmdetection/slurm_run.sh ${PARTITION} ${CONFIG} ${CHECKPOINT}
 ```
 
 Remarks:

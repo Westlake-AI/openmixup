@@ -26,7 +26,7 @@ Mixup is a popular data-dependent augmentation technique for deep neural network
 |  ResNet-101   |  SAMix  |  224x224   |   42.51   |  300   |   80.98   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/r101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
 |  ResNeXt-101  |  SAMix  |  224x224   |   44.18   |  100   |   80.89   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix/basic/rx101_l2_a2_bili_val_dp01_mul_mb_mlr1e_3_bb_mlr0_4xb64.py) | model / log |
 
-We will update configs and models for SAMix soon. Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
+We will update configs and models (ResNets, ViTs, Swin-T, and ConvNeXt-T) for SAMix soon (please contact us if you want the models right now). Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
 
 ## Citation
 

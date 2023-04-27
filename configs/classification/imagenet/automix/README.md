@@ -30,8 +30,7 @@ Data mixing augmentation have proved to be effective in improving the generaliza
 |    Swin-T   | AutoMix |   224x224  |   28.29   |   300  |   81.80   |        [config](./swin/swin_t_l2_a2_near_lam_cat_switch0_8_8x128_ep300.py)        | model / log |
 |  ConvNeXt-T | AutoMix |   224x224  |   28.59   |   300  |   82.28   | [config](./convnext/convnext_t_l2_a2_near_lam_cat_switch0_8_8x128_accu4_ep300.py) | model / log |
 
-
-We will update configs and models for AutoMix soon. Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
+We will update configs and models (ResNets, ViTs, Swin-T, and ConvNeXt-T) for AutoMix soon (please contact us if you want the models right now). Please refer to [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md) for image classification results.
 
 
 ## Citation
