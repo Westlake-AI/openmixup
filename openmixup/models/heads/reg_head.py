@@ -10,8 +10,8 @@ from ..builder import build_loss
 
 @HEADS.register_module
 class RegHead(BaseModule):
-    r"""Simplest regression head, with only one fc layer.
-    
+    r"""Simplest Regression Head, with only one fc layer.
+
     Args:
         with_avg_pool (bool): Whether to use GAP before this head.
         loss (list or dict): Config or List of configs for the regression loss.
@@ -55,9 +55,10 @@ class RegHead(BaseModule):
         # fc layer
         self.fc = nn.Linear(in_channels, out_channels)
         if frozen:
-            self.frozen()
+            self._freeze()
 
-    def frozen(self):
+    def _freeze(self):
+        """ freeze regression heads """
         self.fc.eval()
         for param in self.fc.parameters():
             param.requires_grad = False

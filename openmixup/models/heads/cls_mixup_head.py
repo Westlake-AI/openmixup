@@ -12,9 +12,9 @@ from ..builder import build_loss
 
 @HEADS.register_module
 class ClsMixupHead(BaseModule):
-    """Simplest classifier head, with only one fc layer.
+    """Mixup Classifier Head, with only one fc layer.
        *** Mixup and multi-label classification are supported ***
-    
+
     Args:
         with_avg_pool (bool): Whether to use GAP before this head.
         loss (dict): Config of classification loss.
@@ -96,7 +96,7 @@ class ClsMixupHead(BaseModule):
         # fc layer
         self.fc = nn.Linear(in_channels, num_classes)
         if frozen:
-            self.frozen()
+            self._freeze()
         # post-process for inference
         post_process = getattr(self.criterion, "post_process", "none")
         if post_process == "softmax":
@@ -104,7 +104,8 @@ class ClsMixupHead(BaseModule):
         else:
             self.post_process = nn.Identity()
 
-    def frozen(self):
+    def _freeze(self):
+        """ freeze classification heads """
         self.fc.eval()
         for param in self.fc.parameters():
             param.requires_grad = False

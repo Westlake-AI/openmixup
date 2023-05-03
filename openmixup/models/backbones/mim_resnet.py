@@ -38,7 +38,7 @@ class MIMResNet(ResNet):
                 ['18', '34'],
                 [64, 128, 256, 512,]),
             **dict.fromkeys(
-                ['50', '101', '152',],
+                ['50', '101', '152', '200'],
                 [64, 256, 512, 1024,]),
         }
         self.mask_dims = ARCH_DIMS[str(self.depth)][self.mask_layer]

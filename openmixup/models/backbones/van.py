@@ -347,6 +347,7 @@ class VAN(BaseBackbone):
                  arch='b0',
                  patch_sizes=[7, 3, 3, 3],
                  in_channels=3,
+                 in_stride=None,
                  drop_rate=0.,
                  drop_path_rate=0.,
                  init_values=1e-2,
@@ -390,7 +391,7 @@ class VAN(BaseBackbone):
                 input_size=None,
                 embed_dims=self.embed_dims[i],
                 kernel_size=patch_sizes[i],
-                stride=patch_sizes[i] // 2 + 1,
+                stride=in_stride if in_stride is not None and i == 0 else patch_sizes[i] // 2 + 1,
                 padding=(patch_sizes[i] // 2, patch_sizes[i] // 2),
                 norm_cfg=conv_norm_cfg)
 

@@ -12,6 +12,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Refactor `openmixup.core.optimizers` to separate optimizers and builders and support the latest [Adan](https://arxiv.org/abs/2208.06677) optimizer.
 - Refactor [`mixup_classification.py`](https://github.com/Westlake-AI/openmixup/blob/main/openmixup/models/classifiers/mixup_classification.py) to support label mixup methods, add `return_mask` for mixup methods in [`augments`](https://github.com/Westlake-AI/openmixup/tree/main/openmixup/models/augments) and add `return_attn` in ViT backbone.
 - Refactor `ValidateHook` to support new features as `EvalHook` in mmcv, e.g., `save_best="auto"` during training.
+- Refactor `ClsHead` with `BaseClsHead` to support MLP classification head variants in modern network architectures.
 
 #### New Features
 
@@ -25,7 +26,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Update config files and scripts for SSL downstream tasks benchmarks (classification, detection, and segmentation).
 - Update and fix bugs in visualization tools ([vis_loss_landscape](https://github.com/Westlake-AI/openmixup/tree/main/tools/visualizations/vis_loss_landscape.py)). Fix [model converters](https://github.com/Westlake-AI/openmixup/tree/main/tools/model_converters) tools.
 - Support [Semantic-Softmax](https://arxiv.org/abs/2104.10972) loss and [ImageNet-21K-P (Winter)](https://openreview.net/forum?id=Zkj_VcZ6ol&noteId=1oUacUMpIbg) pre-training.
-- Support more backbone architectures, including [BEiT](https://arxiv.org/abs/2106.08254), [ConvNeXtV2](http://arxiv.org/abs/2301.00808), and [CoC](https://arxiv.org/abs/2303.01494).
+- Support more backbone architectures, including [BEiT](https://arxiv.org/abs/2106.08254), [MMetaFormer](https://arxiv.org/abs/2210.13452), [ConvNeXtV2](http://arxiv.org/abs/2301.00808), and [CoC](https://arxiv.org/abs/2303.01494).
 
 ### Update Documents
 

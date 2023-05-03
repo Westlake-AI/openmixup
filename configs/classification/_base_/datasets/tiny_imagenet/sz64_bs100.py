@@ -1,9 +1,9 @@
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # Tiny Imagenet
-data_train_list = 'data/TinyImageNet/meta/train_labeled.txt'  # train 10w
+data_train_list = 'data/meta/TinyImageNet/train_labeled.txt'  # train 10w
 data_train_root = 'data/TinyImageNet/train/'
-data_test_list = 'data/TinyImageNet/meta/val_labeled.txt'  # val 1w
+data_test_list = 'data/meta/TinyImageNet/val_labeled.txt'  # val 1w
 data_test_root = 'data/TinyImageNet/val/'
 
 dataset_type = 'ClassificationDataset'

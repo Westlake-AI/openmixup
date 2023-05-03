@@ -9,10 +9,11 @@ from .densenet import DenseNet, DenseNet_CIFAR
 from .edgenext import EdgeNeXt
 from .efficientformer import EfficientFormer
 from .efficientnet import EfficientNet
-from .hornet import HorNet
+from .hornet import HorNet, HorNet_CIFAR
 from .inception_v3 import InceptionV3
 from .lenet import LeNet5
 from .lit import LIT
+from .metaformer import MetaFormer
 from .mim_resnet import MIMResNet
 from .mim_swin import SimMIMSwinTransformer
 from .mim_vit import BEiTViT, MAEViT, MIMVisionTransformer, SimMIMViT
@@ -47,9 +48,9 @@ __all__ = [
     'AlexNet', 'BEiTViT', 'BEiTVisionTransformer', 'ContextCluster',
     'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvMixer',
     'DistilledVisionTransformer', 'DeiT3', 'DenseNet', 'DenseNet_CIFAR',
-    'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'InceptionV3', 'LeNet5',
+    'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'HorNet', 'HorNet_CIFAR', 'InceptionV3', 'LeNet5',
     'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
-    'LIT', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MIMMogaNet', 'MViT',
+    'LIT', 'MetaFormer', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MIMMogaNet', 'MViT',
     'PoolFormer', 'PyramidVisionTransformer', 'PCPVT', 'SVT',
     'RegNet', 'RepMLPNet', 'RepVGG', 'Res2Net', 'ResNeSt',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',

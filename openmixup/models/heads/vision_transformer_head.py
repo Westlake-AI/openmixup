@@ -54,7 +54,7 @@ class VisionTransformerClsHead(BaseModule):
             loss = dict(type='CrossEntropyLoss', loss_weight=1.0)
             self.criterion = build_loss(loss)
         if frozen:
-            self.frozen()
+            self._freeze()
         # post-process for inference
         post_process = getattr(self.criterion, "post_process", "none")
         if post_process == "softmax":
@@ -99,7 +99,7 @@ class VisionTransformerClsHead(BaseModule):
             x = self.layers.pre_logits(x)
             return self.layers.act(x)
 
-    def frozen(self):
+    def _freeze(self):
         self.layers.eval()
         for param in self.layers.parameters():
             param.requires_grad = False

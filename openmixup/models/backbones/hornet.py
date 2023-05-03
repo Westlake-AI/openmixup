@@ -510,3 +510,26 @@ class HorNet(BaseBackbone):
     def train(self, mode=True):
         super(HorNet, self).train(mode)
         self._freeze_stages()
+
+
+@BACKBONES.register_module()
+class HorNet_CIFAR(HorNet):
+    """HorNet backbone for CIFAR.
+
+    Compared to standard HorNet, it uses `kernel_size=3` and `stride=1` in
+    the stem, which is more efficient than standard HorNet on CIFAR.
+    """
+
+    def __init__(self, in_channels=3, **kwargs):
+        super(HorNet_CIFAR, self).__init__(in_channels=in_channels, **kwargs)
+
+        # the first stem layer
+        stem = nn.Sequential(
+            nn.Conv2d(
+                in_channels,
+                self.arch_settings['base_dim'],
+                kernel_size=3,
+                stride=1),
+            HorNetLayerNorm(self.arch_settings['base_dim'], eps=1e-6, data_format='channels_first'),
+        )
+        self.downsample_layers[0] = stem
