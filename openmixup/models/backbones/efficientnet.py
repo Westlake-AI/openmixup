@@ -7,12 +7,14 @@ from functools import partial
 import torch
 import torch.nn as nn
 import torch.utils.checkpoint as cp
+
 from mmcv.cnn import ConvModule, kaiming_init, constant_init, trunc_normal_init
+from mmcv.cnn.bricks import DropPath
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import DropPath, InvertedResidual, SELayer, make_divisible
+from ..utils import InvertedResidual, SELayer, make_divisible
 
 
 class EdgeResidual(nn.Module):

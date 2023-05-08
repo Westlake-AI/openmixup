@@ -4,13 +4,13 @@ from itertools import chain
 import torch
 import torch.nn as nn
 
-from mmcv.cnn.bricks import build_activation_layer, build_norm_layer
+from mmcv.cnn.bricks import build_activation_layer, build_norm_layer, DropPath
 from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import DropPath, lecun_normal_init, to_2tuple
+from ..utils import LayerNormGeneral, lecun_normal_init, to_2tuple
 
 
 class Downsampling(nn.Module):
@@ -142,61 +142,6 @@ class RandomMixingS4(RandomMixing):
         super().__init__(num_tokens=num_tokens)
 
 
-class LayerNormGeneral(nn.Module):
-    r""" General LayerNorm for different situations.
-
-    Args:
-        affine_shape (int, list or tuple): The shape of affine weight and bias.
-            Usually the affine_shape=C, but in some implementation, like torch.nn.LayerNorm,
-            the affine_shape is the same as normalized_dim by default. 
-            To adapt to different situations, we offer this argument here.
-        normalized_dim (tuple or list): Which dims to compute mean and variance. 
-        scale (bool): Flag indicates whether to use scale or not.
-        bias (bool): Flag indicates whether to use scale or not.
-
-        We give several examples to show how to specify the arguments.
-
-        LayerNorm (https://arxiv.org/abs/1607.06450):
-            For input shape of (B, *, C) like (B, N, C) or (B, H, W, C),
-                affine_shape=C, normalized_dim=(-1, ), scale=True, bias=True;
-            For input shape of (B, C, H, W),
-                affine_shape=(C, 1, 1), normalized_dim=(1, ), scale=True, bias=True.
-
-        Modified LayerNorm (https://arxiv.org/abs/2111.11418)
-            that is idental to partial(torch.nn.GroupNorm, num_groups=1):
-            For input shape of (B, N, C),
-                affine_shape=C, normalized_dim=(1, 2), scale=True, bias=True;
-            For input shape of (B, H, W, C),
-                affine_shape=C, normalized_dim=(1, 2, 3), scale=True, bias=True;
-            For input shape of (B, C, H, W),
-                affine_shape=(C, 1, 1), normalized_dim=(1, 2, 3), scale=True, bias=True.
-
-        For the several metaformer baslines,
-            IdentityFormer, RandFormer and PoolFormerV2 utilize Modified LayerNorm without
-            bias (bias=False);
-            ConvFormer and CAFormer utilizes LayerNorm without bias (bias=False).
-    """
-    def __init__(self, affine_shape=None, normalized_dim=(-1, ), scale=True, 
-                 bias=True, eps=1e-5):
-        super().__init__()
-        self.normalized_dim = normalized_dim
-        self.use_scale = scale
-        self.use_bias = bias
-        self.weight = nn.Parameter(torch.ones(affine_shape)) if scale else None
-        self.bias = nn.Parameter(torch.zeros(affine_shape)) if bias else None
-        self.eps = eps
-
-    def forward(self, x):
-        c = x - x.mean(self.normalized_dim, keepdim=True)
-        s = c.pow(2).mean(self.normalized_dim, keepdim=True)
-        x = c / torch.sqrt(s + self.eps)
-        if self.use_scale:
-            x = x * self.weight
-        if self.use_bias:
-            x = x + self.bias
-        return x
-
-
 class SepConv(nn.Module):
     r"""
     Inverted separable convolution from MobileNetV2: https://arxiv.org/abs/1801.04381.
@@ -314,12 +259,12 @@ class MlpHead(nn.Module):
     """ MLP classification head
     """
     def __init__(self, dim, num_classes=1000, mlp_ratio=4, act_layer=SquaredReLU,
-        norm_layer=nn.LayerNorm, head_dropout=0., bias=True):
+        norm_layer=dict(type='LN', eps=1e-6), head_dropout=0., bias=True):
         super().__init__()
         hidden_features = int(mlp_ratio * dim)
         self.fc1 = nn.Linear(dim, hidden_features, bias=bias)
         self.act = act_layer()
-        self.norm = norm_layer(hidden_features)
+        self.norm = build_norm_layer(norm_layer, hidden_features)[1]
         self.fc2 = nn.Linear(hidden_features, num_classes, bias=bias)
         self.head_dropout = nn.Dropout(head_dropout)
 
@@ -338,13 +283,13 @@ class MetaFormerBlock(nn.Module):
     """
     def __init__(self, dim,
                  token_mixer=nn.Identity, mlp=Mlp,
-                 norm_layer=nn.LayerNorm,
+                 norm_layer=dict(type='LayerNormGeneral', eps=1e-6, bias=False),
                  drop=0., drop_path=0.,
                  layer_scale_init_value=None,
                  res_scale_init_value=None):
         super().__init__()
 
-        self.norm1 = norm_layer(dim)
+        self.norm1 = build_norm_layer(norm_layer, dim)[1]
         self.token_mixer = token_mixer(dim=dim, drop=drop)
         self.drop_path1 = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.layer_scale1 = Scale(dim=dim, init_value=layer_scale_init_value) \
@@ -352,7 +297,7 @@ class MetaFormerBlock(nn.Module):
         self.res_scale1 = Scale(dim=dim, init_value=res_scale_init_value) \
             if res_scale_init_value else nn.Identity()
 
-        self.norm2 = norm_layer(dim)
+        self.norm2 = build_norm_layer(norm_layer, dim)[1]
         self.mlp = mlp(dim=dim, drop=drop)
         self.drop_path2 = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.layer_scale2 = Scale(dim=dim, init_value=layer_scale_init_value) \
@@ -479,7 +424,7 @@ class MetaFormer(BaseBackbone):
                  down_stride=2,
                  down_pad=1,
                  channel_mixers="Mlp",
-                 norm_layers=partial(LayerNormGeneral, eps=1e-6, bias=False),
+                 norm_layers=dict(type='LayerNormGeneral', eps=1e-6, bias=False),
                  drop_path_rate=0.,
                  layer_scale_init_values=None,
                  res_scale_init_values=[None, None, 1.0, 1.0],
@@ -585,7 +530,7 @@ class MetaFormer(BaseBackbone):
                 elif isinstance(m, nn.Linear):
                     trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
-                    nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                    nn.LayerNorm, LayerNormGeneral, _BatchNorm, nn.GroupNorm)):
                     constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):

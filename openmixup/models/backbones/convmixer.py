@@ -2,7 +2,7 @@ from typing import Sequence
 
 import torch
 import torch.nn as nn
-from mmcv.cnn.bricks import (Conv2dAdaptivePadding, build_activation_layer,
+from mmcv.cnn.bricks import (Conv2dAdaptivePadding, DropPath, build_activation_layer,
                              build_norm_layer)
 from mmcv.cnn.utils.weight_init import constant_init, xavier_init
 from mmcv.utils import _BatchNorm, digit_version
@@ -14,12 +14,16 @@ from ..utils import lecun_normal_init
 
 class Residual(nn.Module):
 
-    def __init__(self, fn):
+    def __init__(self, fn, drop_path_rate=0.):
         super().__init__()
         self.fn = fn
+        self.drop_path = DropPath(drop_path_rate) if drop_path_rate > 0. else None
 
     def forward(self, x):
-        return self.fn(x) + x
+        if self.drop_path is not None:
+            return self.drop_path(self.fn(x)) + x
+        else:
+            return self.fn(x) + x
 
 
 @BACKBONES.register_module()
@@ -84,9 +88,11 @@ class ConvMixer(BaseBackbone):
                  in_channels=3,
                  norm_cfg=dict(type='BN'),
                  act_cfg=dict(type='GELU'),
+                 drop_path_rate=0.,
                  out_indices=-1,
                  frozen_stages=0,
-                 init_cfg=None):
+                 init_cfg=None,
+                 **kwargs):
         super().__init__(init_cfg=init_cfg)
 
         if isinstance(arch, str):
@@ -134,6 +140,11 @@ class ConvMixer(BaseBackbone):
         if digit_version(torch.__version__) < digit_version('1.9.0'):
             convfunc = Conv2dAdaptivePadding
 
+        # stochastic depth decay rule
+        dpr = [
+            x.item() for x in torch.linspace(0, drop_path_rate, self.depth)
+        ]
+
         # Repetitions of ConvMixer Layer
         self.stages = nn.Sequential(*[
             nn.Sequential(
@@ -145,11 +156,12 @@ class ConvMixer(BaseBackbone):
                             self.kernel_size,
                             groups=self.embed_dims,
                             padding='same'), self.act,
-                        build_norm_layer(norm_cfg, self.embed_dims)[1])),
+                        build_norm_layer(norm_cfg, self.embed_dims)[1]),
+                    drop_path_rate=dpr[j]),
                 nn.Conv2d(self.embed_dims, self.embed_dims, kernel_size=1),
                 self.act,
                 build_norm_layer(norm_cfg, self.embed_dims)[1])
-            for _ in range(self.depth)
+            for j in range(self.depth)
         ])
 
         self._freeze_stages()

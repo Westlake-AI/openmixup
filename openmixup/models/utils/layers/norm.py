@@ -51,6 +51,8 @@ class GRN(nn.Module):
 class LayerNorm2d(nn.LayerNorm):
     """LayerNorm on channels for 2d images.
 
+    Come from `A ConvNet for the 2020s <https://arxiv.org/pdf/2201.03545.pdf>`_
+
     Args:
         num_channels (int): The number of channels of the input tensor.
         eps (float): a value added to the denominator for numerical stability.
@@ -86,6 +88,110 @@ class LayerNorm2d(nn.LayerNorm):
             # If the output is discontiguous, it may cause some unexpected
             # problem in the downstream tasks
             x = x.permute(0, 3, 1, 2).contiguous()
+        return x
+
+
+@NORM_LAYERS.register_module()
+class LayerNormGeneral(nn.Module):
+    """ General LayerNorm for different situations.
+
+    Come from `MetaFormer Baselines for Vision <https://arxiv.org/abs/2210.13452>`_
+
+    Args:
+        affine_shape (int, list or tuple): The shape of affine weight and bias.
+            Usually the affine_shape=C, but in some implementation, like torch.nn.LayerNorm,
+            the affine_shape is the same as normalized_dim by default. 
+            To adapt to different situations, we offer this argument here.
+        normalized_dim (tuple or list): Which dims to compute mean and variance. 
+        scale (bool): Flag indicates whether to use scale or not.
+        bias (bool): Flag indicates whether to use scale or not.
+
+        We give several examples to show how to specify the arguments.
+
+        LayerNorm (https://arxiv.org/abs/1607.06450):
+            For input shape of (B, *, C) like (B, N, C) or (B, H, W, C),
+                affine_shape=C, normalized_dim=(-1, ), scale=True, bias=True;
+            For input shape of (B, C, H, W),
+                affine_shape=(C, 1, 1), normalized_dim=(1, ), scale=True, bias=True.
+
+        Modified LayerNorm (https://arxiv.org/abs/2111.11418)
+            that is idental to partial(torch.nn.GroupNorm, num_groups=1):
+            For input shape of (B, N, C),
+                affine_shape=C, normalized_dim=(1, 2), scale=True, bias=True;
+            For input shape of (B, H, W, C),
+                affine_shape=C, normalized_dim=(1, 2, 3), scale=True, bias=True;
+            For input shape of (B, C, H, W),
+                affine_shape=(C, 1, 1), normalized_dim=(1, 2, 3), scale=True, bias=True.
+
+        For the several metaformer baslines,
+            IdentityFormer, RandFormer and PoolFormerV2 utilize Modified LayerNorm without
+            bias (bias=False);
+            ConvFormer and CAFormer utilizes LayerNorm without bias (bias=False).
+    """
+    def __init__(self, affine_shape=None, normalized_dim=(-1, ), scale=True, 
+                 bias=True, eps=1e-5):
+        super().__init__()
+        self.normalized_dim = normalized_dim
+        self.use_scale = scale
+        self.use_bias = bias
+        self.weight = nn.Parameter(torch.ones(affine_shape)) if scale else None
+        self.bias = nn.Parameter(torch.zeros(affine_shape)) if bias else None
+        self.eps = eps
+
+    def forward(self, x):
+        c = x - x.mean(self.normalized_dim, keepdim=True)
+        s = c.pow(2).mean(self.normalized_dim, keepdim=True)
+        x = c / torch.sqrt(s + self.eps)
+        if self.use_scale:
+            x = x * self.weight
+        if self.use_bias:
+            x = x + self.bias
+        return x
+
+
+@NORM_LAYERS.register_module()
+class RMSLayerNorm(nn.Module):
+    """Root Mean Square Layer Normalization Module.
+
+    Come from `Root Mean Square Layer Normalization <http://arxiv.org/abs/1910.07467>`_
+        We adopt the implementation of `T5LayerNorm` in huggingface.transformers.
+
+    Args:
+        in_channels (int): The number of channels of the input tensor.
+        scale (bool): Flag indicates whether to use scale or not.
+        bias (bool): Flag indicates whether to use scale or not.
+        eps (float): a value added to the denominator for numerical stability.
+            Defaults to 1e-6.
+    """
+
+    def __init__(self, in_channels, scale=True, bias=False, eps=1e-6):
+        """
+        Construct a layernorm module in the T5 style. No bias and no subtraction of mean.
+        """
+        super().__init__()
+        self.use_scale = scale
+        self.use_bias = bias
+        self.weight = nn.Parameter(torch.ones(in_channels)) if scale else None
+        self.bias = nn.Parameter(torch.zeros(in_channels)) if bias else None
+        self.variance_epsilon = eps
+
+    def forward(self, x):
+        # T5 uses a layer_norm which only scales and doesn't shift, which is also known as Root Mean
+        # Square Layer Normalization https://arxiv.org/abs/1910.07467 thus varience is calculated
+        # w/o mean and there is no bias. Additionally we want to make sure that the accumulation for
+        # half-precision inputs is done in fp32
+
+        variance = x.to(torch.float32).pow(2).mean(-1, keepdim=True)
+        x = x * torch.rsqrt(variance + self.variance_epsilon)
+
+        if self.use_scale:
+            # convert into half-precision if necessary
+            if self.weight.dtype in [torch.float16, torch.bfloat16]:
+                x = x.to(self.weight.dtype)
+            x = self.weight * x
+        if self.use_bias:
+            x = x + self.bias
+
         return x
 
 

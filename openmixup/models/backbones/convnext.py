@@ -7,13 +7,13 @@ import torch.nn as nn
 import torch.utils.checkpoint as cp
 from torch.nn import ModuleList, Sequential
 
-from mmcv.cnn.bricks import build_activation_layer, build_norm_layer
+from mmcv.cnn.bricks import build_activation_layer, build_norm_layer, DropPath
 from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import (DropPath, GRN, lecun_normal_init,
+from ..utils import (GRN, LayerNorm2d, lecun_normal_init,
                      grad_batch_shuffle_ddp, grad_batch_unshuffle_ddp)  # for mixup
 
 
@@ -354,7 +354,7 @@ class ConvNeXt(BaseBackbone):
                 elif isinstance(m, (nn.Linear)):
                     trunc_normal_init(m, mean=0., std=0.02, bias=0)
                 elif isinstance(m, (
-                    nn.LayerNorm, _BatchNorm, nn.GroupNorm, nn.SyncBatchNorm)):
+                    _BatchNorm, nn.LayerNorm, LayerNorm2d, GRN, nn.GroupNorm)):
                     constant_init(m, val=1, bias=0)
 
     def _freeze_stages(self):

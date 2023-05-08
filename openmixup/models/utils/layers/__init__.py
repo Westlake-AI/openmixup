@@ -7,7 +7,7 @@ from .drop import DropPath
 from .inverted_residual import InvertedResidual
 from .layer_scale import LayerScale
 from .make_divisible import make_divisible
-from .norm import build_norm_layer, GRN, LayerNorm2d
+from .norm import build_norm_layer, GRN, LayerNorm2d, LayerNormGeneral, RMSLayerNorm
 from .patch_embed import HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging
 from .pooling import AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling
 from .pos_embed import build_fourier_pos_embed, build_rotary_pos_embed, \
@@ -28,7 +28,7 @@ except ImportError:
 __all__ = [
     'channel_shuffle', 'ConvWS2d', 'conv_ws_2d', 'DropPath', 'InvertedResidual',
     'LayerScale', 'make_divisible',
-    'build_norm_layer', 'GRN', 'LayerNorm2d',
+    'build_norm_layer', 'GRN', 'LayerNorm2d', 'LayerNormGeneral', 'RMSLayerNorm',
     'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
     'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
     'BEiTAttention', 'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
