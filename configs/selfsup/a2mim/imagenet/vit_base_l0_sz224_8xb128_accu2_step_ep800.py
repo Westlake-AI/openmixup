@@ -12,7 +12,7 @@ model = dict(
 
 # dataset
 data = dict(
-    imgs_per_gpu=128, workers_per_gpu=10,
+    imgs_per_gpu=128, workers_per_gpu=12,
     train=dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
@@ -28,7 +28,7 @@ update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=1252 * 10,  # plot every 10 ep
+        save_interval=1252 * 25,  # plot every 25 ep
         iter_per_epoch=1252),
 ]
 

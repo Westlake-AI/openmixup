@@ -5,7 +5,7 @@ _base_ = [
 ]
 
 # model settings
-model = dict(backbone=dict(depth=152, drop_path_rate=0.15))
+model = dict(backbone=dict(depth=200, drop_path_rate=0.2))
 
 # data
 data = dict(imgs_per_gpu=256, workers_per_gpu=10)

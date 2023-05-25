@@ -1,11 +1,11 @@
 _base_ = [
-    '../_base_/models/r50_rsb_a2.py',
-    '../_base_/datasets/imagenet_rsb_a2_ft_sz224_8xbs256.py',
+    '../_base_/models/r50_rsb_a3.py',
+    '../_base_/datasets/imagenet_rsb_a3_ft_sz160_4xbs512.py',
     '../_base_/default_runtime.py',
 ]
 
 # model settings
-model = dict(backbone=dict(depth=152, drop_path_rate=0.15))
+model = dict(backbone=dict(depth=200))
 
 # data
 data = dict(imgs_per_gpu=256, workers_per_gpu=10)
@@ -14,7 +14,7 @@ data = dict(imgs_per_gpu=256, workers_per_gpu=10)
 update_interval = 1  # 256 x 8gpus x 1 accumulates = bs2048
 
 # optimizer
-optimizer = dict(type='LAMB', lr=0.005, weight_decay=0.02,  # RSB A2
+optimizer = dict(type='LAMB', lr=0.008, weight_decay=0.02,
                  paramwise_options={
                     '(bn|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
                     'bias': dict(weight_decay=0.)})
@@ -34,4 +34,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=300)
+runner = dict(type='EpochBasedRunner', max_epochs=100)

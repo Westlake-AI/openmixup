@@ -48,7 +48,7 @@ Based on the setting of ImageNet, we also perform fast experiments on ImageNet-1
 ## Citation
 
 ```bibtex
-@inproceedings{zbontar2021barlow,
+@inproceedings{icml2023a2mim,
   title={Architecture-Agnostic Masked Image Modeling -- From ViT back to CNN},
   author={Li, Siyuan and Wu, Di and Wu, Fang and Zang, Zelin and Li, Stan. Z.},
   booktitle={International Conference on Machine Learning},

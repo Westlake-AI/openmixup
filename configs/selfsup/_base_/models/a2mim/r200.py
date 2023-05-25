@@ -3,7 +3,7 @@ model = dict(
     type='A2MIM',
     backbone=dict(
         type='MIMResNet',
-        depth=152,
+        depth=200,
         replace=False,  # use residual mask token
         mask_layer=3, mask_token='learnable',
         num_stages=4,

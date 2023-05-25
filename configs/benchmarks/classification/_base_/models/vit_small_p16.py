@@ -7,7 +7,7 @@ model = dict(
     mix_args=dict(),
     backbone=dict(
         type='MIMVisionTransformer',
-        arch='deit-small',  # 12 layers DeiT-S with finetune
+        arch='small',  # 8 layers ViT-S
         img_size=224,
         patch_size=16,
         drop_path_rate=0.1,
@@ -18,5 +18,5 @@ model = dict(
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
         with_avg_pool=False,  # no gap in ViT
-        in_channels=384, num_classes=1000),
+        in_channels=768, num_classes=1000),
 )

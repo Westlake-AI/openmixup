@@ -29,7 +29,7 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
   )
   ```
 
-### CIFAR-100
+### Mixup Benchmark on CIFAR-100
 
 **Setup**
 
@@ -75,6 +75,9 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
 
 We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
 
+### ViTs Benchmark on CIFAR-100
+
+On updating!
 
 ## Citation
 
@@ -88,4 +91,3 @@ Please refer to the original paper of [CIFAR-100](https://www.cs.toronto.edu/~kr
   publisher={Citeseer}
 }
 ```
-```bibtex
