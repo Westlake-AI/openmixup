@@ -4,7 +4,7 @@ from itertools import chain
 import torch
 import torch.nn as nn
 
-from mmcv.cnn.bricks import build_activation_layer, build_norm_layer, DropPath
+from mmcv.cnn.bricks import build_norm_layer, DropPath
 from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
@@ -23,7 +23,7 @@ class Downsampling(nn.Module):
         super().__init__()
         self.pre_norm = pre_norm(in_channels) if pre_norm else nn.Identity()
         self.pre_permute = pre_permute
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size, 
+        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=kernel_size,
                               stride=stride, padding=padding)
         self.post_norm = post_norm(out_channels) if post_norm else nn.Identity()
 
@@ -125,7 +125,7 @@ class RandomMixing(nn.Module):
     def __init__(self, num_tokens=196, **kwargs):
         super().__init__()
         self.random_matrix = nn.parameter.Parameter(
-            data=torch.softmax(torch.rand(num_tokens, num_tokens), dim=-1), 
+            data=torch.softmax(torch.rand(num_tokens, num_tokens), dim=-1),
             requires_grad=False)
 
     def forward(self, x):
@@ -288,6 +288,7 @@ class MetaFormerBlock(nn.Module):
                  layer_scale_init_value=None,
                  res_scale_init_value=None):
         super().__init__()
+        self.use_bn = norm_layer['type'] == 'BN'
 
         self.norm1 = build_norm_layer(norm_layer, dim)[1]
         self.token_mixer = token_mixer(dim=dim, drop=drop)
@@ -306,18 +307,26 @@ class MetaFormerBlock(nn.Module):
             if res_scale_init_value else nn.Identity()
 
     def forward(self, x):
-        x = self.res_scale1(x) + \
-            self.layer_scale1(
-                self.drop_path1(
-                    self.token_mixer(self.norm1(x))
+        if not self.use_bn:
+            x = self.res_scale1(x) + \
+                self.layer_scale1(
+                    self.drop_path1(self.token_mixer(self.norm1(x)))
                 )
-            )
-        x = self.res_scale2(x) + \
-            self.layer_scale2(
-                self.drop_path2(
-                    self.mlp(self.norm2(x))
+            x = self.res_scale2(x) + \
+                self.layer_scale2(
+                    self.drop_path2(self.mlp(self.norm2(x)))
                 )
-            )
+        else:
+            x = self.res_scale1(x) + \
+                self.layer_scale1(
+                    self.drop_path1(self.token_mixer(
+                        self.norm1(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)))
+                )
+            x = self.res_scale2(x) + \
+                self.layer_scale2(
+                    self.drop_path2(self.mlp(
+                        self.norm2(x.permute(0, 3, 1, 2)).permute(0, 2, 3, 1)))
+                )
         return x
 
 

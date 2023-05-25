@@ -9,7 +9,7 @@ from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedRes
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
    Scale, SELayer, Canny, HOG, Laplacian, Sobel, Smoothing, \
    BEiTAttention, CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
-   MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, \
+   MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, WindowMSAV2, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
    build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
    ConditionalPositionEncoding, resize_pos_embed, resize_relative_position_bias_table, \
@@ -35,7 +35,7 @@ __all__ = [
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
    'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
    'BEiTAttention', 'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
-   'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA',
+   'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA', 'WindowMSAV2',
    'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',
    'build_fourier_pos_embed', 'build_rotary_pos_embed', 'build_2d_sincos_position_embedding',
    'ConditionalPositionEncoding', 'resize_pos_embed', 'resize_relative_position_bias_table',

@@ -1,5 +1,13 @@
 ## Changelog
 
+### v0.2.8 (25/05/2023)
+
+Bump version to V0.2.8 with new features in [MMPreTrain](https://github.com/open-mmlab/mmpretrain).
+
+#### New Features
+
+- Support more backbone architectures, including [MobileNetV3](https://arxiv.org/abs/1905.02244), [EfficientNetV2](https://arxiv.org/abs/2104.00298), [HRNet](https://arxiv.org/abs/1908.07919), [CSPNet](https://arxiv.org/abs/1911.11929), [LeViT](https://arxiv.org/abs/2104.01136), [MobileViT](http://arxiv.org/abs/2110.02178), [DaViT](https://arxiv.org/abs/2204.03645), and [MobileOne](http://arxiv.org/abs/2206.04040), etc.
+
 ### v0.2.7 (16/12/2022)
 
 Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI/openmixup/issues/35). Update new features of `OpenMixup` v0.2.7 as issue [#36](https://github.com/Westlake-AI/openmixup/issues/36).
@@ -26,7 +34,7 @@ Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI
 - Update config files and scripts for SSL downstream tasks benchmarks (classification, detection, and segmentation).
 - Update and fix bugs in visualization tools ([vis_loss_landscape](https://github.com/Westlake-AI/openmixup/tree/main/tools/visualizations/vis_loss_landscape.py)). Fix [model converters](https://github.com/Westlake-AI/openmixup/tree/main/tools/model_converters) tools.
 - Support [Semantic-Softmax](https://arxiv.org/abs/2104.10972) loss and [ImageNet-21K-P (Winter)](https://openreview.net/forum?id=Zkj_VcZ6ol&noteId=1oUacUMpIbg) pre-training.
-- Support more backbone architectures, including [BEiT](https://arxiv.org/abs/2106.08254), [MMetaFormer](https://arxiv.org/abs/2210.13452), [ConvNeXtV2](http://arxiv.org/abs/2301.00808), and [CoC](https://arxiv.org/abs/2303.01494).
+- Support more backbone architectures, including [BEiT](https://arxiv.org/abs/2106.08254), [MetaFormer](https://arxiv.org/abs/2210.13452), [ConvNeXtV2](http://arxiv.org/abs/2301.00808), and [CoC](https://arxiv.org/abs/2303.01494).
 
 ### Update Documents
 

@@ -5,11 +5,12 @@ model = dict(
     backbone=dict(
         type='MobileNetV3',
         arch='small',
-        out_indices=(12,),  # x-1: stage-x
-        norm_cfg=dict(type='BN', eps=0.001, momentum=0.01),
     ),
     head=dict(
-        type='ClsHead',
+        type='StackedLinearClsHead',
         loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
-        with_avg_pool=True, in_channels=576, num_classes=1000)
+        in_channels=576, num_classes=1000, mid_channels=[1024],
+        dropout_rate=0.2,
+        act_cfg=dict(type='HSwish'),
+        with_avg_pool=True)
 )
