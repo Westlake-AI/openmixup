@@ -75,7 +75,7 @@ git clone https://github.com/NVIDIA/apex
 cd apex
 pip install -v --disable-pip-version-check --no-cache-dir --global-option="--cpp_ext" --global-option="--cuda_ext" ./
 ```
-If some errors occur when you install Apex from the source, you can try `python setup.py install` for fast installation.
+If some errors occur when you install Apex from the source, you can try `python setup.py install` for fast installation. Note that we recommend using PyTorch AMP for mixed precision training in high versions of PyTorch.
 
 **Note:**
 
@@ -83,7 +83,7 @@ If some errors occur when you install Apex from the source, you can try `python 
 
 2. Following the above instructions, openmixup is installed on `dev` (editable) mode, and any local modifications made to the code will take effect immediately (except for the running experiments). You can install it to `pip/conda` by `pip install .` and the local modifications will not take effect without reinstalling it.
 
-3. If you would like to use `opencv-python-headless` instead of `opencv-python`, you can install it before installing MMCV.
+3. If you are installing `cv2` for the first time, `ImportError: libGL.so.1` will occur, which can be solved by `apt install libgl1-mesa-glx`. If you would like to use `opencv-python-headless` instead of `opencv-python`, you can install it before installing MMCV. Refer to [issue #48](https://github.com/Westlake-AI/openmixup/issues/48) for some errors encountered with the version of `cv2`.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

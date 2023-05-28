@@ -3,7 +3,7 @@ from typing import Sequence, Tuple
 import torch
 import torch.nn as nn
 from mmcv.cnn.bricks import ConvModule, DropPath
-from mmengine.model import Sequential
+from mmcv.runner import Sequential
 from torch import Tensor
 
 from .base_backbone import BaseBackbone

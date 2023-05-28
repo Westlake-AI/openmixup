@@ -39,7 +39,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 <summary>Supported label mixing policies</summary>
 
 - [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796)
-- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
+- [X] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 - [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
 
