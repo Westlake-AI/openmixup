@@ -405,3 +405,90 @@ class StackedLinearClsHead(BaseClsHead):
         if post_process:
             x = self.post_process(x)
         return x
+
+
+@HEADS.register_module
+class VanillaNetClsHead(BaseClsHead):
+    """VanillaNet classifier head.
+
+    A PyTorch impl of : `VanillaNet: the Power of Minimalism in Deep Learning` -
+        <https://arxiv.org/abs/2305.12972>`_
+
+    """
+
+    def __init__(self, drop_rate=0., deploy=False, **kwargs):
+        super(VanillaNetClsHead, self).__init__(**kwargs)
+        self.deploy = deploy
+        self.act_learn = 1  # modified during training
+        assert not self.with_avg_pool
+
+        # build a classification head
+        if self.deploy:
+            self.cls = nn.Sequential(
+                nn.AdaptiveAvgPool2d((1,1)),
+                nn.Dropout(drop_rate),
+                nn.Conv2d(self.in_channels, self.num_classes, 1),
+            )
+        else:
+            self.cls1 = nn.Sequential(
+                nn.AdaptiveAvgPool2d((1,1)),
+                nn.Dropout(drop_rate),
+                nn.Conv2d(self.in_channels, self.num_classes, 1),
+                nn.BatchNorm2d(self.num_classes, eps=1e-6),
+            )
+            self.cls2 = nn.Sequential(
+                nn.Conv2d(self.num_classes, self.num_classes, 1)
+            )
+
+        if self.frozen:
+            self._freeze()
+
+    def update_attribute(self, attribute):
+        """Interface for updating the attribute in the head"""
+        self.act_learn = attribute
+
+    def _freeze(self):
+        head_list = ["cls1", "cls2"] if not self.deploy else ['cls']
+        for head in head_list:
+            m = getattr(self, head)
+            m.eval()
+            for param in m.parameters():
+                param.requires_grad = False
+
+    def init_weights(self, init_linear='normal', std=0.01, bias=0.):
+        if self.init_cfg is not None:
+            super(VanillaNetClsHead, self).init_weights()
+            return
+        assert init_linear in ['normal', 'kaiming', 'trunc_normal'], \
+            "Undefined init_linear: {}".format(init_linear)
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                if init_linear == 'normal':
+                    normal_init(m, std=std, bias=bias)
+                elif init_linear == 'kaiming':
+                    kaiming_init(m, mode='fan_in', nonlinearity='relu')
+                elif init_linear == 'trunc_normal':
+                    trunc_normal_init(m, std=std, bias=bias)
+            elif isinstance(m, (nn.LayerNorm, nn.GroupNorm, nn.BatchNorm2d)):
+                constant_init(m, val=1, bias=0)
+
+    def forward_head(self, x, post_process=False):
+        """" forward cls head with x in a shape of (X, \*) """
+        if self.with_avg_pool:
+            if x.dim() == 3:
+                x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
+            elif x.dim() == 4:
+                x = F.adaptive_avg_pool2d(x, 1).view(x.size(0), -1)
+            else:
+                assert x.dim() in [2, 3, 4], \
+                    "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
+        if self.deploy:
+            x = self.cls(x)
+        else:
+            x = self.cls1(x)
+            x = torch.nn.functional.leaky_relu(x,self.act_learn)
+            x = self.cls2(x)
+        x = x.view(x.size(0), -1)
+        if post_process:
+            x = self.post_process(x)
+        return x

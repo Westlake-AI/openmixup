@@ -71,9 +71,10 @@ class PlotTensor:
                     img = self.invTrans_in(img)
             img = torch.clip(img * 255, 0, 255).detach().cpu().numpy()
             img = np.transpose(img, (0, 2, 3, 1))
+            title_name = '' if title_name is None else title_name.replace(' ', '')
 
             for i in range(img.shape[0]):
                 img_ = img[i, ...]
                 # cam_image is RGB encoded whereas "cv2.imwrite" requires BGR encoding.
                 img_ = cv2.cvtColor(img_, cv2.COLOR_RGB2BGR)
-                cv2.imwrite("{}_{}.{}".format(save_name[0], i, save_name[1]), img_)
+                cv2.imwrite("{}_{}.{}".format(save_name[0], title_name+str(i), save_name[1]), img_)

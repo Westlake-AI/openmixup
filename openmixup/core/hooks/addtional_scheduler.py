@@ -35,10 +35,10 @@ class LrAddtionalSchedulerHook(Hook):
                 **kwargs):
         # validate the "warmup" argument
         if warmup is not None:
-            if warmup not in ['constant', 'linear', 'exp']:
+            if warmup not in ['constant', 'linear', 'exp', 'cos', 'cosine']:
                 raise ValueError(
                     f'"{warmup}" is not a supported type for warming up, valid'
-                    ' types are "constant" and "linear"')
+                    ' types are "constant", "linear", "exp", and "cos"')
         if warmup is not None:
             assert warmup_iters > 0, \
                 '"warmup_iters" must be a positive integer'
@@ -107,6 +107,9 @@ class LrAddtionalSchedulerHook(Hook):
         elif self.warmup == 'exp':
             k = self.warmup_ratio**(1 - cur_iters / self.warmup_iters)
             warmup_lr = [_lr * k for _lr in self.regular_lr]
+        elif self.warmup in ['cos', 'cosine']:
+            k = annealing_cos(self.regular_lr, self.warmup_ratio, cur_iters / self.warmup_iters)
+            warmup_lr = [_lr - k for _lr in self.regular_lr]
         return warmup_lr
 
     def before_run(self, runner):
@@ -467,10 +470,10 @@ class CustomSchedulerHook(Hook):
                 **kwargs):
         # validate the "warmup" argument
         if warmup is not None:
-            if warmup not in ['constant', 'linear', 'exp']:
+            if warmup not in ['constant', 'linear', 'exp', 'cos', 'cosine']:
                 raise ValueError(
                     f'"{warmup}" is not a supported type for warming up, valid'
-                    ' types are "constant" and "linear"')
+                    ' types are "constant", "linear", "exp", and "cos"')
         if warmup is not None:
             assert warmup_iters > 0, \
                 '"warmup_iters" must be a positive integer'
@@ -517,6 +520,9 @@ class CustomSchedulerHook(Hook):
         elif self.warmup == 'exp':
             k = self.warmup_ratio**(1 - cur_iters / self.warmup_iters)
             warmup_attr = k * self.attr_base
+        elif self.warmup in ['cos', 'cosine']:
+            k = annealing_cos(self.attr_base, self.warmup_ratio, cur_iters / self.warmup_iters)
+            warmup_attr = self.attr_base - k
         return warmup_attr
 
     def before_run(self, runner):

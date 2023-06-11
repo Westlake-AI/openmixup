@@ -51,6 +51,7 @@ from .timm_backbone import TIMMBackbone
 from .twins import PCPVT, SVT
 from .uniformer import UniFormer
 from .van import VAN
+from .vanillanet import VanillaNet
 from .vgg import VGG
 from .vig import PyramidVIG, VIG
 from .vision_transformer import TransformerEncoderLayer, VisionTransformer
@@ -74,6 +75,6 @@ __all__ = [
     'SEResNet', 'SEResNet_CIFAR', 'SEResNeXt', 'ShuffleNetV1', 'ShuffleNetV2',
     'SwinTransformer', 'SwinTransformer_Mix', 'SwinTransformerV2',
     'T2T_ViT', 'TIMMBackbone', 'TransformerEncoderLayer',
-    'UniFormer', 'VisionTransformer', 'VAN', 'VGG', 'PyramidVIG', 'VIG',
+    'UniFormer', 'VisionTransformer', 'VAN', 'VanillaNet', 'VGG', 'PyramidVIG', 'VIG',
     'WideResNet', 'WideResNet_Mix', 'XCiT',
 ]

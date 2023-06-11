@@ -38,6 +38,8 @@ class MixUpClassification(BaseModel):
         pretrained (str, optional): Path to pre-trained weights. Default: None.
         pretrained_k (str, optional): Path to pre-trained weights for backbone_k or
             mix_block. Default: None.
+        save_by_sample (bool): Whether to save mixup samples separately.
+        debug_mode (bool): Whether to save some intermediate products.
     """
 
     def __init__(self,
@@ -53,7 +55,9 @@ class MixUpClassification(BaseModel):
                  momentum_k=-1,
                  pretrained=None,
                  pretrained_k=None,
+                 cosine_update=False,
                  save_name='MixedSamples',
+                 save_by_sample=False,
                  debug_mode=True,
                  init_cfg=None,
                  **kwargs):
@@ -74,6 +78,8 @@ class MixUpClassification(BaseModel):
             self.mix_block = builder.build_head(mix_block)
             for param in self.mix_block.parameters():  # stop grad mixblock
                 param.requires_grad = False
+        self.cosine_update = cosine_update
+        self.cos_annealing = 1.  # decent from 1 to 0 as cosine
 
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
@@ -131,6 +137,7 @@ class MixUpClassification(BaseModel):
             print_log("Warning: the number of mix_mode={} is less than mix_repeat={}.".format(
                 self.mix_mode, self.mix_repeat))
         self.debug_mode = debug_mode
+        self.save_by_sample = save_by_sample
         self.save_name = str(save_name)
         self.save = False
         self.ploter = PlotTensor(apply_inv=True)
@@ -177,6 +184,17 @@ class MixUpClassification(BaseModel):
             else:
                 param_k.data = param_k.data * self.momentum_k + \
                             param_q.data * (1. - self.momentum_k)
+
+    @torch.no_grad()
+    def _attribute_update(self):
+        """Update some attributes in the backbone and head """
+        if self.cosine_update:
+            update_attr = getattr(self.backbone, 'update_attribute', None)
+            if update_attr is not None:
+                update_attr(self.cos_annealing)
+            update_attr = getattr(self.head, 'update_attribute', None)
+            if update_attr is not None:
+                update_attr(self.cos_annealing)
 
     def _features(self, img, gt_label=None, cur_mode="puzzlemix", **kwargs):
         """ generating feature maps or gradient maps """
@@ -352,6 +370,7 @@ class MixUpClassification(BaseModel):
         # before train
         with torch.no_grad():
             self._momentum_update()
+            self._attribute_update()
         if isinstance(img, list):
             img = img[0]
         
@@ -369,7 +388,7 @@ class MixUpClassification(BaseModel):
             # remove 'vanilla' if chosen
             if self.mix_mode[cur_idx] == "vanilla":
                 remove_idx = cur_idx
-        
+
         return losses
 
     def simple_test(self, img):
@@ -408,4 +427,5 @@ class MixUpClassification(BaseModel):
             if isinstance(lam, float) else mix_mode
         assert self.save_name.find(".png") != -1
         self.ploter.plot(
-            img, nrow=4, title_name=title_name, save_name=self.save_name)
+            img, nrow=4, title_name=title_name,
+            save_name=self.save_name, make_grid=not self.save_by_sample)

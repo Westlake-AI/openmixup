@@ -62,6 +62,8 @@ class AutoMixup(BaseModel):
             Default: False.
         pretrained (str, optional): Path to pre-trained weights. Default: None.
         pretrained_k (str, optional): Path to pre-trained weights for en_k. Default: None.
+        save_by_sample (bool): Whether to save mixup samples separately.
+        debug_mode (bool): Whether to save some intermediate products.
     """
 
     def __init__(self,
@@ -88,6 +90,7 @@ class AutoMixup(BaseModel):
                  head_ensemble=False,
                  save=False,
                  save_name='MixedSamples',
+                 save_by_sample=False,
                  debug=False,
                  mix_shuffle_no_repeat=False,
                  pretrained=None,
@@ -112,6 +115,7 @@ class AutoMixup(BaseModel):
         self.save = bool(save)
         self.save_name = str(save_name)
         self.ploter = PlotTensor(apply_inv=True)
+        self.save_by_sample = bool(save_by_sample)
         self.debug = bool(debug)
         self.mix_shuffle_no_repeat = bool(mix_shuffle_no_repeat)
         assert 0 <= self.momentum and self.lam_margin < 1 and self.mask_adjust <= 1
@@ -358,7 +362,8 @@ class AutoMixup(BaseModel):
         title_name = 'lambda {}={}'.format(name, lam)
         assert self.save_name.find(".png") != -1
         self.ploter.plot(
-            img, nrow=4, title_name=title_name, save_name=self.save_name)
+            img, nrow=4, title_name=title_name, save_name=self.save_name,
+            make_grid=not self.save_by_sample)
 
         # debug: plot intermediate results, fp32
         if self.debug:

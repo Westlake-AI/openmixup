@@ -53,8 +53,7 @@ model = dict(
 )
 
 # dataset
-# data = dict(imgs_per_gpu=128, workers_per_gpu=10)
-data = dict(imgs_per_gpu=16, workers_per_gpu=4)
+data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
