@@ -76,13 +76,13 @@ class Block(nn.Module):
                 nn.BatchNorm2d(dim_out, eps=1e-6)
             )
 
-        if pool_type == 'avgpool':
+        if pool_type == 'ada' or ada_pool is not None:
+            self.pool = nn.Identity() if stride == 1 else nn.AdaptiveMaxPool2d((ada_pool, ada_pool))
+        elif pool_type == 'avgpool':
             self.pool = nn.Identity() if stride == 1 else nn.AvgPool2d(stride)
         elif pool_type == 'conv':
             self.pool = nn.Identity() if stride == 1 else nn.Conv2d(
                 dim_out, dim_out, kernel_size=stride, stride=stride, padding=0)
-        elif pool_type == 'ada' or ada_pool is not None:
-            self.pool = nn.Identity() if stride == 1 else nn.AdaptiveMaxPool2d((ada_pool, ada_pool))
         else:
             self.pool = nn.Identity() if stride == 1 else nn.MaxPool2d(stride)
 
@@ -204,11 +204,16 @@ class VanillaNet(BaseBackbone):
     def __init__(self,
                  arch='vanillanet_9',
                  in_channels=3,
+                 in_patch_size=4,
+                 in_stride=4,
+                 in_pad=0,
                  num_classes=None,
                  drop_rate=0,
                  act_num=3,
                  deploy=False,
                  ada_pool=None,
+                 pool_type="maxpool",
+                 act_learn_init=None,
                  out_indices=-1,
                  frozen_stages=-1,
                  norm_eval=False,
@@ -249,16 +254,17 @@ class VanillaNet(BaseBackbone):
 
         self.num_classes = num_classes
         self.deploy = deploy
-        stride, padding = (4, 0) if not ada_pool else (3, 1)
+        patch_size, stride, padding = (in_patch_size, in_stride, in_pad) \
+            if not ada_pool else (4, 3, 1)
 
         if self.deploy:
             self.stem = nn.Sequential(
-                nn.Conv2d(in_channels, embed_dims[0], kernel_size=4, stride=stride, padding=padding),
+                nn.Conv2d(in_channels, embed_dims[0], kernel_size=patch_size, stride=stride, padding=padding),
                 activation(embed_dims[0], act_num, deploy=self.deploy)
             )
         else:
             self.stem1 = nn.Sequential(
-                nn.Conv2d(in_channels, embed_dims[0], kernel_size=4, stride=stride, padding=padding),
+                nn.Conv2d(in_channels, embed_dims[0], kernel_size=patch_size, stride=stride, padding=padding),
                 nn.BatchNorm2d(embed_dims[0], eps=1e-6),
             )
             self.stem2 = nn.Sequential(
@@ -273,10 +279,10 @@ class VanillaNet(BaseBackbone):
         for i in range(len(strides)):
             if not ada_pool:
                 stage = Block(dim=embed_dims[i], dim_out=embed_dims[i+1], act_num=act_num,
-                              stride=strides[i], deploy=deploy)
+                              stride=strides[i], deploy=deploy, pool_type=pool_type)
             else:
                 stage = Block(dim=embed_dims[i], dim_out=embed_dims[i+1], act_num=act_num,
-                              stride=strides[i], deploy=deploy, ada_pool=ada_pool[i])
+                              stride=strides[i], deploy=deploy, pool_type=pool_type, ada_pool=ada_pool[i])
             self.stages.append(stage)
 
         if num_classes is not None:
@@ -296,7 +302,11 @@ class VanillaNet(BaseBackbone):
                 self.cls2 = nn.Sequential(
                     nn.Conv2d(num_classes, num_classes, 1)
                 )
+
         self._freeze_stages()
+        if act_learn_init is not None:
+            assert isinstance(act_learn_init, float) and 0 <= act_learn_init <= 1
+            self.change_act(act_learn_init)
 
     def init_weights(self, pretrained=None):
         super(VanillaNet, self).init_weights(pretrained)
@@ -315,7 +325,6 @@ class VanillaNet(BaseBackbone):
         self.change_act(attribute)
 
     def change_act(self, m):
-        print(m)
         for i in range(self.num_stage):
             self.stages[i].act_learn = m
         self.act_learn = m
@@ -333,12 +342,12 @@ class VanillaNet(BaseBackbone):
                     for param in stem.parameters():
                         param.requires_grad = False
 
-        for i in range(self.num_stage):
+        for i in range(self.frozen_stages):
             self.stages[i].eval()
             for param in self.stages[i].parameters():
                 param.requires_grad = False
 
-        if self.num_classes is not None:
+        if self.num_classes and self.frozen_stages == self.num_stage:
             if self.deploy:
                 self.cls.eval()
                 for param in self.cls.parameters():
@@ -404,16 +413,17 @@ class VanillaNet(BaseBackbone):
         for i in range(self.num_stage):
             self.stages[i].switch_to_deploy()
 
-        kernel, bias = self._fuse_bn_tensor(self.cls1[2], self.cls1[3])
-        self.cls1[2].weight.data = kernel
-        self.cls1[2].bias.data = bias
-        kernel, bias = self.cls2[0].weight.data, self.cls2[0].bias.data
-        self.cls1[2].weight.data = torch.matmul(
-            kernel.transpose(1, 3), self.cls1[2].weight.data.squeeze(3).squeeze(2)).transpose(1, 3)
-        self.cls1[2].bias.data = bias + (self.cls1[2].bias.data.view(1, -1, 1, 1)*kernel).sum(3).sum(2).sum(1)
-        self.cls = torch.nn.Sequential(*self.cls1[0:3])
-        self.__delattr__('cls1')
-        self.__delattr__('cls2')
+        if self.num_classes is not None:
+            kernel, bias = self._fuse_bn_tensor(self.cls1[2], self.cls1[3])
+            self.cls1[2].weight.data = kernel
+            self.cls1[2].bias.data = bias
+            kernel, bias = self.cls2[0].weight.data, self.cls2[0].bias.data
+            self.cls1[2].weight.data = torch.matmul(
+                kernel.transpose(1, 3), self.cls1[2].weight.data.squeeze(3).squeeze(2)).transpose(1, 3)
+            self.cls1[2].bias.data = bias + (self.cls1[2].bias.data.view(1, -1, 1, 1)*kernel).sum(3).sum(2).sum(1)
+            self.cls = torch.nn.Sequential(*self.cls1[0:3])
+            self.__delattr__('cls1')
+            self.__delattr__('cls2')
         self.deploy = True
 
     def train(self, mode=True):

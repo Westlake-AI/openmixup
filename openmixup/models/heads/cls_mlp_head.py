@@ -492,3 +492,29 @@ class VanillaNetClsHead(BaseClsHead):
         if post_process:
             x = self.post_process(x)
         return x
+
+    def _fuse_bn_tensor(self, conv, bn):
+        kernel = conv.weight
+        bias = conv.bias
+        running_mean = bn.running_mean
+        running_var = bn.running_var
+        gamma = bn.weight
+        beta = bn.bias
+        eps = bn.eps
+        std = (running_var + eps).sqrt()
+        t = (gamma / std).reshape(-1, 1, 1, 1)
+        return kernel * t, beta + (bias - running_mean) * gamma / std
+
+    @torch.no_grad()
+    def switch_to_deploy(self):
+        kernel, bias = self._fuse_bn_tensor(self.cls1[2], self.cls1[3])
+        self.cls1[2].weight.data = kernel
+        self.cls1[2].bias.data = bias
+        kernel, bias = self.cls2[0].weight.data, self.cls2[0].bias.data
+        self.cls1[2].weight.data = torch.matmul(
+            kernel.transpose(1, 3), self.cls1[2].weight.data.squeeze(3).squeeze(2)).transpose(1, 3)
+        self.cls1[2].bias.data = bias + (self.cls1[2].bias.data.view(1, -1, 1, 1)*kernel).sum(3).sum(2).sum(1)
+        self.cls = torch.nn.Sequential(*self.cls1[0:3])
+        self.__delattr__('cls1')
+        self.__delattr__('cls2')
+        self.deploy = True
