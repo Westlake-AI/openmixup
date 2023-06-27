@@ -10,7 +10,7 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import LayerNormGeneral, lecun_normal_init, to_2tuple
+from ..utils import LayerNormGeneral, Scale, lecun_normal_init, to_2tuple
 
 
 class Downsampling(nn.Module):
@@ -36,18 +36,6 @@ class Downsampling(nn.Module):
         x = x.permute(0, 2, 3, 1) # [B, C, H, W] -> [B, H, W, C]
         x = self.post_norm(x)
         return x
-
-
-class Scale(nn.Module):
-    """
-    Scale vector by element multiplications.
-    """
-    def __init__(self, dim, init_value=1.0, trainable=True):
-        super().__init__()
-        self.scale = nn.Parameter(init_value * torch.ones(dim), requires_grad=trainable)
-
-    def forward(self, x):
-        return x * self.scale
 
 
 class SquaredReLU(nn.Module):
@@ -359,7 +347,7 @@ class MetaFormer(BaseBackbone):
 
             - depths (list[int]): Number of blocks at each stage.
             - embed_dims (list[int]): The number of channels at each stage.
-            - token_mixers (list[str]): The number of channels at each stage.
+            - token_mixers (list[str]): The type of the token mixer at each stage.
 
             Defaults to 'convformer_s18'.
 
@@ -377,8 +365,12 @@ class MetaFormer(BaseBackbone):
         res_scale_init_values (list, tuple, float or None): Init value for Layer Scale.
             Default: [None, None, 1.0, 1.0]. None means not use the layer scale.
             From: https://arxiv.org/abs/2110.09456.
+        gap_before_final_norm (bool): Whether to globally average the feature
+            map before the final norm layer.
         output_norm: norm before classifier head. Default: partial(nn.LayerNorm, eps=1e-6).
-        head_fn: classification head. Default: nn.Linear.
+        out_indices (Sequence[int] or -1): Output from which stages. Default: -1.
+        frozen_stages (int): Stages to be frozen (stop grad and set eval mode).
+            -1 means not freezing any parameters. Default: -1.
     """
     arch_settings = {
         'convformer_s18': {

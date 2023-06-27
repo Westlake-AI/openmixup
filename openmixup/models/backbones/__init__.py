@@ -41,6 +41,7 @@ from .resnet_mmcls import ResNet, ResNet_CIFAR, ResNetV1d, ResNet_Mix, ResNet_Mi
 from .resnext import ResNeXt, ResNeXt_CIFAR, ResNeXt_Mix, ResNeXt_CIFAR_Mix
 from .revvit import RevVisionTransformer
 from .riformer import RIFormer
+from .rwkv import RWKV
 from .seresnet import SEResNet, SEResNet_CIFAR, SEResNeXt
 from .shufflenet_v1 import ShuffleNetV1
 from .shufflenet_v2 import ShuffleNetV2
@@ -71,7 +72,7 @@ __all__ = [
     'PoolFormer', 'PyramidVisionTransformer', 'PCPVT', 'SVT',
     'RegNet', 'RepLKNet', 'RepMLPNet', 'RepVGG', 'Res2Net', 'ResNeSt',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',
-    'ResNeXt', 'ResNeXt_CIFAR', 'ResNeXt_Mix', 'ResNeXt_CIFAR_Mix', 'RevVisionTransformer', 'RIFormer',
+    'ResNeXt', 'ResNeXt_CIFAR', 'ResNeXt_Mix', 'ResNeXt_CIFAR_Mix', 'RevVisionTransformer', 'RIFormer', 'RWKV',
     'SEResNet', 'SEResNet_CIFAR', 'SEResNeXt', 'ShuffleNetV1', 'ShuffleNetV2',
     'SwinTransformer', 'SwinTransformer_Mix', 'SwinTransformerV2',
     'T2T_ViT', 'TIMMBackbone', 'TransformerEncoderLayer',
