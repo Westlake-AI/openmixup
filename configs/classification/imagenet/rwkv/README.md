@@ -10,6 +10,18 @@ Transformers have revolutionized almost all natural language processing (NLP) ta
 <img src="https://github-production-user-asset-6210df.s3.amazonaws.com/44519745/249304190-fc9e0d1c-55c3-457a-8994-35bc8f36ecac.png" width="100%"/>
 </div>
 
+## Results and models
+
+We reimplement RWKV to image classification tasks with the macro design of [MetaFormer](https://arxiv.org/abs/2210.13452) and reproduce the preformances of three variants.
+
+### ImageNet-1k
+
+|     Model    |   Pretrain   | Params(M) | Flops(G) | Top-1 (%) | Top-5 (%) |                                Config                                 |                                Download                                 |
+| :----------: | :----------: | :-------: | :------: | :-------: | :-------: | :-------------------------------------------------------------------: | :---------------------------------------------------------------------: |
+|  RWKV-Tiny   | From scratch |   26.94   |   4.14   |   80.42   |   94.86   | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_tiny_8xb256_accu2_fp16_ep300.py) | [model](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/convnext_small_8xb128_accu4_fp16_ep300.pth) \| [log](https://github.com/Westlake-AI/openmixup/releases/download/open-in1k-weights/convnext_small_8xb128_accu4_fp16_ep300.log.json) |
+|  RWKV-Small  | From scratch |   47.18   |   8.07   |           |           | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_small_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-small_3rdparty_32xb128_in1k_20220124-d39b5192.pth) |
+|  RWKV-Base   | From scratch |   87.45   |  14.70   |           |           | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext/convnext_base_8xb128_accu4_fp16_ep300.py) | [model](https://download.openmmlab.com/mmclassification/v0/convnext/convnext-base_3rdparty_32xb128_in1k_20220124-d0915162.pth) |
+
 ## Citation
 
 ```

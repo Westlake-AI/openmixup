@@ -7,9 +7,9 @@ model = dict(
     mix_args=dict(),
     backbone=dict(
         type='RWKV',
-        arch='rwkv_tiny',
+        arch='rwkv_small',
         img_size=224,
-        drop_path_rate=0.1,
+        drop_path_rate=0.2,
         layer_scale_init=1e-6,
         gap_before_final_norm=True,
     ),

@@ -7,12 +7,12 @@ import torch.nn as nn
 from torch.nn import functional as F
 
 from mmcv.cnn.bricks import build_norm_layer, DropPath
-from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
+from mmcv.cnn.utils.weight_init import constant_init
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
-from ..utils import Scale, lecun_normal_init, to_2tuple
+from ..utils import Scale, lecun_normal_init
 
 
 class RWKV_TimeMix(nn.Module):
@@ -169,7 +169,7 @@ class MHA_rotary(nn.Module):
             self.register_buffer("mask", torch.tril(torch.ones(ctx_len, ctx_len)))
 
         self.rotary_ndims = int(self.head_size * 0.5)
-        self.rotary_emb = RotaryEmbedding(self.rotary_ndims)
+        self.rotary_emb = RotaryEmbedding(self.rotary_ndims, base=ctx_len)
 
         self.output = nn.Linear(n_attn, n_embd)
 
@@ -252,7 +252,7 @@ class MHA_pro(nn.Module):
         self.value = nn.Linear(n_embd, n_attn)
 
         self.rotary_ndims = int(self.head_size * 0.5)
-        self.rotary_emb = RotaryEmbedding(self.rotary_ndims)
+        self.rotary_emb = RotaryEmbedding(self.rotary_ndims, base=ctx_len)
 
         self.head_mix = nn.Conv2d(self.n_head, self.n_head, kernel_size=1, bias=False)  # talking heads
 
@@ -441,6 +441,20 @@ class RWKV(BaseBackbone):
             'depths': [3, 3, 9, 3],
             'embed_dims': [64, 128, 256, 512],
             'model_type': "MHA_pro",
+            'head_num': [8, 8, 8, 8],
+            'mlp_ratio': 4,
+        },
+        'rwkv_small': {
+            'depths': [3, 3, 27, 3],
+            'embed_dims': [64, 128, 256, 512],
+            'model_type': "RWKV",
+            'head_num': [8, 8, 8, 8],
+            'mlp_ratio': 4,
+        },
+        'rwkv_base': {
+            'depths': [3, 3, 20, 3],
+            'embed_dims': [96, 192, 384, 768],
+            'model_type': "RWKV",
             'head_num': [8, 8, 8, 8],
             'mlp_ratio': 4,
         },

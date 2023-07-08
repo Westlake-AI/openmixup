@@ -174,9 +174,10 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
     - [x] [MetaFormer](http://arxiv.org/abs/2210.13452) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/metaformer/)]
     - [x] [ConvNeXtV2](http://arxiv.org/abs/2301.00808) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext_v2/)]
-    - [x] [CoC](http://arxiv.org/abs/2301.00808) (ICLR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/context_cluster/)]
+    - [x] [CoC](https://arxiv.org/abs/2303.01494) (ICLR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/context_cluster/)]
     - [x] [MobileOne](http://arxiv.org/abs/2206.04040) (CVPR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobileone/)]
     - [x] [VanillaNet](http://arxiv.org/abs/2305.12972) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vanillanet/)]
+    - [x] [RWKV](https://arxiv.org/abs/2305.13048) (ArXiv'2023) [[config](IP51/openmixup/configs/classification/imagenet/rwkv/)]
     </details>
 
 * Mixup methods for supervised image classification.

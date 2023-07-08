@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/models/rwkv/rwkv_tiny.py',
+    '../../_base_/models/rwkv/rwkv_base.py',
     '../../_base_/datasets/imagenet/swin_sz224_4xbs256.py',
     '../../_base_/default_runtime.py',
 ]

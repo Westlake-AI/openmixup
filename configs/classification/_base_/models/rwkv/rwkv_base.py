@@ -7,9 +7,9 @@ model = dict(
     mix_args=dict(),
     backbone=dict(
         type='RWKV',
-        arch='rwkv_tiny',
+        arch='rwkv_base',
         img_size=224,
-        drop_path_rate=0.1,
+        drop_path_rate=0.3,
         layer_scale_init=1e-6,
         gap_before_final_norm=True,
     ),
@@ -18,5 +18,5 @@ model = dict(
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
         with_avg_pool=False,
-        in_channels=512, num_classes=1000),
+        in_channels=768, num_classes=1000),
 )

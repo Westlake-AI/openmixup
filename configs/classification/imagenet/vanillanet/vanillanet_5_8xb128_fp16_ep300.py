@@ -10,11 +10,9 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=10)
 # additional hooks
 update_interval = 1  # 128 x 8gpus x 1 accumulates = bs1024
 custom_hooks = [
-    dict(type='CustomFixedHook',  # 0 to 1 warmup
-        attr_name="cos_annealing", attr_base=1,
-        warmup='cosine',
-        warmup_iters=100, warmup_by_epoch=True,  # [0, 100] epochs
-        warmup_ratio=1e-6,
+    dict(type='CustomFixStepCosineAnnealingHook',  # 1 to 0 (inverted)
+        attr_name="cos_annealing",
+        attr_base=1, min_attr=0, by_epoch=True, max_iters=100,  # decay 100 ep
     ),
     dict(type='EMAHook',  # EMA_W = (1 - m) * EMA_W + m * W
         momentum=0.99996,

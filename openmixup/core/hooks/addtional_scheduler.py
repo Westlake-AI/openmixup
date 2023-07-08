@@ -268,6 +268,34 @@ class CosineAnnealingLrAdditionalHook(LrAddtionalSchedulerHook):
 
 
 @HOOKS.register_module()
+class FixStepCosineAnnealingLrAdditionalHook(LrAddtionalSchedulerHook):
+
+    def __init__(self, min_lr=None, min_lr_ratio=None, max_iters=None, **kwargs):
+        assert (min_lr is None) ^ (min_lr_ratio is None)
+        self.min_lr = min_lr
+        self.min_lr_ratio = min_lr_ratio
+        self.max_iters = max_iters
+        super(FixStepCosineAnnealingLrAdditionalHook, self).__init__(**kwargs)
+
+    def get_lr(self, runner, base_lr):
+        if self.by_epoch:
+            progress = runner.epoch
+            max_progress = runner.max_epochs
+        else:
+            progress = runner.iter
+            max_progress = runner.max_iters
+        if self.max_iters is not None:
+            progress = min(progress, self.max_iters)
+            max_progress = self.max_iters
+
+        if self.min_lr_ratio is not None:
+            target_lr = base_lr * self.min_lr_ratio
+        else:
+            target_lr = self.min_lr
+        return annealing_cos(base_lr, target_lr, progress / max_progress)
+
+
+@HOOKS.register_module()
 class CosineRestartLrAdditionalHook(LrAddtionalSchedulerHook):
     """Cosine annealing with restarts learning rate scheme.
 
@@ -654,6 +682,34 @@ class CustomCosineAnnealingHook(CustomSchedulerHook):
         else:
             progress = runner.iter
             max_progress = runner.max_iters
+
+        if self.min_attr_ratio is not None:
+            target_attr = base_attr * self.min_attr_ratio
+        else:
+            target_attr = self.min_attr
+        return annealing_cos(base_attr, target_attr, progress / max_progress)
+
+
+@HOOKS.register_module()
+class CustomFixStepCosineAnnealingHook(CustomSchedulerHook):
+
+    def __init__(self, min_attr=None, min_attr_ratio=None, max_iters=None, **kwargs):
+        assert (min_attr is None) ^ (min_attr_ratio is None)
+        self.min_attr = min_attr
+        self.min_attr_ratio = min_attr_ratio
+        self.max_iters = max_iters
+        super(CustomFixStepCosineAnnealingHook, self).__init__(**kwargs)
+
+    def get_attr(self, runner, base_attr):
+        if self.by_epoch:
+            progress = runner.epoch
+            max_progress = runner.max_epochs
+        else:
+            progress = runner.iter
+            max_progress = runner.max_iters
+        if self.max_iters is not None:
+            progress = min(progress, self.max_iters)
+            max_progress = self.max_iters
 
         if self.min_attr_ratio is not None:
             target_attr = base_attr * self.min_attr_ratio

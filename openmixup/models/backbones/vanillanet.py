@@ -214,6 +214,7 @@ class VanillaNet(BaseBackbone):
                  ada_pool=None,
                  pool_type="maxpool",
                  act_learn_init=None,
+                 act_learn_invert=False,
                  out_indices=-1,
                  frozen_stages=-1,
                  norm_eval=False,
@@ -304,6 +305,7 @@ class VanillaNet(BaseBackbone):
                 )
 
         self._freeze_stages()
+        self.act_learn_invert = act_learn_invert
         if act_learn_init is not None:
             assert isinstance(act_learn_init, float) and 0 <= act_learn_init <= 1
             self.change_act(act_learn_init)
@@ -325,6 +327,8 @@ class VanillaNet(BaseBackbone):
         self.change_act(attribute)
 
     def change_act(self, m):
+        if self.act_learn_invert:
+            m = 1 - m
         for i in range(self.num_stage):
             self.stages[i].act_learn = m
         self.act_learn = m

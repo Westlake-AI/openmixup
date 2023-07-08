@@ -9,6 +9,8 @@ model = dict(
     backbone=dict(
         type='VanillaNet',
         arch='vanillanet_5',
+        act_learn_init=1.0,
+        act_learn_invert=True,
     ),
     head=dict(
         type='VanillaNetClsHead',  # mlp head + BCE loss

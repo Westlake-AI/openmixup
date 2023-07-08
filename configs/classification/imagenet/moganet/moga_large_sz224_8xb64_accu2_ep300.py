@@ -3,7 +3,7 @@ _base_ = [
     '../../_base_/datasets/imagenet/moga_sz224_8xbs128.py',
     '../../_base_/default_runtime.py',
 ]
-
+model = dict(backbone=dict(attn_force_fp32=False))  # force fp32 of gating for fp16 training
 # data
 data = dict(imgs_per_gpu=64, workers_per_gpu=8)
 
