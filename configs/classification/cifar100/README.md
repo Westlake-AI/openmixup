@@ -29,12 +29,12 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
   )
   ```
 
-### Mixup Benchmark on CIFAR-100
+### Classical Mixup Benchmark on CIFAR-100
 
 **Setup**
 
 * This benchmark using CIFAR varient of ResNet architectures train 200, 400, 800, 1200 epochs on [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html). The training and testing image size is 32 and we search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
-* As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_puzzlemix_CE_soft.py).
+* View config files of general Mixup methods in [mixups/basic](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/) and the [DecoupleMix](https://arxiv.org/abs/2203.10761) variants in [mixups/decouple](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/decouple/). As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_puzzlemix_CE_soft.py).
 * The **median** of top-1 accuracy in the last 10 training epochs is reported for ResNet-18, ResNeXt-50 (32x4d), and Wide-ResNet-28-8. Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones     |  $Beta$   |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
@@ -75,9 +75,30 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
 
 We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
 
-### ViTs Benchmark on CIFAR-100
+### ViTs' Mixup Benchmark on CIFAR-100
 
-On updating!
+**Setup**
+
+* Since the original resolutions of CIFAR-100 are too small for ViTs, we resize the input images to $224\times 224$ (training and testing) while not modifying the ViT architectures. This benchmark uses DeiT setup and trains the model for 200 epochs with a batch size of 100 on CIFAR-100. The basic learning rate of DeiT and Swin are $1e-3$ and $5e-4$, which is the optimal setup in our experiments. We search and report $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods. View config files in [mixups/vits](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits/).
+* The **best** of top-1 accuracy in the last 10 training epochs is reported for ViT architectures. Notice that 📖 denotes original results reproduced by official implementations.
+
+| Backbones     |  $Beta$  | DEiT-S(/16) |   Swin-T   |
+|---------------|:--------:|:-----------:|:----------:|
+| Epoch         | $\alpha$ |  200 epochs | 200 epochs |
+| Vanilla       |     -    |    65.81    |    78.41   |
+| MixUp         |    0.8   |    69.98    |    76.78   |
+| CutMix        |     2    |    74.12    |    80.64   |
+| DeiT          |   0.8,1  |    75.92    |    81.25   |
+| SmoothMix     |    0.2   |    67.54    |    66.69   |
+| SaliencyMix   |    0.2   |    69.78    |    80.40   |
+| AttentiveMix+ |     2    |    75.98    |    81.13   |
+| FMix*         |     1    |    70.41    |    80.72   |
+| GridMix       |     1    |    68.86    |    78.54   |
+| PuzzleMix     |     2    |    73.60    |    80.33   |
+| ResizeMix*    |     1    |    68.45    |    80.16   |
+| TransMix      |   0.8,1  |    76.17    |      -     |
+| AutoMix       |     2    |    74.87    |    82.67   |
+| SAMix*        |     2    |             |            |
 
 ## Citation
 
