@@ -108,6 +108,15 @@ class Attention(nn.Module):
         return x
 
 
+class IdentityMixing(nn.Identity):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+    def forward(self, x):
+        return x
+
+
 class RandomMixing(nn.Module):
 
     def __init__(self, num_tokens=196, **kwargs):
@@ -373,6 +382,81 @@ class MetaFormer(BaseBackbone):
             -1 means not freezing any parameters. Default: -1.
     """
     arch_settings = {
+        'identityformer_s12': {
+            'depths': [2, 2, 6, 2],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "IdentityMixing",
+        },
+        'identityformer_s24': {
+            'depths': [4, 4, 12, 4],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "IdentityMixing",
+        },
+        'identityformer_s36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "IdentityMixing",
+        },
+        'identityformer_m36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': "IdentityMixing",
+        },
+        'identityformer_m48': {
+            'depths': [8, 8, 24, 8],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': "IdentityMixing",
+        },
+        'randformer_s12': {
+            'depths': [2, 2, 6, 2],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': ["IdentityMixing", "IdentityMixing", "RandomMixing", "RandomMixingS4"],
+        },
+        'randformer_s24': {
+            'depths': [4, 4, 12, 4],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': ["IdentityMixing", "IdentityMixing", "RandomMixing", "RandomMixingS4"],
+        },
+        'randformer_s36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': ["IdentityMixing", "IdentityMixing", "RandomMixing", "RandomMixingS4"],
+        },
+        'randformer_m36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': ["IdentityMixing", "IdentityMixing", "RandomMixing", "RandomMixingS4"],
+        },
+        'randformer_m48': {
+            'depths': [8, 8, 24, 8],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': ["IdentityMixing", "IdentityMixing", "RandomMixing", "RandomMixingS4"],
+        },
+        'poolformerv2_s12': {
+            'depths': [2, 2, 6, 2],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "Pooling",
+        },
+        'poolformerv2_s24': {
+            'depths': [4, 4, 12, 4],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "Pooling",
+        },
+        'poolformerv2_s36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [64, 128, 320, 512],
+            'token_mixers': "Pooling",
+        },
+        'poolformerv2_m36': {
+            'depths': [6, 6, 18, 6],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': "Pooling",
+        },
+        'poolformerv2_m48': {
+            'depths': [8, 8, 24, 8],
+            'embed_dims': [96, 192, 384, 768],
+            'token_mixers': "Pooling",
+        },
         'convformer_s18': {
             'depths': [3, 3, 9, 3],
             'embed_dims': [64, 128, 320, 512],

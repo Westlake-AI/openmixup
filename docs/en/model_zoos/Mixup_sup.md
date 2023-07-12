@@ -227,6 +227,8 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 
 ### **CIFAR-100 Dataset**
 
+#### Classical Mixup Benchmark on CIFAR-100
+
 These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from stretch based on the CIFAR version of ResNet variants on [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html). When adopting ResNeXt-50 (32x4d) as the backbone, we use `wd=5e-4` for cutting-based methods (CutMix, AttributeMix+, SaliencyMix, FMix, ResizeMix) for better performances.
 
 **Note**
@@ -270,6 +272,31 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | ResizeMix*    |     1    |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
 | AutoMix       |     2    |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
 | SAMix*        |     2    |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
+
+#### ViTs' Mixup Benchmark on CIFAR-100
+
+**Setup**
+
+* Since the original resolutions of CIFAR-100 are too small for ViTs, we resize the input images to $224\times 224$ (training and testing) while not modifying the ViT architectures. This benchmark uses DeiT setup and trains the model for 200 epochs with a batch size of 100 on CIFAR-100. The basic learning rate of DeiT and Swin are $1e-3$ and $5e-4$, which is the optimal setup in our experiments. We search and report $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods. View config files in [mixups/vits](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits/).
+* The **best** of top-1 accuracy in the last 10 training epochs is reported for ViT architectures. Notice that 📖 denotes original results reproduced by official implementations.
+
+| Backbones     |  $Beta$  | DEiT-S(/16) |   Swin-T   |
+|---------------|:--------:|:-----------:|:----------:|
+| Epoch         | $\alpha$ |  200 epochs | 200 epochs |
+| Vanilla       |     -    |    65.81    |    78.41   |
+| MixUp         |    0.8   |    69.98    |    76.78   |
+| CutMix        |     2    |    74.12    |    80.64   |
+| DeiT          |   0.8,1  |    75.92    |    81.25   |
+| SmoothMix     |    0.2   |    67.54    |    66.69   |
+| SaliencyMix   |    0.2   |    69.78    |    80.40   |
+| AttentiveMix+ |     2    |    75.98    |    81.13   |
+| FMix*         |     1    |    70.41    |    80.72   |
+| GridMix       |     1    |    68.86    |    78.54   |
+| PuzzleMix     |     2    |    73.60    |    80.33   |
+| ResizeMix*    |     1    |    68.45    |    80.16   |
+| TransMix      |   0.8,1  |    76.17    |      -     |
+| AutoMix       |     2    |    76.24    |    82.67   |
+| SAMix*        |     2    |    77.94    |            |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

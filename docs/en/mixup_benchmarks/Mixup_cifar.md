@@ -165,7 +165,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | PuzzleMix     |     2    |    73.60    |    80.33   |
 | ResizeMix*    |     1    |    68.45    |    80.16   |
 | TransMix      |   0.8,1  |    76.17    |      -     |
-| AutoMix       |     2    |    74.87    |    82.67   |
-| SAMix*        |     2    |             |            |
+| AutoMix       |     2    |    76.24    |    82.67   |
+| SAMix*        |     2    |    77.94    |            |
 
 <p align="right">(<a href="#top">back to top</a>)</p>
