@@ -46,13 +46,13 @@ model = dict(
     head_one=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
-            label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=384, num_classes=1000),
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        in_channels=384, num_classes=100),
     head_mix=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
-            label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
-        in_channels=384, num_classes=1000),
+            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
+        in_channels=384, num_classes=100),
     head_weights=dict(
         decent_weight=[], accent_weight=[],
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),

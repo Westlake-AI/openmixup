@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
-    '../../../_base_/default_runtime.py',
+    '../../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
+    '../../../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg

@@ -2,7 +2,7 @@ from .alexnet import AlexNet
 from .beit import BEiTVisionTransformer
 from .context_cluster import ContextCluster
 from .convmixer import ConvMixer
-from .convnext import ConvNeXt, ConvNeXt_Mix, MIMConvNeXt, ConvNeXt_CIFAR
+from .convnext import ConvNeXt, ConvNeXt_Mix, MIMConvNeXt, ConvNeXt_CIFAR, ConvNeXt_Mix_CIFAR
 from .cspnet import CSPDarkNet, CSPNet, CSPResNet, CSPResNeXt
 from .davit import DaViT
 from .deit import DistilledVisionTransformer
@@ -61,7 +61,7 @@ from .xcit import XCiT
 
 __all__ = [
     'AlexNet', 'BEiTViT', 'BEiTVisionTransformer', 'ContextCluster',
-    'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvMixer',
+    'ConvNeXt', 'ConvNeXt_Mix', 'MIMConvNeXt', 'ConvNeXt_CIFAR', 'ConvNeXt_Mix_CIFAR', 'ConvMixer',
     'CSPDarkNet', 'CSPNet', 'CSPResNet', 'CSPResNeXt',
     'DaViT', 'DistilledVisionTransformer', 'DeiT3', 'DenseNet', 'DenseNet_CIFAR',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'EfficientNetV2', 'HorNet', 'HorNet_CIFAR', 'HRNet',

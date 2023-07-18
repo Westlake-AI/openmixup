@@ -1,12 +1,12 @@
 _base_ = [
-    '../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
-    '../../../_base_/default_runtime.py',
+    '../../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
+    '../../../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg
 conv1x1=dict(
     type="ConvNeck",
-    in_channels=768, hid_channels=384, out_channels=1,  # MixBlock v
+    in_channels=384, hid_channels=192, out_channels=1,  # MixBlock v
     num_layers=2, kernel_size=1,
     with_last_norm=False, norm_cfg=dict(type='BN'),  # default
     with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
@@ -25,15 +25,16 @@ model = dict(
     mask_up_override=None,
     debug=True,
     backbone=dict(
-        type='SwinTransformer',
+        type='ConvNeXt_CIFAR',
         arch='tiny',
-        img_size=224,
-        drop_path_rate=0.2,
-        out_indices=(2,3,),  # x-1: stage-x
+        out_indices=(2, 3),  # x-1: stage-x
+        act_cfg=dict(type='GELU'),
+        drop_path_rate=0.3,
+        gap_before_final_norm=True,
     ),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
-        in_channels=768, reduction=2, use_scale=True,
+        in_channels=384, reduction=2, use_scale=True,
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         # unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
         lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
@@ -44,16 +45,16 @@ model = dict(
         mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
         frozen=False),
     head_one=dict(
-        type='ClsMixupHead',  # mixup CE + label smooth
+        type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
-        with_avg_pool=True,
+        with_avg_pool=False,
         in_channels=768, num_classes=100),
     head_mix=dict(
-        type='ClsMixupHead',  # mixup CE + label smooth
+        type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
             label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
-        with_avg_pool=True,
+        with_avg_pool=False,
         in_channels=768, num_classes=100),
     head_weights=dict(
         decent_weight=[], accent_weight=[],
@@ -87,18 +88,17 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=5e-4,
+    lr=1e-3,
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'absolute_pos_embed': dict(weight_decay=0.),
-        'relative_position_bias_table': dict(weight_decay=0.),
-        'mix_block': dict(lr=5e-4),
+        'gamma': dict(weight_decay=0.),
+        'mix_block': dict(lr=7.5e-4),
     })
-# Sets `find_unused_parameters`: randomly switch off mixblock
-find_unused_parameters = True
+# # Sets `find_unused_parameters`: randomly switch off mixblock
+# find_unused_parameters = True
 
 # fp16
 use_fp16 = False

@@ -1,15 +1,7 @@
 _base_ = [
-    '../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
-    '../../../_base_/default_runtime.py',
+    '../../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
+    '../../../../_base_/default_runtime.py',
 ]
-
-# value_neck_cfg
-conv1x1=dict(
-    type="ConvNeck",
-    in_channels=768, hid_channels=384, out_channels=1,  # MixBlock v
-    num_layers=2, kernel_size=1,
-    with_last_norm=False, norm_cfg=dict(type='BN'),  # default
-    with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
 
 # model settings
 model = dict(
@@ -17,7 +9,7 @@ model = dict(
     pretrained=None,
     alpha=2.0,
     momentum=0.999,
-    mask_layer=2,  # dowmsampling to 1/16
+    mask_layer=3,  # dowmsampling to 1/16
     mask_loss=0.1,  # using loss
     mask_adjust=0,  # none for large datasets
     lam_margin=0.08,
@@ -35,13 +27,11 @@ model = dict(
         type='PixelMixBlock',
         in_channels=768, reduction=2, use_scale=True,
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
-        # unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
-        lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)
-        value_neck_cfg=conv1x1,  # SAMix: non-linear value
-        x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
-        # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
-        mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
+        lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
+        lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
+        x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
+        att_norm_cfg=None,  # AutoMix: attention norm for fp16
+        mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
         frozen=False),
     head_one=dict(
         type='ClsMixupHead',  # mixup CE + label smooth
@@ -95,16 +85,16 @@ optimizer = dict(
         'bias': dict(weight_decay=0.),
         'absolute_pos_embed': dict(weight_decay=0.),
         'relative_position_bias_table': dict(weight_decay=0.),
-        'mix_block': dict(lr=5e-4),
+        'mix_block': dict(lr=1e-3),
     })
-# Sets `find_unused_parameters`: randomly switch off mixblock
-find_unused_parameters = True
+# # Sets `find_unused_parameters`: randomly switch off mixblock
+# find_unused_parameters = True
 
 # fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
-    grad_clip=dict(max_norm=20.0), update_interval=update_interval)
+    grad_clip=dict(max_norm=10.0), update_interval=update_interval)
 
 # lr scheduler: Swim for DeiT
 lr_config = dict(
