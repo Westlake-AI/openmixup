@@ -2,6 +2,7 @@ _base_ = "r18_mixups_CE_none.py"
 
 # model settings
 model = dict(
+    pretrained="torchvision://resnext50_32x4d",
     alpha=1,  # float or list
     mix_mode="mixup",  # str or list, choose a mixup mode
     backbone=dict(

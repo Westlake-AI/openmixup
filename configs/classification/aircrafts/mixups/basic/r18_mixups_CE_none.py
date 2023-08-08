@@ -6,7 +6,7 @@ _base_ = [
 # model settings
 model = dict(
     type='MixUpClassification',
-    pretrained=None,
+    pretrained="torchvision://resnet18",
     alpha=1,  # float or list
     mix_mode="mixup",  # str or list, choose a mixup mode
     mix_args=dict(

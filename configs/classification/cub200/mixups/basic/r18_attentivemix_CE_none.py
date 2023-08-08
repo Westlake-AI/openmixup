@@ -6,8 +6,8 @@ _base_ = [
 # model settings
 model = dict(
     type='MixUpClassification',
-    pretrained=None,
-    pretrained_k="work_dirs/my_pretrains/official/resnet50_pytorch.pth",
+    pretrained="torchvision://resnet18",
+    pretrained_k="torchvision://resnet50",
     alpha=2,
     mix_mode="attentivemix",
     mix_args=dict(

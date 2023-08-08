@@ -292,7 +292,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | AttentiveMix+ |     2    |    75.98    |    81.13   |       |
 | FMix*         |     1    |    70.41    |    80.72   |       |
 | GridMix       |     1    |    68.86    |    78.54   |       |
-| PuzzleMix     |     2    |    73.60    |    80.33   |       |
+| PuzzleMix     |     2    |    73.60    |    80.44   |       |
 | ResizeMix*    |     1    |    68.45    |    80.16   |       |
 | TransMix      |   0.8,1  |    76.17    |      -     |       |
 | AutoMix       |     2    |    76.24    |    82.67   |       |
