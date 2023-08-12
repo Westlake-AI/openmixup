@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
-    '../../../../_base_/default_runtime.py',
+    '../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
+    '../../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg
@@ -35,7 +35,7 @@ model = dict(
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
         in_channels=384, reduction=2, use_scale=True,
-        unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
+        unsampling_mode=['bilinear',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         # unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
         lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
         lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)

@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
-    '../../../../_base_/default_runtime.py',
+    '../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
+    '../../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg
@@ -8,7 +8,7 @@ conv1x1=dict(
     type="ConvNeck",
     in_channels=384, hid_channels=192, out_channels=1,  # MixBlock v
     num_layers=2, kernel_size=1,
-    with_last_norm=False, norm_cfg=dict(type='BN'),  # default
+    with_last_norm=False, norm_cfg=dict(type='LN2d'),
     with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
 
 # model settings
@@ -25,12 +25,11 @@ model = dict(
     mask_up_override=None,
     debug=True,
     backbone=dict(
-        type='ConvNeXt_CIFAR',
-        arch='tiny',
-        out_indices=(2, 3),  # x-1: stage-x
-        act_cfg=dict(type='GELU'),
-        drop_path_rate=0.3,
-        gap_before_final_norm=True,
+        type='VisionTransformer',
+        arch='deit-small',
+        img_size=224, patch_size=16,
+        drop_path_rate=0.1,
+        out_indices=(5, 11),  # DeiT-S: 12 layers, use 6-layer for MixBlock
     ),
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
@@ -47,15 +46,13 @@ model = dict(
     head_one=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
-            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
-        with_avg_pool=False,
-        in_channels=768, num_classes=100),
+            label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
+        in_channels=384, num_classes=1000),
     head_mix=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
         loss=dict(type='LabelSmoothLoss',
-            label_smooth_val=0.1, num_classes=100, mode='original', loss_weight=1.0),
-        with_avg_pool=False,
-        in_channels=768, num_classes=100),
+            label_smooth_val=0.1, num_classes=1000, mode='original', loss_weight=1.0),
+        in_channels=384, num_classes=1000),
     head_weights=dict(
         decent_weight=[], accent_weight=[],
         head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
@@ -70,7 +67,7 @@ update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
 
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=500 * 20,  # 20 ep
+        save_interval=500 * 25,  # 25 ep
         iter_per_epoch=500,
     ),
     dict(type='CustomCosineAnnealingHook',  # 0.1 to 0
@@ -88,13 +85,14 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3,
+    lr=7.5e-4,
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'gamma': dict(weight_decay=0.),
+        'cls_token': dict(weight_decay=0.),
+        'pos_embed': dict(weight_decay=0.),
         'mix_block': dict(lr=7.5e-4),
     })
 # # Sets `find_unused_parameters`: randomly switch off mixblock
@@ -128,4 +126,4 @@ addtional_scheduler = dict(
 evaluation = dict(initial=False, save_best=None)
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=200)
+runner = dict(type='EpochBasedRunner', max_epochs=600)

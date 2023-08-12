@@ -1,15 +1,7 @@
 _base_ = [
-    '../../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
-    '../../../../_base_/default_runtime.py',
+    '../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
+    '../../../_base_/default_runtime.py',
 ]
-
-# value_neck_cfg
-conv1x1=dict(
-    type="ConvNeck",
-    in_channels=384, hid_channels=192, out_channels=1,  # MixBlock v
-    num_layers=2, kernel_size=1,
-    with_last_norm=False, norm_cfg=dict(type='BN'),  # default
-    with_last_dropout=0.1, with_avg_pool=False, with_residual=False)  # no res + dropout
 
 # model settings
 model = dict(
@@ -36,13 +28,11 @@ model = dict(
         type='PixelMixBlock',
         in_channels=384, reduction=2, use_scale=True,
         unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
-        # unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
-        lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
-        lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)
-        value_neck_cfg=conv1x1,  # SAMix: non-linear value
-        x_qk_concat=True, x_v_concat=False,  # SAMix x concat: q,k
-        # att_norm_cfg=dict(type='BN'),  # norm after q,k (design for fp16, also conduct better performace in fp32)
-        mask_loss_mode="L1+Variance", mask_loss_margin=0.1,  # L1+Var loss, tricks in SAMix
+        lam_concat=True, lam_concat_v=False,  # AutoMix.V1: lam cat q,k,v
+        lam_mul=False, lam_residual=False, lam_mul_k=-1,  # SAMix lam: none
+        x_qk_concat=False, x_v_concat=False,  # SAMix x concat: none
+        att_norm_cfg=None,  # AutoMix: attention norm for fp16
+        mask_loss_mode="L1", mask_loss_margin=0.1,  # L1 loss, 0.1
         frozen=False),
     head_one=dict(
         type='VisionTransformerClsHead',  # mixup CE + label smooth
@@ -88,14 +78,14 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3,
+    lr=2e-3,
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'gamma': dict(weight_decay=0.),
-        'mix_block': dict(lr=7.5e-4),
+        'mix_block': dict(lr=1e-3),
     })
 # # Sets `find_unused_parameters`: randomly switch off mixblock
 # find_unused_parameters = True
@@ -103,8 +93,7 @@ optimizer = dict(
 # fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
-optimizer_config = dict(
-    grad_clip=dict(max_norm=20.0), update_interval=update_interval)
+optimizer_config = dict(grad_clip=None, update_interval=update_interval)
 
 # lr scheduler: Swim for DeiT
 lr_config = dict(

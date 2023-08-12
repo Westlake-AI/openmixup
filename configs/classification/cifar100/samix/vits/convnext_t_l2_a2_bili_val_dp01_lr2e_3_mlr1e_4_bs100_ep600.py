@@ -1,6 +1,6 @@
 _base_ = [
-    '../../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
-    '../../../../_base_/default_runtime.py',
+    '../../../_base_/datasets/cifar100/sz32_randaug_bs100.py',
+    '../../../_base_/default_runtime.py',
 ]
 
 # value_neck_cfg
@@ -35,7 +35,7 @@ model = dict(
     mix_block = dict(  # AutoMix
         type='PixelMixBlock',
         in_channels=384, reduction=2, use_scale=True,
-        unsampling_mode=['nearest',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
+        unsampling_mode=['bilinear',],  # str or list, train & test MixBlock, 'nearest' for AutoMix
         # unsampling_mode=['bilinear',],  # str or list, tricks in SAMix
         lam_concat=False, lam_concat_v=False,  # AutoMix.V1: none
         lam_mul=True, lam_residual=True, lam_mul_k=-1,  # SAMix lam: mult + k=-1 (-1 for large datasets)
@@ -88,14 +88,14 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3,
+    lr=2e-3,
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'gamma': dict(weight_decay=0.),
-        'mix_block': dict(lr=7.5e-4),
+        'mix_block': dict(lr=1e-3),
     })
 # # Sets `find_unused_parameters`: randomly switch off mixblock
 # find_unused_parameters = True
@@ -128,4 +128,4 @@ addtional_scheduler = dict(
 evaluation = dict(initial=False, save_best=None)
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=200)
+runner = dict(type='EpochBasedRunner', max_epochs=600)
