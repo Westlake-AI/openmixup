@@ -194,12 +194,13 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [SaliencyMix](https://arxiv.org/abs/1710.09412) (ICLR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
-    - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (ArXiv'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (CVMJ'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AlignMix](https://arxiv.org/abs/2103.15375) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [TransMix](https://arxiv.org/abs/2111.09833) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
     - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
     - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
+    - [ ] [SMMix](https://arxiv.org/abs/2212.12977) (ICCV'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     </details>
 
     <details open>

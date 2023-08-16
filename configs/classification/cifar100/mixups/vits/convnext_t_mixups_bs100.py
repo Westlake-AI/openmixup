@@ -19,7 +19,7 @@ model = dict(
         manifoldmix=dict(layer=(0, 3)),
         puzzlemix=dict(transport=True, t_batch_size=None, t_size=4,  # t_size for small-scale datasets
             block_num=5, beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
-        resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
+        resizemix=dict(scope=(0.1, 0.8), use_alpha=True, interpolate_mode="bilinear"),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
         transmix=dict(mix_mode="cutmix"),
     ),

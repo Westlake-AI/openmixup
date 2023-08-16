@@ -27,11 +27,11 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [ ] [Co-Mixup [ICLR'2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
 - [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
-- [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [X] [ResizeMix [CVMJ'2023]](https://arxiv.org/abs/2012.11101)
 - [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
+- [ ] [RecursiveMix [NeurIPS'2022]](https://arxiv.org/abs/2203.06844)
 
 </details>
 
@@ -39,9 +39,10 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 <summary>Supported label mixing policies</summary>
 
 - [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796)
-- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
+- [X] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 - [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
+- [ ] [SMMix [ICCV'2023]](https://arxiv.org/abs/2212.12977)
 
 </details>
 
@@ -135,12 +136,12 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | Vanilla       |     -    |  73.91 |  75.66 |  77.09 | 74.67 |  80.21 |    79.22   |   79.25   |
 | DeiT          |  0.8, 1  |  74.50 |  79.80 |  81.83 | 75.10 |  81.20 |    82.10   |   79.02   |
 | MixUp         |    0.2   |  74.69 |  77.72 |  78.98 | 75.24 |  81.01 |    80.88   |   79.29   |
-| CutMix        |    0.2   |  74.23 |  80.13 |  81.61 | 75.53 |  81.23 |    81.57   |   78.37   |
+| CutMix        |    0.2   |  74.23 |  80.13 |  81.61 | 75.53 |  81.33 |    81.57   |   78.37   |
 | ManifoldMix   |    0.2   |    -   |    -   |   -   |   -   |    -   |    80.57   |   79.07   |
 | AttentiveMix+ |     2    |  74.07 |  80.32 |  82.42 | 74.98 |  81.29 |    81.14   |   77.53   |
 | SaliencyMix   |    0.2   |  74.17 |  79.88 |  80.72 | 75.71 |  81.37 |    81.33   |   78.74   |
 | PuzzleMix     |     1    |  73.85 |  80.45 |  81.63 | 75.48 |  81.47 |    81.48   |   78.12   |
-| FMix*         |    0.2   |  74.41 |  77.37 |        | 75.28 |  79.60 |    81.04   |   79.05   |
+| FMix*         |    0.2   |  74.41 |  77.37 |  79.84 | 75.28 |  79.60 |    81.04   |   79.05   |
 | ResizeMix*    |     1    |  74.79 |  78.61 |  80.89 | 76.05 |  81.36 |    81.64   |   78.77   |
 | TransMix      |  0.8, 1  |  74.56 |  80.68 |  82.51 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 |  82.90 | 75.60 |  81.60 |      -     |     -     |

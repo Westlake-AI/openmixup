@@ -27,11 +27,11 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [ ] [Co-Mixup [ICLR'2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
 - [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
-- [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [X] [ResizeMix [CVMJ'2023]](https://arxiv.org/abs/2012.11101)
 - [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
-- [ ] [RecursiveMix [ArXiv'2022]](https://arxiv.org/abs/2203.06844)
+- [ ] [RecursiveMix [NeurIPS'2022]](https://arxiv.org/abs/2203.06844)
 
 </details>
 
@@ -39,9 +39,10 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 <summary>Supported label mixing policies</summary>
 
 - [ ] [Saliency Grafting [AAAI'2022]](https://arxiv.org/abs/2112.08796)
-- [ ] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
+- [X] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 - [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
+- [ ] [SMMix [ICCV'2023]](https://arxiv.org/abs/2212.12977)
 
 </details>
 

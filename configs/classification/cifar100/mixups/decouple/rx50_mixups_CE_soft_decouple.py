@@ -23,26 +23,23 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
-        # type='ResNet_CIFAR',  # CIFAR version
-        type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
-        depth=18,
-        num_stages=4,
+        # type='ResNeXt_CIFAR',  # CIFAR
+        type='ResNeXt_CIFAR_Mix',  # required by 'manifoldmix'
+        depth=50,
+        groups=32, width_per_group=4,  # 32x4d
         out_indices=(3,),  # no conv-1, x-1: stage-x
         style='pytorch'),
     head=dict(
-        type='ClsMixupHead',  # soft CE decoupled mixup
-        loss=dict(type='CrossEntropyLoss', loss_weight=1.0,
-            use_soft=True, use_sigmoid=False, use_mix_decouple=True,  # decouple mixup CE
-        ),
-        with_avg_pool=True, multi_label=True, two_hot=False, two_hot_scale=1,  # not two-hot
-        lam_scale_mode='pow', lam_thr=1, lam_idx=1,  # lam rescale, default as linear
-        eta_weight=dict(eta=0.1, mode="both", thr=0.5),
-        in_channels=512, num_classes=100)
+        type='ClsMixupHead',  # mixup soft CE loss
+        loss=dict(type='CrossEntropyLoss',  # soft CE (one-hot encoding)
+            use_soft=True, use_sigmoid=False, loss_weight=1.0),
+        with_avg_pool=True, multi_label=True, two_hot=False,
+        in_channels=2048, num_classes=100),
 )
 
 # optimizer
-optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
-
+optimizer = dict(type='SGD',
+                 lr=0.1, momentum=0.9, weight_decay=0.0001)  # adjust wd={1e-4, 5e-4} for mixup methods
 # fp16
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)

@@ -27,7 +27,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [ ] [Co-Mixup [ICLR'2021]](https://openreview.net/forum?id=gvxJzw8kW4b)
 - [X] [GridMix [Pattern Recognition'2021]](https://www.sciencedirect.com/science/article/pii/S0031320320303976)
 - [ ] [SuperMix [CVPR'2021]](https://arxiv.org/abs/2003.05034)
-- [X] [ResizeMix [ArXiv'2020]](https://arxiv.org/abs/2012.11101)
+- [X] [ResizeMix [CVMJ'2023]](https://arxiv.org/abs/2012.11101)
 - [X] [AlignMix [CVPR'2022]](https://arxiv.org/abs/2103.15375)
 - [X] [AutoMix [ECCV'2022]](https://arxiv.org/abs/2103.13027)
 - [X] [SAMix [ArXiv'2021]](https://arxiv.org/abs/2111.15454)
@@ -42,6 +42,7 @@ Now, we have supported 13 popular mixup methods! Notice that * denotes open-sour
 - [X] [TransMix [CVPR'2022]](https://arxiv.org/abs/2111.09833)
 - [X] [DecoupleMix [ArXiv'2022]](https://arxiv.org/abs/2203.10761)
 - [ ] [TokenMix [ECCV'2022]](https://arxiv.org/abs/2207.08409)
+- [ ] [SMMix [ICCV'2023]](https://arxiv.org/abs/2212.12977)
 
 </details>
 
@@ -74,7 +75,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | PuzzleMix     |     1    |    70.12   |    74.26   |    77.54   |    79.36   |    80.53    |
 | Co-Mixup📖     |     2    |      -     |      -     |    77.60   |      -     |      -      |
 | SuperMix📖     |     2    |      -     |      -     |    77.63   |      -     |      -      |
-| ResizeMix*    |     1    |    69.50   |    73.88   |    77.42   |    79.49   |    80.55    |
+| ResizeMix     |     1    |    69.50   |    73.88   |    77.42   |    79.49   |    80.55    |
 | AlignMix📖     |     2    |      -     |      -     |    78.00   |      -     |      -      |
 | Grafting📖     |     1    |      -     |      -     |    77.74   |      -     |      -      |
 | AutoMix       |     2    |    70.50   |    74.52   |    77.91   |    79.87   |    80.89    |
@@ -91,7 +92,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) settin
 | FMix*       |     1    |    70.30   |    75.12   |    78.51   |    80.20   |
 | GridMix     |    0.2   |      -     |      -     |    78.50   |      -     |
 | PuzzleMix   |     1    |    71.64   |    75.84   |    78.86   |    80.67   |
-| ResizeMix*  |     1    |    71.32   |    75.64   |    78.91   |    80.52   |
+| ResizeMix   |     1    |    71.32   |    75.64   |    78.91   |    80.52   |
 | AlignMix📖   |     2    |      -     |      -     |    79.32   |      -     |
 | AutoMix     |     2    |    72.05   |    76.10   |    79.25   |    80.98   |
 | SAMix*      |     2    |    72.27   |    76.28   |    79.39   |    81.10   |
@@ -116,7 +117,7 @@ These benchmarks follow [timm](https://github.com/rwightman/pytorch-image-models
 | SaliencyMix   |    0.2   |   77.93   |   79.42   |  73.42 |  77.67 |   69.69   |   72.07   |
 | FMix*         |    0.2   |   77.76   |   79.05   |  73.71 |  77.33 |   70.10   |   72.79   |
 | PuzzleMix     |     1    |   78.02   |   79.78   |  74.10 |  77.35 |   70.04   |   72.85   |
-| ResizeMix*    |     1    |   77.85   |   79.94   |  73.67 |  77.27 |   69.94   |   72.50   |
+| ResizeMix     |     1    |   77.85   |   79.94   |  73.67 |  77.27 |   69.94   |   72.50   |
 | AutoMix       |     2    |   78.44   |   80.28   |  74.61 |  77.58 |   71.16   |   73.19   |
 | SAMix         |     2    |   78.64   |     -     |  75.28 |  77.69 |   71.24   |   73.42   |
 
@@ -141,7 +142,7 @@ Since recently proposed transformer-based architectures adopt mixups as parts of
 | SaliencyMix   |    0.2   |  74.17 |  79.88 |  80.72 | 75.71 |  81.37 |    81.33   |   78.74   |
 | PuzzleMix     |     1    |  73.85 |  80.45 |  81.63 | 75.48 |  81.47 |    81.48   |   78.12   |
 | FMix*         |    0.2   |  74.41 |  77.37 |        | 75.28 |  79.60 |    81.04   |   79.05   |
-| ResizeMix*    |     1    |  74.79 |  78.61 |  80.89 | 76.05 |  81.36 |    81.64   |   78.77   |
+| ResizeMix     |     1    |  74.79 |  78.61 |  80.89 | 76.05 |  81.36 |    81.64   |   78.77   |
 | TransMix      |  0.8, 1  |  74.56 |  80.68 |  82.51 | 75.50 |  81.80 |      -     |     -     |
 | TokenMix📖     |  0.8, 1  |  75.31 |  80.80 |  82.90 | 75.60 |  81.60 |      -     |     -     |
 | AutoMix       |     2    |  75.52 |  80.78 |  82.18 | 76.38 |  81.80 |    82.28   |   79.43   |
@@ -168,7 +169,7 @@ This benchmark largely follows [PuzzleMix](https://arxiv.org/abs/2009.06962) set
 | FMix*         |     1    |   63.47   |    65.08   |
 | PuzzleMix     |     1    |   65.81   |    67.83   |
 | Co-Mixup📖    |     2    |   65.92   |    68.02   |
-| ResizeMix*    |     1    |   63.74   |    65.87   |
+| ResizeMix     |     1    |   63.74   |    65.87   |
 | GridMix       |    0.2   |   65.14   |    66.53   |
 | Grafting📖    |     1    |   64.84   |      -     |
 | AlignMix📖    |     2    |   66.87   |      -     |
@@ -203,7 +204,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | FMix*         |    0.2    |    96.17   |    96.53   |    96.18   |    96.01    |
 | PuzzleMix     |     1     |    96.42   |    96.87   |    97.10   |    97.13    |
 | GridMix       |    0.2    |    95.89   |    96.33   |    96.56   |    96.58    |
-| ResizeMix*    |     1     |    96.16   |    96.91   |    96.76   |    97.04    |
+| ResizeMix     |     1     |    96.16   |    96.91   |    96.76   |    97.04    |
 | AlignMix📖    |     2     |      -     |      -     |      -     |    97.05    |
 | AutoMix       |     2     |    96.59   |    97.08   |    97.34   |    97.30    |
 | SAMix*        |     2     |    96.67   |    97.16   |    97.50   |    97.41    |
@@ -221,7 +222,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | FMix*         |     0.2    |    96.72   |    96.76   |    96.76   |    96.10    |
 | PuzzleMix     |      1     |    97.05   |    97.24   |    97.37   |    97.34    |
 | GridMix       |     0.2    |    97.18   |    97.30   |    96.40   |    95.79    |
-| ResizeMix*    |      1     |    97.02   |    97.38   |    97.21   |    97.36    |
+| ResizeMix     |      1     |    97.02   |    97.38   |    97.21   |    97.36    |
 | AutoMix       |      2     |    97.19   |    97.42   |    97.65   |    97.51    |
 | SAMix*        |      2     |    97.23   |    97.51   |    97.93   |    97.74    |
 
@@ -250,7 +251,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | PuzzleMix     |     1     |    79.96   |    80.82   |    81.13   |    81.10    |
 | Co-Mixup📖    |     2     |    80.01   |    80.87   |    81.17   |    81.18    |
 | GridMix       |    0.2    |    78.23   |    78.60   |    78.72   |    77.58    |
-| ResizeMix*    |     1     |    79.56   |    79.19   |    80.01   |    79.23    |
+| ResizeMix     |     1     |    79.56   |    79.19   |    80.01   |    79.23    |
 | AlignMix📖    |     2     |      -     |      -     |      -     |    81.71    |
 | AutoMix       |     2     |    80.12   |    81.78   |    82.04   |    81.95    |
 | SAMix*        |     2     |    81.21   |    81.97   |    82.30   |    82.41    |
@@ -269,7 +270,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | PuzzleMix     |     1    |    81.69   |    82.84   |    82.85   |    82.93    |    85.02   |
 | Co-Mixup📖    |     2    |    81.73   |    82.88   |    82.91   |    82.97    |    85.05   |
 | GridMix       |    0.2   |    81.11   |    79.80   |    78.90   |    76.11    |    84.24   |
-| ResizeMix*    |     1    |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
+| ResizeMix     |     1    |    79.56   |    79.78   |    80.35   |    79.73    |    84.87   |
 | AutoMix       |     2    |    82.84   |    83.32   |    83.64   |    83.80    |    85.18   |
 | SAMix*        |     2    |    83.81   |    84.27   |    84.42   |    84.31    |    85.50   |
 
@@ -293,7 +294,7 @@ These benchmarks follow CutMix settings, training 200/400/800/1200 epochs from s
 | FMix*         |     1    |    70.41    |    80.72   |       |
 | GridMix       |     1    |    68.86    |    78.54   |       |
 | PuzzleMix     |     2    |    73.60    |    80.44   |       |
-| ResizeMix*    |     1    |    68.45    |    80.16   |       |
+| ResizeMix     |     1    |    68.45    |    80.16   |       |
 | TransMix      |   0.8,1  |    76.17    |      -     |       |
 | AutoMix       |     2    |    76.24    |    82.67   |       |
 | SAMix*        |     2    |    77.94    |    82.62   |       |
@@ -322,7 +323,7 @@ These benchmarks follow transfer learning settings on fine-grained datasets, usi
 | SaliencyMix |    0.2   |   77.95   |    83.29   |   80.02   |    84.31   |
 | FMix*       |    0.2   |   77.28   |    84.06   |   79.36   |    86.23   |
 | PuzzleMix   |     1    |   78.63   |    84.51   |   80.76   |    86.23   |
-| ResizeMix*  |     1    |   78.50   |    84.77   |   78.10   |    84.08   |
+| ResizeMix   |     1    |   78.50   |    84.77   |   78.10   |    84.08   |
 | AutoMix     |     2    |   79.87   |    86.56   |   81.37   |    86.72   |
 | SAMix*      |     2    |   81.11   |    86.83   |   82.15   |    86.80   |
 
@@ -345,7 +346,7 @@ These benchmarks follow [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageN
 | SaliencyMix |     1    |   51.29   |   62.51   |    67.20    |   64.27   |    70.01    |
 | FMix*       |     1    |   52.01   |   61.90   |    66.64    |   63.71   |    69.46    |
 | PuzzleMix   |     1    |     -     |   62.66   |    67.72    |   64.36   |    70.12    |
-| ResizeMix*  |     1    |   51.21   |   62.29   |    66.82    |   64.12   |    69.30    |
+| ResizeMix   |     1    |   51.21   |   62.29   |    66.82    |   64.12   |    69.30    |
 | AutoMix     |     2    |   52.84   |   63.08   |    68.03    |   64.73   |    70.49    |
 | SAMix*      |     2    |   53.42   |   63.32   |    68.26    |   64.84   |    70.54    |
 
@@ -368,7 +369,7 @@ This benchmark follows [PyTorch-style](https://arxiv.org/abs/2110.00476) ImageNe
 | SaliencyMix |    0.2   |   59.50   |   63.33   |
 | FMix*       |    0.2   |   59.51   |   63.63   |
 | PuzzleMix   |     1    |   59.62   |   63.91   |
-| ResizeMix*  |     1    |   59.66   |   63.88   |
+| ResizeMix   |     1    |   59.66   |   63.88   |
 | AutoMix     |     2    |   59.74   |   64.06   |
 | SAMix*      |     2    |   59.86   |   64.27   |
 
