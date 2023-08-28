@@ -10,6 +10,7 @@ from openmixup.utils import print_log
 from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
+from ..augments import cutmix, mixup
 from ..utils import PlotTensor
 
 
@@ -87,6 +88,7 @@ class AutoMixup(BaseModel):
                  pre_mix_loss=0.,
                  lam_margin=-1,
                  switch_off=0.,
+                 head_one_mix=False,
                  head_ensemble=False,
                  save=False,
                  save_name='MixedSamples',
@@ -109,6 +111,7 @@ class AutoMixup(BaseModel):
         self.pre_mix_loss = float(pre_mix_loss) if float(pre_mix_loss) > 0 else 0
         self.lam_margin = float(lam_margin) if float(lam_margin) > 0 else 0
         self.switch_off = float(switch_off) if float(switch_off) > 0 else 0
+        self.head_one_mix = bool(head_one_mix)
         self.head_ensemble = bool(head_ensemble)
         self.mask_up_override = mask_up_override \
             if isinstance(mask_up_override, (str, list)) else None
@@ -395,10 +398,18 @@ class AutoMixup(BaseModel):
         # onehot q
         loss_one_q = None
         if self.head_one_q is not None and self.weight_one_q > 0:
+            if self.head_one_mix:  # mixup in head_one
+                if np.random.random() > 0.5:
+                    x, y_one_mix = mixup(x.clone(), y, 0.8, dist_mode=False)
+                else:
+                    x, y_one_mix = cutmix(x.clone(), y, 1.0, dist_mode=False)
             out_one_q = self.backbone_q(x)[-1]
             pred_one_q = self.head_one_q([out_one_q])
             # loss
-            loss_one_q = self.head_one_q.loss(pred_one_q, y)
+            if self.head_one_mix:
+                loss_one_q = self.head_one_q.loss(pred_one_q, y_one_mix)
+            else:
+                loss_one_q = self.head_one_q.loss(pred_one_q, y)
             if torch.isnan(loss_one_q['loss']):
                 print_log("Warming NAN in loss_one_q. Please use FP32!", logger='root')
                 loss_one_q = None

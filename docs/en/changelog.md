@@ -9,6 +9,10 @@ Bump version to V0.2.8 with new features in [MMPreTrain](https://github.com/open
 - Support more backbone architectures, including [MobileNetV3](https://arxiv.org/abs/1905.02244), [EfficientNetV2](https://arxiv.org/abs/2104.00298), [HRNet](https://arxiv.org/abs/1908.07919), [CSPNet](https://arxiv.org/abs/1911.11929), [LeViT](https://arxiv.org/abs/2104.01136), [MobileViT](http://arxiv.org/abs/2110.02178), [DaViT](https://arxiv.org/abs/2204.03645), and [MobileOne](http://arxiv.org/abs/2206.04040), etc.
 - Support CIFAR-100 benchmarks of Metaformer architectures and Mixup variants with Transformers, detailed in [cifar100/advanced](https://github.com/Westlake-AI/openmixup/blob/main/configs/classification/cifar100/advanced) and [cifar100/mixups](https://github.com/Westlake-AI/openmixup/blob/main/configs/classification/cifar100/mixups). Models and logs of various CIFAR-100 mixup benchmarks are on updating.
 
+### Bug Fixes
+
+- Fix the `by_epoch` setting in `CustomSchedulerHook` and update `DecoupleMix` in `soft_mix_cross_entropy` to support label smoothing settings.
+
 ### v0.2.7 (16/12/2022)
 
 Bump version to V0.2.7 with new features as [#35](https://github.com/Westlake-AI/openmixup/issues/35). Update new features of `OpenMixup` v0.2.7 as issue [#36](https://github.com/Westlake-AI/openmixup/issues/36).

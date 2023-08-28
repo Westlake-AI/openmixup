@@ -571,7 +571,7 @@ class CustomSchedulerHook(Hook):
             self.warmup_iters = self.warmup_epochs * epoch_len
         if not self.by_epoch:
             return
-        # self.regular_attr = self.get_regular_attr(runner)
+        self.regular_attr = self.get_regular_attr(runner)
         self._set_attr(runner, self.regular_attr)
 
     def before_train_iter(self, runner):

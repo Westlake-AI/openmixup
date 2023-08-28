@@ -210,6 +210,8 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
     - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
     - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](http://cs231n.stanford.edu/tiny-imagenet-200.zip)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]
+    - [x] [FashionMNIST](https://arxiv.org/abs/1708.07747) [[download](https://github.com/zalandoresearch/fashion-mnist)]
+    - [x] [STL-10](http://proceedings.mlr.press/v15/coates11a/coates11a.pdf) [[download](https://cs.stanford.edu/~acoates/stl10/)]
     - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
     - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
     - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
