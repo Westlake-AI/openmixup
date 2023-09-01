@@ -48,10 +48,10 @@ The pre-trained models on ImageNet-21k are used to fine-tune, and therefore don'
 ## Citation
 
 ```
-@article{liu2021Swin,
+@inproceedings{liu2021swin,
   title={Swin Transformer: Hierarchical Vision Transformer using Shifted Windows},
   author={Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
-  journal={arXiv preprint arXiv:2103.14030},
+  booktitle={International Conference on Computer Vision (ICCV)},
   year={2021}
 }
 ```

@@ -29,7 +29,7 @@ update_interval = 1
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=626 * 10,  # plot every 10 ep
+        save_interval=626 * 25,  # plot every 25 ep
         iter_per_epoch=626),
 ]
 

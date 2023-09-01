@@ -36,7 +36,7 @@ High-resolution representations are essential for position-sensitive vision prob
   author={Jingdong Wang and Ke Sun and Tianheng Cheng and
           Borui Jiang and Chaorui Deng and Yang Zhao and Dong Liu and Yadong Mu and
           Mingkui Tan and Xinggang Wang and Wenyu Liu and Bin Xiao},
-  journal={TPAMI},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
   year={2019}
 }
 ```

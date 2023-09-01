@@ -1,31 +1,13 @@
 _base_ = [
-    '../../_base_/models/a2mim/moganet_s.py',
-    '../../_base_/datasets/imagenet/a2mim_rgb_m_sz224_rrc08_bs64.py',
+    '../../_base_/models/simmim/convnext_s.py',
+    '../../_base_/datasets/imagenet/simmim_sz224_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
-# model settings
-model = dict(
-    backbone=dict(
-        mask_layer=3, mask_token="learnable",
-        mask_init=1e-6,  # init residual gamma
-    ),
-    head=dict(
-        fft_weight=0., fft_focal=False,
-    ),
-)
-
 # dataset
 data = dict(
-    imgs_per_gpu=256, workers_per_gpu=10,
-    train=dict(
-        feature_mode=None, feature_args=dict(),
-        mask_pipeline=[
-            dict(type='BlockwiseMaskGenerator',
-                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=32,  # stage 3
-                mask_color='mean', mask_only=False),
-        ],
-))
+    imgs_per_gpu=256, workers_per_gpu=12,
+)
 
 # interval for accumulate gradient
 update_interval = 1  # bs256 x 8gpus = bs2048
@@ -40,14 +22,13 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=3e-4 * 2048 / 512,  # 3e-4 * 4 for bs2048
+    lr=2e-4 * 2048 / 512,  # bs2048
     betas=(0.9, 0.999), weight_decay=0.05, eps=1e-8,
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'gamma': dict(weight_decay=0.),
-        'mask_token': dict(weight_decay=0., lr_mult=1e-1,),
-        'mask_gamma': dict(weight_decay=0., lr_mult=1e-1,),
+        'mask_token': dict(weight_decay=0.),
     })
 
 # fp16

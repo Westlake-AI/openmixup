@@ -1,20 +1,20 @@
 _base_ = [
-    '../../_base_/models/simmim/vit_base.py',
+    '../../_base_/models/simmim/vit_small.py',
     '../../_base_/datasets/imagenet/simmim_sz224_p16_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
 # data
-data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+data = dict(imgs_per_gpu=256, workers_per_gpu=12)
 
 # interval for accumulate gradient
-update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
+update_interval = 1  # total: 8 x bs256 x 1 accumulates = bs2048
 
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
-        save_interval=1252 * 25,  # plot every 25 ep
-        iter_per_epoch=1252),
+        save_interval=626 * 25,
+        iter_per_epoch=626),
 ]
 
 # optimizer
@@ -33,7 +33,7 @@ optimizer = dict(
     })
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(

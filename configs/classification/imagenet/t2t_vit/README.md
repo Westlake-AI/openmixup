@@ -25,10 +25,10 @@ We follow the original training setting provided by the original paper. *Models 
 ## Citation
 
 ```
-@article{yuan2021tokens,
+@inproceedings{yuan2021tokens,
   title={Tokens-to-token vit: Training vision transformers from scratch on imagenet},
-  author={Yuan, Li and Chen, Yunpeng and Wang, Tao and Yu, Weihao and Shi, Yujun and Tay, Francis EH and Feng, Jiashi and Yan, Shuicheng},
-  journal={arXiv preprint arXiv:2101.11986},
+  author={Yuan, Li and Chen, Yunpeng and Wang, Tao and Yu, Weihao and Shi, Yujun and Jiang, Zihang and Tay, Francis EH and Feng, Jiashi and Yan, Shuicheng},
+  booktitle=ICCV,
   year={2021}
 }
 ```

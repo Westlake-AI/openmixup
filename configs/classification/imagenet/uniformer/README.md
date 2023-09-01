@@ -29,13 +29,11 @@ We follow the original training setting provided by the [official repo](https://
 ## Citation
 
 ```
-@article{li2022uniformer,
+@inproceedings{li2022uniformer,
     title={UniFormer: Unifying Convolution and Self-attention for Visual Recognition}, 
     author={Kunchang Li and Yali Wang and Junhao Zhang and Peng Gao and Guanglu Song and Yu Liu and Hongsheng Li and Yu Qiao},
+    booktitle={International Conference on Learning Representations (ICLR)},
     year={2022},
-    eprint={2201.09450},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
 }
 @article{li2022uniformer,
     title={UniFormer: Unified Transformer for Efficient Spatiotemporal Representation Learning}, 

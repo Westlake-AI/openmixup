@@ -1,5 +1,5 @@
 _base_ = [
-    '../../_base_/models/a2mim/moganet_s.py',
+    '../../_base_/models/a2mim/convnext_b.py',
     '../../_base_/datasets/imagenet/a2mim_rgb_m_sz224_rrc08_bs64.py',
     '../../_base_/default_runtime.py',
 ]

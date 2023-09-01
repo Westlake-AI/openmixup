@@ -48,10 +48,11 @@ The pre-trained models on ImageNet-1k or ImageNet-21k are used to fine-tune on t
 ## Citation
 
 ```bibtex
-@Article{liu2022convnet,
-  author  = {Zhuang Liu and Hanzi Mao and Chao-Yuan Wu and Christoph Feichtenhofer and Trevor Darrell and Saining Xie},
-  title   = {A ConvNet for the 2020s},
-  journal = {arXiv preprint arXiv:2201.03545},
-  year    = {2022},
+@inproceedings{cvpr2022convnext,
+  title={A convnet for the 2020s},
+  author={Liu, Zhuang and Mao, Hanzi and Wu, Chao-Yuan and Feichtenhofer, Christoph and Darrell, Trevor and Xie, Saining},
+  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={11976--11986},
+  year={2022}
 }
 ```

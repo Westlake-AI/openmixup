@@ -40,10 +40,11 @@ The pre-trained models on ImageNet-21k are used to fine-tune on the downstream t
 ## Citation
 
 ```
-@article{guo2022visual,
+@article{guo2023van,
   title={Visual Attention Network},
   author={Guo, Meng-Hao and Lu, Cheng-Ze and Liu, Zheng-Ning and Cheng, Ming-Ming and Hu, Shi-Min},
-  journal={arXiv preprint arXiv:2202.09741},
-  year={2022}
+  journal={Computational Visual Media (CVMJ)},
+  pages={733–-752},
+  year={2023}
 }
 ```

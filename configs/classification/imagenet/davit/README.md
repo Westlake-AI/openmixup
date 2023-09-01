@@ -28,7 +28,7 @@ In this work, we introduce Dual Attention Vision Transformers (DaViT), a simple 
 @inproceedings{ding2022davit,
     title={DaViT: Dual Attention Vision Transformer},
     author={Ding, Mingyu and Xiao, Bin and Codella, Noel and Luo, Ping and Wang, Jingdong and Yuan, Lu},
-    booktitle={ECCV},
+    booktitle={European Conference on Computer Vision (ECCV)},
     year={2022},
 }
 ```

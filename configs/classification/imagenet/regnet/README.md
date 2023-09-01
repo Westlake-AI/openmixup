@@ -40,12 +40,11 @@ We follow the original training setting provided by the original paper. *Models 
 ## Citation
 
 ```
-@article{radosavovic2020regnet,
-    title={Designing Network Design Spaces},
-    author={Ilija Radosavovic and Raj Prateek Kosaraju and Ross Girshick and Kaiming He and Piotr Dollár},
-    year={2020},
-    eprint={2003.13678},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV}
+@inproceedings{cvpr2020regnet,
+  title={Designing Network Design Spaces},
+  author={Ilija Radosavovic and Raj Prateek Kosaraju and Ross B. Girshick and Kaiming He and Piotr Doll{\'a}r},
+  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2020},
+  pages={10425-10433}
 }
 ```

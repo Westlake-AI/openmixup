@@ -1,11 +1,11 @@
 _base_ = [
-    '../../_base_/models/simmim/swin_base.py',
-    '../../_base_/datasets/imagenet/simmim_sz192_bs64.py',
+    '../../_base_/models/simmim/vit_large.py',
+    '../../_base_/datasets/imagenet/simmim_sz224_p16_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
 # data
-data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+data = dict(imgs_per_gpu=128, workers_per_gpu=12)
 
 # interval for accumulate gradient
 update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
@@ -20,18 +20,20 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=2e-4 * 2048 / 512,  # bs2048
+    lr=1e-4 * 2048 / 512,  # 4e-4 for bs2048
     betas=(0.9, 0.999), weight_decay=0.05, eps=1e-8,
     paramwise_options={
+        '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
         'mask_token': dict(weight_decay=0.),
-        'absolute_pos_embed': dict(weight_decay=0.),
-        'relative_position_bias_table': dict(weight_decay=0.0)
+        'pos_embed': dict(weight_decay=0.),
+        'cls_token': dict(weight_decay=0.),
+        'gamma': dict(weight_decay=0.),
     })
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
@@ -40,12 +42,11 @@ optimizer_config = dict(
 
 # lr scheduler
 lr_config = dict(
-    policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-5 * 2048 / 512,
+    policy='step', step=[700,], gamma=0.1,
     warmup='linear',
-    warmup_iters=10, warmup_by_epoch=True,  # warmup 10ep when training 100ep
-    warmup_ratio=1e-6 * 2048 / 512,
+    warmup_iters=10, warmup_by_epoch=True,
+    warmup_ratio=5e-7 * 2048 / 512,
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=100)
+runner = dict(type='EpochBasedRunner', max_epochs=800)

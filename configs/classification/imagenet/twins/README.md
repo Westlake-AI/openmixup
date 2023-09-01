@@ -28,10 +28,10 @@ We follow the original training setting provided by the original paper. *Models 
 ## Citation
 
 ```
-@article{iccv2021twins,
-  title={Twins: Revisiting spatial attention design in vision transformers},
-  author={Chu, Xiangxiang and Tian, Zhi and Wang, Yuqing and Zhang, Bo and Ren, Haibing and Wei, Xiaolin and Xia, Huaxia and Shen, Chunhua},
-  journal={arXiv preprint arXiv:2104.13840},
-  year={2021}altgvt
+@inproceedings{nips2021Twins,
+  title={Twins: Revisiting the Design of Spatial Attention in Vision Transformers},
+  author={Xiangxiang Chu and Zhi Tian and Yuqing Wang and Bo Zhang and Haibing Ren and Xiaolin Wei and Huaxia Xia and Chunhua Shen},
+  booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
+  year={2021}
 }
 ```

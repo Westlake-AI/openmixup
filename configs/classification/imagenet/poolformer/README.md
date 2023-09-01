@@ -29,10 +29,11 @@ We follow the original training setting provided by the [official repo](https://
 ## Citation
 
 ```bibtex
-@article{yu2021metaformer,
-  title={MetaFormer is Actually What You Need for Vision},
+@inproceedings{yu2022metaformer,
+  title={Metaformer is actually what you need for vision},
   author={Yu, Weihao and Luo, Mi and Zhou, Pan and Si, Chenyang and Zhou, Yichen and Wang, Xinchao and Feng, Jiashi and Yan, Shuicheng},
-  journal={arXiv preprint arXiv:2111.11418},
-  year={2021}
+  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages={10819--10829},
+  year={2022}
 }
 ```
