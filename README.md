@@ -199,7 +199,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [TransMix](https://arxiv.org/abs/2111.09833) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AutoMix](https://arxiv.org/abs/2103.13027) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix)]
     - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
-    - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
+    - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
     - [ ] [SMMix](https://arxiv.org/abs/2212.12977) (ICCV'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     </details>
 
@@ -270,8 +270,8 @@ If you find this project useful in your research, please consider star `OpenMixu
 
 ```BibTeX
 @article{li2022openmixup,
-  title = {OpenMixup: Open Mixup Toolbox and Benchmark for Visual Representation Learning},
-  author = {Siyuan Li and Zedong Wang and Zicheng Liu and Di Wu and Stan Z. Li},
+  title = {OpenMixup: A Comprehensive Mixup Benchmark for Visual Classification},
+  author = {Siyuan Li and Zedong Wang and Zicheng Liu and Di Wu and Cheng Tan and Di Wu Stan Z. Li},
   journal = {ArXiv},
   year = {2022},
   volume = {abs/2209.04851}
