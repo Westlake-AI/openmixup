@@ -8,6 +8,7 @@ from .deepcluster import DeepClusterDataset
 from .extraction import ExtractDataset
 from .masked_image import MaskedImageDataset
 from .multi_view import MultiViewDataset
+from .regression import RegressionDataset
 from .rotation_pred import RotationPredDataset
 from .relative_loc import RelativeLocDataset
 from .contrastive import ContrastiveDataset

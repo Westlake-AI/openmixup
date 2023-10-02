@@ -123,6 +123,6 @@ class RegHead(BaseModule):
                 _criterion = getattr(self, str(i))
                 losses['loss'] += _criterion(score, labels, **kwargs)
         # compute error
-        losses['mse'], _ = regression_error(score, labels, average_mode='mean')
+        losses['mse'] = regression_error(score, labels, average_mode='mean')[0]
         
         return losses

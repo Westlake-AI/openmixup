@@ -293,8 +293,9 @@ def regression_error(pred, target, average_mode='mean'):
     if average_mode == 'mean':
         mse /= pred.size(0)
         mae /= pred.size(0)
+    rmse = torch.sqrt(mse)
 
-    return mse, mae
+    return mse, mae, rmse
 
 
 def pearson_correlation(pred, target, average_mode='mean'):
