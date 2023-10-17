@@ -123,7 +123,7 @@ Useful Tools
 
 ## Overview of Model Zoo
 
-Please run experiments or find results on each config page. Refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for the benchmarking results of mixup methods, and [Model Zoos](docs/en/model_zoos) for a comprehensive collection of mainstream backbones and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) for your reference. Checkpoints and training logs are on updating!
+Please run experiments or find results on each config page. Refer to [Mixup Benchmarks](docs/en/mixup_benchmarks) for benchmarking results of mixup methods. View [Model Zoos Sup](docs/en/model_zoos/Model_Zoo_sup.md) and [Model Zoos SSL](docs/en/model_zoos/Model_Zoo_selfsup.md) for a comprehensive collection of mainstream backbones and self-supervised algorithms. We also provide the paper lists of [Awesome Mixups](docs/en/awesome_mixups) and [Awesome MIM](docs/en/awesome_selfsup/MIM.md) for your reference. Please view config files and links to models at the following config pages. Checkpoints and training logs are on updating!
 
 * Backbone architectures for supervised image classification on ImageNet.
 
@@ -218,6 +218,9 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [Places205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
     - [x] [iNaturalist-2017](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2017)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
     - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
+    - [x] [AgeDB](https://ieeexplore.ieee.org/document/8014984) [[download](https://ibug.doc.ic.ac.uk/resources/agedb/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/agedb)]
+    - [x] [IMDB-WIKI](https://link.springer.com/article/10.1007/s11263-016-0940-3) [[download_imdb](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/imdb_crop.tar)] [[download_wiki](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/wiki_crop.tar)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/imdb_wiki)]
+    - [x] [RCFMNIST](https://arxiv.org/abs/2210.05775) [[download](https://github.com/zalandoresearch/fashion-mnist)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/rcfmnist)]
     </details>
 
 * Self-supervised algorithms for visual representation learning.

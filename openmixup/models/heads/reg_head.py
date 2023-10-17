@@ -97,7 +97,10 @@ class RegHead(BaseModule):
             elif x.dim() == 4:
                 x = F.adaptive_avg_pool2d(x, 1).view(x.size(0), -1)
         else:
-            x = x.reshape(x.size(0), -1)
+            if isinstance(x, (tuple, list)):  # [patch_token, cls_token]
+                x = x[-1]
+            else:
+                x = x.reshape(x.size(0), -1)
         x = self.fc(x).squeeze()
         if self.act is not None:
             x = self.act(x)

@@ -135,6 +135,9 @@ class ClsMixupHead(BaseModule):
             else:
                 assert x.dim() in [2, 3, 4], \
                     "Tensor must has 2, 3 or 4 dims, got: {}".format(x.dim())
+        else:
+            if isinstance(x, (tuple, list)):  # [patch_token, cls_token]
+                x = x[-1]
         x = self.fc(x)
         if post_process:
             x = self.post_process(x)
