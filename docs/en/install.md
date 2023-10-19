@@ -85,6 +85,8 @@ If some errors occur when you install Apex from the source, you can try `python 
 
 3. If you are installing `cv2` for the first time, `ImportError: libGL.so.1` will occur, which can be solved by `apt install libgl1-mesa-glx`. If you would like to use `opencv-python-headless` instead of `opencv-python`, you can install it before installing MMCV. Refer to [issue #48](https://github.com/Westlake-AI/openmixup/issues/48) for some errors encountered with the version of `cv2`.
 
+4. Some errors with mmcv installation can be solved according to the issue of [MMCV](https://github.com/open-mmlab/mmcv), e.g., using `yapf<=0.40.1` for [issue #10962](https://github.com/open-mmlab/mmdetection/issues/10962).
+
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Customized installation

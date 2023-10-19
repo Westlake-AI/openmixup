@@ -40,8 +40,9 @@ evaluation = dict(
     imgs_per_gpu=100,
     workers_per_gpu=4,
     eval_param=dict(
-        metric=['mse', 'mae', 'rmse'],
-        metric_options=dict(average_model='mean'))
+        metric=['mse', 'mae', 'rmse', 'mape'],
+        metric_options=dict(average_model='mean'),
+    save_best='mse')
 )
 
 # checkpoint

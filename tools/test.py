@@ -148,7 +148,8 @@ def main():
     if rank == 0:
         for name, val in outputs.items():
             dataset.evaluate(
-                torch.from_numpy(val), name, logger, topk=(1, 5))
+                torch.from_numpy(val), keyword=name, logger=logger,
+                **cfg.evaluation.get('eval_param', dict(topk=(1, 5))))
 
 
 if __name__ == '__main__':

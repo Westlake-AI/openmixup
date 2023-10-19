@@ -206,7 +206,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     <details open>
     <summary>Currently supported datasets for mixups</summary>
 
-    - [x] [ImageNet](https://arxiv.org/abs/1409.0575) [[download](http://www.image-net.org/challenges/LSVRC/2012/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [ImageNet](https://arxiv.org/abs/1409.0575) [[download (1K)](http://www.image-net.org/challenges/LSVRC/2012/)] [[download (21K)](https://image-net.org/data/imagenet21k_resized.tar.gz)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [CIFAR-10](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar10/)]
     - [x] [CIFAR-100](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf) [[download](https://www.cs.toronto.edu/~kriz/cifar.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/)]
     - [x] [Tiny-ImageNet](https://arxiv.org/abs/1707.08819) [[download](http://cs231n.stanford.edu/tiny-imagenet-200.zip)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/tiny_imagenet/)]
@@ -218,8 +218,8 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [Places205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
     - [x] [iNaturalist-2017](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2017)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
     - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
-    - [x] [AgeDB](https://ieeexplore.ieee.org/document/8014984) [[download](https://ibug.doc.ic.ac.uk/resources/agedb/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/agedb)]
-    - [x] [IMDB-WIKI](https://link.springer.com/article/10.1007/s11263-016-0940-3) [[download_imdb](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/imdb_crop.tar)] [[download_wiki](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/wiki_crop.tar)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/imdb_wiki)]
+    - [x] [AgeDB](https://ieeexplore.ieee.org/document/8014984) [[download](https://ibug.doc.ic.ac.uk/resources/agedb/)] [[download (baidu)](https://pan.baidu.com/s/1XdibVxiGoWf46HLOHKiIyw?pwd=0n6p)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/agedb)]
+    - [x] [IMDB-WIKI](https://link.springer.com/article/10.1007/s11263-016-0940-3) [[download (imdb)](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/imdb_crop.tar)] [[download (wiki)](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/wiki_crop.tar)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/imdb_wiki)]
     - [x] [RCFMNIST](https://arxiv.org/abs/2210.05775) [[download](https://github.com/zalandoresearch/fashion-mnist)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/regression/rcfmnist)]
     </details>
 

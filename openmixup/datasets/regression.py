@@ -59,7 +59,7 @@ class RegressionDataset(BaseDataset):
             metrics = metric
         eval_res = {}
         eval_log = []
-        allowed_metrics = ['mse', 'mae', 'rmse', 'pearson', 'spearman',]
+        allowed_metrics = ['mse', 'mae', 'rmse', 'mape', 'pearson', 'spearman',]
         average_mode = metric_options.get('average_mode', 'mean')
         invalid_metrics = set(metrics) - set(allowed_metrics)
         if len(invalid_metrics) != 0:
@@ -72,7 +72,7 @@ class RegressionDataset(BaseDataset):
             "Inconsistent length for results and labels, {} vs {}".format(
             scores.size(0), target.size(0))
         
-        mse, mae, rmse = regression_error(scores, target, average_mode=average_mode)
+        mse, mae, rmse, mape = regression_error(scores, target, average_mode=average_mode)
         if 'mse' in metrics:
             eval_res[f"{keyword}_mse"] = float(mse)
             eval_log.append("{}_mse: {:.03f}".format(keyword, float(mse)))
@@ -82,6 +82,9 @@ class RegressionDataset(BaseDataset):
         if 'rmse' in metrics:
             eval_res[f"{keyword}_rmse"] = float(rmse)
             eval_log.append("{}_rmse: {:.03f}".format(keyword, float(rmse)))
+        if 'mape' in metrics:
+            eval_res[f"{keyword}_mape"] = float(mape)
+            eval_log.append("{}_mape: {:.03f}".format(keyword, float(mape)))
         if 'pearson' in metrics:
             p_corr = pearson_correlation(scores, target, average_mode=average_mode)
             eval_res[f"{keyword}_pearson"] = float(p_corr)

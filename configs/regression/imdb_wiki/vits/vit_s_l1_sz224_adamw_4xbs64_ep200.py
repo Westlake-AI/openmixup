@@ -1,6 +1,6 @@
 _base_ = [
     '../../_base_/models/vision_transformer/vit_small_p16_sz224.py',
-    '../../_base_/datasets/agedb/basic_sz224_4xbs64.py',
+    '../../_base_/datasets/imdb_wiki/randaug_sz224_4xbs64.py',
     '../../_base_/default_runtime.py',
 ]
 
@@ -36,4 +36,4 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)
+runner = dict(type='EpochBasedRunner', max_epochs=200)

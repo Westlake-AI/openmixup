@@ -18,3 +18,6 @@ lr_config = dict(policy='CosineAnnealing', min_lr=1e-6)
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=400)
+
+# yapf:disable
+log_config = dict(interval=45)

@@ -1,6 +1,6 @@
 _base_ = [
-    '../../_base_/models/vision_transformer/vit_small_p16_sz224.py',
-    '../../_base_/datasets/imdb_wiki/basic_sz224_4xbs64.py',
+    '../../_base_/models/convnext/convnext_tiny.py',
+    '../../_base_/datasets/agedb/randaug_sz224_4xbs64.py',
     '../../_base_/default_runtime.py',
 ]
 
@@ -16,8 +16,7 @@ optimizer = dict(
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'norm': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
-        'cls_token': dict(weight_decay=0.),
-        'pos_embed': dict(weight_decay=0.),
+        'gamma': dict(weight_decay=0.),
     })
 
 # fp16
@@ -36,4 +35,7 @@ lr_config = dict(
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=200)
+runner = dict(type='EpochBasedRunner', max_epochs=400)
+
+# yapf:disable
+log_config = dict(interval=45)

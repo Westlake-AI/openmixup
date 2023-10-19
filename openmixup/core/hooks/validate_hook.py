@@ -83,9 +83,9 @@ class ValidateHook(Hook):
     init_value_map = {'greater': -inf, 'less': inf}
     _default_greater_keys = [
         'acc', 'top', 'AR@', 'auc', 'precision', 'mAP', 'mDice', 'mIoU',
-        'mAcc', 'aAcc'
+        'mAcc', 'aAcc', 'f1_score'
     ]
-    _default_less_keys = ['loss']
+    _default_less_keys = ['loss', 'mse', 'mae', 'rmse', 'mape']
 
     def __init__(self,
                  dataset,

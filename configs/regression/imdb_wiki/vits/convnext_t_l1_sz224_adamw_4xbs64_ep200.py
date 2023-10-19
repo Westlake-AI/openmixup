@@ -1,6 +1,6 @@
 _base_ = [
     '../../_base_/models/convnext/convnext_tiny.py',
-    '../../_base_/datasets/agedb/basic_sz224_4xbs64.py',
+    '../../_base_/datasets/imdb_wiki/randaug_sz224_4xbs64.py',
     '../../_base_/default_runtime.py',
 ]
 
@@ -26,10 +26,13 @@ optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
 
 # learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=1e-6)
+lr_config = dict(
+    policy='CosineAnnealing',
+    by_epoch=False, min_lr=1e-6,
+    warmup='linear',
+    warmup_iters=5, warmup_by_epoch=True,  # warmup 5 epochs.
+    warmup_ratio=1e-6,
+)
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=400)
-
-# yapf:disable
-log_config = dict(interval=45)
+runner = dict(type='EpochBasedRunner', max_epochs=200)
