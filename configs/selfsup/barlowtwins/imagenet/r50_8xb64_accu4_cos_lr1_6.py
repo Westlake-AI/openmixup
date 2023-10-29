@@ -20,9 +20,9 @@ optimizer = dict(
         dict(weight_decay=0, lr_mult=0.024, lars_exclude=True),
     })
 
-# apex
-use_fp16 = False
-fp16 = dict(type='apex', loss_scale='dynamic')
+# fp16
+use_fp16 = True
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, grad_clip=None)
 

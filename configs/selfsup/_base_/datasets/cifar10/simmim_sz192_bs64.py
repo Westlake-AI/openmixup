@@ -1,32 +1,32 @@
 # dataset settings
 data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 
-dataset_type = 'MultiViewDataset'
+dataset_type = 'ExtractDataset'
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
 train_pipeline = [
-    dict(type='RandomResizedCrop', size=224, scale=(0.2, 1.)),
-    dict(type='RandomHorizontalFlip'),
-    dict(type='ColorJitter',
-        brightness=0.4, contrast=0.4, saturation=0.4, hue=0.4),
+    dict(type='RandomResizedCrop', size=192, scale=(0.67, 1.0), ratio=(3. / 4., 4. / 3.)),
+    dict(type='RandomHorizontalFlip')
 ]
 
 # prefetch
-prefetch = True
+prefetch = False
 if not prefetch:
     train_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_cfg)])
+train_pipeline.append(
+    dict(type='BlockwiseMaskGenerator',
+        input_size=192, mask_patch_size=32, model_patch_size=4, mask_ratio=0.6,
+        mask_color='zero', mask_only=False),
+    )
 
 # dataset summary
 data = dict(
-    imgs_per_gpu=64,  # V100: 64 x 4gpus = bs256
-    workers_per_gpu=4,  # according to total cpus cores, usually 4 workers per 32~128 imgs
-    drop_last=True,
+    imgs_per_gpu=64,
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         data_source=dict(split='train', return_label=False, **data_source_cfg),
-        num_views=[2],
-        pipelines=[train_pipeline],
-        prefetch=prefetch,
-    ))
+        pipeline=train_pipeline,
+        prefetch=prefetch))
 
 # checkpoint
 checkpoint_config = dict(interval=10, max_keep_ckpts=1)

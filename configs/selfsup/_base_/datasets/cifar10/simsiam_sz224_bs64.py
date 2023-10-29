@@ -13,7 +13,7 @@ train_pipeline1 = [
         ],
         p=0.8),
     dict(type='RandomGrayscale', p=0.2),
-    dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=1.),
+    # dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=1.),
     dict(type='Solarization', p=0.),
 ]
 train_pipeline2 = [
@@ -26,7 +26,7 @@ train_pipeline2 = [
         ],
         p=0.8),
     dict(type='RandomGrayscale', p=0.2),
-    dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=0.1),
+    # dict(type='GaussianBlur', sigma_min=0.1, sigma_max=2.0, p=0.1),
     dict(type='Solarization', p=0.2),
 ]
 
@@ -38,8 +38,8 @@ if not prefetch:
 
 # dataset summary
 data = dict(
-    imgs_per_gpu=256,  # V100: 256 x 8gpus x 2 accumulates = bs4096
-    workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+    imgs_per_gpu=64,  # V100: 64 x 8gpus x 8 accumulates = bs4096
+    workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
         data_source=dict(split='train', return_label=False, **data_source_cfg),
@@ -47,6 +47,3 @@ data = dict(
         pipelines=[train_pipeline1, train_pipeline2],
         prefetch=prefetch,
     ))
-
-# checkpoint
-checkpoint_config = dict(interval=10, max_keep_ckpts=1)

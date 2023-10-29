@@ -24,9 +24,9 @@ optimizer = dict(
         'cls_token': dict(weight_decay=0.)
     })
 
-# apex
-use_fp16 = False  # Notice that MAE get NAN loss when using fp16 on CIAFR-100
-fp16 = dict(type='apex', loss_scale='dynamic')
+# fp16
+use_fp16 = False
+fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
     update_interval=update_interval, grad_clip=None)

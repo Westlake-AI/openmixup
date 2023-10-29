@@ -21,7 +21,7 @@ optimizer = dict(
     })
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(
