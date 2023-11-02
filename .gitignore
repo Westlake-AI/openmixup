@@ -136,3 +136,4 @@ configs/selfsup_IP89
 *.toml
 openmixup/models/classifiers/backup
 work_dirs_EXP
+configs/regression_IP89

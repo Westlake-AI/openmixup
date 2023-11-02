@@ -55,6 +55,8 @@ class MOCO(BaseModel):
 
         self.queue_len = queue_len
         self.momentum = momentum
+        self.base_momentum = momentum
+        self.switch_ema = False
 
         # create the queue
         self.register_buffer("queue", torch.randn(feat_dim, queue_len))
@@ -84,8 +86,11 @@ class MOCO(BaseModel):
         """Momentum update of the key encoder."""
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
-            param_k.data = param_k.data * self.momentum + \
-                           param_q.data * (1. - self.momentum)
+            if not self.switch_ema:  # original momentum update
+                param_k.data = param_k.data * self.momentum + \
+                            param_q.data * (1. - self.momentum)
+            else:  # switch EMA
+                param_k.data = param_q.data
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self, keys):

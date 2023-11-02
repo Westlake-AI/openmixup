@@ -1,7 +1,7 @@
 _base_ = '../cifar10/deepcluster_sz224_bs64.py'
 
 # dataset settings
-img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
 data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
 
 # dataset summary

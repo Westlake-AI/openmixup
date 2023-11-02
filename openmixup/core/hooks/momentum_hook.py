@@ -9,7 +9,7 @@ from .registry import HOOKS
 
 @HOOKS.register_module
 class CosineHook(Hook):
-    """Hook for Momentum update: Cosine.
+    """Hook for Momentum update: Cosine. Switch EMA is supported.
 
     This hook includes momentum adjustment with cosine scheduler:
         m = 1 - ( 1- m_0) * (cos(pi * k / K) + 1) / 2,
@@ -28,12 +28,17 @@ class CosineHook(Hook):
     def __init__(self,
                 end_momentum=1.,
                 adjust_scope=1.,
+                switch_ema=False,
                 restart_step=1e11,
-                update_interval=1, **kwargs):
+                update_interval=1,
+                switch_interval=1,
+                **kwargs):
         self.end_momentum = end_momentum
         self.adjust_scope = adjust_scope
-        self.update_interval = update_interval
         self.restart_step = int(min(max(restart_step, 1), 1e10))
+        self.update_interval = update_interval
+        self.switch_interval = switch_interval
+        self.switch_ema = switch_ema
         self.run_momentum_update = False
         assert adjust_scope >= 0.
 
@@ -42,6 +47,9 @@ class CosineHook(Hook):
             "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
             "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if self.switch_ema:
+            assert hasattr(runner.model.module, 'switch_ema'), \
+                "The runner must have attribute \"switch_ema\" in Momentum Hook."
         if is_module_wrapper(runner.model):
             self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
         else:
@@ -66,6 +74,11 @@ class CosineHook(Hook):
                     m = self.end_momentum - (self.end_momentum - base_m) * (
                         cos(pi * cur_iter / float(max_iter)) + 1) / 2
                 runner.model.module.momentum = m
+        if self.switch_ema:
+            if self.every_n_iters(runner, self.switch_interval):
+                runner.model.module.switch_ema = True
+            else:
+                runner.model.module.switch_ema = False
 
     def after_train_iter(self, runner):
         if self.run_momentum_update == False:
@@ -79,7 +92,7 @@ class CosineHook(Hook):
 
 @HOOKS.register_module
 class StepHook(Hook):
-    """Hook for Momentum update: Step.
+    """Hook for Momentum update: Step. Switch EMA is supported.
 
     This hook includes momentum adjustment with step scheduler.
 
@@ -98,13 +111,18 @@ class StepHook(Hook):
                 step=[0.6, 0.9],
                 gamma=0.1,
                 adjust_scope=1.,
+                switch_ema=False,
                 restart_step=1e11,
-                update_interval=1, **kwargs):
+                update_interval=1,
+                switch_interval=1,
+                **kwargs):
         self.step = step
         self.gamma = gamma
         self.adjust_scope = adjust_scope
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.switch_interval = switch_interval
+        self.switch_ema = switch_ema
         self.run_momentum_update = False
         assert 0 <= adjust_scope and 0 < gamma < 1
 
@@ -113,6 +131,9 @@ class StepHook(Hook):
             "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
             "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if self.switch_ema:
+            assert hasattr(runner.model.module, 'switch_ema'), \
+                "The runner must have attribute \"switch_ema\" in Momentum Hook."
         if is_module_wrapper(runner.model):
             self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
         else:
@@ -139,8 +160,11 @@ class StepHook(Hook):
                             m = base_m * (1. - pow(self.gamma, i+1))
                             runner.model.module.momentum = m
                             break
+        if self.switch_ema:
+            if self.every_n_iters(runner, self.switch_interval):
+                runner.model.module.switch_ema = True
             else:
-                pass
+                runner.model.module.switch_ema = False
 
     def after_train_iter(self, runner):
         if self.run_momentum_update == False:
@@ -154,7 +178,7 @@ class StepHook(Hook):
 
 @HOOKS.register_module
 class CosineScheduleHook(Hook):
-    """Hook for Momentum update: Cosine.
+    """Hook for Momentum update: Cosine. Switch EMA is supported.
 
     This hook includes momentum adjustment with cosine scheduler:
         m = 1 - ( 1- m_0) * (cos(pi * k / K) + 1) / 2,
@@ -176,13 +200,18 @@ class CosineScheduleHook(Hook):
                 end_momentum=1.,
                 adjust_scope=[0, 1],
                 warming_up="linear",
+                switch_ema=False,
                 restart_step=1e11,
-                update_interval=1, **kwargs):
+                update_interval=1,
+                switch_interval=1,
+                **kwargs):
         self.end_momentum = end_momentum
         self.adjust_scope = adjust_scope
         self.warming_up = warming_up
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.switch_interval = switch_interval
+        self.switch_ema = switch_ema
         self.run_momentum_update = False
         assert len(adjust_scope) == 2 and adjust_scope[0] <= adjust_scope[1]
 
@@ -191,6 +220,9 @@ class CosineScheduleHook(Hook):
             "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
             "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if self.switch_ema:
+            assert hasattr(runner.model.module, 'switch_ema'), \
+                "The runner must have attribute \"switch_ema\" in Momentum Hook."
         if is_module_wrapper(runner.model):
             self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
         else:
@@ -231,8 +263,11 @@ class CosineScheduleHook(Hook):
                         runner.model.module.momentum = base_m
                     else:
                         assert self.warming_up in ["linear", "constant"]
-                else:
-                    pass
+        if self.switch_ema:
+            if self.every_n_iters(runner, self.switch_interval):
+                runner.model.module.switch_ema = True
+            else:
+                runner.model.module.switch_ema = False
 
     def after_train_iter(self, runner):
         if self.run_momentum_update == False:
@@ -246,7 +281,7 @@ class CosineScheduleHook(Hook):
 
 @HOOKS.register_module
 class StepScheduleHook(Hook):
-    """Hook for Momentum update: Step.
+    """Hook for Momentum update: Step. Switch EMA is supported.
 
     This hook includes momentum adjustment with step scheduler.
 
@@ -271,8 +306,11 @@ class StepScheduleHook(Hook):
                 gamma=0.1,
                 adjust_scope=[0, 1],
                 warming_up="linear",
+                switch_ema=False,
                 restart_step=1e11,
-                update_interval=1, **kwargs):
+                update_interval=1,
+                switch_interval=1,
+                **kwargs):
         self.end_momentum = end_momentum
         self.step = step
         self.gamma = gamma
@@ -280,6 +318,8 @@ class StepScheduleHook(Hook):
         self.warming_up = warming_up
         self.restart_step = int(min(max(restart_step, 1), 1e10))
         self.update_interval = update_interval
+        self.switch_interval = switch_interval
+        self.switch_ema = switch_ema
         self.run_momentum_update = False
         assert 0 <= adjust_scope and 0 < gamma < 1
 
@@ -288,6 +328,9 @@ class StepScheduleHook(Hook):
             "The runner must have attribute \"momentum\" in Momentum Hook."
         assert hasattr(runner.model.module, 'base_momentum'), \
             "The runner must have attribute \"base_momentum\" in Momentum Hook."
+        if self.switch_ema:
+            assert hasattr(runner.model.module, 'switch_ema'), \
+                "The runner must have attribute \"switch_ema\" in Momentum Hook."
         if is_module_wrapper(runner.model):
             self.run_momentum_update = hasattr(runner.model.module, 'momentum_update')
         else:
@@ -331,8 +374,11 @@ class StepScheduleHook(Hook):
                         runner.model.module.momentum = base_m
                     else:
                         assert self.warming_up in ["linear", "constant"]
-                else:
-                    pass
+        if self.switch_ema:
+            if self.every_n_iters(runner, self.switch_interval):
+                runner.model.module.switch_ema = True
+            else:
+                runner.model.module.switch_ema = False
 
     def after_train_iter(self, runner):
         if self.run_momentum_update == False:

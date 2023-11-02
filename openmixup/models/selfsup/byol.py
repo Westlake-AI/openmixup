@@ -52,6 +52,7 @@ class BYOL(BaseModel):
 
         self.base_momentum = base_momentum
         self.momentum = base_momentum
+        self.switch_ema = False
 
     def init_weights(self, pretrained=None):
         """Initialize the weights of model.
@@ -78,8 +79,11 @@ class BYOL(BaseModel):
         """Momentum update of the target network by hook."""
         for param_ol, param_tgt in zip(self.online_net.parameters(),
                                        self.target_net.parameters()):
-            param_tgt.data = param_tgt.data * self.momentum + \
-                             param_ol.data * (1. - self.momentum)
+            if not self.switch_ema:  # original momentum update
+                param_tgt.data = param_tgt.data * self.momentum + \
+                                param_ol.data * (1. - self.momentum)
+            else:  # switch EMA
+                param_tgt.data = param_ol.data
 
     def forward_train(self, img, **kwargs):
         """Forward computation during training.

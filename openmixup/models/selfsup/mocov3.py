@@ -53,6 +53,7 @@ class MoCoV3(BaseModel):
 
         self.base_momentum = base_momentum
         self.momentum = base_momentum
+        self.switch_ema = False
 
     def init_weights(self, pretrained=None):
         """Initialize the weights of model.
@@ -78,8 +79,11 @@ class MoCoV3(BaseModel):
         """Momentum update of the momentum encoder by hook."""
         for param_b, param_m in zip(self.base_encoder.parameters(),
                                     self.momentum_encoder.parameters()):
-            param_m.data = param_m.data * self.momentum + \
-                           param_b.data * (1. - self.momentum)
+            if not self.switch_ema:  # original momentum update
+                param_m.data = param_m.data * self.momentum + \
+                            param_b.data * (1. - self.momentum)
+            else:  # switch EMA
+            param_m.data = param_b.data
 
     def forward_backbone(self, img):
         """Forward backbone.
