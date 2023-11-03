@@ -83,7 +83,7 @@ class MoCoV3(BaseModel):
                 param_m.data = param_m.data * self.momentum + \
                             param_b.data * (1. - self.momentum)
             else:  # switch EMA
-            param_m.data = param_b.data
+                param_m.data = param_b.data
 
     def forward_backbone(self, img):
         """Forward backbone.

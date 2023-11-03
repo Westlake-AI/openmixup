@@ -46,8 +46,8 @@ def resizemix(img,
         """ generate random box by tao (scale) """
         W = size[2]
         H = size[3]
-        cut_w = np.int(W * tao)
-        cut_h = np.int(H * tao)
+        cut_w = int(W * tao)
+        cut_h = int(H * tao)
 
         # uniform
         cx = np.random.randint(W)
