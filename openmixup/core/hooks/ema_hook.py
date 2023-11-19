@@ -288,11 +288,11 @@ class SwitchEMAHook(Hook):
                 buffer_parameter = self.model_buffers[buffer_name]
                 buffer_parameter.mul_(self.regular_momentum).add_(
                     parameter.data, alpha=1. - self.regular_momentum)
-        # copy EMA to the model
-        if self.switch_params and self.switch_by_iter:
-            if self.switch_start < curr_iter < self.switch_end:
-                if not self.every_n_iters(runner, self.switch_interval):
-                    self._switch_ema_parameters()
+            # copy EMA to the model
+            if self.switch_params and self.switch_by_iter:
+                if self.switch_start < curr_iter < self.switch_end:
+                    if not self.every_n_iters(runner, self.switch_interval):
+                        self._switch_ema_parameters()
 
     def after_train_epoch(self, runner):
         """We load parameter values from ema backup to model before the

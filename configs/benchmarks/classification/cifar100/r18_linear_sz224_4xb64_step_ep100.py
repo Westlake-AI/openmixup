@@ -10,7 +10,7 @@ model = dict(
     head=dict(num_classes=100))
 
 # optimizer
-optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.)
+optimizer = dict(type='SGD', lr=1.0, momentum=0.9, weight_decay=0.)
 
 # learning policy
 lr_config = dict(policy='step', step=[60, 80])

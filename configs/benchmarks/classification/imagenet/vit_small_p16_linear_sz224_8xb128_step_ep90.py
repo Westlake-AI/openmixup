@@ -21,7 +21,7 @@ data = dict(imgs_per_gpu=128, workers_per_gpu=8)  # total 128*8=1024, 8 GPU line
 optimizer = dict(type='SGD', lr=12, momentum=0.9, weight_decay=0.)
 
 # learning policy
-lr_config = dict(policy='CosineAnnealing', min_lr=0.)
+lr_config = dict(policy='step', step=[60, 80])
 
 # fp16
 use_fp16 = True
