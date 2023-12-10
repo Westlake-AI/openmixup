@@ -283,8 +283,8 @@ class ClsMixupHead(BaseModule):
                         else:
                             use_eta_weight = [lam, 1-lam]  # 'both'
                         # eta rescale by lam
-                        for i in range(len(use_eta_weight)):
-                            if use_eta_weight[i] > 0:
+                        for i, _eta_weight in enumerate(use_eta_weight):
+                            if _eta_weight > 0:
                                 if self.lam_scale_mode != 'none':
                                     use_eta_weight[i] = self.eta_weight["eta"] * \
                                         self.lambda_adjust(

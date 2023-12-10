@@ -10,6 +10,7 @@ Bump version to V0.2.8 with new features in [MMPreTrain](https://github.com/open
 - Support CIFAR-100 benchmarks of Metaformer architectures and Mixup variants with Transformers, detailed in [cifar100/advanced](https://github.com/Westlake-AI/openmixup/blob/main/configs/classification/cifar100/advanced) and [cifar100/mixups](https://github.com/Westlake-AI/openmixup/blob/main/configs/classification/cifar100/mixups). Models and logs of various CIFAR-100 mixup benchmarks are on updating.
 - Support regression tasks with relavent datasets, metrics, and [configs](https://github.com/Westlake-AI/openmixup/blob/main/configs/regression). Datasets include [AgeDB](https://ieeexplore.ieee.org/document/8014984), [IMDB-WIKI](https://link.springer.com/article/10.1007/s11263-016-0940-3), and [RCFMNIST](https://arxiv.org/abs/2210.05775).
 - Support Switch EMA in image classification, contrastive learning (BYOL, MoCo variants), and regression tasks.
+- Support optimizers implemented in timm, including AdaBelief, AdaFactor, AdaHessian, Lion, etc.
 
 ### Update Documents
 

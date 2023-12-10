@@ -42,9 +42,9 @@ class RegHead(BaseModule):
         elif isinstance(loss, dict):
             loss = [loss]
         self.criterion_num = 0
-        for i in range(len(loss)):
+        for i, _loss in enumerate(loss):
             assert isinstance(loss[i], dict)
-            _criterion = build_loss(loss[i])
+            _criterion = build_loss(_loss)
             self.add_module(str(i), _criterion)
             self.criterion_num += 1
         # activate

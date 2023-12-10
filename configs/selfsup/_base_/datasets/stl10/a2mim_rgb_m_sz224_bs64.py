@@ -1,15 +1,20 @@
 # dataset settings
-data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
+data_source_cfg = dict(type='ImageNet', return_label=False)
+# ImageNet dataset
+data_train_list = 'data/meta/STL10/train_10w_unlabeled.txt'
+data_train_root = 'data/stl10/train/'
+data_test_list = 'data/meta/STL10/test_8k_unlabeled.txt'
+data_test_root = 'data/stl10/test/'
 
 dataset_type = 'MaskedImageDataset'
-img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
+img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
     dict(type='RandomResizedCrop', size=224, scale=(0.67, 1.0), ratio=(3. / 4., 4. / 3.)),
     dict(type='RandomHorizontalFlip'),
 ]
 train_mask_pipeline = [
     dict(type='BlockwiseMaskGenerator',
-        input_size=224, mask_patch_size=32, model_patch_size=4, mask_ratio=0.6,
+        input_size=224, mask_patch_size=32, model_patch_size=16, mask_ratio=0.6,
         mask_only=False, mask_color='mean'),
 ]
 
@@ -24,7 +29,9 @@ data = dict(
     workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
     train=dict(
         type=dataset_type,
-        data_source=dict(split='train', return_label=False, **data_source_cfg),
+        data_source=dict(
+            list_file=data_train_list, root=data_train_root,
+            **data_source_cfg),
         pipeline=train_pipeline,
         mask_pipeline=train_mask_pipeline,
         feature_mode=None, feature_args=dict(),

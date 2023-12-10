@@ -17,12 +17,6 @@ model = dict(
     mask_up_override=None,
     debug=True,
     backbone=dict(
-        type='SwinTransformer',
-        arch='tiny',
-        img_size=224, drop_path_rate=0.2,
-        out_indices=(2,3),  # use stage-2 of 7x7x768
-    ),
-    backbone=dict(
         type='ConvNeXt',
         arch='tiny',
         out_indices=(2,3,),  # x-1: stage-x

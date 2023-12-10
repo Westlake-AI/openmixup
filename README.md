@@ -274,7 +274,7 @@ If you find this project useful in your research, please consider star `OpenMixu
 ```BibTeX
 @article{li2022openmixup,
   title = {OpenMixup: A Comprehensive Mixup Benchmark for Visual Classification},
-  author = {Siyuan Li and Zedong Wang and Zicheng Liu and Di Wu and Cheng Tan and Di Wu Stan Z. Li},
+  author = {Siyuan Li and Zedong Wang and Zicheng Liu and Di Wu and Cheng Tan and Stan Z. Li},
   journal = {ArXiv},
   year = {2022},
   volume = {abs/2209.04851}

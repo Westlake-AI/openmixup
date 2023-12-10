@@ -10,7 +10,7 @@ model = dict(
         style='pytorch'),
     neck=dict(
         type='NonLinearNeck',
-        in_channels=2048, hid_channels=8192, out_channels=8192,
+        in_channels=512, hid_channels=8192, out_channels=8192,
         num_layers=3,
         with_bias=True, with_last_bn=False, with_last_bn_affine=False,
         with_avg_pool=True),

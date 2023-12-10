@@ -41,7 +41,8 @@ model = dict(
 # optimizer
 optimizer = dict(type='SGD',
                  lr=0.03, momentum=0.9, weight_decay=0.001)  # adjust wd={1e-3, 5e-4} for mixup methods
-# apex
+
+# fp16
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)
 
