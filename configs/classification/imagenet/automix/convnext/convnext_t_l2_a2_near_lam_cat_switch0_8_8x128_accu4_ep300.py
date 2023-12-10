@@ -76,7 +76,7 @@ custom_hooks = [
         adjust_scope=[0.25, 1.0],
         warming_up="constant",
         update_interval=update_interval,
-        interval=1)
+    )
 ]
 
 # optimizer

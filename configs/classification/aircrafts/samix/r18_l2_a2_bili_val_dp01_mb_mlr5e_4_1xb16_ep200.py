@@ -66,7 +66,7 @@ custom_hooks = [
         end_momentum=0.99996,
         adjust_scope=[0.1, 1.0],
         warming_up="constant",
-        interval=1)
+        update_interval=1)
 ]
 # optimizer
 optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0005,

@@ -169,7 +169,7 @@ class CIFAR100(Cifar):
             self.labels = self.cifar.targets
 
 
-class CIFAR_Corruption(metaclass=ABCMeta):
+class CIFAR_Corruption(object):
 
     def __init__(self, root):
         self.root = root
@@ -181,7 +181,7 @@ class CIFAR_Corruption(metaclass=ABCMeta):
             "jpeg_compression", "motion_blur", "pixelate", "saturate", "shot_noise",
             "snow", "spatter", "speckle_noise", "zoom_blur"]
         self.set_cifar_corruption()
-    
+
     def set_cifar_corruption(self):
         self.targets = list()
         self.data = list()
@@ -216,12 +216,14 @@ class CIFAR_C(Cifar):
         super().__init__(root, split, return_label)
 
     def set_cifar(self):
-        assert self.split == 'test'
         try:
             self.cifar = CIFAR_Corruption(root=self.root)
         except:
             raise Exception("Data or label files are invalid, please check \
                 whether the dataset is downloading from the official link.")
+
+    def set_split(self):
+        assert self.split == 'test'
 
     def get_length(self):
         return self.cifar.targets.shape[0]
