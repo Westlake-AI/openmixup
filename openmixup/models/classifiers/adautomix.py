@@ -1,12 +1,15 @@
 import os
 import torch
+import torch.nn.functional as F
 import numpy as np
 import matplotlib.pyplot as plt
-
+import torchvision.transforms.functional
+import PIL.Image
+import random
 import logging
 from mmcv.runner import auto_fp16, force_fp32, load_checkpoint
+from torchvision.utils import save_image
 from openmixup.utils import print_log
-
 from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
@@ -15,121 +18,64 @@ from ..utils import PlotTensor
 
 
 @MODELS.register_module
-class AutoMixup(BaseModel):
-    """ AutoMix and SAMix
-
-    Official implementation of
-        "AutoMix: Unveiling the Power of Mixup (https://arxiv.org/abs/2103.13027)"
-        "Boosting Discriminative Visual Representation Learning with Scenario-Agnostic
-            Mixup (https://arxiv.org/pdf/2111.15454.pdf)"
-
-    *** Requiring Hook: `momentum_update` is adjusted by `CosineScheduleHook` after
-        train_iter; `mask_loss` is adjusted by `CustomCosineAnnealingHook`.
-    
-    Args:
-        backbone (dict): Config dict for module of backbone ConvNet (main).
-        backbone_k (dict): Config dict for module of momentum backbone ConvNet. Default: None.
-        mix_block (dict): Config dict for the mixblock. Default: None.
-        head_mix (dict): Config dict for module of mixup classification loss (backbone).
-        head_one (dict): Config dict for module of onehot classification loss (backbone).
-        head_mix (dict): Config dict for mixup classification loss (mixblock). Default: None.
-        head_one (dict): Config dict for onehot classification loss (mixblock). Default: None.
-        head_weights (dict): Dict of the used cls heads names and loss weights,
-            which determines the cls or mixup head in used.
-            Default: dict(head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1)
-        alpha (int): Beta distribution '$\beta(\alpha, \alpha)$'.
-        momentum (float): Momentum coefficient for the momentum-updated encoder.
-            Default: 0.999.
-        mask_layer (int): Number of the feature layer indix in the backbone.
-        mask_loss (float): Loss weight for the mixup mask. Default: 0.
-        mask_adjust (float): Probrobality (in [0, 1]) of adjusting the mask (q) in terms
-            of lambda (q), which only affect the backbone training.
-            Default: False (or 0.).
-        mask_up_override (str or list, optional): Override up_mode for MixBlock when training
-            the MixBlock. Unsampling mode {'nearest', 'bilinear', etc}. Build a list for various
-            upsampling mode (as in MixBlock). Default: None.
-        pre_one_loss (float): Loss weight for the pre-MixBlock head as onehot classification.
-            Default: 0. (requires a pre_head in MixBlock)
-        pre_mix_loss (float): Loss weight for the pre-MixBlock head as mixup classification.
-            Default: 0. (requires a pre_head in MixBlock)
-        lam_margin (int): Margin of lambda to stop using AutoMix to train backbone
-            when lam is small. If lam > lam_margin: AutoMix; else: vanilla mixup.
-            Default: -1 (or 0).
-        switch_off (bool or float): Switch off MixBlock updating for fast training. Default to
-            False (or 0).
-        head_ensemble (bool): Whether to ensemble results of all heads. Default to False.
-        mix_shuffle_no_repeat (bool): Whether to use 'no_repeat' mode to generate
-            mixup shuffle idx. We can ignore this issue in supervised learning.
-            Default: False.
-        pretrained (str, optional): Path to pre-trained weights. Default: None.
-        pretrained_k (str, optional): Path to pre-trained weights for en_k. Default: None.
-        save_by_sample (bool): Whether to save mixup samples separately.
-        debug_mode (bool): Whether to save some intermediate products.
-    """
-
+class AdAutoMix(BaseModel):
     def __init__(self,
                  backbone,
                  backbone_k=None,
                  mix_block=None,
+                 affine_da=None,
                  head_mix=None,
                  head_one=None,
                  head_mix_k=None,
                  head_one_k=None,
-                 head_weights=dict(
-                    decent_weight=[], accent_weight=[],
-                    head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
+                 head_weights=dict(decent_weight=[], accent_weight=[],
+                                   head_mix_q=1, head_one_q=1, head_mix_k=1, head_one_k=1),
                  alpha=1.0,
+                 mix_samples=3,
+                 is_random=False,
                  momentum=0.999,
-                 mask_layer=2,
-                 mask_loss=0.,
-                 mask_adjust=0.,
-                 mask_up_override=None,
-                 pre_one_loss=0.,
-                 pre_mix_loss=0.,
                  lam_margin=-1,
                  switch_off=0.,
+                 adv_interval=2,
+                 mixup_radio=0.5,
+                 beta_radio=0.3,
                  head_one_mix=False,
                  head_ensemble=False,
                  save=False,
                  save_name='MixedSamples',
-                 save_by_sample=False,
                  debug=False,
                  mix_shuffle_no_repeat=False,
                  pretrained=None,
                  pretrained_k=None,
                  init_cfg=None,
                  **kwargs):
-        super(AutoMixup, self).__init__(init_cfg, **kwargs)
+        super(AdAutoMix, self).__init__(init_cfg, **kwargs)
         # basic params
         self.alpha = float(alpha)
-        self.mask_layer = int(mask_layer)
+        self.mix_samples = int(mix_samples)
+        self.co_mix = 2
+        self.is_random = bool(is_random)
         self.momentum = float(momentum)
         self.base_momentum = float(momentum)
-        self.mask_loss = float(mask_loss) if float(mask_loss) > 0 else 0
-        self.mask_adjust = float(mask_adjust)
-        self.pre_one_loss = float(pre_one_loss) if float(pre_one_loss) > 0 else 0
-        self.pre_mix_loss = float(pre_mix_loss) if float(pre_mix_loss) > 0 else 0
         self.lam_margin = float(lam_margin) if float(lam_margin) > 0 else 0
+        self.mixup_radio = float(mixup_radio)
+        self.beta_radio = float(beta_radio)
         self.switch_off = float(switch_off) if float(switch_off) > 0 else 0
         self.head_one_mix = bool(head_one_mix)
         self.head_ensemble = bool(head_ensemble)
-        self.mask_up_override = mask_up_override \
-            if isinstance(mask_up_override, (str, list)) else None
         self.save = bool(save)
         self.save_name = str(save_name)
         self.ploter = PlotTensor(apply_inv=True)
-        self.save_by_sample = bool(save_by_sample)
         self.debug = bool(debug)
         self.mix_shuffle_no_repeat = bool(mix_shuffle_no_repeat)
-        assert 0 <= self.momentum and self.lam_margin < 1 and self.mask_adjust <= 1
-        if self.mask_up_override is not None:
-            if isinstance(self.mask_up_override, str):
-                self.mask_up_override = [self.mask_up_override]
-            for m in self.mask_up_override:
-                assert m in ['nearest', 'bilinear', 'bicubic',]
+        self.adv_interval = int(adv_interval)
+        self.iter = 0
+        self.i = 0
+        assert 0 <= self.momentum and self.lam_margin < 1
 
         # network
         assert isinstance(mix_block, dict) and isinstance(backbone, dict)
+        # assert isinstance(affine_da, dict) and isinstance(backbone, dict)
         assert backbone_k is None or isinstance(backbone_k, dict)
         assert head_mix is None or isinstance(head_mix, dict)
         assert head_one is None or isinstance(head_one, dict)
@@ -170,22 +116,12 @@ class AutoMixup(BaseModel):
         self.head_weights = head_weights
         self.head_weights['decent_weight'] = head_weights.get("decent_weight", list())
         self.head_weights['accent_weight'] = head_weights.get("accent_weight", list())
-        self.head_weights['mask_loss'] = self.mask_loss
-        self.head_weights['pre_one_loss'] = self.pre_one_loss
-        self.head_weights['pre_mix_loss'] = self.pre_mix_loss
         self.cos_annealing = 1.  # decent from 1 to 0 as cosine
-        
+
         self.init_weights(pretrained=pretrained, pretrained_k=pretrained_k)
 
     def init_weights(self, pretrained=None, pretrained_k=None):
-        """Initialize the weights of model.
 
-        Args:
-            pretrained (str, optional): Path to pre-trained weights.
-                Default: None.
-            pretrained_k (str, optional): Path to pre-trained weights to initialize the
-                backbone_k and mixblock. Default: None.
-        """
         # init mixblock
         if self.mix_block is not None:
             self.mix_block.init_weights(init_linear='normal')
@@ -195,13 +131,7 @@ class AutoMixup(BaseModel):
             # load full ckpt to backbone and fc
             logger = logging.getLogger()
             load_checkpoint(self, pretrained_k, strict=False, logger=logger)
-            # head_mix_k and head_one_k should share the same initalization
-            if self.head_mix_k is not None and self.head_one_k is not None:
-                for param_one_k, param_mix_k in zip(self.head_one_k.parameters(),
-                                                    self.head_mix_k.parameters()):
-                    param_mix_k.data.copy_(param_one_k.data)
-                    param_mix_k.requires_grad = False  # stop grad k
-        
+
         # init backbone, based on params in q
         if pretrained is not None:
             print_log('load encoder_q from: {}'.format(pretrained), logger='root')
@@ -212,23 +142,24 @@ class AutoMixup(BaseModel):
                                         self.backbone_k.parameters()):
                 param_k.data.copy_(param_q.data)
                 param_k.requires_grad = False  # stop grad k
-        
+
         # init head
         if self.head_mix_q is not None:
             self.head_mix_q.init_weights()
         if self.head_one_q is not None:
             self.head_one_q.init_weights()
-        
+
         # copy head one param from q to k
         if (self.head_one_q is not None and self.head_one_k is not None) and \
-            (pretrained_k is None and self.momentum < 1):
+                (pretrained_k is None and self.momentum < 1):
             for param_one_q, param_one_k in zip(self.head_one_q.parameters(),
                                                 self.head_one_k.parameters()):
                 param_one_k.data.copy_(param_one_q.data)
                 param_one_k.requires_grad = False  # stop grad k
+
         # copy head mix param from q to k
         if (self.head_mix_q is not None and self.head_mix_k is not None) and \
-            (pretrained_k is None and self.momentum < 1):
+                (pretrained_k is None and self.momentum < 1):
             for param_mix_q, param_mix_k in zip(self.head_mix_q.parameters(),
                                                 self.head_mix_k.parameters()):
                 param_mix_k.data.copy_(param_mix_q.data)
@@ -245,7 +176,7 @@ class AutoMixup(BaseModel):
         # cos annealing accent, from 0 to 1
         if len(self.head_weights["accent_weight"]) > 0:
             for attr in self.head_weights["accent_weight"]:
-                setattr(self, attr, self.head_weights.get(attr, 1.) * (1-self.cos_annealing))
+                setattr(self, attr, self.head_weights.get(attr, 1.) * (1 - self.cos_annealing))
 
     @torch.no_grad()
     def momentum_update(self):
@@ -257,8 +188,8 @@ class AutoMixup(BaseModel):
         for param_q, param_k in zip(self.backbone_q.parameters(),
                                     self.backbone_k.parameters()):
             param_k.data = param_k.data * self.momentum + \
-                        param_q.data * (1. - self.momentum)
-        
+                           param_q.data * (1. - self.momentum)
+
         if self.head_one_q is not None and self.head_one_k is not None:
             for param_one_q, param_one_k in zip(self.head_one_q.parameters(),
                                                 self.head_one_k.parameters()):
@@ -269,7 +200,7 @@ class AutoMixup(BaseModel):
             for param_mix_q, param_mix_k in zip(self.head_mix_q.parameters(),
                                                 self.head_mix_k.parameters()):
                 param_mix_k.data = param_mix_k.data * self.momentum + \
-                                    param_mix_q.data * (1 - self.momentum)
+                                   param_mix_q.data * (1 - self.momentum)
 
     def _no_repeat_shuffle_idx(self, batch_size_this, ignore_failure=False):
         """ generate no repeat shuffle idx within a gpu """
@@ -305,8 +236,7 @@ class AutoMixup(BaseModel):
             img = img[0]
         batch_size = img.size(0)
         self._update_loss_weights()
-        
-        lam = np.random.beta(self.alpha, self.alpha, 2)  # 0: mb, 1: bb
+
         if self.mix_shuffle_no_repeat:
             index_bb = self._no_repeat_shuffle_idx(batch_size, ignore_failure=True)
             index_mb = self._no_repeat_shuffle_idx(batch_size, ignore_failure=False)
@@ -314,26 +244,50 @@ class AutoMixup(BaseModel):
             index_bb = torch.randperm(batch_size).cuda()
             index_mb = torch.randperm(batch_size).cuda()
 
-        # auto Mixup
-        indices = [index_mb, index_bb]
-        feature = self.backbone_k(img)[0]
-        results = self.pixel_mixup(img, gt_label, lam, indices, feature)
+        # choose mixed samples
+        if self.is_random:
+            self.co_mix = random.randint(2, self.mix_samples)
+        else:
+            self.co_mix = self.mix_samples
+        lam = np.random.beta(self.alpha, self.alpha, self.co_mix)  # 0: mb, 1: bb
 
-        # save img bb, mixed sample visualization
-        if self.save and self.mask_adjust > 0:
-            self.plot_mix(
-                results["img_mix_bb"], img, img[index_bb, :], lam[1], results["debug_plot"], "backbone")
-        # save img mb
-        if self.save and self.mask_adjust <= 0:
-            self.plot_mix(
-                results["img_mix_mb"], img, img[index_mb, :], lam[0], results["debug_plot"], "mixblock")
-        
-        # k (mb): the mix block training
-        loss_mix_k = self.forward_k(results["img_mix_mb"], gt_label, index_mb, lam[0])
-        # q (bb): the encoder training
-        loss_one_q, loss_mix_q = self.forward_q(img, results["img_mix_bb"], gt_label, index_bb, lam[1])
-        
-        # loss summary
+        # Mixup
+        co_lam = []
+        index = [index_mb, index_bb]
+        feature = self.backbone_k(img)[0]
+        # co-samples mix
+        if self.co_mix > 2:
+            # index
+            for i in range(2, self.co_mix):
+                co_mb = torch.randperm(batch_size).cuda()
+                index.append(co_mb)
+                index_mb = index
+                index_bb = [torch.randperm(batch_size).cuda() for i in range(0, len(index_mb))]
+            # lam
+            for i in range(0, self.co_mix):
+                co_lam.append(lam[i] / lam.sum())
+            results = self.co_mixup(img, co_lam, index_mb, index_bb, feature)
+
+            # save img mb
+            self.co_plot_mix(results["img_mix_mb"], img[index_mb[0], :], img[index_mb[1], :], img[index_mb[2], :],
+                             co_lam, results["debug_plot"], "co-mix")
+            # k (mb): the mix block training
+            cos_simi_weight, loss_mix_k = self.forward_k(img, results["img_mix_mb"], gt_label, index_mb, co_lam)
+            # q (bb): the encoder training
+            loss_one_q, loss_mix_q = self.forward_q(img, results["img_mix_bb"], gt_label, index_bb, co_lam)
+
+        # two samples mix
+        else:
+            results = self.mixup(img, lam, index, feature)
+            # save img mb
+            if self.save:
+                self.plot_mix(results["img_mix_mb"], img, img[index_mb, :], lam, results["debug_plot"], "mixblock")
+            # k (mb): the mix block training
+            cos_simi_weight, loss_mix_k = self.forward_k(img, results["img_mix_mb"], gt_label, index[0], lam[0])
+            # q (bb): the encoder training
+            loss_one_q, loss_mix_q = self.forward_q(img, results["img_mix_bb"], gt_label, index[1], lam[1])
+
+        #  loss summary
         losses = {
             'loss': loss_mix_q['loss'] * self.weight_mix_q,
             'acc_mix_q': loss_mix_q['acc'],
@@ -342,19 +296,20 @@ class AutoMixup(BaseModel):
         if loss_one_q is not None and self.weight_one_q > 0:
             losses['loss'] += loss_one_q['loss'] * self.weight_one_q
             losses['acc_one_q'] = loss_one_q['acc']
+
+        # adversial training
+        if self.iter % self.adv_interval == 0:
+            if loss_mix_k['loss'] is not None:
+                loss_mix_k['loss'] = -1.0 * self.beta_radio * loss_mix_k['loss'] \
+                                    + (1 - self.beta_radio) * cos_simi_weight
+            self.iter = 0
         # mixblock loss
         if loss_mix_k['loss'] is not None and self.weight_mix_k > 0:
             losses["loss"] += loss_mix_k['loss'] * self.weight_mix_k
             losses['acc_mix_k'] = loss_mix_k['acc']
         else:
             losses['acc_mix_k'] = loss_mix_q['acc']
-        if results["mask_loss"] is not None and self.mask_loss > 0:
-            losses["loss"] += results["mask_loss"]
-        if results["pre_one_loss"] is not None and self.pre_one_loss > 0:
-            losses["loss"] += results["pre_one_loss"]
-        if loss_mix_k["pre_mix_loss"] is not None and self.pre_mix_loss > 0:
-            losses["loss"] += loss_mix_k["pre_mix_loss"]
-
+        self.iter += 1
         return losses
 
     @force_fp32(apply_to=('im_mixed', 'im_q', 'im_k',))
@@ -365,13 +320,12 @@ class AutoMixup(BaseModel):
         title_name = 'lambda {}={}'.format(name, lam)
         assert self.save_name.find(".png") != -1
         self.ploter.plot(
-            img, nrow=4, title_name=title_name, save_name=self.save_name,
-            make_grid=not self.save_by_sample)
+            img, nrow=4, title_name=title_name, save_name=self.save_name)
 
         # debug: plot intermediate results, fp32
         if self.debug:
             assert isinstance(debug_plot, dict)
-            for key,value in debug_plot.items():
+            for key, value in debug_plot.items():
                 _, h, w = value.size()
                 img = value[:4].view(h, 4 * w).type(torch.float32).detach().cpu().numpy()
                 fig = plt.figure()
@@ -382,7 +336,31 @@ class AutoMixup(BaseModel):
                     plt.savefig(_debug_path, bbox_inches='tight')
                 plt.close()
 
-    @auto_fp16(apply_to=('x', 'mixed_x', ))
+    @force_fp32(apply_to=('im_mixed', 'im_1', 'im_2', 'im_3'))
+    def co_plot_mix(self, im_mixed, im_1, im_2, im_3, lam, debug_plot=None, name="k" ):
+        """ visualize mixup results, supporting 'debug' mode """
+        # plot mixup results
+        img = torch.cat((im_1[:4], im_2[:4], im_3[:4], im_mixed[:4]), dim=0)
+        title_name = 'lambda {}={}'.format(name, lam)
+        assert self.save_name.find(".png") != -1
+        self.ploter.plot(
+            img, nrow=4, title_name=title_name, save_name=self.save_name)
+
+        # debug: plot intermediate results, fp32
+        if self.debug:
+            assert isinstance(debug_plot, dict)
+            for key, value in debug_plot.items():
+                _, h, w = value.size()
+                img = value[:4].view(h, 4 * w).type(torch.float32).detach().cpu().numpy()
+                fig = plt.figure()
+                plt.imshow(img)
+                # plt.title('debug {}, lambda k={}'.format(str(key), lam))
+                _debug_path = self.save_name.split(".png")[0] + "_{}.png".format(str(key))
+                if not os.path.exists(_debug_path):
+                    plt.savefig(_debug_path, bbox_inches='tight')
+                plt.close()
+
+    @auto_fp16(apply_to=('x', 'mixed_x',))
     def forward_q(self, x, mixed_x, y, index, lam):
         """
         Args:
@@ -395,7 +373,6 @@ class AutoMixup(BaseModel):
         Returns:
             dict[str, Tensor]: loss_one_q and loss_mix_q are losses from q.
         """
-        # onehot q
         loss_one_q = None
         if self.head_one_q is not None and self.weight_one_q > 0:
             if self.head_one_mix:  # mixup in head_one
@@ -413,7 +390,32 @@ class AutoMixup(BaseModel):
             if torch.isnan(loss_one_q['loss']):
                 print_log("Warming NAN in loss_one_q. Please use FP32!", logger='root')
                 loss_one_q = None
-        
+
+        # co_mixup q
+        loss_co_mix_q = None
+        if self.co_mix > 2:
+            co_mixed_x = x[index[0], ] * lam[0]
+            for i in range(1, len(lam)):
+                co_mixed_x += x[index[i], ] * lam[i]
+            co_out_mix_q = self.backbone_q(co_mixed_x)[-1]
+            pred_co_mix_q = self.head_mix_q([co_out_mix_q])
+            # loss
+            y_co_mix_q = []
+            for i in range(0, self.co_mix):
+                y_co_mix_q.append(y[index[i]])
+            y_co_mix_q.append(lam)
+            y_co_mix_q = tuple(y_co_mix_q)
+            loss_co_mix_q = self.head_mix_q.co_loss(pred_co_mix_q, y_co_mix_q)
+            if torch.isnan(loss_co_mix_q['loss']):
+                print_log("Warming NAN in loss_co_mix_q. Please use FP32!", logger='root')
+                loss_co_mix_q = dict(loss=None)
+            # loss re-weight
+            loss_re_q = dict(loss=None, acc=None)
+            loss_re_q['loss'] = loss_one_q['loss'] * (1 - self.mixup_radio) + loss_co_mix_q['loss'] * self.mixup_radio
+            loss_re_q['acc'] = (loss_one_q['acc'] + loss_co_mix_q['acc']) / 2
+        else:
+            loss_re_q = loss_one_q
+
         # mixup q
         loss_mix_q = None
         if self.weight_mix_q > 0:
@@ -422,24 +424,33 @@ class AutoMixup(BaseModel):
             # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
             pred_mix_q[0] = pred_mix_q[0].type(torch.float32)
             # mixup loss
-            y_mix_q = (y, y[index], lam)
-            loss_mix_q = self.head_mix_q.loss(pred_mix_q, y_mix_q)
+            if self.co_mix == 2:
+                y_mix_q = (y, y[index], lam)
+                loss_mix_q = self.head_mix_q.loss(pred_mix_q, y_mix_q)
+            else:
+                y_mix_q = []
+                for i in range(0, self.co_mix):
+                    y_mix_q.append(y[index[i]])
+                y_mix_q.append(lam)
+                y_mix_q = tuple(y_mix_q)
+                loss_mix_q = self.head_mix_q.co_loss(pred_mix_q, y_mix_q)
             if torch.isnan(loss_mix_q['loss']):
                 print_log("Warming NAN in loss_mix_q. Please use FP32!", logger='root')
                 loss_mix_q = dict(loss=None)
-        
-        return loss_one_q, loss_mix_q
 
-    @auto_fp16(apply_to=('mixed_x', ))
-    def forward_k(self, mixed_x, y, index, lam):
+        return loss_re_q, loss_mix_q
+
+    @auto_fp16(apply_to=('mixed_x',))
+    def forward_k(self, x, mixed_x, y, index, lam):
         """ forward k with the mixup sample """
         loss_mix_k = dict(loss=None, pre_mix_loss=None)
+        cos_simi_weight = 0.0
         # switch off mixblock training
         if self.switch_off > 0:
             if 0 < self.cos_annealing <= 1:
                 if np.random.rand() > self.switch_off * self.cos_annealing:
-                    return loss_mix_k
-        
+                    return cos_simi_weight, loss_mix_k
+
         # training mixblock from k
         if self.weight_mix_k > 0:
             # mixed_x forward
@@ -447,125 +458,117 @@ class AutoMixup(BaseModel):
             pred_mix_k = self.head_mix_k([out_mix_k[-1]])
             # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
             pred_mix_k[0] = pred_mix_k[0].type(torch.float32)
-            # k mixup loss
-            y_mix_k = (y, y[index], lam)
-            loss_mix_k = self.head_mix_k.loss(pred_mix_k, y_mix_k)
+            # mixup loss
+            if self.co_mix == 2:
+                y_mix_k = (y, y[index], lam)
+                loss_mix_k = self.head_mix_q.loss(pred_mix_k, y_mix_k)
+            else:
+                y_mix_k = []
+                for i in range(0, self.co_mix):
+                    y_mix_k.append(y[index[i]])
+                y_mix_k.append(lam)
+                y_mix_k = tuple(y_mix_k)
+                loss_mix_k = self.head_mix_q.co_loss(pred_mix_k, y_mix_k)
             if torch.isnan(loss_mix_k['loss']):
                 print_log("Warming NAN in loss_mix_k. Please use FP32!", logger='root')
                 loss_mix_k["loss"] = None
 
-        # mixup loss, short cut of pre-mixblock
-        if self.pre_mix_loss > 0:
-            out_mb = out_mix_k[0]
-            # pre FFN
-            if self.mix_block.pre_attn is not None:
-                out_mb = self.mix_block.pre_attn(out_mb)  # non-local
-            if self.mix_block.pre_conv is not None:
-                out_mb = self.mix_block.pre_conv([out_mb])  # neck
-            # pre mixblock mixup loss
-            pred_mix_mb = self.mix_block.pre_head(out_mb)
-            # force fp32 in mixup loss (causing NAN in fp16 training with a large batch size)
-            pred_mix_mb[0] = pred_mix_mb[0].type(torch.float32)
-            loss_mix_k["pre_mix_loss"] = \
-                self.mix_block.pre_head.loss(pred_mix_mb, y_mix_k)["loss"] * self.pre_mix_loss
-            if torch.isnan(loss_mix_k["pre_mix_loss"]):
-                print_log("Warming NAN in pre_mix_loss.", logger='root')
-                loss_mix_k["pre_mix_loss"] = None
-        else:
-            loss_mix_k["pre_mix_loss"] = None
-        
-        return loss_mix_k
+        # cosine similarty
+        simi = torch.nn.CosineSimilarity(dim=-1)
+        if self.co_mix == 2:
+            x_ = x[index, :]
+            pred_x = self.head_mix_k([self.backbone_k(x)[-1]])[0]
+            pred_x_ = self.head_mix_k([self.backbone_k(x_)[-1]])[0]
+            cos_simi_weight = torch.mean(simi(pred_mix_k[0], pred_x) * lam \
+                              + simi(pred_mix_k[0], pred_x_) * (1-lam))
+        elif self.co_mix > 2:
+            pred = []
+            for i in range(0, self.co_mix):
+                pred.append(self.head_mix_k([self.backbone_k(x[index[i], :])[-1]])[0])
 
-    def pixel_mixup(self, x, y, lam, index, feature):
-        """ pixel-wise input space mixup
+            for i in range(0, self.co_mix):
+                cos_simi_weight += simi(pred_mix_k[0], pred[i]) * lam[i]
 
-        Args:
-            x (Tensor): Input of a batch of images, (N, C, H, W).
-            y (Tensor): A batch of gt_labels, (N, 1).
-            lam (List): Input list of lambda (scalar).
-            index (List): Input list of shuffle index (tensor) for mixup.
-            feature (Tensor): The feature map of x, (N, C, H', W').
+            cos_simi_weight = torch.mean(cos_simi_weight)
+        return cos_simi_weight, loss_mix_k
 
-        Returns: dict includes following
-            mixed_x_bb, mixed_x_mb: Mixup samples for bb (training the backbone)
-                and mb (training the mixblock).
-            mask_loss (Tensor): Output loss of mixup masks.
-            pre_one_loss (Tensor): Output onehot cls loss of pre-mixblock.
-        """
+    def co_mixup(self, x, lam, index_mb, index_bb, feature):
         results = dict()
+        b, c, w, h = x.size()
         # lam info
-        lam_mb = lam[0]  # lam is a scalar
-        lam_bb = lam[1]
+        mb = []
+        bb = []
+        for i in range(0, len(index_mb)):
+            mb.append(feature[index_mb[i], :])
+            bb.append(feature[index_bb[i], :])
 
-        # mask upsampling factor
-        if x.shape[3] > 64:  # normal version of resnet
-            scale_factor = 2**(2 + self.mask_layer)
-        else:  # CIFAR version
-            scale_factor = 2**self.mask_layer
-        
-        # get mixup mask
-        mask_mb = self.mix_block(feature, lam_mb, index[0],
-            scale_factor=scale_factor, debug=self.debug, unsampling_override=self.mask_up_override)
-        mask_bb = self.mix_block(feature, lam_bb, index[1],
-            scale_factor=scale_factor, debug=False, unsampling_override=None)
+        # training mixblock
+        mask_mb = self.mix_block(mb, lam)
+        # training backbone
+        mask_bb = self.mix_block(bb, lam)
+
         if self.debug:
             results["debug_plot"] = mask_mb["debug_plot"]
         else:
             results["debug_plot"] = None
 
-        # pre mixblock loss
-        results["pre_one_loss"] = None
-        if self.pre_one_loss > 0.:
-            pred_one = self.mix_block.pre_head([mask_mb["x_lam"]])
-            y_one = (y, y, 1)
-            results["pre_one_loss"] = \
-                self.mix_block.pre_head.loss(pred_one, y_one)["loss"] * self.pre_one_loss
-            if torch.isnan(results["pre_one_loss"]):
-                print_log("Warming NAN in pre_one_loss.", logger='root')
-                results["pre_one_loss"] = None
-        
         mask_mb = mask_mb["mask"]
         mask_bb = mask_bb["mask"].clone().detach()
 
-        # adjust mask_bb with lambd
-        if self.mask_adjust > np.random.rand():  # [0,1)
-            epsilon = 1e-8
-            _mask = mask_bb[:, 0, :, :].squeeze()  # [N, H, W], _mask for lam
-            _mask = _mask.clamp(min=epsilon, max=1-epsilon)
-            _mean = _mask.mean(dim=[1, 2]).squeeze()  # [N, 1, 1] -> [N]
-            idx_larg = _mean[:] > lam[0] + epsilon  # index of mean > lam_bb
-            idx_less = _mean[:] < lam[0] - epsilon  # index of mean < lam_bb
-            # if mean > lam_bb
-            mask_bb[idx_larg==True, 0, :, :] = \
-                _mask[idx_larg==True, :, :] * (lam[0] / _mean[idx_larg==True].view(-1, 1, 1))
-            mask_bb[idx_larg==True, 1, :, :] = 1 - mask_bb[idx_larg==True, 0, :, :]
-            # elif mean < lam_bb
-            mask_bb[idx_less==True, 1, :, :] = \
-                (1 - _mask[idx_less==True, :, :]) * ((1 - lam[0]) / (1 - _mean[idx_less==True].view(-1, 1, 1)))
-            mask_bb[idx_less==True, 0, :, :] = 1 - mask_bb[idx_less==True, 1, :, :]
+        # lam_margin for backbone training, this for 3 samples mixing
+        if self.lam_margin >= lam[0] or self.lam_margin < 1 - lam[0]:
+            mask_bb[:, 0, :, :] = lam[0]
+            mask_bb[:, 1, :, :] = lam[1]
+            mask_bb[:, 2, :, :] = lam[2]
+
+        # mix, apply mask on x and x_
+        assert mask_mb.shape[1] == self.co_mix
+        img_mix_mb = torch.zeros([b, c, w, h]).to(x)
+        img_mix_bb = torch.zeros([b, c, w, h]).to(x)
+        for i in range(0, self.co_mix):
+            img_mix_mb += x[index_mb[i], :] * mask_mb[:, i, :, :].unsqueeze(1)
+            img_mix_bb += x[index_bb[i], :] * mask_bb[:, i, :, :].unsqueeze(1)
+
+        results["img_mix_mb"] = img_mix_mb
+        results["img_mix_bb"] = img_mix_bb
+
+        return results
+
+    def mixup(self, x, lam, index, feature):
+        """ pixel-wise input space mixup"""
+        results = dict()
+        # lam info
+        lam_mb = lam[0]  # lam is a scalar
+        lam_bb = lam[1]
+
+        # get mixup mask
+        mb = [feature, feature[index[0], :]]
+        bb = [feature, feature[index[1], :]]
+
+        mask_mb = self.mix_block(mb, lam_mb)
+        mask_bb = self.mix_block(bb, lam_bb)
+
+        if self.debug:
+            results["debug_plot"] = mask_mb["debug_plot"]
+        else:
+            results["debug_plot"] = None
+
+        mask_mb = mask_mb["mask"]
+        mask_bb = mask_bb["mask"].clone().detach()
+
         # lam_margin for backbone training
-        if self.lam_margin >= lam_bb or self.lam_margin >= 1-lam_bb:
+        if self.lam_margin >= lam_bb or self.lam_margin >= 1 - lam_bb:
             mask_bb[:, 0, :, :] = lam_bb
             mask_bb[:, 1, :, :] = 1 - lam_bb
-        
-        # loss of mixup mask
-        results["mask_loss"] = None
-        if self.mask_loss > 0.:
-            results["mask_loss"] = self.mix_block.mask_loss(mask_mb, lam_mb)["loss"]
-            if results["mask_loss"] is not None:
-                results["mask_loss"] *= self.mask_loss
-        
+
         # mix, apply mask on x and x_
-        # img_mix_mb = x * (1 - mask_mb) + x[index[0], :] * mask_mb
         assert mask_mb.shape[1] == 2
         assert mask_mb.shape[2:] == x.shape[2:], f"Invalid mask shape={mask_mb.shape}"
         results["img_mix_mb"] = \
             x * mask_mb[:, 0, :, :].unsqueeze(1) + x[index[0], :] * mask_mb[:, 1, :, :].unsqueeze(1)
-        
-        # img_mix_bb = x * (1 - mask_bb) + x[index[1], :] * mask_bb
         results["img_mix_bb"] = \
             x * mask_bb[:, 0, :, :].unsqueeze(1) + x[index[1], :] * mask_bb[:, 1, :, :].unsqueeze(1)
-        
+
         return results
 
     def simple_test(self, img, **kwargs):
@@ -662,11 +665,11 @@ class AutoMixup(BaseModel):
         """" visualization by jupyter notebook """
         batch_size = img.size()[0]
         lam = kwargs.get('lam', [0.5, 0.5])
-        index = [i+1 for i in np.arange(batch_size)]
+        index = [i + 1 for i in np.arange(batch_size)]
         index[-1] = 0
 
         # forward mixblock
         indices = [index, index]
         feature = self.backbone_k(img)[0]
-        results = self.pixel_mixup(img, gt_label, lam, indices, feature)
+        results = self.mixup(img, gt_label, lam, indices, feature)
         return {'mix_bb': results["img_mix_bb"], 'mix_mb': results["img_mix_mb"]}

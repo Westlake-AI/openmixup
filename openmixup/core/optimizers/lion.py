@@ -26,7 +26,11 @@ from mmcv.runner.optimizer.builder import OPTIMIZERS
 
 @OPTIMIZERS.register_module()
 class Lion(Optimizer):
-    r"""Implements Lion algorithm."""
+    r"""Lion algorithm.
+
+    Implementation of `Symbolic Discovery of Optimization Algorithms
+    (NeurIPS'2023) <https://arxiv.org/abs/2302.06675>`_.
+    """
 
     def __init__(
             self,

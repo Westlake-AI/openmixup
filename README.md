@@ -58,7 +58,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## News and Updates
 
-[2023-05-25] `OpenMixup` v0.2.8 is released, which is on updating of some new features according to [MMPreTrain](https://github.com/open-mmlab/mmpretrain).
+[2023-12-23] `OpenMixup` v0.2.9 is released, updating more features in mixup augmentations, self-supervised learning, and optimizers.
 
 ## Installation
 
@@ -193,6 +193,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [SmoothMix](https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf) (CVPRW'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [SaliencyMix](https://arxiv.org/abs/1710.09412) (ICLR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [PuzzleMix](https://arxiv.org/abs/2009.06962) (ICML'2020) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [SnapMix](https://arxiv.org/abs/2012.04846) (AAAI'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/)]
     - [x] [GridMix](https://www.sciencedirect.com/science/article/pii/S0031320320303976) (Pattern Recognition'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [ResizeMix](https://arxiv.org/abs/2012.11101) (CVMJ'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AlignMix](https://arxiv.org/abs/2103.15375) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
@@ -201,6 +202,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
     - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
     - [ ] [SMMix](https://arxiv.org/abs/2212.12977) (ICCV'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
+    - [x] [AdAutoMix](https://arxiv.org/abs/2312.11954) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix)]
     </details>
 
     <details open>

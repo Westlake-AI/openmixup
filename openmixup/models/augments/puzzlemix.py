@@ -198,11 +198,17 @@ def puzzlemix(img,
         block_num = (1, block_num)
     elif isinstance(block_num, tuple):
         assert len(block_num) == 2
-    block_num = 2**np.random.randint(block_num[0], block_num[1])  # given num is the range
+    block_num = 2 ** np.random.randint(block_num[0], block_num[1])  # given num is the range
     if mean is None:
-        mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
+        if img.shape[-1] < 64:
+            mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
+        else:
+            mean = torch.tensor([0.485, 0.456, 0.406]).reshape(1, 3, 1, 1).cuda()
     if std is None:
-        std  = torch.tensor([0.2023, 0.1994, 0.2010]).reshape(1, 3, 1, 1).cuda()
+        if img.shape[-1] < 64:
+            std  = torch.tensor([0.2023, 0.1994, 0.2010]).reshape(1, 3, 1, 1).cuda()
+        else:
+            std  = torch.tensor([0.229, 0.224, 0.225]).reshape(1, 3, 1, 1).cuda()
     if mp is not None:
         mp = Pool(mp)
 

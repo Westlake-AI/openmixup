@@ -43,6 +43,12 @@ def projection(p, grad, perturb, delta: float, wd_ratio: float, eps: float):
 
 @OPTIMIZERS.register_module()
 class AdamP(Optimizer):
+    """AdamP algorithm
+
+    Implementation of `AdamP: Slowing Down the Slowdown for Momentum Optimizers on
+    Scale-invariant Weights (ICLR'2021) <https://arxiv.org/abs/2006.08217>`_.
+    """
+
     def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
                  weight_decay=0, delta=0.1, wd_ratio=0.1, nesterov=False):
         defaults = dict(

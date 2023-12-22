@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from mmcv.cnn import build_activation_layer
 from mmcv.runner import BaseModule, Sequential
 
-from ..utils import accuracy, accuracy_mixup, lecun_normal_init
+from ..utils import accuracy, accuracy_mixup, lecun_normal_init, accuracy_co_mixup
 from ..registry import HEADS
 from ..builder import build_loss
 
@@ -190,4 +190,47 @@ class VisionTransformerClsHead(BaseModule):
             # compute accuracy
             losses['acc'] = accuracy(cls_score, labels[0])
             losses['acc_mix'] = accuracy_mixup(cls_score, labels)
+        return losses
+
+    def co_loss(self, cls_score, labels, label_mask=None, **kwargs):
+        r"""" mixup classification loss forward with Co-Mixup """
+        losses = dict()
+        assert isinstance(cls_score, (tuple, list)) and len(cls_score) >= 1
+        if len(cls_score) > 1:
+            assert isinstance(labels, torch.Tensor), "Only support one-hot labels."
+            labels = labels.reshape(labels.size(0), -1).repeat(len(cls_score), 1).squeeze()
+            cls_score = torch.cat(cls_score, dim=0)
+        else:
+            cls_score = cls_score[0]
+
+        y_a, y_b, y_c, lam = labels
+        lam_a, lam_b, lam_c = lam
+        if isinstance(lam_a, torch.Tensor):  # lam is scalar or tensor [N,\*]
+            lam_a = lam_a.view(-1, 1)
+
+        single_label = \
+            y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)
+        avg_factor = y_a.size(0)
+
+        if not self.multi_label:
+            losses['loss'] = \
+                self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam_a + \
+                self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * lam_b + \
+                self.criterion(cls_score, y_c, avg_factor=avg_factor, **kwargs) * lam_c
+        else:
+            if single_label:
+                y_a = F.one_hot(y_a, num_classes=self.num_classes)
+                y_b = F.one_hot(y_b, num_classes=self.num_classes)
+                y_c = F.one_hot(y_c, num_classes=self.num_classes)
+            use_eta_weight = None
+            class_weight = None
+            # basic mixup labels: sumed to 1
+            y_mixed = lam_a * y_a + lam_b * y_b + lam_c * y_c
+            losses['loss'] = self.criterion(
+                cls_score, y_mixed,
+                avg_factor=avg_factor, class_weight_override=class_weight,
+                eta_weight=use_eta_weight, **kwargs)
+        # compute accuracy
+        losses['acc'] = accuracy(cls_score, labels[0])
+        losses['acc_mix'] = accuracy_co_mixup(cls_score, labels)
         return losses

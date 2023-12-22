@@ -12,7 +12,7 @@ from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..augments import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
-                        alignmix, attentivemix, puzzlemix, transmix)
+                        alignmix, attentivemix, puzzlemix, snapmix, transmix)
 from ..utils import PlotTensor
 
 
@@ -87,6 +87,7 @@ class MixUpClassification(BaseModel):
             "alignmix": alignmix, "attentivemix": attentivemix, "puzzlemix": puzzlemix,
             "automix": self._mixblock, "samix": self._mixblock,
             "transmix": transmix,  # label mixup methods
+            "snapmix": snapmix,
         }
         self.static_mode = {
             "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "gridmix": gridmix,
@@ -105,7 +106,9 @@ class MixUpClassification(BaseModel):
             manifoldmix=dict(layer=(0, 3)),
             puzzlemix=dict(transport=True, t_batch_size=None, block_num=5, beta=1.2,
                 gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=4),
+            snapmix=dict(),
             resizemix=dict(scope=(0.1, 0.8), use_alpha=False),
+            # recursivemix=dict(old_img=None, old_label=None, num_classes=100, smoothing=0.0),
             saliencymix=dict(),
             samix=dict(mask_adjust=0, lam_margin=0.08),
             smoothmix=dict(),
@@ -216,6 +219,20 @@ class MixUpClassification(BaseModel):
             # return to train
             self.backbone.train()
             self.head.train()
+        elif cur_mode == "snapmix":
+            b, c, h, w = img.size()
+            self.backbone.eval()
+            self.head.eval()
+            features = self.backbone(img)[-1]
+            weight = self.head.fc.weight.data
+            bias = self.head.fc.bias.data
+
+            self.backbone.zero_grad()
+            self.head.zero_grad()
+            self.backbone.train()
+            self.head.train()
+
+            return (features, weight, bias)
         
         return features
 
@@ -284,8 +301,8 @@ class MixUpClassification(BaseModel):
             cur_mode = self.mix_args["transmix"].get("mix_mode", "cutmix")  # sample mixup mode
 
         # applying dynamic sample mixup methods
-        if cur_mode in ["attentivemix", "automix", "puzzlemix", "samix",]:
-            if cur_mode in ["attentivemix", "puzzlemix"]:
+        if cur_mode in ["attentivemix", "automix", "puzzlemix", "samix", "snapmix"]:
+            if cur_mode in ["attentivemix", "puzzlemix", "snapmix"]:
                 features = self._features(
                     img, gt_label=gt_label, cur_mode=cur_mode, **self.mix_args[cur_mode])
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask,

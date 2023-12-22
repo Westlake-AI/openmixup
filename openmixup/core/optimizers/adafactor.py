@@ -17,9 +17,10 @@ from mmcv.runner.optimizer.builder import OPTIMIZERS
 
 @OPTIMIZERS.register_module()
 class Adafactor(Optimizer):
-    """Implements Adafactor algorithm.
-    This implementation is based on: `Adafactor: Adaptive Learning Rates with Sublinear Memory Cost`
-    (see https://arxiv.org/abs/1804.04235)
+    """Adafactor algorithm.
+
+    Implementation of `Adafactor: Adaptive Learning Rates with Sublinear Memory Cost
+    (ICML'2019) <https://arxiv.org/abs/1804.04235>`_.
 
     Note that this optimizer internally adjusts the learning rate depending on the
     *scale_parameter*, *relative_step* and *warmup_init* options.

@@ -10,8 +10,10 @@ from mmcv.runner.optimizer.builder import OPTIMIZERS
 
 @OPTIMIZERS.register_module()
 class Adahessian(Optimizer):
-    """
-    Implements the AdaHessian algorithm from "ADAHESSIAN: An Adaptive Second OrderOptimizer for Machine Learning"
+    """AdaHessian algorithm.
+
+    Implementation of `ADAHESSIAN: An Adaptive Second Order Optimizer for Machine Learning
+    (AAAI'2021) <https://arxiv.org/abs/2006.00719>`_.
 
     Arguments:
         params (iterable): iterable of parameters to optimize or dicts defining parameter groups

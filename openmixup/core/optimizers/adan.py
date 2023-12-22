@@ -24,11 +24,10 @@ from mmcv.runner.optimizer.builder import OPTIMIZERS
 
 @OPTIMIZERS.register_module()
 class Adan(Optimizer):
-    """Implements a pytorch variant of Adan.
+    """Adan algorithm.
 
-    Adan was proposed in
-    Adan : Adaptive Nesterov Momentum Algorithm for Faster Optimizing Deep Models.
-    https://arxiv.org/abs/2208.06677
+    Implementation of `Adan : Adaptive Nesterov Momentum Algorithm for Faster Optimizing
+    Deep Models (TPAMI'2023) <https://arxiv.org/abs/2208.06677>`_.
 
     Arguments:
         params (iterable): iterable of parameters to optimize

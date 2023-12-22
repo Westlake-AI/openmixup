@@ -152,9 +152,13 @@ class BaseClsHead(BaseModule):
             losses['acc'] = accuracy(cls_score, labels)
         else:
             # mixup classification
-            y_a, y_b, lam = labels
-            if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,\*]
-                lam = lam.view(-1, 1)
+            if len(labels) == 3:
+                y_a, y_b, lam = labels
+                if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,\*]
+                    lam = lam.view(-1, 1)
+                lam_a, lam_b = lam, 1 - lam
+            else:  # len(labels) == 4 and the sum is no equal to 1
+                y_a, y_b, lam_a, lam_b = labels
             # whether is the single label cls [N,] or multi-label cls [N,C]
             single_label = \
                 y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)
@@ -164,8 +168,8 @@ class BaseClsHead(BaseModule):
 
             if not self.multi_label:
                 losses['loss'] = \
-                    self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam + \
-                    self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * (1 - lam)
+                    self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam_a + \
+                    self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * lam_b
             else:
                 # convert to onehot labels
                 if single_label:
@@ -177,7 +181,8 @@ class BaseClsHead(BaseModule):
                     cls_score, y_mixed, avg_factor=avg_factor, **kwargs)
             # compute accuracy
             losses['acc'] = accuracy(cls_score, labels[0])
-            losses['acc_mix'] = accuracy_mixup(cls_score, labels)
+            if len(labels) == 3:
+                losses['acc_mix'] = accuracy_mixup(cls_score, labels)
         return losses
 
 

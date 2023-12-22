@@ -4,9 +4,13 @@ import pickle
 import shutil
 import tempfile
 from typing import Optional
+from torch.autograd import Variable
+from einops import rearrange
 
 import torch
 import torch.distributed as dist
+import torchvision.transforms
+from torchvision.utils import save_image
 
 import mmcv
 from mmcv.runner import get_dist_info
@@ -207,3 +211,76 @@ def collect_results_gpu(result_part: list, size: int) -> Optional[list]:
         return ordered_results
     else:
         return None
+
+
+def occlusion_forward_collect(func, data_loader, length, random_drop, drop_size):
+
+    # create a mask for occlusion test
+    patch = 224 // drop_size
+    patch_num = patch * patch
+    mask_num = round(patch_num * random_drop) # need mask number
+
+    print(f"patch size is {patch} with the total tokens {patch_num}")
+    print(f"occlusion ratio is {random_drop * 100}% and masked tokens are {mask_num}")
+
+    results = []
+    prog_bar = mmcv.ProgressBar(len(data_loader))
+    for i, data in enumerate(data_loader):
+        img = rearrange(data['img'], 'b c (h p1) (w p2) -> b (h w) (p1 p2 c)', p1=drop_size, p2=drop_size)
+        row = np.random.choice(range(patch_num), size=mask_num, replace=False)
+        img[:, row, :] = 0.0
+        img = rearrange(img, 'b (h w) (p1 p2 c) -> b c (h p1) (w p2)', h=patch, w=patch, p1=drop_size, p2=drop_size)
+
+        data['img'] = img
+        with torch.no_grad():
+            result = func(**data)
+        results.append(result)
+        prog_bar.update()
+
+    results_all = {}
+    for k in results[0].keys():
+        results_all[k] = np.concatenate(
+            [batch[k].numpy() for batch in results], axis=0)
+        assert results_all[k].shape[0] == length
+    return results_all
+
+
+def fgsm_nondist_forward_collect(func, data_loader, length, head, dataset='cifar'):
+
+    eps = 8
+    if dataset == 'cifar':
+        mean, std = [0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.201]
+    else:
+        mean, std =[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+
+    criterion = torch.nn.CrossEntropyLoss()
+    results = []
+    prog_bar = mmcv.ProgressBar(len(data_loader))
+    for i, data in enumerate(data_loader):
+        img = data['img']
+        input = Variable(img, requires_grad=True)
+        optimizer_input = torch.optim.SGD([input], lr=0.1)
+        data['img'] = input
+        output = func(**data)
+        loss = criterion(output[head], data['gt_label'])
+        optimizer_input.zero_grad()
+        loss.backward()
+
+        sign_data_grad = input.grad.sign()
+
+        input = input + eps / 255. * sign_data_grad
+        eta = torch.clamp(input - img, min=-eps / 255., max=eps / 255.)
+        input = torch.clamp(img + eta, min=0, max=1).detach()
+        data['img'] = input
+
+        with torch.no_grad():
+            result = func(**data)
+        results.append(result)
+        prog_bar.update()
+
+    results_all = {}
+    for k in results[0].keys():
+        results_all[k] = np.concatenate(
+            [batch[k].numpy() for batch in results], axis=0)
+        assert results_all[k].shape[0] == length
+    return results_all

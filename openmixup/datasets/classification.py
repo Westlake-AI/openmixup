@@ -1,5 +1,9 @@
+import numpy as np
 import torch
 from PIL import Image
+import seaborn as sns
+import matplotlib.pyplot as plt
+import sklearn.metrics as metric
 
 from openmixup.models.utils import precision_recall_f1, support
 from openmixup.utils import print_log
@@ -113,3 +117,52 @@ class ClassificationDataset(BaseDataset):
                 print_log(_log, logger=logger)
         
         return eval_res
+
+    def ece_score(self, py, n_bins=10, save_name='.', show_plot=True):
+        py = torch.tensor(py).cuda().cpu()
+        py = py.softmax(dim=1)
+        y_test = torch.LongTensor(self.data_source.labels)
+
+        py = np.array(py)
+        y_test = np.array(y_test)
+        if y_test.ndim > 1:
+            y_test = np.argmax(y_test, axis=1)
+        py_index = np.argmax(py, axis=1)
+        py_value = []
+
+        for i in range(py.shape[0]):
+            py_value.append(py[i, py_index[i]])
+        py_value = np.array(py_value)
+        acc, conf = np.zeros(n_bins), np.zeros(n_bins)
+        Bm = np.zeros(n_bins)
+        x = []
+        for m in range(n_bins):
+            a, b = m / n_bins, (m + 1) / n_bins
+            x.append(a)
+            for i in range(py.shape[0]):
+                if py_value[i] > a and py_value[i] <= b:
+                    Bm[m] += 1
+                    if py_index[i] == y_test[i]:
+                        acc[m] += 1
+                    conf[m] += py_value[i]
+
+            if Bm[m] != 0:
+                acc[m] = acc[m] / Bm[m]
+                conf[m] = conf[m] / Bm[m]
+        acc.sort()
+        conf.sort()
+        ece = 0
+        for m in range(n_bins):
+            ece += Bm[m] * np.abs((acc[m] - conf[m]))
+
+        x.append(1.0)
+        if show_plot:
+            plt.figure(figsize=(5, 5))
+            sns.set_style("whitegrid", rc={'grid.linestyle': '--',
+                                    "axes.edgecolor": '.20',})
+            plt.plot(x, x, color='r', linestyle='--', linewidth=1)
+            plt.plot(acc, conf, color='b', linestyle='-', linewidth=1)
+            plt.savefig(f"{save_name}/ece_score.png", format='png', dpi=300)
+            plt.show()
+
+        return ece / sum(Bm)

@@ -84,6 +84,31 @@ def accuracy_mixup(pred, targets):
     return res_lam * lam + res_lam_ * lam_
 
 
+def accuracy_co_mixup(pred, targets):
+    """ Accuracy for mixup classification with Co-Mixup """
+    lam = targets[-1]
+    y = targets[:-1]
+    maxk = 3  # top-2
+    _, pred_label = pred.topk(maxk, dim=1)
+    pred_label = pred_label.t()  # 3xN
+
+    res_lam = []
+    # top-1 for lam_a
+    for i in range(0, len(y)):
+        correct_y = pred_label.eq(y[i].view(1, -1).expand_as(pred_label))
+        if i == len(y)-1:
+            correct_lam = correct_y[i:].view(-1).float().sum(0, keepdim=True)
+        else:
+            correct_lam = correct_y[i:i+1].view(-1).float().sum(0, keepdim=True)
+        res_lam.append(correct_lam.mul_(100.0 / pred.size(0)))
+
+    total_res = 0.0
+    for i in range(0, len(res_lam)):
+        total_res += res_lam[i]*lam[i]
+
+    return total_res
+
+
 def accuracy_semantic_softmax(pred, target, processor):
     """Forward function to calculate the semantic softmax accuracy.
 
