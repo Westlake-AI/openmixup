@@ -7,7 +7,6 @@ numpy
 opencv-python
 packaging
 pandas
-terminaltables
 scipy
 scikit-learn
 seaborn
