@@ -36,7 +36,7 @@ We will update configs and models (ResNets, ViTs, Swin-T, and ConvNeXt-T) for Au
 ## Citation
 
 ```bibtex
-@@InProceedings{liu2022automix,
+@InProceedings{liu2022automix,
       title={AutoMix: Unveiling the Power of Mixup for Stronger Classifiers},
       author={Zicheng Liu and Siyuan Li and Di Wu and Zhiyuan Chen and Lirong Wu and Jianzhu Guo and Stan Z. Li},
       booktitle={European Conference on Computer Vision (ECCV)},

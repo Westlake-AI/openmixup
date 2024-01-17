@@ -171,7 +171,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [DaViT](https://arxiv.org/abs/2204.03645) (ECCV'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/davit/)]
     - [x] [EdgeNeXt](https://arxiv.org/abs/2206.10589) (ECCVW'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/edgenext/)]
     - [x] [EfficientFormer](https://arxiv.org/abs/2206.01191) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/efficientformer/)]
-    - [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
+    - [x] [MogaNet](https://arxiv.org/abs/2211.03295) (ICLR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/moganet/)]
     - [x] [MetaFormer](http://arxiv.org/abs/2210.13452) (ArXiv'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/metaformer/)]
     - [x] [ConvNeXtV2](http://arxiv.org/abs/2301.00808) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext_v2/)]
     - [x] [CoC](https://arxiv.org/abs/2303.01494) (ICLR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/context_cluster/)]
@@ -202,7 +202,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [SAMix](https://arxiv.org/abs/2111.15454) (ArXiv'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix)]
     - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
     - [ ] [SMMix](https://arxiv.org/abs/2212.12977) (ICCV'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
-    - [x] [AdAutoMix](https://arxiv.org/abs/2312.11954) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix)]
+    - [x] [AdAutoMix](https://arxiv.org/abs/2312.11954) (ICLR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix)]
     </details>
 
     <details open>
