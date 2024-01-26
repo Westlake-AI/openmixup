@@ -90,7 +90,7 @@ For example, you can run the script below to train a ResNet-50 classifier on Ima
 ```shell
 CUDA_VISIBLE_DEVICES=0,1,2,3 PORT=29500 bash tools/dist_train.sh configs/classification/imagenet/resnet/resnet50_4xb64_cos_ep100.py 4
 ```
-After trianing, you can test the trained models with the corresponding evaluation script:
+After training, you can test the trained models with the corresponding evaluation script:
 ```shell
 bash tools/dist_test.sh ${CONFIG_FILE} ${GPUS} ${PATH_TO_MODEL} [optional arguments]
 ```
@@ -216,7 +216,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [STL-10](http://proceedings.mlr.press/v15/coates11a/coates11a.pdf) [[download](https://cs.stanford.edu/~acoates/stl10/)]
     - [x] [CUB-200-2011](https://resolver.caltech.edu/CaltechAUTHORS:20111026-120541847) [[download](http://www.vision.caltech.edu/datasets/cub_200_2011/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cub200/)]
     - [x] [FGVC-Aircraft](https://arxiv.org/abs/1306.5151) [[download](https://www.robots.ox.ac.uk/~vgg/data/fgvc-aircraft/)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/aircrafts/)]
-    - [x] [StandfoldCars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
+    - [x] [Stanford-Cars](http://ai.stanford.edu/~jkrause/papers/3drr13.pdf) [[download](http://ai.stanford.edu/~jkrause/cars/car_dataset.html)]
     - [x] [Places205](http://places2.csail.mit.edu/index.html) [[download](http://places.csail.mit.edu/downloadData.html)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/place205/)]
     - [x] [iNaturalist-2017](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2017)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2017/)]
     - [x] [iNaturalist-2018](https://arxiv.org/abs/1707.06642) [[download](https://github.com/visipedia/inat_comp/tree/master/2018)] [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/inaturalist2018/)]
