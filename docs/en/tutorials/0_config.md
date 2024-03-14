@@ -313,19 +313,13 @@ For easy understanding, we recommend contributors to inherit from existing metho
 
 For all configs under the same folder, it is recommended to have only **one** _primitive_ config. All other configs should inherit from the _primitive_ config. In this way, the maximum of inheritance level is 3.
 
-For example, if your config file is based on ResNet with some other modification, you can first inherit the basic ResNet structure, dataset and other training setting by specifying `_base_ ='./resnet50_8xb32_in1k.py'` (The path relative to your config file), and then modify the necessary parameters in the config file. A more specific example, now we want to use almost all configs in `configs/resnet/resnet50_8xb32_in1k.py`, but change the number of training epochs from 100 to 300, modify when to decay the learning rate, and modify the dataset path, you can create a new config file `configs/resnet/resnet50_8xb32-300e_in1k.py` with content as below:
+For example, if your config file is based on ResNet with some other modification, you can first inherit the basic ResNet structure, dataset and other training setting by specifying `_base_ ='./resnet50_4xb64_step_ep100.py'` (The path relative to your config file), and then modify the necessary parameters in the config file. A more specific example, now we want to use almost all configs in `configs/resnet/resnet50_4xb64_step_ep100.py`, but change the number of training epochs from 100 to 300, modify when to decay the learning rate, and modify the dataset path, you can create a new config file `configs/resnet/resnet50_4xb64_step_ep300.py` with content as below:
 
 ```python
-_base_ = './resnet50_8xb32_in1k.py'
+_base_ = './resnet50_4xb64_step_ep100.py'
 
 runner = dict(max_epochs=300)
 lr_config = dict(step=[150, 200, 250])
-
-data = dict(
-    train=dict(data_prefix='mydata/imagenet/train'),
-    val=dict(data_prefix='mydata/imagenet/train', ),
-    test=dict(data_prefix='mydata/imagenet/train', )
-)
 ```
 
 ### Use intermediate variables in configs
@@ -335,28 +329,20 @@ Some intermediate variables are used in the configuration file. The intermediate
 For example, `train_pipeline` / `test_pipeline` is the intermediate variable of the data pipeline. We first need to define `train_pipeline` / `test_pipeline`, and then pass them to `data`. If you want to modify the size of the input image during training and testing, you need to modify the intermediate variables of `train_pipeline` / `test_pipeline`.
 
 ```python
-img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
-    dict(type='RandomResizedCrop', size=384, backend='pillow',),
-    dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
-    dict(type='Normalize', **img_norm_cfg),
-    dict(type='ImageToTensor', keys=['img']),
-    dict(type='ToTensor', keys=['gt_label']),
-    dict(type='Collect', keys=['img', 'gt_label'])
+    dict(type='RandomResizedCrop', size=384, interpolation=3),  # bicubic
+    dict(type='RandomHorizontalFlip'),
 ]
 test_pipeline = [
-    dict(type='LoadImageFromFile'),
-    dict(type='Resize', size=384, backend='pillow'),
+    dict(type='Resize', size=448, interpolation=3),
+    dict(type='CenterCrop', size=384),
+    dict(type='ToTensor'),
     dict(type='Normalize', **img_norm_cfg),
-    dict(type='ImageToTensor', keys=['img']),
-    dict(type='Collect', keys=['img'])
 ]
 data = dict(
     train=dict(pipeline=train_pipeline),
-    val=dict(pipeline=test_pipeline),
-    test=dict(pipeline=test_pipeline))
+    val=dict(pipeline=test_pipeline))
 ```
 
 ### Ignore some fields in the base configs
@@ -366,7 +352,7 @@ Sometimes, you need to set `_delete_=True` to ignore some domain content in the 
 The following is an example. If you wangt to use cosine schedule in the above ResNet50 case, just using inheritance and directly modify it will report `get unexcepected keyword'step'` error, because the `'step'` field of the basic config in `lr_config` domain information is reserved, and you need to add `_delete_ =True` to ignore the content of `lr_config` related fields in the basic configuration file:
 
 ```python
-_base_ = '../../configs/resnet/resnet50_8xb32_in1k.py'
+_base_ = '../../configs/resnet/resnet50_4xb64_step_ep100.py'
 
 lr_config = dict(
     _delete_=True,
@@ -375,40 +361,44 @@ lr_config = dict(
     warmup='linear',
     by_epoch=True,
     warmup_iters=5,
-    warmup_ratio=0.1
+    warmup_ratio=1e-6
 )
 ```
 
 ### Use some fields in the base configs
 
-Sometimes, you may refer to some fields in the `_base_` config, so as to avoid duplication of definitions. You can refer to [mmcv](https://mmcv.readthedocs.io/en/latest/understand_mmcv/config.html#reference-variables-from-base) for some more instructions.
+Sometimes, you may refer to some fields in the `_base_` config, so as to avoid duplication of definitions. You can refer to [mmcv](https://mmcv.readthedocs.io/en/latest/) for some more instructions.
 
 The following is an example of using auto augment in the training data preprocessing pipeline， refer to [`configs/_base_/datasets/imagenet_bs64_autoaug.py`](https://github.com/open-mmlab/mmclassification/blob/master/configs/_base_/datasets/imagenet_bs64_autoaug.py). When defining `train_pipeline`, just add the definition file name of auto augment to `_base_`, and then use `{{_base_.auto_increasing_policies}}` to reference the variables:
 
 ```python
-_base_ = ['./pipelines/auto_aug.py']
+_base_ = './_base_/datasets/imagenet/autoaug_sz224_4xbs64.py/autoaug_sz224_4xbs64.py'
 
 # dataset settings
-dataset_type = 'ImageNet'
-img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+dataset_type = 'ClassificationDataset'
+img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 train_pipeline = [
-    dict(type='LoadImageFromFile'),
-    dict(type='RandomResizedCrop', size=224),
-    dict(type='RandomFlip', flip_prob=0.5, direction='horizontal'),
-    dict(type='AutoAugment', policies={{_base_.auto_increasing_policies}}),
-    dict(type='Normalize', **img_norm_cfg),
-    dict(type='ImageToTensor', keys=['img']),
-    dict(type='ToTensor', keys=['gt_label']),
-    dict(type='Collect', keys=['img', 'gt_label'])
+    dict(type='RandomResizedCrop', size=224, interpolation=3),  # bicubic
+    dict(type='RandomHorizontalFlip'),
+    dict(
+        type='AutoAugment',
+        policies='imagenet',
+        hparams=dict(
+            pad_val=[104, 116, 124], interpolation='bicubic')),
 ]
 test_pipeline = [...]
 data = dict(
     samples_per_gpu=64,
-    workers_per_gpu=2,
+    workers_per_gpu=4,
     train=dict(..., pipeline=train_pipeline),
     val=dict(..., pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='accuracy')
+
+# validation hook
+evaluation = dict(
+    interval=1,
+    eval_param=dict(topk=(1, 5)))
+# checkpoint hook
+checkpoint_config = dict(interval=1, max_keep_ckpts=1)
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>

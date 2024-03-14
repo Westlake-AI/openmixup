@@ -5,6 +5,7 @@ matplotlib
 mmcv-full>=1.4.7,<=1.7.2
 numpy
 opencv-python
+openmixup
 packaging
 pandas
 scipy
