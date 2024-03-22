@@ -176,8 +176,9 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [ConvNeXtV2](http://arxiv.org/abs/2301.00808) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/convnext_v2/)]
     - [x] [CoC](https://arxiv.org/abs/2303.01494) (ICLR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/context_cluster/)]
     - [x] [MobileOne](http://arxiv.org/abs/2206.04040) (CVPR'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mobileone/)]
-    - [x] [VanillaNet](http://arxiv.org/abs/2305.12972) (ArXiv'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vanillanet/)]
+    - [x] [VanillaNet](http://arxiv.org/abs/2305.12972) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vanillanet/)]
     - [x] [RWKV](https://arxiv.org/abs/2305.13048) (ArXiv'2023) [[config](IP51/openmixup/configs/classification/imagenet/rwkv/)]
+    - [x] [UniRepLKNet](https://arxiv.org/abs/2311.15599) (CVPR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/unireplknet/)]
     </details>
 
 * Mixup methods for supervised image classification.
