@@ -175,16 +175,11 @@ class EMAHook(Hook):
 
 @HOOKS.register_module()
 class SwitchEMAHook(Hook):
-    r"""Exponential Moving Average Hook.
-    IP120 v01.10, v02.08
+    r"""Switch Exponential Moving Average Hook.
 
     Use Exponential Moving Average on all parameters of model in training
     process. All parameters have a ema backup, which update by the formula
     as below. EMAHook takes priority over EvalHook and CheckpointSaverHook!
-
-        .. math::
-            Xema\_{t+1} = \text{momentum} \times Xema\_{t} +
-                (1 - \text{momentum}) \times X_t
 
     Args:
         momentum (float): The momentum used for updating ema parameter.
@@ -204,16 +199,16 @@ class SwitchEMAHook(Hook):
     """
 
     def __init__(self,
-                 momentum=0.9999,
+                 momentum=0.999,
                  resume_from=None,
                  warmup=None,
                  warmup_iters=0,
                  warmup_ratio=0.9,
-                 switch_params=False,
+                 switch_params=True,
                  switch_by_iter=False,
                  switch_start=0,
                  switch_end=None,
-                 switch_interval=100,
+                 switch_interval=1,
                  full_params_ema=False,
                  update_interval=1,
                  **kwargs):

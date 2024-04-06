@@ -43,12 +43,14 @@ from .revvit import RevVisionTransformer
 from .riformer import RIFormer
 from .rwkv import RWKV
 from .seresnet import SEResNet, SEResNet_CIFAR, SEResNeXt
+from .starnet import StarNet
 from .shufflenet_v1 import ShuffleNetV1
 from .shufflenet_v2 import ShuffleNetV2
 from .swin_transformer import SwinTransformer, SwinTransformer_Mix
 from .swin_transformer_v2 import SwinTransformerV2
 from .t2t_vit import T2T_ViT
 from .timm_backbone import TIMMBackbone
+from .transnext import TransNeXt
 from .twins import PCPVT, SVT
 from .uniformer import UniFormer
 from .unireplknet import UniRepLKNet
@@ -74,9 +76,9 @@ __all__ = [
     'RegNet', 'RepLKNet', 'RepMLPNet', 'RepVGG', 'Res2Net', 'ResNeSt',
     'ResNet', 'ResNet_CIFAR', 'ResNetV1d', 'ResNet_Mix', 'ResNet_Mix_CIFAR',
     'ResNeXt', 'ResNeXt_CIFAR', 'ResNeXt_Mix', 'ResNeXt_CIFAR_Mix', 'RevVisionTransformer', 'RIFormer', 'RWKV',
-    'SEResNet', 'SEResNet_CIFAR', 'SEResNeXt', 'ShuffleNetV1', 'ShuffleNetV2',
+    'SEResNet', 'SEResNet_CIFAR', 'SEResNeXt', 'StarNet', 'ShuffleNetV1', 'ShuffleNetV2',
     'SwinTransformer', 'SwinTransformer_Mix', 'SwinTransformerV2',
-    'T2T_ViT', 'TIMMBackbone', 'TransformerEncoderLayer',
+    'T2T_ViT', 'TIMMBackbone', 'TransNeXt', 'TransformerEncoderLayer',
     'UniFormer', 'UniRepLKNet', 'VisionTransformer', 'VAN', 'VanillaNet', 'VGG', 'PyramidVIG', 'VIG',
     'WideResNet', 'WideResNet_Mix', 'XCiT',
 ]

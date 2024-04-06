@@ -23,7 +23,7 @@ Large-kernel convolutional neural networks (ConvNets) have recently received ext
 | UniRepLKNet-T | 224x224 | 83.2 | 31M | 4.9G | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/unireplknet/unireplknet_t_8xb128_accu4_ep300.py) | [ckpt](https://drive.google.com/file/d/12Xon3FWkzEQV1nnNsF2U8XDMD-7NO2cJ/view?usp=drive_link) |
 | UniRepLKNet-S | 224x224 | 83.9 | 56M   | 9.1G | [config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/unireplknet/unireplknet_s_8xb128_accu4_ep300.py) | [ckpt](https://drive.google.com/file/d/11YEOcKs4WNprRzCvKe-fB5z-l7zQv3kb/view?usp=drive_link) |
 
-We follow the original training setting provided by the [official repo](https://github.com/AILab-CVC/UniRepLKNet) and the [original paper](https://arxiv.org/abs/2311.15599). *Note that models with \* are converted from the [official repo](https://github.com/AILab-CVC/UniRepLKNet/tree/main/Image).*
+We follow the original training setting provided by the [original paper](https://arxiv.org/abs/2311.15599). *Note that models with \* are converted from the [official repo](https://github.com/AILab-CVC/UniRepLKNet/tree/main/Image).*
 
 ## Citation
 

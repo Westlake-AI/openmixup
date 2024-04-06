@@ -179,6 +179,8 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [VanillaNet](http://arxiv.org/abs/2305.12972) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/vanillanet/)]
     - [x] [RWKV](https://arxiv.org/abs/2305.13048) (ArXiv'2023) [[config](IP51/openmixup/configs/classification/imagenet/rwkv/)]
     - [x] [UniRepLKNet](https://arxiv.org/abs/2311.15599) (CVPR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/unireplknet/)]
+    - [x] [TransNeXt](https://arxiv.org/abs/2311.17132) (CVPR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/transnext/)]
+    - [x] [StarNet](https://arxiv.org/abs/2403.19967) (CVPR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/starnet/)]
     </details>
 
 * Mixup methods for supervised image classification.

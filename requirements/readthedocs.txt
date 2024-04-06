@@ -2,7 +2,7 @@ attrs
 einops
 importlib-metadata
 matplotlib
-mmcv-full>=1.4.7,<=1.7.2
+mmcv>=1.4.7,<=1.7.2
 numpy
 opencv-python
 packaging
