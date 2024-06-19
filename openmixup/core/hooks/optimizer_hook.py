@@ -123,6 +123,12 @@ class DistOptimizerHook(OptimizerHook):
             # update
             runner.optimizer.step()
             runner.optimizer.zero_grad()
+        else:
+            if getattr(runner.optimizer, 'base_optimizer', None):
+                # first forward-backward pass for SAM optimizers
+                if self.grad_clip is not None:
+                    grad_norm = self.clip_grads(runner.model.parameters())
+                runner.optimizer.first_step(zero_grad=True)
 
 
 if (TORCH_VERSION != 'parrots'

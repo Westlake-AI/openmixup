@@ -38,7 +38,8 @@ class LARS(Optimizer):
                  dampening=0,
                  weight_decay=0,
                  eta=0.001,
-                 nesterov=False):
+                 nesterov=False,
+                 none_zero=False):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
         if momentum < 0.0:
@@ -48,6 +49,7 @@ class LARS(Optimizer):
                 "Invalid weight_decay value: {}".format(weight_decay))
         if eta < 0.0:
             raise ValueError("Invalid LARS coefficient value: {}".format(eta))
+        self.none_zero = none_zero
 
         defaults = dict(
             lr=lr, momentum=momentum, dampening=dampening,
@@ -96,9 +98,11 @@ class LARS(Optimizer):
                     weight_norm = torch.norm(p).item()
                     grad_norm = torch.norm(d_p).item()
                     # Compute local learning rate for this layer
-                    local_lr = eta * weight_norm / \
-                        (grad_norm + weight_decay * weight_norm)
-
+                    local_lr = 1.
+                    if self.none_zero:
+                        if grad_norm != 0 or grad_norm != 0:
+                            local_lr = eta * weight_norm / \
+                                (grad_norm + weight_decay * weight_norm)
                 actual_lr = local_lr * lr
                 d_p = d_p.add(p, alpha=weight_decay).mul(actual_lr)
                 if momentum != 0:

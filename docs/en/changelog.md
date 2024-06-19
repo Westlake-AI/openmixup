@@ -1,6 +1,6 @@
 ## Changelog
 
-### v0.2.9 (23/12/2023)
+### v0.2.9 (23/12/2023 till now)
 
 Bump version to V0.2.9 with new mixup augmentations and various optimizers.
 
@@ -11,6 +11,7 @@ Bump version to V0.2.9 with new mixup augmentations and various optimizers.
 - Support more PyTorch optimizers implemented, including Adam variants (e.g., AdaBelief, AdaFactor) and SGD variants (e.g., SGDP).
 - Support evaluation tools for mixup augmentations, including robustness testing (corruption and adversiral attack robustness) and calibration evaluation.
 - Provide more config files for self-supervised learning methods on small-scale datasets (CIFAR-100 and STL-10).
+- Support [Sharpness-Aware Minimization (SAM)](https://openreview.net/forum?id=6Tm1mposlrM) optimizer variants for small-scale datasets.
 
 ### v0.2.8 (25/05/2023)
 

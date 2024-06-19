@@ -21,12 +21,13 @@ class Cifar(metaclass=ABCMeta):
 
     CLASSES = None
 
-    def __init__(self, root, split, return_label=True, num_labeled=None):
+    def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
         assert split in ['train', 'test']
         self.root = root
         self.split = split
         self.return_label = return_label
         self.num_labeled = num_labeled
+        self.repeat = int(repeat)
         self.cifar = None
         self.set_cifar()
         self.labels = self.cifar.targets
@@ -60,13 +61,16 @@ class CIFAR10(Cifar):
         'horse', 'ship', 'truck'
     ]
 
-    def __init__(self, root, split, return_label=True, num_labeled=None):
-        super().__init__(root, split, return_label, num_labeled)
+    def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
+        super().__init__(root, split, return_label, num_labeled, repeat)
 
     def set_cifar(self):
         try:
             self.cifar = torchvision.datasets.CIFAR10(
                 root=self.root, train=self.split == 'train', download=False)
+            if self.repeat > 1:
+                self.cifar.data = np.concatenate([self.cifar.data] * self.repeat)
+                self.cifar.targets = np.concatenate([self.cifar.targets] * self.repeat)
         except:
             raise Exception("Please download CIFAR10 manually, \
                   in case of downloading the dataset parallelly \
@@ -132,13 +136,16 @@ class CIFAR100(Cifar):
         'lawn-mower', 'rocket', 'streetcar', 'tank', 'tractor'
     ]
 
-    def __init__(self, root, split, return_label=True, num_labeled=None):
-        super().__init__(root, split, return_label, num_labeled)
+    def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
+        super().__init__(root, split, return_label, num_labeled, repeat)
 
     def set_cifar(self):
         try:
             self.cifar = torchvision.datasets.CIFAR100(
                 root=self.root, train=self.split == 'train', download=False)
+            if self.repeat > 1:
+                self.cifar.data = np.concatenate([self.cifar.data] * self.repeat)
+                self.cifar.targets = np.concatenate([self.cifar.targets] * self.repeat)
         except:
             raise Exception("Please download CIFAR10 manually, \
                   in case of downloading the dataset parallelly \
