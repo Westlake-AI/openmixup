@@ -10,7 +10,7 @@ from mmcv.cnn.utils.weight_init import constant_init, trunc_normal_init
 from mmcv.runner.base_module import BaseModule, ModuleList
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
-from ..utils import LayerNorm2d, to_2tuple
+from ..utils import DropPath, LayerNorm2d, to_2tuple
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
 

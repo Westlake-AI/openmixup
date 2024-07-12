@@ -19,7 +19,7 @@ from .lenet import LeNet5
 from .levit import LeViT
 from .lit import LIT
 from .metaformer import MetaFormer
-from .mim_resnet import MIMResNet
+from .mim_resnet import MIMResNet, SparseResNet
 from .mim_swin import SimMIMSwinTransformer
 from .mim_vit import BEiTViT, MAEViT, MIMVisionTransformer, SimMIMViT
 from .mlp_mixer import MlpMixer
@@ -69,7 +69,7 @@ __all__ = [
     'DaViT', 'DistilledVisionTransformer', 'DeiT3', 'DenseNet', 'DenseNet_CIFAR',
     'EdgeNeXt', 'EfficientFormer', 'EfficientNet', 'EfficientNetV2', 'HorNet', 'HorNet_CIFAR', 'HRNet',
     'InceptionV3', 'LeNet5', 'LeViT',
-    'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet',
+    'MAEViT', 'MIMVisionTransformer', 'SimMIMViT', 'SimMIMSwinTransformer', 'MIMResNet', 'SparseResNet',
     'LIT', 'MetaFormer', 'MlpMixer', 'MobileNetV2', 'MobileNetV3', 'MobileOne', 'MobileViT',
     'MogaNet', 'MogaNet_Mix', 'MIMMogaNet', 'MIMMogaNet', 'MogaNet_CIFAR', 'MViT',
     'PoolFormer', 'PyramidVisionTransformer', 'PCPVT', 'SVT',

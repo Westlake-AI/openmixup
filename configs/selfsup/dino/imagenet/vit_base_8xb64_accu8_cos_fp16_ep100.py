@@ -1,6 +1,6 @@
 _base_ = [
-    '../../_base_/models/mocov3/vit_small.py',
-    '../../_base_/datasets/imagenet/mocov3_vit_sz224_bs64.py',
+    '../../_base_/models/dino/vit_base.py',
+    '../../_base_/datasets/imagenet/dino_mcrop-2-8_sz224_96_bs64.py',
     '../../_base_/default_runtime.py',
 ]
 
@@ -19,8 +19,8 @@ custom_hooks = [
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1.5e-4 * 4096 / 256,  # bs4096
-    betas=(0.9, 0.95), weight_decay=0.1,
+    lr=0.0024,  # bs4096
+    betas=(0.9, 0.95), weight_decay=0.05,
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
@@ -28,8 +28,8 @@ optimizer = dict(
         'cls_token': dict(weight_decay=0.)
     })
 
-# apex
-use_fp16 = False
+# fp16
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, grad_clip=None)
@@ -39,9 +39,9 @@ lr_config = dict(
     policy='CosineAnnealing',
     by_epoch=False, min_lr=0.,
     warmup='linear',
-    warmup_iters=40, warmup_by_epoch=True,
+    warmup_iters=10, warmup_by_epoch=True,
     warmup_ratio=1e-5,
 )
 
 # runtime settings
-runner = dict(type='EpochBasedRunner', max_epochs=200)
+runner = dict(type='EpochBasedRunner', max_epochs=100)

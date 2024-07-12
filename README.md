@@ -206,6 +206,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [DecoupleMix](https://arxiv.org/abs/2203.10761) (NeurIPS'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple)]
     - [ ] [SMMix](https://arxiv.org/abs/2212.12977) (ICCV'2023) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/)]
     - [x] [AdAutoMix](https://arxiv.org/abs/2312.11954) (ICLR'2024) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix)]
+    - [ ] [SUMix](https://arxiv.org/abs/2312.11954) (ECCV'2024)
     </details>
 
     <details open>
@@ -247,7 +248,8 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
     - [x] [SimSiam](https://arxiv.org/abs/2011.10566) (CVPR'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simsiam/)]
     - [x] [Barlow Twins](https://arxiv.org/abs/2103.03230) (ICML'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/barlowtwins/)]
     - [x] [MoCoV3](https://arxiv.org/abs/2104.02057) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mocov3/)]
-    - [x] [BEiT](https://arxiv.org/abs/2106.08254) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/beit/)
+    - [x] [DINO](https://arxiv.org/abs/2104.14294) (ICCV'2021) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/dino/)]
+    - [x] [BEiT](https://arxiv.org/abs/2106.08254) (ICLR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/beit/)]
     - [x] [MAE](https://arxiv.org/abs/2111.06377) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/mae/)]
     - [x] [SimMIM](https://arxiv.org/abs/2111.09886) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/simmim/)]
     - [x] [MaskFeat](https://arxiv.org/abs/2112.09133) (CVPR'2022) [[config](https://github.com/Westlake-AI/openmixup/tree/main/configs/selfsup/maskfeat/)]

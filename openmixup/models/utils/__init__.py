@@ -7,7 +7,9 @@ from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedRes
    LayerScale, make_divisible, \
    build_norm_layer, GRN, LayerNorm2d, LayerNormGeneral, RMSLayerNorm, \
    AttentionPool2d, BlurPool2d, RPEAttentionPool2d, MedianPool2d, MultiPooling, \
-   Scale, SELayer, Canny, HOG, Laplacian, Sobel, Smoothing, \
+   Scale, SELayer, SparseAvgPooling, SparseBatchNorm2d, SparseConv2d, \
+   SparseHelper, SparseLayerNorm2D, SparseMaxPooling, SparseSyncBatchNorm2d, \
+   Canny, HOG, Laplacian, Sobel, Smoothing, \
    BEiTAttention, CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
    MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, WindowMSAV2, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
@@ -33,7 +35,9 @@ __all__ = [
    'LayerScale', 'make_divisible',
    'build_norm_layer', 'GRN', 'LayerNorm2d', 'LayerNormGeneral', 'RMSLayerNorm',
    'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
-   'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
+   'Scale', 'SELayer', 'SparseAvgPooling', 'SparseBatchNorm2d', 'SparseConv2d',
+   'SparseHelper', 'SparseLayerNorm2D', 'SparseMaxPooling', 'SparseSyncBatchNorm2d',
+   'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
    'BEiTAttention', 'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
    'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA', 'WindowMSAV2',
    'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',

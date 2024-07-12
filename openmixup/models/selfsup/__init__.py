@@ -5,6 +5,7 @@ from .byol import BYOL
 from .cae import CAE
 from .deepcluster import DeepCluster
 from .densecl import DenseCL
+from .dino import DINO
 from .mae import MAE
 from .maskfeat import MaskFeat
 from .moco import MOCO
@@ -22,7 +23,7 @@ from .simsiam import SimSiam
 from .swav import SwAV
 
 __all__ = [
-    'A2MIM', 'BarlowTwins', 'BEiT', 'BYOL', 'CAE', 'DeepCluster', 'DenseCL',
+    'A2MIM', 'BarlowTwins', 'BEiT', 'BYOL', 'CAE', 'DeepCluster', 'DenseCL', 'DINO',
     'MAE', 'MaskFeat', 'MOCO', 'MoCoMix', 'MoCoSAMix', 'MoCoV3',
     'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimCLRMix',
     'SimMIM', 'SimSiam', 'SwAV',

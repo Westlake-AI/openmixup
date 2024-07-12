@@ -15,6 +15,9 @@ from .pos_embed import build_fourier_pos_embed, build_rotary_pos_embed, \
     resize_pos_embed, resize_relative_position_bias_table, FourierEmbed, RotaryEmbed, PositionEncodingFourier
 from .scale import Scale
 from .se_layer import SELayer
+from .sparse_modules import (SparseAvgPooling, SparseBatchNorm2d, SparseConv2d,
+                             SparseHelper, SparseLayerNorm2D, SparseMaxPooling,
+                             SparseSyncBatchNorm2d)
 from .sobel import Canny, HOG, Laplacian, Sobel
 from .smoothing import Smoothing
 from .transformer import CAETransformerRegressorLayer, RelativePositionBias
@@ -30,7 +33,9 @@ __all__ = [
     'LayerScale', 'make_divisible',
     'build_norm_layer', 'GRN', 'LayerNorm2d', 'LayerNormGeneral', 'RMSLayerNorm',
     'AttentionPool2d', 'BlurPool2d', 'RPEAttentionPool2d', 'MedianPool2d', 'MultiPooling',
-    'Scale', 'SELayer', 'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
+    'Scale', 'SELayer', 'SparseAvgPooling', 'SparseBatchNorm2d', 'SparseConv2d',
+    'SparseHelper', 'SparseLayerNorm2D', 'SparseMaxPooling', 'SparseSyncBatchNorm2d',
+    'Canny', 'HOG', 'Laplacian', 'Sobel', 'Smoothing',
     'BEiTAttention', 'CrossMultiheadAttention', 'ChannelMultiheadAttention', 'FlowAttention', 'HiLoAttention',
     'MultiheadAttention', 'MultiheadAttentionWithRPE', 'MultiheadPoolAttention', 'ShiftWindowMSA', 'WindowMSA', 'WindowMSAV2',
     'HybridEmbed', 'PatchEmbed', 'DeformablePatchMerging', 'PatchMerging',

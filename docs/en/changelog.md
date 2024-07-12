@@ -7,7 +7,8 @@ Bump version to V0.2.9 with new mixup augmentations and various optimizers.
 #### New Features
 
 - Support new mixup augmentation methods, including [AdAutoMix](https://arxiv.org/abs/2312.11954) and [SnapMix](https://arxiv.org/abs/2012.04846). Config files and models & logs were provided and are on updating.
-- Support more backbone architectures, including [UniRepLKNet](https://arxiv.org/abs/2311.15599), [TransNeXt](https://arxiv.org/abs/2311.17132), [StarNet](https://arxiv.org/abs/2403.19967), etc.
+- Support more backbone architectures, including [UniRepLKNet](https://arxiv.org/abs/2311.15599), [TransNeXt](https://arxiv.org/abs/2311.17132), [StarNet](https://arxiv.org/abs/2403.19967), etc. Fixed some bugs.
+- Support classical self-supervised method [DINO](https://arxiv.org/abs/2104.14294) with ViT-Base on ImageNet-1K.
 - Support more PyTorch optimizers implemented, including Adam variants (e.g., AdaBelief, AdaFactor) and SGD variants (e.g., SGDP).
 - Support evaluation tools for mixup augmentations, including robustness testing (corruption and adversiral attack robustness) and calibration evaluation.
 - Provide more config files for self-supervised learning methods on small-scale datasets (CIFAR-100 and STL-10).
