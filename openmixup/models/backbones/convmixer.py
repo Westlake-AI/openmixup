@@ -31,7 +31,7 @@ class ConvMixer(BaseBackbone):
     """ConvMixer.                              .
 
     A PyTorch implementation of : `Patches Are All You Need?
-    <https://arxiv.org/pdf/2201.09792.pdf>`_
+    <https://openreview.net/forum?id=rAnB7JSMXL>`_
 
     Modified from the `official repo
     <https://github.com/locuslab/convmixer/blob/main/convmixer.py>`_
