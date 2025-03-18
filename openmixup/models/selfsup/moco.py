@@ -55,8 +55,11 @@ class MOCO(BaseModel):
 
         self.queue_len = queue_len
         self.momentum = momentum
+<<<<<<< HEAD
+=======
         self.base_momentum = momentum
         self.switch_ema = False
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
         # create the queue
         self.register_buffer("queue", torch.randn(feat_dim, queue_len))
@@ -86,11 +89,16 @@ class MOCO(BaseModel):
         """Momentum update of the key encoder."""
         for param_q, param_k in zip(self.encoder_q.parameters(),
                                     self.encoder_k.parameters()):
+<<<<<<< HEAD
+            param_k.data = param_k.data * self.momentum + \
+                           param_q.data * (1. - self.momentum)
+=======
             if not self.switch_ema:  # original momentum update
                 param_k.data = param_k.data * self.momentum + \
                             param_q.data * (1. - self.momentum)
             else:  # switch EMA
                 param_k.data = param_q.data
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     @torch.no_grad()
     def _dequeue_and_enqueue(self, keys):

@@ -4,7 +4,11 @@ data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
 train_pipeline = [
+<<<<<<< HEAD
+    dict(type='RandomCrop', size=32, padding=4, padding_mode="reflect"),
+=======
     dict(type='RandomCrop', size=32, padding=4),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     dict(type='RandomHorizontalFlip'),
 ]
 test_pipeline = []

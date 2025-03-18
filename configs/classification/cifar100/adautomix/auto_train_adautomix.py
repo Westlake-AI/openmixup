@@ -4,7 +4,11 @@ from openmixup.utils import ConfigGenerator
 def main():
 
     # *** default CE ***
+<<<<<<< HEAD
+    base_path = "configs/classification/cifar100/adaptivemix/basic/r18_adaptivemix_CE_none.py"
+=======
     base_path = "configs/classification/cifar100/adautomix/basic/r18_l2_a1_bili_mlr5e_2.py"
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     # abbreviation of long attributes
     abbs = {

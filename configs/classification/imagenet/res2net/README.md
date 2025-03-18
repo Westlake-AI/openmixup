@@ -28,7 +28,11 @@ We follow the original training setting provided by the original paper. *Models 
 @article{gao2019res2net,
   title={Res2Net: A New Multi-scale Backbone Architecture},
   author={Gao, Shang-Hua and Cheng, Ming-Ming and Zhao, Kai and Zhang, Xin-Yu and Yang, Ming-Hsuan and Torr, Philip},
+<<<<<<< HEAD
+  journal={IEEE TPAMI},
+=======
   journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
   year={2021},
   doi={10.1109/TPAMI.2019.2938758},
 }

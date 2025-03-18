@@ -8,7 +8,10 @@ from .deepcluster import DeepClusterDataset
 from .extraction import ExtractDataset
 from .masked_image import MaskedImageDataset
 from .multi_view import MultiViewDataset
+<<<<<<< HEAD
+=======
 from .regression import RegressionDataset
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 from .rotation_pred import RotationPredDataset
 from .relative_loc import RelativeLocDataset
 from .contrastive import ContrastiveDataset

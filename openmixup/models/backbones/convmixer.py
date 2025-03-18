@@ -31,7 +31,11 @@ class ConvMixer(BaseBackbone):
     """ConvMixer.                              .
 
     A PyTorch implementation of : `Patches Are All You Need?
+<<<<<<< HEAD
+    <https://arxiv.org/pdf/2201.09792.pdf>`_
+=======
     <https://openreview.net/forum?id=rAnB7JSMXL>`_
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     Modified from the `official repo
     <https://github.com/locuslab/convmixer/blob/main/convmixer.py>`_

@@ -68,10 +68,14 @@ class MultiViewDataset(BaseDataset):
             multi_views = [
                 torch.from_numpy(to_numpy(img)) for img in multi_views
             ]
+<<<<<<< HEAD
+        return dict(img=multi_views, gt_label=target, idx=idx)
+=======
         if target is None:
             return dict(img=multi_views, idx=idx)
         else:
             return dict(img=multi_views, gt_label=target, idx=idx)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     def evaluate(self, scores, keyword, logger=None, topk=(1, 5), **kwargs):
         """ Evaluation as supervised classification

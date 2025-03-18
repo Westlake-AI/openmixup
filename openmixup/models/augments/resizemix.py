@@ -46,8 +46,8 @@ def resizemix(img,
         """ generate random box by tao (scale) """
         W = size[2]
         H = size[3]
-        cut_w = int(W * tao)
-        cut_h = int(H * tao)
+        cut_w = np.int(W * tao)
+        cut_h = np.int(H * tao)
 
         # uniform
         cx = np.random.randint(W)
@@ -109,7 +109,7 @@ def resizemix(img,
         if return_mask:
             img = (img, mask)
 
-        return img, (gt_label, shuffled_gt, lam)
+        return img, (gt_label, shuffled_gt, lam), rand_index
 
     # dist mixup with cross gpus shuffle
     else:

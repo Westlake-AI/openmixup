@@ -203,9 +203,17 @@ class PixelMixBlock(BaseModule):
             q_x.type(torch.float32), k_x.type(torch.float32)
         ).type(torch.float32)
         if torch.any(torch.isnan(pairwise_weight)):
+<<<<<<< HEAD
+            # print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
+            #     pairwise_weight), logger='root')
+            pairwise_weight = torch.where(torch.isnan(pairwise_weight),
+                        torch.full_like(pairwise_weight, 1e-4), pairwise_weight)
+            # raise ValueError
+=======
             print_log("Warming attention map is nan, P: {}. Exit FP16!".format(
                 pairwise_weight), logger='root')
             raise ValueError
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         if torch.any(torch.isinf(pairwise_weight)):
             print_log("Warming attention map is inf, P: {}, climp!".format(
                 pairwise_weight), logger='root')

@@ -5,7 +5,10 @@ from .byol import BYOL
 from .cae import CAE
 from .deepcluster import DeepCluster
 from .densecl import DenseCL
+<<<<<<< HEAD
+=======
 from .dino import DINO
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 from .mae import MAE
 from .maskfeat import MaskFeat
 from .moco import MOCO
@@ -23,7 +26,11 @@ from .simsiam import SimSiam
 from .swav import SwAV
 
 __all__ = [
+<<<<<<< HEAD
+    'A2MIM', 'BarlowTwins', 'BEiT', 'BYOL', 'CAE', 'DeepCluster', 'DenseCL',
+=======
     'A2MIM', 'BarlowTwins', 'BEiT', 'BYOL', 'CAE', 'DeepCluster', 'DenseCL', 'DINO',
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     'MAE', 'MaskFeat', 'MOCO', 'MoCoMix', 'MoCoSAMix', 'MoCoV3',
     'NPID', 'ODC', 'RelativeLoc', 'RotationPred', 'SimCLR', 'SimCLRMix',
     'SimMIM', 'SimSiam', 'SwAV',

@@ -26,10 +26,18 @@ We follow the original training setting provided by the [official repo](https://
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{pan2022hilo
+  title={Fast Vision Transformers with HiLo Attention},
+  author={Pan, Zizheng and Cai, Jianfei and Zhuang, Bohan},
+  journal={arXiv preprint arXiv:2205.13213},
+  year={2022}
+=======
 @inproceedings{nips2022hilo,
   title={Fast Vision Transformers with HiLo Attention},
   author={Pan, Zizheng and Cai, Jianfei and Zhuang, Bohan},
   booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
   year={2022},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 }
 ```

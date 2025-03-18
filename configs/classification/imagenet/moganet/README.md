@@ -45,10 +45,19 @@ We provide the config files according to the original training setting described
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{Li2022MogaNet,
+  title={Efficient Multi-order Gated Aggregation Network},
+  author={Siyuan Li and Zedong Wang and Zicheng Liu and Cheng Tan and Haitao Lin and Di Wu and Zhiyuan Chen and Jiangbin Zheng and Stan Z. Li},
+  journal={ArXiv},
+  year={2022},
+  volume={abs/2211.03295}
+=======
 @inproceedings{iclr2024MogaNet,
   title={Efficient Multi-order Gated Aggregation Network},
   author={Siyuan Li and Zedong Wang and Zicheng Liu and Cheng Tan and Haitao Lin and Di Wu and Zhiyuan Chen and Jiangbin Zheng and Stan Z. Li},
   booktitle={International Conference on Learning Representations},
   year={2024}
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 }
 ```

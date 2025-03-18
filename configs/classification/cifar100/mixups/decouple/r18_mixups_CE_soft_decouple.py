@@ -42,10 +42,14 @@ model = dict(
 
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
+<<<<<<< HEAD
+optimizer_config = dict(grad_clip=None)
+=======
 
 # fp16
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

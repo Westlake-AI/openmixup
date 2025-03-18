@@ -31,7 +31,11 @@ optimizer = dict(
     },
     constructor='TransformerFinetuneConstructor',
     model_type='vit',
+<<<<<<< HEAD
+    layer_decay=0.55)
+=======
     layer_decay=0.65)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 # learning policy
 lr_config = dict(

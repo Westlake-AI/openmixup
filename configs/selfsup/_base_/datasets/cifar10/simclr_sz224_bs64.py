@@ -2,7 +2,11 @@
 data_source_cfg = dict(type='CIFAR10', root='data/cifar10/')
 
 dataset_type = 'MultiViewDataset'
+<<<<<<< HEAD
+img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+=======
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 train_pipeline = [
     dict(type='RandomResizedCrop', size=224),
     dict(type='RandomHorizontalFlip'),
@@ -24,7 +28,11 @@ if not prefetch:
 # dataset summary
 data = dict(
     imgs_per_gpu=64,  # V100: 64 x 8gpus x 8 accumulates = bs4096
+<<<<<<< HEAD
+    workers_per_gpu=6,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+=======
     workers_per_gpu=4,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     train=dict(
         type=dataset_type,
         data_source=dict(split='train', return_label=False, **data_source_cfg),

@@ -28,10 +28,18 @@ We follow the original training setting provided by the [official repo](https://
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{rao2022hornet,
+  title={HorNet: Efficient High-Order Spatial Interactions with Recursive Gated Convolutions},
+  author={Rao, Yongming and Zhao, Wenliang and Tang, Yansong and Zhou, Jie and Lim, Ser-Lam and Lu, Jiwen},
+  journal={arXiv preprint arXiv:2207.14284},
+  year={2022}
+=======
 @inproceedings{nips2022hornet,
     title={HorNet: Efficient High-Order Spatial Interactions with Recursive Gated Convolutions},
     author={Yongming Rao and Wenliang Zhao and Yansong Tang and Jie Zhou and Ser Nam Lim and Jiwen Lu},
     booktitle={Advances in Neural Information Processing Systems (NeurIPS)},
     year={2022},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 }
 ```

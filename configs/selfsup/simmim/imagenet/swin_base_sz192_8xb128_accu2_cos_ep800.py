@@ -13,7 +13,11 @@ update_interval = 2  # total: 8 x bs128 x 2 accumulates = bs2048
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
+<<<<<<< HEAD
+        save_interval=1252 * 10,  # plot every 10 ep
+=======
         save_interval=1252 * 25,  # plot every 25 ep
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         iter_per_epoch=1252),
 ]
 

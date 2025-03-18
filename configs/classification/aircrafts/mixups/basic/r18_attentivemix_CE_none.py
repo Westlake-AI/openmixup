@@ -6,8 +6,13 @@ _base_ = [
 # model settings
 model = dict(
     type='MixUpClassification',
+<<<<<<< HEAD
+    pretrained=None,
+    pretrained_k="work_dirs/my_pretrains/official/resnet50_pytorch.pth",
+=======
     pretrained="torchvision://resnet18",
     pretrained_k="torchvision://resnet50",
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     alpha=2,
     mix_mode="attentivemix",
     mix_args=dict(

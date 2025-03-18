@@ -6,7 +6,11 @@ val_test_pipeline = [
     dict(type='Resize', size=256),
     dict(type='CenterCrop', size=224),
     dict(type='ToTensor'),
+<<<<<<< HEAD
+    dict(type='Normalize', mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+=======
     dict(type='Normalize', mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201]),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 val_data = dict(
     train=dict(
@@ -31,7 +35,11 @@ custom_hooks = [
         end_momentum=1.0,
         adjust_scope=[0.01, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=update_interval),
+=======
         update_interval=update_interval),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     dict(type='SSLMetricHook',
         val_dataset=val_data['val'],
         train_dataset=val_data['train'],  # remove it if metric_mode is None

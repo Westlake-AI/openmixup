@@ -9,7 +9,10 @@ import torch
 from mmcv import DictAction
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
+<<<<<<< HEAD
+=======
 
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 from openmixup.datasets import build_dataloader, build_dataset
 from openmixup.models import build_model
 from openmixup.utils import (get_root_logger, dist_forward_collect, 
@@ -148,8 +151,13 @@ def main():
     if rank == 0:
         for name, val in outputs.items():
             dataset.evaluate(
+<<<<<<< HEAD
+                torch.from_numpy(val), name, logger, topk=(1, 5))
+
+=======
                 torch.from_numpy(val), keyword=name, logger=logger,
                 **cfg.evaluation.get('eval_param', dict(topk=(1, 5))))
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 
 if __name__ == '__main__':

@@ -405,6 +405,8 @@ class StackedLinearClsHead(BaseClsHead):
         if post_process:
             x = self.post_process(x)
         return x
+<<<<<<< HEAD
+=======
 
 
 @HEADS.register_module
@@ -518,3 +520,4 @@ class VanillaNetClsHead(BaseClsHead):
         self.__delattr__('cls1')
         self.__delattr__('cls2')
         self.deploy = True
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

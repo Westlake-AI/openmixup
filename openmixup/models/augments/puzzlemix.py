@@ -135,7 +135,7 @@ def transport_image(img, plan, block_num, block_size):
 def puzzlemix(img,
               gt_label,
               alpha=0.5,
-              lam=None,
+              lam=0.5,
               dist_mode=False,
               features=None, block_num=2, beta=1.2, gamma=0.5, eta=0.2,
               neigh_size=2, n_labels=2, t_eps=10.0, t_size=-1,
@@ -179,6 +179,7 @@ def puzzlemix(img,
 
     # 'alpha' in PuzzleMix used for graph-cut, equal to 'lam'
     alpha = np.random.beta(alpha, alpha)
+    # alpha=lam
     # basic mixup args
     if not dist_mode:
         # normal mixup process
@@ -198,17 +199,11 @@ def puzzlemix(img,
         block_num = (1, block_num)
     elif isinstance(block_num, tuple):
         assert len(block_num) == 2
-    block_num = 2 ** np.random.randint(block_num[0], block_num[1])  # given num is the range
+    block_num = 2**np.random.randint(block_num[0], block_num[1])  # given num is the range
     if mean is None:
-        if img.shape[-1] < 64:
-            mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
-        else:
-            mean = torch.tensor([0.485, 0.456, 0.406]).reshape(1, 3, 1, 1).cuda()
+        mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
     if std is None:
-        if img.shape[-1] < 64:
-            std  = torch.tensor([0.2023, 0.1994, 0.2010]).reshape(1, 3, 1, 1).cuda()
-        else:
-            std  = torch.tensor([0.229, 0.224, 0.225]).reshape(1, 3, 1, 1).cuda()
+        std  = torch.tensor([0.2023, 0.1994, 0.2010]).reshape(1, 3, 1, 1).cuda()
     if mp is not None:
         mp = Pool(mp)
 

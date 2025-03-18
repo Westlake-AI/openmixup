@@ -44,9 +44,15 @@ METHOD_MAP = {
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Visualize CAM')
+<<<<<<< HEAD
+    parser.add_argument('-img', default='/home/jinxin/桌面/openmixup/image_sample/mixed/cub200/automix.jpg', help='Image file')
+    parser.add_argument('-config', default='/home/jinxin/桌面/openmixup/configs/classification/cub200/mixups/basic/r18_mixups_CE_none.py', help='Config file')
+    parser.add_argument('-checkpoint', default='/home/jinxin/桌面/openmixup/work_dirs/classification/cub200/adaptivemix/basic/r18_automix/a_cub.pth', help='Checkpoint file')
+=======
     parser.add_argument('img', help='Image file')
     parser.add_argument('config', help='Config file')
     parser.add_argument('checkpoint', help='Checkpoint file')
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     parser.add_argument(
         '--target-layers',
         default=[],
@@ -63,12 +69,20 @@ def parse_args():
         help='To preview all the model layers')
     parser.add_argument(
         '--method',
+<<<<<<< HEAD
+        default='gradcam',
+=======
         default='GradCAM',
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         help='Type of method to use, supports '
         f'{", ".join(list(METHOD_MAP.keys()))}.')
     parser.add_argument(
         '--target-category',
+<<<<<<< HEAD
+        default=[20],
+=======
         default=[],
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         nargs='+',
         type=int,
         help='The target category to get CAM, default to use result '
@@ -87,6 +101,10 @@ def parse_args():
     parser.add_argument(
         '--save-path',
         type=Path,
+<<<<<<< HEAD
+        default='tools/vis_automix-020.jpg',
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         help='The path to save visualize cam image, default not to save.')
     parser.add_argument('--device', default='cpu', help='Device to use cpu')
     parser.add_argument(

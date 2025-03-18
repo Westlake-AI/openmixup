@@ -29,12 +29,20 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
   )
   ```
 
+<<<<<<< HEAD
+### Mixup Benchmark on CIFAR-100
+=======
 ### Classical Mixup Benchmark on CIFAR-100
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 **Setup**
 
 * This benchmark using CIFAR varient of ResNet architectures train 200, 400, 800, 1200 epochs on [CIFAR-100](https://www.cs.toronto.edu/~kriz/cifar.html). The training and testing image size is 32 and we search $\alpha$ in $Beta(\alpha, \alpha)$ for all compared methods.
+<<<<<<< HEAD
+* As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_puzzlemix_CE_soft.py).
+=======
 * View config files of general Mixup methods in [mixups/basic](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/) and the [DecoupleMix](https://arxiv.org/abs/2203.10761) variants in [mixups/decouple](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/decouple/). As for mixup variants requiring some special components, we provide examples based on ResNet-18: [AttentiveMix+](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_attentivemix_CE_none.py) and [PuzzleMix](https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/basic/r18_puzzlemix_CE_soft.py).
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 * The **median** of top-1 accuracy in the last 10 training epochs is reported for ResNet-18, ResNeXt-50 (32x4d), and Wide-ResNet-28-8. Notice that 📖 denotes original results reproduced by official implementations.
 
 | Backbones     |  $Beta$   |  ResNet-18 |  ResNet-18 |  ResNet-18 |  ResNet-18  |
@@ -75,6 +83,11 @@ Groups at MIT and NYU have collected a dataset of millions of tiny colour images
 
 We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/openmixup/tree/main/docs/en/model_zoos/Model_Zoo_sup.md).
 
+<<<<<<< HEAD
+### ViTs Benchmark on CIFAR-100
+
+On updating!
+=======
 ### ViTs' Mixup Benchmark on CIFAR-100
 
 **Setup**
@@ -135,6 +148,7 @@ We summarize mixup benchmarks in [Model Zoo](https://github.com/Westlake-AI/open
 | ResizeMix     |     1    |    82.53   |    82.91   |     4.2    |       10       |
 | AutoMix       |     2    |    83.30   |    84.79   |    10.2    |       28       |
 | SAMix*        |     2    |    83.56   |    84.98   |    10.3    |       29       |
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 ## Citation
 

@@ -1,10 +1,17 @@
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # ImageNet dataset
+<<<<<<< HEAD
+data_train_list = '../../../datasets/openmixup/meta/ImageNet/train_relabel.txt'
+data_train_root = '../../../datasets/openmixup/ImageNet/train'
+data_test_list = '../../../datasets/openmixup/meta/ImageNet/val_relabel.txt'
+data_test_root = '../../../datasets/openmixup/ImageNet/val/'
+=======
 data_train_list = 'data/meta/ImageNet/train_labeled_full.txt'
 data_train_root = 'data/ImageNet/train'
 data_test_list = 'data/meta/ImageNet/val_labeled.txt'
 data_test_root = 'data/ImageNet/val/'
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -25,7 +32,11 @@ if not prefetch:
 
 data = dict(
     imgs_per_gpu=64,  # V100: 64 x 4gpus = bs256
+<<<<<<< HEAD
+    workers_per_gpu=16,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+=======
     workers_per_gpu=8,  # according to total cpus cores, usually 4 workers per 32~128 imgs
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     train=dict(
         type=dataset_type,
         data_source=dict(

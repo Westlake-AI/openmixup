@@ -58,7 +58,11 @@ custom_hooks = [
         end_momentum=0.99999,
         adjust_scope=[0.1, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=1)
+=======
         update_interval=1)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 
 # optimizer

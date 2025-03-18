@@ -10,7 +10,11 @@ model = dict(
         style='pytorch'),
     neck=dict(
         type='NonLinearNeck',
+<<<<<<< HEAD
+        in_channels=2048, hid_channels=8192, out_channels=8192,
+=======
         in_channels=512, hid_channels=8192, out_channels=8192,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         num_layers=3,
         with_bias=True, with_last_bn=False, with_last_bn_affine=False,
         with_avg_pool=True),

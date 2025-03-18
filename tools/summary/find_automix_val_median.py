@@ -48,6 +48,15 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
     record_one_k_top1 = list()
     record_mix_q_top1 = list()
     record_mix_k_top1 = list()
+<<<<<<< HEAD
+
+    record_one_q_top5 = list()
+    record_one_k_top5 = list()
+    record_mix_q_top5 = list()
+    record_mix_k_top5 = list()
+
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     assert path.find("json") != -1, \
         "bad json path={}".format(path)
     
@@ -61,8 +70,15 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
                     # print(line)
                     if line.get("acc_one_k_top1", None) is None:
                         line["acc_one_k_top1"] = line["acc_one_q_top1"]
+<<<<<<< HEAD
+                        line["acc_one_k_top5"] = line["acc_one_q_top5"]
                     if line.get("acc_mix_k_top1", None) is None:
                         line["acc_mix_k_top1"] = line["acc_mix_q_top1"]
+                        line["acc_mix_k_top5"] = line["acc_mix_q_top5"]
+=======
+                    if line.get("acc_mix_k_top1", None) is None:
+                        line["acc_mix_k_top1"] = line["acc_mix_q_top1"]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                     record_str.append("{}e, mix_k_top1: {:.2f}, one_k_top1: {:.2f}, mix_q_top1: {:.2f}, one_q_top1: {:.2f}".format(
                         line["epoch"], line["acc_mix_k_top1"], line["acc_one_k_top1"],
                         line["acc_mix_q_top1"], line["acc_one_q_top1"]))
@@ -70,6 +86,14 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
                     record_mix_q_top1.append(line["acc_mix_q_top1"])
                     record_one_k_top1.append(line["acc_one_k_top1"])
                     record_mix_k_top1.append(line["acc_mix_k_top1"])
+<<<<<<< HEAD
+
+                    record_one_q_top5.append(line["acc_one_q_top5"])
+                    record_mix_q_top5.append(line["acc_mix_q_top5"])
+                    record_one_k_top5.append(line["acc_one_k_top5"])
+                    record_mix_k_top5.append(line["acc_mix_k_top5"])
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     # output records
     for l in record_str:
         if print_all:
@@ -77,23 +101,57 @@ def read_json(path, epoch_num=1200, record_num=20, print_all=True):
     bias = 1
     # find best median
     best_index = list()
+<<<<<<< HEAD
+    best_index_ = list()
     bias_index = [len(record_one_q_top1) - bias, len(record_one_q_top1), len(record_one_q_top1) + bias]
+    bias_index_ = [len(record_one_q_top5) - bias, len(record_one_q_top5), len(record_one_q_top5) + bias]
+=======
+    bias_index = [len(record_one_q_top1) - bias, len(record_one_q_top1), len(record_one_q_top1) + bias]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     for i in bias_index:
         best_index.append(max(
             np.median(np.array(record_one_k_top1[ :i])), np.median(np.array(record_mix_k_top1[ :i])),
             np.median(np.array(record_one_q_top1[ :i])), np.median(np.array(record_mix_q_top1[ :i]))
         ))
+<<<<<<< HEAD
+        best_index_.append(max(
+            np.median(np.array(record_one_k_top5[:i])), np.median(np.array(record_mix_k_top5[:i])),
+            np.median(np.array(record_one_q_top5[:i])), np.median(np.array(record_mix_q_top5[:i]))
+        ))
+
     index = bias_index[ np.argmax(np.array(best_index)) ]
+    index_ = bias_index_[np.argmax(np.array(best_index_))]
+
+=======
+    index = bias_index[ np.argmax(np.array(best_index)) ]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     # print(index)
     record_one_q_top1 = record_one_q_top1[ :index]
     record_mix_q_top1 = record_mix_q_top1[ :index]
     record_one_k_top1 = record_one_k_top1[ :index]
     record_mix_k_top1 = record_mix_k_top1[ :index]
+<<<<<<< HEAD
+
+    record_one_q_top5 = record_one_q_top5[:index]
+    record_mix_q_top5 = record_mix_q_top5[:index]
+    record_one_k_top5 = record_one_k_top5[:index]
+    record_mix_k_top5 = record_mix_k_top5[:index]
+    # results
+    print("Acc_Top1 k={:.2f}, q={:.2f}".format(
+        max(np.median(np.array(record_one_k_top1)), np.median(np.array(record_mix_k_top1)) ),
+        max(np.median(np.array(record_one_q_top1)), np.median(np.array(record_mix_q_top1)) ),
+    ))
+    print("Acc_Top5 k={:.2f}, q={:.2f}".format(
+        max(np.median(np.array(record_one_k_top5)), np.median(np.array(record_mix_k_top5))),
+        max(np.median(np.array(record_one_q_top5)), np.median(np.array(record_mix_q_top5))),
+    ))
+=======
     # results
     print("k={:.2f}, q={:.2f}".format(
         max(np.median(np.array(record_one_k_top1)), np.median(np.array(record_mix_k_top1)) ),
         max(np.median(np.array(record_one_q_top1)), np.median(np.array(record_mix_q_top1)) ),
     ))
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 
 if __name__ == '__main__':

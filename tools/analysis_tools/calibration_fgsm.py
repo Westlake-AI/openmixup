@@ -146,7 +146,7 @@ def main():
 
     # logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-    log_file = osp.join(cfg.work_dir, 'test_{}.log'.format(timestamp))
+    log_file = osp.join(cfg.work_dir, 'test_{}_{}.log'.format(timestamp, args.keys))
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
     # build the dataloader
@@ -165,19 +165,19 @@ def main():
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
         if args.keys == 'fgsm':
-            print_log("FGSM (Fast Gradient Sign Method) compute adversarial robustness error")
+            print_log("FGSM (Fast Gradient Sign Method) compute adversarial robustness error", logger=logger)
             outputs = fgsm_test(model, data_loader, args.head, args.dataset)
+
+            rank, _ = get_dist_info()
+            if rank == 0:
+                for name, val in outputs.items():
+                    dataset.evaluate(
+                        torch.from_numpy(val), name, logger, topk=(1, 5))
         else:
-            print_log("Calibration evaluation ECE")
+            print_log("Calibration evaluation ECE", logger=logger)
             outputs = single_gpu_test(model, data_loader)
             result = dataset.ece_score(outputs[args.head], save_name=cfg.work_dir)
-            print_log("ECE score: {:4f}%".format(result * 100))
-
-    rank, _ = get_dist_info()
-    if rank == 0:
-        for name, val in outputs.items():
-            dataset.evaluate(
-                torch.from_numpy(val), name, logger, topk=(1, 5))
+            print_log("ECE score: {:4f}%".format(result * 100), logger=logger)
 
 
 if __name__ == '__main__':

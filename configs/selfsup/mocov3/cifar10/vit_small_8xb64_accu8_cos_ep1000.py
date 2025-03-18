@@ -13,7 +13,11 @@ custom_hooks = [
         end_momentum=1.0,
         adjust_scope=[0.05, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=update_interval),
+=======
         update_interval=update_interval),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 
 # optimizer
@@ -28,9 +32,15 @@ optimizer = dict(
         'cls_token': dict(weight_decay=0.)
     })
 
+<<<<<<< HEAD
+# apex
+use_fp16 = False
+fp16 = dict(type='apex', loss_scale='dynamic')
+=======
 # fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, grad_clip=None)
 

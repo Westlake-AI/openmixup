@@ -130,9 +130,15 @@ def precision_recall_f1(pred, target, average_mode='macro', thrs=0.):
         f1_scores.append(f1_score)
 
     if return_single:
+<<<<<<< HEAD
+        return precisions[0], recalls[0], f1_scores[0]
+    else:
+        return precisions, recalls, f1_scores
+=======
         return (precisions[0], recalls[0], f1_scores[0])
     else:
         return (precisions, recalls, f1_scores)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 
 def precision(pred, target, average_mode='macro', thrs=0.):
@@ -290,6 +296,13 @@ def regression_error(pred, target, average_mode='mean'):
 
     mse = torch.square(pred - target).sum()
     mae = torch.abs(pred - target).sum()
+<<<<<<< HEAD
+    if average_mode == 'mean':
+        mse /= pred.size(0)
+        mae /= pred.size(0)
+
+    return mse, mae
+=======
     mape = torch.sum(torch.abs(pred - target) / torch.clamp(torch.abs(target), min=1e-8))
     if average_mode == 'mean':
         mse /= pred.size(0)
@@ -298,6 +311,7 @@ def regression_error(pred, target, average_mode='mean'):
     rmse = torch.sqrt(mse)
 
     return (mse, mae, rmse, mape)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 
 def pearson_correlation(pred, target, average_mode='mean'):

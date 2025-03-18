@@ -67,10 +67,23 @@ def accuracy_mixup(pred, targets):
     pred_label = pred_label.t()  # 2xN
     # assumpting lam > 0.5
     if lam > 0.5:
+<<<<<<< HEAD
+        if len(targets) == 4:
+            y_a, y_b, lam, _ = targets
+        else:
+            y_a, y_b, lam = targets
+        lam_ = 1 - lam
+    else:
+        if len(targets) == 4:
+            y_a, y_b, lam_, _ = targets
+        else:
+            y_a, y_b, lam_ = targets
+=======
         y_a, y_b, lam = targets
         lam_ = 1 - lam
     else:
         y_b, y_a, lam_ = targets
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         lam = 1 - lam_
     # top-1 for lam
     correct_y_a = pred_label.eq(y_a.view(1, -1).expand_as(pred_label))
@@ -85,7 +98,11 @@ def accuracy_mixup(pred, targets):
 
 
 def accuracy_co_mixup(pred, targets):
+<<<<<<< HEAD
+
+=======
     """ Accuracy for mixup classification with Co-Mixup """
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     lam = targets[-1]
     y = targets[:-1]
     maxk = 3  # top-2

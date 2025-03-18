@@ -1,3 +1,9 @@
+<<<<<<< HEAD
+_base_ = "resnet50_4xb64_step_ep100.py"
+
+# lr scheduler
+lr_config = dict(policy='CosineAnnealing', min_lr=0)
+=======
 _base_ = [
     '../../_base_/models/resnet/resnet50.py',
     '../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
@@ -18,3 +24,4 @@ lr_config = dict(policy='CosineAnnealing', min_lr=0)
 
 # runtime settings
 runner = dict(type='EpochBasedRunner', max_epochs=100)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

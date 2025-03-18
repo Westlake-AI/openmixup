@@ -10,7 +10,11 @@ from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
+<<<<<<< HEAD
+from ..utils import LayerNormGeneral, lecun_normal_init, to_2tuple
+=======
 from ..utils import LayerNormGeneral, Scale, lecun_normal_init, to_2tuple
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 
 class Downsampling(nn.Module):
@@ -38,6 +42,21 @@ class Downsampling(nn.Module):
         return x
 
 
+<<<<<<< HEAD
+class Scale(nn.Module):
+    """
+    Scale vector by element multiplications.
+    """
+    def __init__(self, dim, init_value=1.0, trainable=True):
+        super().__init__()
+        self.scale = nn.Parameter(init_value * torch.ones(dim), requires_grad=trainable)
+
+    def forward(self, x):
+        return x * self.scale
+
+
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 class SquaredReLU(nn.Module):
     """
     Squared ReLU: https://arxiv.org/abs/2109.08668
@@ -108,6 +127,8 @@ class Attention(nn.Module):
         return x
 
 
+<<<<<<< HEAD
+=======
 class IdentityMixing(nn.Identity):
 
     def __init__(self, **kwargs):
@@ -117,6 +138,7 @@ class IdentityMixing(nn.Identity):
         return x
 
 
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 class RandomMixing(nn.Module):
 
     def __init__(self, num_tokens=196, **kwargs):
@@ -356,7 +378,11 @@ class MetaFormer(BaseBackbone):
 
             - depths (list[int]): Number of blocks at each stage.
             - embed_dims (list[int]): The number of channels at each stage.
+<<<<<<< HEAD
+            - token_mixers (list[str]): The number of channels at each stage.
+=======
             - token_mixers (list[str]): The type of the token mixer at each stage.
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
             Defaults to 'convformer_s18'.
 
@@ -374,6 +400,12 @@ class MetaFormer(BaseBackbone):
         res_scale_init_values (list, tuple, float or None): Init value for Layer Scale.
             Default: [None, None, 1.0, 1.0]. None means not use the layer scale.
             From: https://arxiv.org/abs/2110.09456.
+<<<<<<< HEAD
+        output_norm: norm before classifier head. Default: partial(nn.LayerNorm, eps=1e-6).
+        head_fn: classification head. Default: nn.Linear.
+    """
+    arch_settings = {
+=======
         gap_before_final_norm (bool): Whether to globally average the feature
             map before the final norm layer.
         output_norm: norm before classifier head. Default: partial(nn.LayerNorm, eps=1e-6).
@@ -457,6 +489,7 @@ class MetaFormer(BaseBackbone):
             'embed_dims': [96, 192, 384, 768],
             'token_mixers': "Pooling",
         },
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         'convformer_s18': {
             'depths': [3, 3, 9, 3],
             'embed_dims': [64, 128, 320, 512],

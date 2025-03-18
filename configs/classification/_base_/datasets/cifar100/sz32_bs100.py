@@ -1,5 +1,10 @@
 # dataset settings
 data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
+<<<<<<< HEAD
+# dataset CORRUPTIONS
+# data_test_cfg = dict(type='CIFAR_Corruption', root='data/CIFAR-100-C')
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])

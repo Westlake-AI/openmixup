@@ -1,6 +1,10 @@
 from abc import ABCMeta, abstractmethod
 from PIL import Image
 
+<<<<<<< HEAD
+import torchvision
+
+=======
 import os
 import random
 import torch
@@ -10,6 +14,7 @@ import numpy as np
 from PIL import Image
 from torch.utils.data import DataLoader
 from torchvision import transforms
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 from ..registry import DATASOURCES
 
 
@@ -17,12 +22,19 @@ class Mnist_base(metaclass=ABCMeta):
 
     CLASSES = None
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True):
+=======
     def __init__(self, root, split, return_label=True, repeat=1):
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         assert split in ['train', 'test']
         self.root = root
         self.split = split
         self.return_label = return_label
+<<<<<<< HEAD
+=======
         self.repeat = int(repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         self.mnist = None
         self.set_mnist()
         self.labels = self.mnist.targets
@@ -51,16 +63,24 @@ class USPS(Mnist_base):
     CLASSES = ['0 - zero', '1 - one', '2 - two', '3 - three', '4 - four',
                '5 - five', '6 - six', '7 - seven', '8 - eight', '9 - nine']
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True):
+        super().__init__(root, split, return_label)
+=======
     def __init__(self, root, split, return_label=True, repeat=1):
         super().__init__(root, split, return_label, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     
     def set_mnist(self):
         try:
             self.mnist = torchvision.datasets.USPS(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.mnist.data = np.concatenate([self.mnist.data] * self.repeat)
                 self.mnist.targets = np.concatenate([self.mnist.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download USPS binary manually, \
                   in case of downloading the dataset parallelly \
@@ -73,16 +93,24 @@ class MNIST(Mnist_base):
     CLASSES = ['0 - zero', '1 - one', '2 - two', '3 - three', '4 - four',
                '5 - five', '6 - six', '7 - seven', '8 - eight', '9 - nine']
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True):
+        super().__init__(root, split, return_label)
+=======
     def __init__(self, root, split, return_label=True, repeat=1):
         super().__init__(root, split, return_label, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     
     def set_mnist(self):
         try:
             self.mnist = torchvision.datasets.MNIST(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.mnist.data = np.concatenate([self.mnist.data] * self.repeat)
                 self.mnist.targets = np.concatenate([self.mnist.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download MNIST manually, \
                   in case of downloading the dataset parallelly \
@@ -95,16 +123,24 @@ class FMNIST(Mnist_base):
     CLASSES = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal',
                'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True):
+        super().__init__(root, split, return_label)
+=======
     def __init__(self, root, split, return_label=True, repeat=1):
         super().__init__(root, split, return_label, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     
     def set_mnist(self):
         try:
             self.mnist = torchvision.datasets.FashionMNIST(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.mnist.data = np.concatenate([self.mnist.data] * self.repeat)
                 self.mnist.targets = np.concatenate([self.mnist.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download FashionMNIST manually, \
                   in case of downloading the dataset parallelly \
@@ -116,20 +152,30 @@ class KMNIST(Mnist_base):
 
     CLASSES = ['o', 'ki', 'su', 'tsu', 'na', 'ha', 'ma', 'ya', 're', 'wo']
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True):
+        super().__init__(root, split, return_label)
+=======
     def __init__(self, root, split, return_label=True, repeat=1):
         super().__init__(root, split, return_label, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     
     def set_mnist(self):
         try:
             self.mnist = torchvision.datasets.KMNIST(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.mnist.data = np.concatenate([self.mnist.data] * self.repeat)
                 self.mnist.targets = np.concatenate([self.mnist.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download KMNIST manually, \
                   in case of downloading the dataset parallelly \
                   that may corrupt the dataset.")
+<<<<<<< HEAD
+=======
 
 
 def get_all_batches(loader):
@@ -235,3 +281,4 @@ class RCFMNIST(object):
             return img, target
         else:
             return img
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

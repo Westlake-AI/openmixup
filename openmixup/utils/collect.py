@@ -213,15 +213,15 @@ def collect_results_gpu(result_part: list, size: int) -> Optional[list]:
         return None
 
 
-def occlusion_forward_collect(func, data_loader, length, random_drop, drop_size):
+def occlusion_forward_collect(func, data_loader, length, drop_ratio, drop_size):
 
     # create a mask for occlusion test
     patch = 224 // drop_size
     patch_num = patch * patch
-    mask_num = round(patch_num * random_drop) # need mask number
+    mask_num = round(patch_num * drop_ratio) # need mask number
 
     print(f"patch size is {patch} with the total tokens {patch_num}")
-    print(f"occlusion ratio is {random_drop * 100}% and masked tokens are {mask_num}")
+    print(f"occlusion ratio is {drop_ratio * 100}% and masked tokens are {mask_num}")
 
     results = []
     prog_bar = mmcv.ProgressBar(len(data_loader))
