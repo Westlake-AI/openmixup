@@ -2,7 +2,10 @@ _base_ = "r18_mixups_CE_none.py"
 
 # model settings
 model = dict(
+<<<<<<< HEAD
+=======
     pretrained="torchvision://resnet50",
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     alpha=1,  # float or list
     mix_mode="mixup",  # str or list, choose a mixup mode
     backbone=dict(

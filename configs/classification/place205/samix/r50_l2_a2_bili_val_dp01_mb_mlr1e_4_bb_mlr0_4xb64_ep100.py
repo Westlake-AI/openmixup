@@ -66,7 +66,11 @@ custom_hooks = [
         end_momentum=0.99999,
         adjust_scope=[0.1, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=1)
+=======
         update_interval=1)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,

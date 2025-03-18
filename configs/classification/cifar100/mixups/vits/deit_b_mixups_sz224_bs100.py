@@ -20,7 +20,11 @@ model = dict(
         puzzlemix=dict(transport=True, t_batch_size=32, t_size=-1,  # adjust t_batch_size if CUDA out of memory
             mp=None, block_num=4,  # block_num<=4 and mp=2/4 for fast training
             beta=1.2, gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8),
+<<<<<<< HEAD
+        resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
+=======
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True, interpolate_mode="bilinear"),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
         transmix=dict(mix_mode="cutmix"),
     ),

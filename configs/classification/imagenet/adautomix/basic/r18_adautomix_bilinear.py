@@ -7,9 +7,15 @@ _base_ = [
 model = dict(
     type='AdAutoMix',
     pretrained=None,
+<<<<<<< HEAD
+    alpha=2.0,
+    mix_samples=2,   # mix samples number
+    is_random=True,
+=======
     alpha=1.0,
     mix_samples=2,
     is_random=False,  # mix samples number
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     momentum=0.999,  # 0.999 to 0.999999
     lam_margin=0.03,  # degenerate to mixup when
     mixup_radio=0.5,
@@ -57,7 +63,11 @@ custom_hooks = [
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
+<<<<<<< HEAD
+                    'mix_block': dict(lr=0.1, momentum=0.9)},)  # required parawise_option
+=======
                     'mix_block': dict(lr=0.1, momentum=0.9, weight_decay=0.0001)},)  # required parawise_option
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 # apex
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)

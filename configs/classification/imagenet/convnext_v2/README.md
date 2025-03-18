@@ -32,10 +32,18 @@ This page is based on documents in [MMPretrain](https://github.com/open-mmlab/mm
 ## Citation
 
 ```bibtex
+<<<<<<< HEAD
+@article{Woo2023ConvNeXtV2,
+  title={ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders},
+  author={Sanghyun Woo, Shoubhik Debnath, Ronghang Hu, Xinlei Chen, Zhuang Liu, In So Kweon and Saining Xie},
+  year={2023},
+  journal={arXiv preprint arXiv:2301.00808},
+=======
 @inproceedings{Woo2023ConvNeXtV2,
   title={ConvNeXt V2: Co-designing and Scaling ConvNets with Masked Autoencoders},
   author={Sanghyun Woo and Shoubhik Debnath and Ronghang Hu and Xinlei Chen and Zhuang Liu and In-So Kweon and Saining Xie},
   booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2023},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 }
 ```

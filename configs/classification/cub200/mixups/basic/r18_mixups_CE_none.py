@@ -6,13 +6,23 @@ _base_ = [
 # model settings
 model = dict(
     type='MixUpClassification',
+<<<<<<< HEAD
+    pretrained='tools/resnet18-pytorch.pth',
+    alpha=0.2,  # float or list
+    mix_mode="smoothmix",  # str or list, choose a mixup mode
+=======
     pretrained="torchvision://resnet18",
     alpha=1,  # float or list
     mix_mode="mixup",  # str or list, choose a mixup mode
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
         automix=dict(mask_adjust=0, lam_margin=0),  # require pre-trained mixblock
+<<<<<<< HEAD
+        adaptivemix=dict(mask_adjust=0, lam_margin=0.03),  # require pre-trained mixblock
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         fmix=dict(decay_power=3, size=(224,224), max_soft=0., reformulate=False),
         gridmix=dict(n_holes=(2, 6), hole_aspect_ratio=1.,
             cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),

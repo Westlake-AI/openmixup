@@ -62,11 +62,17 @@ class LayerNorm2d(nn.LayerNorm):
             to ones (for weights) and zeros (for biases). Defaults to True.
     """
 
+<<<<<<< HEAD
+    def __init__(self, num_channels: int, **kwargs) -> None:
+        super().__init__(num_channels, **kwargs)
+        self.num_channels = self.normalized_shape[0]
+=======
     def __init__(self, num_channels: int, data_format=None, **kwargs) -> None:
         super().__init__(num_channels, **kwargs)
         self.num_channels = self.normalized_shape[0]
         self.data_format = data_format
         assert self.data_format in ["channels_last", "channels_first", None]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     def forward(self, x, data_format='channel_first'):
         """Forward method.
@@ -80,8 +86,11 @@ class LayerNorm2d(nn.LayerNorm):
         """
         assert x.dim() == 4, 'LayerNorm2d only supports inputs with shape ' \
             f'(N, C, H, W), but got tensor with shape {x.shape}'
+<<<<<<< HEAD
+=======
         if self.data_format is not None:
             data_format = self.data_format
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         if data_format == 'channel_last':
             x = F.layer_norm(x, self.normalized_shape, self.weight, self.bias,
                              self.eps)

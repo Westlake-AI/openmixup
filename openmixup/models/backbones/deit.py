@@ -62,8 +62,9 @@ class DistilledVisionTransformer(VisionTransformer):
 
     def forward(self, x):
         B = x.shape[0]
-        x = self.patch_embed(x)
-        patch_resolution = self.patch_embed.patches_resolution
+        x, patch_resolution = self.patch_embed(x)
+        # x = self.patch_embed(x)
+        # patch_resolution = self.patch_embed.patches_resolution
 
         # stole cls_tokens impl from Phil Wang, thanks
         cls_tokens = self.cls_token.expand(B, -1, -1)
@@ -101,7 +102,10 @@ class DistilledVisionTransformer(VisionTransformer):
                     cls_token = None
                     dist_token = None
                 if self.output_cls_token:
-                    out = [patch_token, cls_token, dist_token]
+                    if self.with_dis_token:
+                        out = [patch_token, cls_token, dist_token]
+                    else:
+                        out = [patch_token, cls_token]
                 else:
                     out = patch_token
                 outs.append(out)

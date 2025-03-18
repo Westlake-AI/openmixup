@@ -1,6 +1,10 @@
 _base_ = [
     '../../_base_/models/resnet/resnet18.py',
+<<<<<<< HEAD
+    '../../_base_/datasets/imagenet/basic_sz224_bs256.py',
+=======
     '../../_base_/datasets/imagenet/basic_sz224_4xbs64.py',
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     '../../_base_/default_runtime.py',
 ]
 

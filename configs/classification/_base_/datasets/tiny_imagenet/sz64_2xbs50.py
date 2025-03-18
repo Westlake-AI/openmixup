@@ -21,7 +21,11 @@ test_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_c
 
 data = dict(
     imgs_per_gpu=50,  # 50 x 2gpus = 100
+<<<<<<< HEAD
+    workers_per_gpu=16,
+=======
     workers_per_gpu=4,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     train=dict(
         type=dataset_type,
         data_source=dict(
@@ -43,7 +47,11 @@ evaluation = dict(
     initial=False,
     interval=1,
     imgs_per_gpu=100,
+<<<<<<< HEAD
+    workers_per_gpu=16,
+=======
     workers_per_gpu=4,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     eval_param=dict(topk=(1, 5)))
 
 # checkpoint

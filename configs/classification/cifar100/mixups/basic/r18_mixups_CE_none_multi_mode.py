@@ -19,12 +19,41 @@ model = dict(
         resizemix=dict(scope=(0.1, 0.8), use_alpha=True),
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
+<<<<<<< HEAD
+    backbone=dict(
+        type='ResNet_CIFAR',  # CIFAR version
+        # type='ResNet_Mix_CIFAR',  # required by 'manifoldmix'
+        depth=18,
+        num_stages=4,
+        out_indices=(3,),  # no conv-1, x-1: stage-x
+        style='pytorch'),
+    head=dict(
+        type='ClsHead',  # normal CE loss (NOT SUPPORT PuzzleMix, use soft/sigm CE instead)
+        loss=dict(type='CrossEntropyLoss', loss_weight=1.0),
+        with_avg_pool=True, multi_label=False, in_channels=512, num_classes=100)
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 )
 
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
         iter_per_epoch=500,
+<<<<<<< HEAD
+        save_interval=12500),  # plot every 500 x 25 ep
+]
+
+# optimizer
+optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=None)
+
+# learning policy
+lr_config = dict(policy='CosineAnnealing', min_lr=0.)
+
+# runtime settings
+runner = dict(type='EpochBasedRunner', max_epochs=200)
+=======
         save_interval=12500,  # plot every 500 x 25 ep
     )
 ]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

@@ -41,7 +41,11 @@ custom_hooks = [
         end_momentum=1.0,
         adjust_scope=[0.01, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=update_interval),
+=======
         update_interval=update_interval),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     dict(type='SSLMetricHook',
         val_dataset=val_data['val'],
         train_dataset=val_data['train'],  # remove it if metric_mode is None

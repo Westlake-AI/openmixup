@@ -1,6 +1,10 @@
 _base_ = [
     '../../../_base_/datasets/cifar100/sz32_bs100.py',
     '../../../_base_/default_runtime.py',
+<<<<<<< HEAD
+    # '../../../_base_/datasets/cifar100/robutness.py',
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 
 # model settings
@@ -12,7 +16,11 @@ model = dict(
     mask_layer=2,
     mask_loss=0.1,  # using mask loss
     mask_adjust=0,
+<<<<<<< HEAD
+    lam_margin=0.03,  # degenerate to mixup when lam or 1-lam <= 0.08
+=======
     lam_margin=0.08,  # degenerate to mixup when lam or 1-lam <= 0.08
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     mask_up_override=None,  # If not none, override upsampling when train MixBlock
     debug=True,  # show attention and content map
     backbone=dict(
@@ -50,7 +58,11 @@ custom_hooks = [
         end_momentum=0.999999,
         adjust_scope=[0.1, 1.0],
         warming_up="constant",
+<<<<<<< HEAD
+        interval=1),
+=======
         update_interval=1),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     dict(type='SAVEHook',
         iter_per_epoch=500,
         save_interval=12500,  # plot every 500 x 25 ep
@@ -65,4 +77,8 @@ optimizer_config = dict(grad_clip=None)
 lr_config = dict(policy='CosineAnnealing', min_lr=0.05)  # min_lr=5e-2 for the momentum encoder
 
 # runtime settings
+<<<<<<< HEAD
+runner = dict(type='EpochBasedRunner', max_epochs=200)
+=======
 runner = dict(type='EpochBasedRunner', max_epochs=400)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

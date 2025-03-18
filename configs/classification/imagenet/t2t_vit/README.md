@@ -25,10 +25,17 @@ We follow the original training setting provided by the original paper. *Models 
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{yuan2021tokens,
+  title={Tokens-to-token vit: Training vision transformers from scratch on imagenet},
+  author={Yuan, Li and Chen, Yunpeng and Wang, Tao and Yu, Weihao and Shi, Yujun and Tay, Francis EH and Feng, Jiashi and Yan, Shuicheng},
+  journal={arXiv preprint arXiv:2101.11986},
+=======
 @inproceedings{yuan2021tokens,
   title={Tokens-to-token vit: Training vision transformers from scratch on imagenet},
   author={Yuan, Li and Chen, Yunpeng and Wang, Tao and Yu, Weihao and Shi, Yujun and Jiang, Zihang and Tay, Francis EH and Feng, Jiashi and Yan, Shuicheng},
   booktitle=ICCV,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
   year={2021}
 }
 ```

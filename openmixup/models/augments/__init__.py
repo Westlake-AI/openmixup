@@ -8,10 +8,15 @@ from .puzzlemix import puzzlemix
 from .resizemix import resizemix
 from .saliencymix import saliencymix
 from .smoothmix import smoothmix
-from .snapmix import snapmix
 from .transmix import transmix
+from .snapmix import snapmix
+from .mixpro import mixpro
+from .tokenmix import tokenmix
+from .smmix import smmix
+from .tla import tla
 
 __all__ = [
     'alignmix', 'attentivemix', 'cutmix', 'fmix', 'mixup', 'gridmix',
-    'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix', 'snapmix', 'transmix',
+    'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix', 'transmix',
+    'snapmix', 'mixpro', 'tokenmix', 'smmix', "tla",
 ]

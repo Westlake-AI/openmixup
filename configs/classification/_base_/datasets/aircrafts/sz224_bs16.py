@@ -2,9 +2,15 @@
 data_source_cfg = dict(type='ImageNet')
 # Aircrafts
 data_train_list = 'data/meta/Aircrafts/train_labeled.txt'
+<<<<<<< HEAD
+data_train_root = 'data/FGVC_Aircrafts/data/images/'
+data_test_list = 'data/meta/Aircrafts/test_labeled.txt'
+data_test_root = 'data/FGVC_Aircrafts/data/images/'
+=======
 data_train_root = 'data/FGVC_Aircrafts/images/'
 data_test_list = 'data/meta/Aircrafts/test_labeled.txt'
 data_test_root = 'data/FGVC_Aircrafts/images/'
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])

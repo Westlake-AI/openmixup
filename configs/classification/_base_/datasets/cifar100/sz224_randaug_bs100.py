@@ -63,7 +63,7 @@ evaluation = dict(
     imgs_per_gpu=100,
     workers_per_gpu=4,
     eval_param=dict(topk=(1, 5)),
-    save_best='auto')
+    )
 
 # checkpoint
 checkpoint_config = dict(interval=10, max_keep_ckpts=1)

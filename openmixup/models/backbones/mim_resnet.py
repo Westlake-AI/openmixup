@@ -1,13 +1,19 @@
+<<<<<<< HEAD
+=======
 import re
 from typing import Optional, Tuple
 
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 import torch
 import torch.nn as nn
 from mmcv.cnn.utils.weight_init import trunc_normal_
 
 from ..registry import BACKBONES
+<<<<<<< HEAD
+=======
 from ..utils import (SparseAvgPooling, SparseBatchNorm2d,
                      SparseConv2d, SparseMaxPooling, SparseSyncBatchNorm2d)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 from .resnet_mmcls import ResNet
 
 
@@ -114,6 +120,8 @@ class MIMResNet(ResNet):
                 if len(self.out_indices) == 1:
                     return outs
         return outs
+<<<<<<< HEAD
+=======
 
 
 @BACKBONES.register_module()
@@ -279,3 +287,4 @@ class SparseResNet(ResNet):
                     child, enable_sync_bn=enable_sync_bn))
         del m
         return output
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

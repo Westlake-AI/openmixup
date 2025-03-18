@@ -1,10 +1,17 @@
 # dataset settings
 data_source_cfg = dict(type='ImageNet')
 # Tiny Imagenet
+<<<<<<< HEAD
+data_train_list = '../../../datasets/openmixup/meta/TinyImageNet/train_labeled.txt'  # train 10w
+data_train_root = '../../../datasets/openmixup/TinyImageNet/train/'
+data_test_list = '../../../datasets/openmixup/meta/TinyImageNet/val_labeled.txt'  # val 1w
+data_test_root = '../../../datasets/openmixup/TinyImageNet/val/'
+=======
 data_train_list = 'data/meta/TinyImageNet/train_labeled.txt'  # train 10w
 data_train_root = 'data/TinyImageNet/train/'
 data_test_list = 'data/meta/TinyImageNet/val_labeled.txt'  # val 1w
 data_test_root = 'data/TinyImageNet/val/'
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 dataset_type = 'ClassificationDataset'
 img_norm_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -21,7 +28,11 @@ test_pipeline.extend([dict(type='ToTensor'), dict(type='Normalize', **img_norm_c
 
 data = dict(
     imgs_per_gpu=100,  # 100 x 1gpu = 100
+<<<<<<< HEAD
+    workers_per_gpu=16,
+=======
     workers_per_gpu=4,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     train=dict(
         type=dataset_type,
         data_source=dict(

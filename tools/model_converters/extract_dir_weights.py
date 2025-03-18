@@ -22,7 +22,10 @@ def parse_args():
     parser = argparse.ArgumentParser(
         description='This script extracts backbone weights from a checkpoint')
     parser.add_argument('dir_path', help='checkpoint file')
+<<<<<<< HEAD
+=======
     parser.add_argument('--backbone_only', action='store_true', help='only keep keys started by `backbone`')
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     args = parser.parse_args()
     return args
 
@@ -60,8 +63,11 @@ def main():
         has_backbone = False
         for key, value in ck['state_dict'].items():
             if key.startswith('encoder_q'):
+<<<<<<< HEAD
+=======
                 if args.backbone_only:
                     continue
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                 output_dict['state_dict'][key[10:]] = value
                 has_backbone = True
                 print("keep key {} -> {}".format(key, key[10:]))

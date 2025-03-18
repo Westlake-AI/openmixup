@@ -42,9 +42,15 @@ class RegHead(BaseModule):
         elif isinstance(loss, dict):
             loss = [loss]
         self.criterion_num = 0
+<<<<<<< HEAD
+        for i in range(len(loss)):
+            assert isinstance(loss[i], dict)
+            _criterion = build_loss(loss[i])
+=======
         for i, _loss in enumerate(loss):
             assert isinstance(loss[i], dict)
             _criterion = build_loss(_loss)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             self.add_module(str(i), _criterion)
             self.criterion_num += 1
         # activate
@@ -97,10 +103,14 @@ class RegHead(BaseModule):
             elif x.dim() == 4:
                 x = F.adaptive_avg_pool2d(x, 1).view(x.size(0), -1)
         else:
+<<<<<<< HEAD
+            x = x.reshape(x.size(0), -1)
+=======
             if isinstance(x, (tuple, list)):  # [patch_token, cls_token]
                 x = x[-1]
             else:
                 x = x.reshape(x.size(0), -1)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         x = self.fc(x).squeeze()
         if self.act is not None:
             x = self.act(x)
@@ -126,6 +136,10 @@ class RegHead(BaseModule):
                 _criterion = getattr(self, str(i))
                 losses['loss'] += _criterion(score, labels, **kwargs)
         # compute error
+<<<<<<< HEAD
+        losses['mse'], _ = regression_error(score, labels, average_mode='mean')
+=======
         losses['mse'] = regression_error(score, labels, average_mode='mean')[0]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         
         return losses

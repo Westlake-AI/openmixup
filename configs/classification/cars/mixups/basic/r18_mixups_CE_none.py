@@ -8,7 +8,11 @@ model = dict(
     type='MixUpClassification',
     pretrained='tools/resnet18-pytorch.pth',
     alpha=0.2,  # float or list
+<<<<<<< HEAD
+    mix_mode="smoothmix",  # str or list, choose a mixup mode
+=======
     mix_mode="snapmix",  # str or list, choose a mixup mode
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
@@ -25,8 +29,13 @@ model = dict(
         samix=dict(mask_adjust=0, lam_margin=0.08),  # require pre-trained mixblock
     ),
     backbone=dict(
+<<<<<<< HEAD
+        # type='ResNet',  # normal
+        type='ResNet_Mix',  # required by 'manifoldmix'
+=======
         type='ResNet',  # normal
         # type='ResNet_Mix',  # required by 'manifoldmix'
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         depth=18,
         num_stages=4,
         out_indices=(3,),  # no conv-1, x-1: stage-x

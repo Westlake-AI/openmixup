@@ -21,13 +21,20 @@ class Cifar(metaclass=ABCMeta):
 
     CLASSES = None
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True, num_labeled=None):
+=======
     def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         assert split in ['train', 'test']
         self.root = root
         self.split = split
         self.return_label = return_label
         self.num_labeled = num_labeled
+<<<<<<< HEAD
+=======
         self.repeat = int(repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         self.cifar = None
         self.set_cifar()
         self.labels = self.cifar.targets
@@ -61,16 +68,24 @@ class CIFAR10(Cifar):
         'horse', 'ship', 'truck'
     ]
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True, num_labeled=None):
+        super().__init__(root, split, return_label, num_labeled)
+=======
     def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
         super().__init__(root, split, return_label, num_labeled, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     def set_cifar(self):
         try:
             self.cifar = torchvision.datasets.CIFAR10(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.cifar.data = np.concatenate([self.cifar.data] * self.repeat)
                 self.cifar.targets = np.concatenate([self.cifar.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download CIFAR10 manually, \
                   in case of downloading the dataset parallelly \
@@ -136,16 +151,24 @@ class CIFAR100(Cifar):
         'lawn-mower', 'rocket', 'streetcar', 'tank', 'tractor'
     ]
 
+<<<<<<< HEAD
+    def __init__(self, root, split, return_label=True, num_labeled=None):
+        super().__init__(root, split, return_label, num_labeled)
+=======
     def __init__(self, root, split, return_label=True, num_labeled=None, repeat=1):
         super().__init__(root, split, return_label, num_labeled, repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     def set_cifar(self):
         try:
             self.cifar = torchvision.datasets.CIFAR100(
                 root=self.root, train=self.split == 'train', download=False)
+<<<<<<< HEAD
+=======
             if self.repeat > 1:
                 self.cifar.data = np.concatenate([self.cifar.data] * self.repeat)
                 self.cifar.targets = np.concatenate([self.cifar.targets] * self.repeat)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         except:
             raise Exception("Please download CIFAR10 manually, \
                   in case of downloading the dataset parallelly \
@@ -176,7 +199,11 @@ class CIFAR100(Cifar):
             self.labels = self.cifar.targets
 
 
+<<<<<<< HEAD
+class CIFAR_Corruption(metaclass=ABCMeta):
+=======
 class CIFAR_Corruption(object):
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     def __init__(self, root):
         self.root = root
@@ -188,7 +215,11 @@ class CIFAR_Corruption(object):
             "jpeg_compression", "motion_blur", "pixelate", "saturate", "shot_noise",
             "snow", "spatter", "speckle_noise", "zoom_blur"]
         self.set_cifar_corruption()
+<<<<<<< HEAD
+    
+=======
 
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     def set_cifar_corruption(self):
         self.targets = list()
         self.data = list()
@@ -223,14 +254,25 @@ class CIFAR_C(Cifar):
         super().__init__(root, split, return_label)
 
     def set_cifar(self):
+<<<<<<< HEAD
+        assert self.split == 'test'
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         try:
             self.cifar = CIFAR_Corruption(root=self.root)
         except:
             raise Exception("Data or label files are invalid, please check \
                 whether the dataset is downloading from the official link.")
+<<<<<<< HEAD
+    def set_split(self):
+        """ set semi-supervised split (l or ul) """
+        if self.split == 'test':
+            return
+=======
 
     def set_split(self):
         assert self.split == 'test'
 
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     def get_length(self):
         return self.cifar.targets.shape[0]

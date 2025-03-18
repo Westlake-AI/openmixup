@@ -514,6 +514,8 @@ class DenseCLNeck(BaseModule):
         x = x.view(x.size(0), x.size(1), -1)  # bxdxs^2
         avgpooled_x2 = avgpooled_x2.view(avgpooled_x2.size(0), -1)  # bxd
         return [avgpooled_x, x, avgpooled_x2]
+<<<<<<< HEAD
+=======
 
 
 @NECKS.register_module()
@@ -550,3 +552,4 @@ class DINONeck(BaseModule):
         x = nn.functional.normalize(x, dim=-1, p=2)
         x = self.last_layer(x)
         return [x]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

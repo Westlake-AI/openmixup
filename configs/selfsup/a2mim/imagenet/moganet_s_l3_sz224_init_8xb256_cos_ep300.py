@@ -17,12 +17,21 @@ model = dict(
 
 # dataset
 data = dict(
+<<<<<<< HEAD
+    # imgs_per_gpu=256, workers_per_gpu=10,
+    imgs_per_gpu=64, workers_per_gpu=4,
+=======
     imgs_per_gpu=256, workers_per_gpu=10,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     train=dict(
         feature_mode=None, feature_args=dict(),
         mask_pipeline=[
             dict(type='BlockwiseMaskGenerator',
+<<<<<<< HEAD
+                input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=32,  # stage 3 in MogaNet
+=======
                 input_size=224, mask_patch_size=32, mask_ratio=0.6, model_patch_size=32,  # stage 3
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                 mask_color='mean', mask_only=False),
         ],
 ))
@@ -33,25 +42,42 @@ update_interval = 1  # bs256 x 8gpus = bs2048
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
+<<<<<<< HEAD
+        save_interval=626 * 10,  # plot every 10 ep
+=======
         save_interval=626 * 25,  # plot every 25 ep
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         iter_per_epoch=626),
 ]
 
 # optimizer
 optimizer = dict(
     type='AdamW',
+<<<<<<< HEAD
+    lr=1e-4 * 2048 / 512,  # 4e-3 for bs2048
+=======
     lr=3e-4 * 2048 / 512,  # 3e-4 * 4 for bs2048
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     betas=(0.9, 0.999), weight_decay=0.05, eps=1e-8,
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
         'bias': dict(weight_decay=0.),
+<<<<<<< HEAD
+        'layer_scale': dict(weight_decay=0.),
+        'scale': dict(weight_decay=0.),
+=======
         'gamma': dict(weight_decay=0.),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         'mask_token': dict(weight_decay=0., lr_mult=1e-1,),
         'mask_gamma': dict(weight_decay=0., lr_mult=1e-1,),
     })
 
 # fp16
+<<<<<<< HEAD
+use_fp16 = False
+=======
 use_fp16 = True
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(update_interval=update_interval)

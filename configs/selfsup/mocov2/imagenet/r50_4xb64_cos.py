@@ -10,9 +10,15 @@ update_interval = 1  # total: 4 x bs64 x 1 accumulates = bs256
 # optimizer
 optimizer = dict(type='SGD', lr=0.03, weight_decay=1e-4, momentum=0.9)
 
+<<<<<<< HEAD
+# apex
+use_fp16 = False
+fp16 = dict(type='apex', loss_scale='dynamic')
+=======
 # fp16
 use_fp16 = False
 fp16 = dict(type='mmcv', loss_scale='dynamic')
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 # optimizer args
 optimizer_config = dict(update_interval=update_interval, grad_clip=None)
 

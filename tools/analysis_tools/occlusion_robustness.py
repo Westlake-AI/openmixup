@@ -3,6 +3,7 @@ import importlib
 import os
 import os.path as osp
 import time
+import numpy as np
 
 import mmcv
 import torch
@@ -11,9 +12,8 @@ from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
 from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from openmixup.datasets import build_dataloader, build_dataset
 from openmixup.models import build_model
-from openmixup.utils import (get_root_logger, dist_forward_collect,
-                             setup_multi_processes, nondist_forward_collect, traverse_replace,
-                             occlusion_forward_collect)
+from openmixup.utils import (get_root_logger, dist_forward_collect, print_log,
+                             setup_multi_processes, nondist_forward_collect, traverse_replace, occlusion_forward_collect,)
 
 
 def single_gpu_test(model, data_loader):
@@ -23,16 +23,14 @@ def single_gpu_test(model, data_loader):
                                       len(data_loader.dataset))
     return results
 
-
-def single_gpu_occlusion_test(model, data_loader, random_drop, drop_size):
+def single_gpu_occlusion_test(model, data_loader, drop_ratio, drop_size):
 
     assert 224 % drop_size == 0, f"drop size {drop_size} not compatible with 224 image"
     model.eval()
     func = lambda **x: model(mode='test', **x)
     results = occlusion_forward_collect(func, data_loader,
-                                        len(data_loader.dataset), random_drop, drop_size)
+                                      len(data_loader.dataset), drop_ratio, drop_size)
     return results
-
 
 def multi_gpu_test(model, data_loader):
     model.eval()
@@ -52,10 +50,8 @@ def parse_args():
     parser.add_argument('--checkpoint', type=str,
                         default=None,
                         help='checkpoint file')
-    parser.add_argument('--drop_size', type=int, default=16,
-        help='drop images size')
-    parser.add_argument('--random_drop', type=float, default=1.0,
-        help='drop image extend, from 0.0 to 1.0')
+    parser.add_argument('--drop_size', type=int, default=16, help='drop images size')
+    parser.add_argument('--max_ratio', type=float, default=None, help='drop image extend, from 0.0 to 1.0')
     parser.add_argument(
         '--work_dir',
         type=str,
@@ -136,7 +132,7 @@ def main():
 
     # logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-    log_file = osp.join(cfg.work_dir, 'test_{}.log'.format(timestamp))
+    log_file = osp.join(cfg.work_dir, 'test_{}_occlusion.log'.format(timestamp))
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
     # build the dataloader
@@ -152,19 +148,25 @@ def main():
     model = build_model(cfg.model)
     load_checkpoint(model, args.checkpoint, map_location='cpu')
 
-    if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
-        if args.random_drop is None:
-            outputs = single_gpu_test(model, data_loader)
-        else:
-            outputs = single_gpu_occlusion_test(
-                model, data_loader, args.random_drop, args.drop_size)
+    # creat a ratio list
+    if args.max_ratio > 1.0:
+        args.max_ratio = 1.0
+    ratios = np.arange(0, args.max_ratio + 1e-4, 0.1)
+    ratios.tolist()
 
-    rank, _ = get_dist_info()
-    if rank == 0:
-        for name, val in outputs.items():
-            dataset.evaluate(
-                torch.from_numpy(val), name, logger, topk=(1, 5))
+    if not distributed:
+        print_log("Occlusion Experiment Results.\n", logger=logger)
+        model = MMDataParallel(model, device_ids=[0])
+        for i in range(len(ratios)):
+            print_log("Occlusion Ratio:{:.1f}%".format(ratios[i] * 100), logger=logger)
+            outputs = single_gpu_occlusion_test(model, data_loader, ratios[i], args.drop_size)
+
+            rank, _ = get_dist_info()
+            if rank == 0:
+                for name, val in outputs.items():
+                    dataset.evaluate(
+                        torch.from_numpy(val), name, logger, topk=(1, 5))
+
 
 
 if __name__ == '__main__':

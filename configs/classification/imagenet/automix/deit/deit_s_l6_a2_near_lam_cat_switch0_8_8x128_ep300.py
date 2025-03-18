@@ -53,7 +53,12 @@ model = dict(
 )
 
 # dataset
+<<<<<<< HEAD
+# data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+data = dict(imgs_per_gpu=16, workers_per_gpu=4)
+=======
 data = dict(imgs_per_gpu=128, workers_per_gpu=10)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 # interval for accumulate gradient
 update_interval = 1  # total: 8 x bs128 x 1 accumulates = bs1024
@@ -72,7 +77,11 @@ custom_hooks = [
         adjust_scope=[0.25, 1.0],
         warming_up="constant",
         update_interval=update_interval,
+<<<<<<< HEAD
+        interval=1)
+=======
     )
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 ]
 
 # optimizer

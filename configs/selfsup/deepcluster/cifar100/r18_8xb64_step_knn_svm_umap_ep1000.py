@@ -1,7 +1,11 @@
 _base_ = 'r18_8xb64_step_ep1000.py'
 
 # dataset settings for SSL metrics
+<<<<<<< HEAD
+val_data_source_cfg = dict(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+=======
 val_data_source_cfg = dict(mean=[0.4914, 0.4822, 0.4465], std=[0.2023, 0.1994, 0.201])
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 data_source_cfg = dict(type='CIFAR100', root='data/cifar100/')
 
 val_test_pipeline = [

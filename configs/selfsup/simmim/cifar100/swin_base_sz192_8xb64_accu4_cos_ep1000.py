@@ -21,7 +21,11 @@ optimizer = dict(
     })
 
 # fp16
+<<<<<<< HEAD
+use_fp16 = False
+=======
 use_fp16 = True
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 # optimizer args
 optimizer_config = dict(

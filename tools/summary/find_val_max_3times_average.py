@@ -53,8 +53,14 @@ def read_json_max(path, print_all=True, keyword=None, **kwargs):
                 record_str.append(res)
     # output records
     print_str = "Max -- "
+<<<<<<< HEAD
+    if print_all:
+        max_num = min(len(record_str), 5)
+        for l in record_str[-max_num:]:
+=======
     for l in record_str:
         if print_all:
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             print(l)
     for k in keyword:
         record_acc[k] = np.array(record_acc[k])
@@ -71,11 +77,20 @@ if __name__ == '__main__':
     args = parse_args()
     print(args)
 
+<<<<<<< HEAD
+    keyword = args.get("key", ["head0"])
+    if isinstance(keyword, str):
+        keyword = keyword.split("-")
+
+    # read record of a dir
+    if args["path"].find(".json") == -1:
+=======
     # read record of a dir
     if args["path"].find(".json") == -1:
         keyword = args.get("key", ["head0"])
         if isinstance(keyword, str):
             keyword = keyword.split("-")
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         assert os.path.exists(args["path"])
         cfg_list = os.listdir(args["path"])
         cfg_list.sort()
@@ -84,6 +99,11 @@ if __name__ == '__main__':
             cfg_args = args.copy()
             cfg_args["keyword"] = keyword
             cfg_path = os.path.join(args["path"], cfg)
+<<<<<<< HEAD
+            if not os.path.isdir(cfg_path):
+                continue
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             # find latest json file
             json_list = list()
             for p in os.listdir(cfg_path):
@@ -112,14 +132,24 @@ if __name__ == '__main__':
             print(cfg)
             print_str = "3 times average --- "
             for k in keyword:
+<<<<<<< HEAD
+                _str = "{}={:.2f} ({:.2f}), ".format(k, np.average(np.array(score[k])), np.std(np.array(score[k])))
+                print_str += _str
+            print(print_str, '\n')
+=======
                 try:
                     _str = "{}={:.2f} ({:.2f}), ".format(k, np.average(np.array(score[k])), np.std(np.array(score[k])))
                     print_str += _str
                 except:
                     print("ERROR")
             print(print_str)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     # read a json, returm max results
     else:
         args["print_all"] = True
+<<<<<<< HEAD
+        args["keyword"] = keyword
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         read_json_max(**args)

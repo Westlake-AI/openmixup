@@ -29,7 +29,11 @@ update_interval = 1
 # additional hooks
 custom_hooks = [
     dict(type='SAVEHook',
+<<<<<<< HEAD
+        save_interval=626 * 10,  # plot every 10 ep
+=======
         save_interval=626 * 25,  # plot every 25 ep
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         iter_per_epoch=626),
 ]
 

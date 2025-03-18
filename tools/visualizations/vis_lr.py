@@ -186,6 +186,10 @@ def parse_args():
     parser.add_argument(
         '--save-path',
         type=Path,
+<<<<<<< HEAD
+        default='tools/lr.jpg',
+=======
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         help='The learning rate curve plot save path')
     parser.add_argument(
         '--window-size',

@@ -1,10 +1,15 @@
+import os
 import random
 import logging
 import numpy as np
 import torch
 import torch.nn.functional as F
-
+import torchvision.transforms.functional
+import PIL.Image
+from matplotlib import pyplot as plt
 from mmcv.runner import force_fp32, load_checkpoint
+from torchvision.utils import save_image
+
 from openmixup.utils import print_log
 from torch.autograd import Variable
 
@@ -12,7 +17,8 @@ from .base_model import BaseModel
 from .. import builder
 from ..registry import MODELS
 from ..augments import (cutmix, fmix, gridmix, mixup, resizemix, saliencymix, smoothmix,
-                        alignmix, attentivemix, puzzlemix, snapmix, transmix)
+                        alignmix, attentivemix, puzzlemix, transmix, snapmix, 
+                        mixpro, tokenmix, smmix, tla)
 from ..utils import PlotTensor
 
 
@@ -38,8 +44,6 @@ class MixUpClassification(BaseModel):
         pretrained (str, optional): Path to pre-trained weights. Default: None.
         pretrained_k (str, optional): Path to pre-trained weights for backbone_k or
             mix_block. Default: None.
-        save_by_sample (bool): Whether to save mixup samples separately.
-        debug_mode (bool): Whether to save some intermediate products.
     """
 
     def __init__(self,
@@ -53,11 +57,10 @@ class MixUpClassification(BaseModel):
                  mix_prob=None,
                  mix_repeat=False,
                  momentum_k=-1,
+                 is_IN=False,
                  pretrained=None,
                  pretrained_k=None,
-                 cosine_update=False,
                  save_name='MixedSamples',
-                 save_by_sample=False,
                  debug_mode=True,
                  init_cfg=None,
                  **kwargs):
@@ -69,6 +72,7 @@ class MixUpClassification(BaseModel):
         self.mix_block = None
         self.backbone_k = None
         self.momentum_k = momentum_k
+        self.is_IN = bool(is_IN)
         if backbone_k is not None:
             self.backbone_k = builder.build_backbone(backbone_k)
             for param in self.backbone_k.parameters():  # stop grad k
@@ -78,16 +82,15 @@ class MixUpClassification(BaseModel):
             self.mix_block = builder.build_head(mix_block)
             for param in self.mix_block.parameters():  # stop grad mixblock
                 param.requires_grad = False
-        self.cosine_update = cosine_update
-        self.cos_annealing = 1.  # decent from 1 to 0 as cosine
 
         # mixup args
         self.mix_mode = mix_mode if isinstance(mix_mode, list) else [str(mix_mode)]
         self.dynamic_mode = {
             "alignmix": alignmix, "attentivemix": attentivemix, "puzzlemix": puzzlemix,
-            "automix": self._mixblock, "samix": self._mixblock,
-            "transmix": transmix,  # label mixup methods
-            "snapmix": snapmix,
+            "automix": self._mixblock, "samix": self._mixblock, "snapmix": snapmix,
+            # Mixup methods for ViTs
+            "transmix": transmix, "tokenmix": tokenmix, "mixpro": mixpro, "smmix": smmix,
+            "tla": tla,
         }
         self.static_mode = {
             "mixup": mixup, "cutmix": cutmix, "fmix": fmix, "gridmix": gridmix,
@@ -104,15 +107,20 @@ class MixUpClassification(BaseModel):
                 cut_area_ratio=(0.5, 1), cut_aspect_ratio=(0.5, 2)),
             mixup=dict(),
             manifoldmix=dict(layer=(0, 3)),
-            puzzlemix=dict(transport=True, t_batch_size=None, block_num=5, beta=1.2,
-                gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=4),
+            puzzlemix=dict(transport=True, t_batch_size=32, block_num=4, beta=1.2,
+                gamma=0.5, eta=0.2, neigh_size=4, n_labels=3, t_eps=0.8, t_size=-1),
             snapmix=dict(),
             resizemix=dict(scope=(0.1, 0.8), use_alpha=False),
-            # recursivemix=dict(old_img=None, old_label=None, num_classes=100, smoothing=0.0),
+            starmix=dict(),
+            recursivemix=dict(old_img=None, old_label=None, num_classes=100, smoothing=0.0),
             saliencymix=dict(),
             samix=dict(mask_adjust=0, lam_margin=0.08),
             smoothmix=dict(),
             transmix=dict(mix_mode="cutmix"),
+            mixpro=dict(mask_mix=True, mask_patch_size=64, model_patch_size=16, num_class=None, smoothing=0.1),
+            tokenmix=dict(mask_type='block', minimum_tokens=14, num_classes=None, smoothing=0.1),
+            smmix=dict(side=14, min_side_ratio=0.25, max_side_ratio=0.75),
+            tla=dict(),
             vanilla=dict(),
         )
         _supported_mode = ["vanilla"] + list(self.dynamic_mode.keys()) + list(self.static_mode.keys())
@@ -140,11 +148,14 @@ class MixUpClassification(BaseModel):
             print_log("Warning: the number of mix_mode={} is less than mix_repeat={}.".format(
                 self.mix_mode, self.mix_repeat))
         self.debug_mode = debug_mode
-        self.save_by_sample = save_by_sample
         self.save_name = str(save_name)
         self.save = False
         self.ploter = PlotTensor(apply_inv=True)
         self.init_weights(pretrained=pretrained, pretrained_k=pretrained_k)
+        self.i = 0
+
+        # KL for SMMix
+        self.kl_layer = torch.nn.KLDivLoss(reduction='batchmean').cuda()
 
     def init_weights(self, pretrained=None, pretrained_k=None):
         """Initialize the weights of model.
@@ -167,6 +178,7 @@ class MixUpClassification(BaseModel):
         # init trainable params
         if pretrained is not None:
             print_log('load model from: {}'.format(pretrained), logger='root')
+            load_checkpoint(self, pretrained, strict=False, logger=logging.getLogger())
             self.backbone.init_weights(pretrained=pretrained)
             self.head.init_weights()
         if self.backbone_k is not None and pretrained_k is None:
@@ -187,17 +199,6 @@ class MixUpClassification(BaseModel):
             else:
                 param_k.data = param_k.data * self.momentum_k + \
                             param_q.data * (1. - self.momentum_k)
-
-    @torch.no_grad()
-    def _attribute_update(self):
-        """Update some attributes in the backbone and head """
-        if self.cosine_update:
-            update_attr = getattr(self.backbone, 'update_attribute', None)
-            if update_attr is not None:
-                update_attr(self.cos_annealing)
-            update_attr = getattr(self.head, 'update_attribute', None)
-            if update_attr is not None:
-                update_attr(self.cos_annealing)
 
     def _features(self, img, gt_label=None, cur_mode="puzzlemix", **kwargs):
         """ generating feature maps or gradient maps """
@@ -226,14 +227,12 @@ class MixUpClassification(BaseModel):
             features = self.backbone(img)[-1]
             weight = self.head.fc.weight.data
             bias = self.head.fc.bias.data
-
+            # clear grads in models
             self.backbone.zero_grad()
             self.head.zero_grad()
             self.backbone.train()
             self.head.train()
-
             return (features, weight, bias)
-        
         return features
 
     @torch.no_grad()
@@ -267,6 +266,7 @@ class MixUpClassification(BaseModel):
 
         return rand_index, _layer, _mask, gt_label
 
+    @force_fp32(apply_to=('img',))
     def forward_mix(self, img, gt_label, remove_idx=-1):
         """computate mini-batch mixup.
 
@@ -293,6 +293,11 @@ class MixUpClassification(BaseModel):
             cur_idx = random_state.choice(candidate_list, p=self.mix_prob)
         cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
 
+        if self.is_IN:
+            samples = img.clone().detach()
+            x_ori = self.backbone(samples)
+            pred_ori = self.head(x_ori)
+
         # selecting label mixup methods
         label_mix_mode = "default"
         return_mask, mask = False, None  # return sample mixup mask in [N, 1, H, W]
@@ -308,7 +313,7 @@ class MixUpClassification(BaseModel):
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask,
                                 features=features, **self.mix_args[cur_mode])
                 img, gt_label = self.dynamic_mode[cur_mode](img, gt_label, **mix_args)
-            elif cur_mode in ["automix", "samix"]:
+            elif cur_mode in ["automix", "samix",]:
                 img = self._mixblock()
                 raise NotImplementedError
             if return_mask:
@@ -320,15 +325,87 @@ class MixUpClassification(BaseModel):
             mix_args = dict(alpha=cur_alpha, dist_mode=False, **self.mix_args[cur_mode])
             feat, gt_label = alignmix(x, gt_label, **mix_args)
             x = [feat]
+        elif cur_mode in ["mixpro", "tokenmix", "smmix", "tla"]:
+            # Obtaining the attention maps from the raw samples
+            # Attention Maps from the last layer feature
+            if self.backbone_k is not None:
+                x = self.backbone_k(img)
+                if cur_mode == "tla":
+                    dis_pred = self.head(x)
+                    dis_pred = dis_pred[1] # Teacher model cls token
+                else:
+                    x, cls_token, attn = x[-1]
+            else:
+                x = self.backbone(img)
+                if cur_mode =="tla":
+                    dis_pred = self.head(x)
+                    dis_pred = dis_pred[1]
+                else:
+                    x, cls_token, attn = x[-1]
+
+            return_mask = False
+            mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask, **self.mix_args[cur_mode])
+            if cur_mode == "mixpro":
+                img, gt_label, lam_, smooth_label = mixpro(img, gt_label, attn, **mix_args)
+            elif cur_mode == "tokenmix":
+                img, gt_label = tokenmix(img, gt_label, attn, **mix_args)
+            elif cur_mode == "tla":
+                try:
+                    dis_pred
+                except NameError:
+                    raise ValueError("Token Labeling Align mixup method needs teacher model cls token.")
+                img, gt_label = tla(img, gt_label, **mix_args)
+            elif cur_mode == "smmix":
+                # retain the raw sample's prediction for offical loss computating
+                offical_set = False
+                if offical_set is False and return_mask is True:
+                    raise ValueError("Please make sure the return mask if 'True' if you want use offical loss computating ! \
+                                     Now, the setting is: return mask:{} and offical set: {}".format(return_mask, offical_set))
+                if return_mask:
+                    img, gt_label, mask = smmix(img, gt_label, attn, **mix_args)
+                else:
+                    img, gt_label = smmix(img, gt_label, attn, **mix_args)
+                if return_mask and offical_set:
+                    x_r = x  # raw sample's outputs
+                    # Masked sample classification
+                    x_t = self.backbone(img * mask[0])
+                    x_s = self.backbone(img.flip(0) * mask[-1])
+            # Mixed sample classification for ViTs-based Mixup methods
+            x = self.backbone(img)
+
+            ################ Tips ################
+            # You could use this code to remove the attention. 
+            # It is advisable that you understand the components thoroughly before using it.
+            # Step 1: x = self.backbone(img) -> x: [[patch tokens, cls token, attn]]
+            # Step 2: x = self.head(x) -> x = x[0] -> [patch tokens, cls token, attn]
+            # The relevant logic for getting the length of x can be found at line 121 of head/vision_transformer_head.py.
+            # Step 3: Based on the length of x, locate the 'cls token'.
+            # Therefore, if you wish to discard the attention maps and create an additional list structure
+            # You could set:
+            # x, cls_token, attn = x[-1]
+            # x = [[x, cls_token]]
+
 
         # applying hand-crafted sample mixup methods
         elif cur_mode not in ["manifoldmix",]:
-            if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
+            if cur_mode in ["mixup", "smoothmix",]:
                 img, gt_label = self.static_mode[cur_mode](
-                    img, gt_label, cur_alpha, dist_mode=False, return_mask=return_mask)
-            elif cur_mode in ["resizemix", "fmix", "gridmix",]:
+                        img, gt_label, alpha=cur_alpha, dist_mode=False, return_mask=return_mask)
+            elif cur_mode in ["cutmix", "saliencymix"]:
+                if self.is_IN:
+                    img, gt_label, rand_index = self.static_mode[cur_mode](img, gt_label, alpha=cur_alpha, \
+                                                               dist_mode=False, return_mask=return_mask)
+                else:
+                    img, gt_label, _ = self.static_mode[cur_mode](img, gt_label, alpha=cur_alpha, \
+                                                               dist_mode=False, return_mask=return_mask)
+            elif cur_mode in ["resizemix", "fmix"]:
                 mix_args = dict(alpha=cur_alpha, dist_mode=False, return_mask=return_mask,
                                 **self.mix_args[cur_mode])
+                if self.is_IN:
+                    img, gt_label, rand_index = self.static_mode[cur_mode](img, gt_label, **mix_args)
+                else:
+                    img, gt_label, _ = self.static_mode[cur_mode](img, gt_label, **mix_args)
+            elif cur_mode in ["gridmix"]:
                 img, gt_label = self.static_mode[cur_mode](img, gt_label, **mix_args)
             else:
                 assert cur_mode == "vanilla" and return_mask == False
@@ -358,14 +435,51 @@ class MixUpClassification(BaseModel):
         else:
             pass
 
+        # mixup loss
+        if self.is_IN:
+            pred_mix = self.head(x)
+            IN = (pred_ori, pred_mix)
+            losses, info = self.head.IN_loss(IN, gt_label)
+        elif cur_mode == "mixpro":
+            pred_mix = self.head(x)
+            out_softmax = F.softmax(pred_mix[0], dim=-1).clone().detach()
+            sim = torch.cosine_similarity(smooth_label, out_softmax, dim=1)
+            lam = (sim) * lam_ + (1. - sim) * gt_label[-1]
+            gt_label = (gt_label[0], gt_label[1], lam)
+            losses = self.head.loss(pred_mix, gt_label, multi_lam=True)
+        elif cur_mode == "tla":
+            pred_mix = self.head(x)
+            losses = self.head.loss(dis_pred, pred_mix, gt_label)
+        elif cur_mode == "smmix":
+            pred_mix = self.head(x)
+
+            if return_mask and offical_set:
+                pred_target = self.head(x_t)
+                pred_scoure = self.head(x_s)
+                pred_raw = self.head(x_r)
+
+                target_pred_dis = gt_label[-1] * pred_raw[0]
+                source_pred_dis = (1 - gt_label[-1]) * pred_raw[0].flip(0)
+                mixed_pred = [target_pred_dis + source_pred_dis]
+                losses = self.head.loss(mixed_pred, gt_label)
+                losses['loss'] += self.head.loss(pred_target, gt_label[0])['loss'] + \
+                                self.head.loss(pred_scoure, gt_label[1])['loss']
+                losses['loss'] += self.kl_layer(F.log_softmax(pred_mix[0], dim=1), F.softmax(mixed_pred[0], dim=1))
+            else:
+                losses = self.head.loss(pred_mix, gt_label)
+        else:
+            pred_mix = self.head(x)
+            losses = self.head.loss(pred_mix, gt_label)
+        losses['loss'] /= self.mix_repeat
+
         # save mixed img
         if self.save:
-            plot_lam = gt_label[2] if len(gt_label) == 3 else None
+            plot_lam = gt_label[2] if len(gt_label) == 3 else (
+            float(torch.mean(gt_label[-2])), float(torch.mean(gt_label[-1])))
             self.plot_mix(img_mixed=img, mix_mode=cur_mode, lam=plot_lam)
-        # mixup loss
-        outs = self.head(x)
-        losses = self.head.loss(outs, gt_label)
-        losses['loss'] /= self.mix_repeat
+            if self.is_IN:
+                self.plot_uncertain(img_mixed=img, IN_info=info)
+
         if self.debug_mode:
             if torch.any(torch.isnan(losses['loss'])) or torch.any(torch.isinf(losses['loss'])):
                 raise ValueError("Inf or nan value: use FP32 instead.")
@@ -387,7 +501,6 @@ class MixUpClassification(BaseModel):
         # before train
         with torch.no_grad():
             self._momentum_update()
-            self._attribute_update()
         if isinstance(img, list):
             img = img[0]
         
@@ -410,9 +523,9 @@ class MixUpClassification(BaseModel):
 
     def simple_test(self, img):
         """Test without augmentation."""
-        x = self.backbone(img)[-1:]  # classifying with the last layer
+        x = self.backbone(img)[-1:]
         outs = self.head(x)
-        keys = ['head{}'.format(i) for i in range(len(outs))]
+        keys = [f'head{i}' for i in range(len(outs))]
         out_tensors = [out.cpu() for out in outs]  # NxC
         return dict(zip(keys, out_tensors))
 
@@ -440,9 +553,45 @@ class MixUpClassification(BaseModel):
     def plot_mix(self, img_mixed, mix_mode="", lam=None):
         """ visualize mixup results """
         img = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)
-        title_name = "{}, lam={}".format(mix_mode, str(round(lam, 6))) \
-            if isinstance(lam, float) else mix_mode
+        title_name = "{}, lam={}".format(mix_mode, lam) \
+            # if isinstance(lam, float) else mix_mode
         assert self.save_name.find(".png") != -1
         self.ploter.plot(
-            img, nrow=4, title_name=title_name,
-            save_name=self.save_name, make_grid=not self.save_by_sample)
+            img, nrow=4, title_name=title_name, save_name=self.save_name)
+
+    @force_fp32(apply_to=('img_mixed',))
+    def plot_uncertain(self, img_mixed, IN_info):
+        """ visualize uncertainly results """
+        lam = []
+        for i in range(0, 12):
+            lam.append(round(float(IN_info[-1][i]), 2))
+        img = torch.cat((img_mixed[:4], img_mixed[4:8], img_mixed[8:12]), dim=0)
+        lam_title = "lam={}".format(lam)
+        save_lam_name = self.save_name.split(".png")[0] + "_uncertain.png"
+        self.ploter.plot(
+            img, nrow=4, title_name=lam_title, save_name=save_lam_name)
+
+        lam_title = "beta={:.3f}, alpha={:.3f}, IN={:.3f}".format(float(IN_info[0][0]),
+                                                      float(IN_info[1][0]), float(IN_info[2][0]))
+        save_lam_name = self.save_name.split(".png")[0] + "_in.png"
+        self.ploter.plot(
+            img_mixed[0], nrow=1, title_name=lam_title, save_name=save_lam_name)
+
+    def sample_test(self, imgs):
+        img = imgs[0].unsqueeze(0)
+        self.ploter.plot(img, nrow=1, save_name='img1.jpg', make_grid=False)
+        f = self.backbone(img)
+        out = self.head(f)[0]
+        out_s = torch.nn.functional.softmax(out, dim=-1)
+
+        fig = plt.figure(figsize=(4, 4), dpi=300)
+        x = list(np.arange(200))
+        y = list(out_s[0].detach().cpu().numpy())
+        plt.plot(x, y)
+        plt.plot()
+        plt.show()
+        fig.savefig("huabu")
+
+
+
+

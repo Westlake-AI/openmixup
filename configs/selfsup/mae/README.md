@@ -12,7 +12,12 @@ This paper shows that masked autoencoders (MAE) are scalable self-supervised lea
 
 ## Models and Benchmarks
 
+<<<<<<< HEAD
+Here, we report the results of the model, which is pre-trained on ImageNet-1k
+for 400 epochs, the details are below:
+=======
 Here, we report the results of the model, which is pre-trained on ImageNet-1k for 400 epochs, the details are below:
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 | Backbone | Pre-train epoch | Fine-tuning Top-1 | Pre-train Config | Fine-tuning Config | Download |
 | :----: | :----: | :----: | :----: | :----: | :----: |

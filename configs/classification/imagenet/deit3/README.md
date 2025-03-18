@@ -29,10 +29,17 @@ Notice that DeiT3 models are first trained on small resolutions (224x224, 192x19
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{Touvron2022DeiTIR,
+  title={DeiT III: Revenge of the ViT},
+  author={Hugo Touvron and Matthieu Cord and Herve Jegou},
+  journal={arXiv preprint arXiv:2204.07118},
+=======
 @inproceedings{eccv2022deit3,
   title={DeiT III: Revenge of the ViT},
   author={Hugo Touvron and Matthieu Cord and Herv'e J'egou},
   booktitle={European Conference on Computer Vision (ECCV)},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
   year={2022},
 }
 ```

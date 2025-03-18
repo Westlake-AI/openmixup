@@ -7,8 +7,13 @@ _base_ = [
 model = dict(
     type='MixUpClassification',
     pretrained='tools/resnext50-pytorch.pth',
+<<<<<<< HEAD
+    alpha=1.0,  # float or list
+    mix_mode="puzzlemix",  # str or list, choose a mixup mode
+=======
     alpha=0.2,  # float or list
     mix_mode="snapmix",  # str or list, choose a mixup mode
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
@@ -38,11 +43,19 @@ model = dict(
 )
 
 # additional hooks
+<<<<<<< HEAD
+# custom_hooks = [
+#     dict(type='SAVEHook',
+#         iter_per_epoch=500,
+#         save_interval=5000),  # plot every 500 x 25 ep
+# ]
+=======
 custom_hooks = [
     dict(type='SAVEHook',
         iter_per_epoch=500,
         save_interval=5000),  # plot every 500 x 25 ep
 ]
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 # optimizer
 optimizer = dict(type='SGD', lr=0.001, momentum=0.9, weight_decay=0.0005)

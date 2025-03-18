@@ -2,7 +2,8 @@
 Analyze statistics from some log.json files
 
 Example 1: Plot top-1 accuracy of `exp_1` and `exp_2`
-python tools/analysis_tools/analyze_logs.py plot_curve exp_1.log.json exp_2.log.json --out tmp.png --key head0_top1
+python tools/analysis_tools/analyze_logs.py plot_curve exp_1.log.json exp_2.log.json --out tmp.png --key acc_top1
+
 
 Example 1: Print training times of `exp_1`
 python tools/analysis_tools/analyze_logs.py cal_train_time exp_1.log.json
@@ -50,28 +51,73 @@ def plot_curve(log_dicts, args):
     if legend is None:
         legend = []
         for json_log in args.json_logs:
-            for metric in args.keys:
-                legend.append(f'{json_log}_{metric}')
-    assert len(legend) == (len(args.json_logs) * len(args.keys))
+            # for metric in args.keys:
+            filename = (json_log.split('/')[-1]).split('.json')[0]
+            legend.append(f'{filename}')
+    # assert len(legend) == (len(args.json_logs) * len(args.keys))
     metrics = args.keys
-
     num_metrics = len(metrics)
     for i, log_dict in enumerate(log_dicts):
         epochs = list(log_dict.keys())
         for j, metric in enumerate(metrics):
             print(f'plot curve of {args.json_logs[i]}, metric is {metric}')
-            if metric not in log_dict[epochs[0]]:
-                raise KeyError(
-                    f'{args.json_logs[i]} does not contain metric {metric} '
-                    f'in train mode')
-
-            if any(m in metric for m in ('mAP', 'accuracy')):
+            if any(m in metric for m in ('mAP', 'epoch')):
                 xs = epochs
-                ys = [log_dict[e][metric] for e in xs]
+                ys = [log_dict[e]['acc_top1'] for e in xs]
                 ax = plt.gca()
-                ax.set_xticks(xs)
-                plt.xlabel('epoch')
-                plt.plot(xs, ys, label=legend[i * num_metrics + j], marker='o')
+                # ax.set_xticks([1,10,20,30,40,50,60,70,80,90,100])
+                ax.set_xticks([1, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200])
+                plt.xlabel('Epoch', size=20)
+                plt.ylabel('Top-1 Accuracy(%)', size=20)
+                plt.plot(xs, ys, label=legend[i * num_metrics + j], linewidth=1.5)
+            elif metric == 'acc_top1':
+                xs = []
+                ys = []
+                num_iters_per_epoch = log_dict[epochs[0]]['iter'][-1]
+                for epoch in epochs:
+                    iters = log_dict[epoch]['iter']
+                    if log_dict[epoch]['mode'][-1] == 'val':
+                        iters = iters[:-1]
+                    assert len(iters) > 0, (
+                        'The training log is empty, please try to reduce the '
+                        'interval of log in config file.')
+                    res = log_dict[epoch][metric][:len(iters)]
+                    if len(iters) > len(res):
+                        iters = iters[-1:]
+                        res = res[-1:]
+                    xs.append(
+                        np.array(iters) + (epoch - 1) * num_iters_per_epoch)
+                    ys.append(np.array(res))
+                xs = np.concatenate(xs)
+                ys = np.concatenate(ys)
+                plt.xlabel('Iter', size=20)
+                plt.ylabel('Top-1 Accuracy(%)', size=20)
+                plt.plot(
+                    xs, ys, label=legend[i * num_metrics + j], linewidth=1)
+            elif metric == 'cos_simi_weight':
+                xs = []
+                ys = []
+                num_iters_per_epoch = log_dict[epochs[0]]['iter'][-1]
+                for epoch in epochs:
+                    iters = log_dict[epoch]['iter']
+                    if log_dict[epoch]['mode'][-1] == 'val':
+                        iters = iters[:-1]
+                    assert len(iters) > 0, (
+                        'The training log is empty, please try to reduce the '
+                        'interval of log in config file.')
+                    res = log_dict[epoch][metric][:len(iters)]
+                    if len(iters) > len(res):
+                        iters = iters[-1:]
+                        res = res[-1:]
+                    xs.append(
+                        np.array(iters) + (epoch - 1) * num_iters_per_epoch)
+                    ys.append(np.array(res))
+                xs = np.concatenate(xs)
+                ys = np.concatenate(ys)
+                plt.xlabel('Cos_simi_weight')
+                plt.ylabel('Alpha')
+                plt.plot(
+                    xs, ys, label=legend[i * num_metrics + j], linewidth=1)
             else:
                 xs = []
                 ys = []
@@ -92,9 +138,11 @@ def plot_curve(log_dicts, args):
                     ys.append(np.array(res))
                 xs = np.concatenate(xs)
                 ys = np.concatenate(ys)
-                plt.xlabel('iter')
+                plt.xlabel('Iter', size=15)
+                plt.ylabel('Loss', size=15)
                 plt.plot(
-                    xs, ys, label=legend[i * num_metrics + j], linewidth=0.5)
+                    xs, ys, label=legend[i * num_metrics + j], linewidth=2)
+            # 显示label
             plt.legend()
         if args.title is not None:
             plt.title(args.title)
@@ -118,9 +166,9 @@ def add_plot_parser(subparsers):
         '--keys',
         type=str,
         nargs='+',
-        default=['loss'],
+        default=['acc_top1'],
         help='the metric that you want to plot')
-    parser_plt.add_argument('--title', type=str, help='title of figure')
+    parser_plt.add_argument('--title', default='', type=str, nargs='+', help='title of figure')
     parser_plt.add_argument(
         '--legend',
         type=str,
@@ -130,7 +178,7 @@ def add_plot_parser(subparsers):
     parser_plt.add_argument(
         '--backend', type=str, default=None, help='backend of plt')
     parser_plt.add_argument(
-        '--style', type=str, default='dark', help='style of plt')
+        '--style', type=str, default='whitegrid', help='style of plt')
     parser_plt.add_argument('--out', type=str, default=None)
 
 
@@ -160,7 +208,7 @@ def parse_args():
     return args
 
 
-def load_json_logs(json_logs):
+def load_json_logs(json_logs, args):
     """load and convert json_logs to log_dicts.
 
     Args:
@@ -183,6 +231,10 @@ def load_json_logs(json_logs):
                 if epoch not in log_dict:
                     log_dict[epoch] = defaultdict(list)
                 for k, v in log.items():
+                    # change a new name
+                    if k == 'head0_top1' or k =='acc_one_k_top1':
+                        k = 'acc_top1'
+                        # k = args.keys[0]
                     log_dict[epoch][k].append(v)
     return log_dicts
 
@@ -194,7 +246,7 @@ def main():
     for json_log in json_logs:
         assert json_log.endswith('.json')
 
-    log_dicts = load_json_logs(json_logs)
+    log_dicts = load_json_logs(json_logs, args)
 
     eval(args.task)(log_dicts, args)
 

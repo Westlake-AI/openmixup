@@ -69,4 +69,8 @@ def average_performance(pred, target, thr=None, k=None):
     OP = tp.sum() / np.maximum(tp.sum() + fp.sum(), eps) * 100.0
     OR = tp.sum() / np.maximum(tp.sum() + fn.sum(), eps) * 100.0
     OF1 = 2 * OP * OR / np.maximum(OP + OR, eps)
+<<<<<<< HEAD
+    return CP, CR, CF1, OP, OR, OF1
+=======
     return (CP, CR, CF1, OP, OR, OF1)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

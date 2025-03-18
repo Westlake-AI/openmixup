@@ -617,6 +617,8 @@ class ConvNeXt_CIFAR(ConvNeXt):
             build_norm_layer(norm_cfg, self.channels[0])[1],
         )
         self.downsample_layers[0] = stem
+<<<<<<< HEAD
+=======
 
 
 @BACKBONES.register_module()
@@ -733,3 +735,4 @@ class ConvNeXt_Mix_CIFAR(ConvNeXt):
             if i+1 == mix_layer:
                 x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
         return outs
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

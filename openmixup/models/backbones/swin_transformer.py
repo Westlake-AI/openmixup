@@ -327,6 +327,22 @@ class SwinTransformer(BaseBackbone):
     arch_zoo = {
         **dict.fromkeys(['t', 'tiny'],
                         {'embed_dims': 96,
+<<<<<<< HEAD
+                         'depths': [2, 2, 6, 2],
+                         'num_heads': [3, 6, 12, 24]}),
+        **dict.fromkeys(['s', 'small'],
+                        {'embed_dims': 96,
+                         'depths': [2, 2, 18, 2],
+                         'num_heads': [3, 6, 12, 24]}),
+        **dict.fromkeys(['b', 'base'],
+                        {'embed_dims': 128,
+                         'depths': [2, 2, 18, 2],
+                         'num_heads': [4, 8, 16, 32]}),
+        **dict.fromkeys(['l', 'large'],
+                        {'embed_dims': 192,
+                         'depths': [2, 2, 18, 2],
+                         'num_heads': [6, 12, 24, 48]}),
+=======
                          'depths':     [2, 2,  6,  2],
                          'num_heads':  [3, 6, 12, 24]}),
         **dict.fromkeys(['s', 'small'],
@@ -341,6 +357,7 @@ class SwinTransformer(BaseBackbone):
                         {'embed_dims': 192,
                          'depths':     [2,  2, 18,  2],
                          'num_heads':  [6, 12, 24, 48]}),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     }  # yapf: disable
 
     _version = 3
@@ -354,7 +371,11 @@ class SwinTransformer(BaseBackbone):
                  window_size=7,
                  drop_rate=0.,
                  drop_path_rate=0.1,
+<<<<<<< HEAD
+                 out_indices=(3,),
+=======
                  out_indices=(3, ),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                  use_abs_pos_embed=False,
                  interpolate_mode='bicubic',
                  with_cp=False,
@@ -402,7 +423,11 @@ class SwinTransformer(BaseBackbone):
         self.patch_embed = PatchEmbed(**_patch_cfg)
         self.patch_resolution = self.patch_embed.init_out_size
         self.num_patches = self.patch_resolution[0] * self.patch_resolution[1]
+<<<<<<< HEAD
+
+=======
         
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         if self.use_abs_pos_embed:
             self.absolute_pos_embed = nn.Parameter(
                 torch.zeros(1, self.num_patches, self.embed_dims))
@@ -469,7 +494,11 @@ class SwinTransformer(BaseBackbone):
                     if isinstance(m, (nn.Linear)):
                         trunc_normal_init(m, std=0.02)
                     elif isinstance(m, (
+<<<<<<< HEAD
+                            nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+=======
                         nn.LayerNorm, nn.BatchNorm2d, nn.GroupNorm, nn.SyncBatchNorm)):
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                         constant_init(m, val=1, bias=0)
             # pos_embed & cls_token
             if self.use_abs_pos_embed:
@@ -501,7 +530,11 @@ class SwinTransformer(BaseBackbone):
         # Names of some parameters in has been changed.
         version = local_metadata.get('version', None)
         if (version is None
+<<<<<<< HEAD
+            or version < 2) and self.__class__ is SwinTransformer:
+=======
                 or version < 2) and self.__class__ is SwinTransformer:
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             final_stage_num = len(self.stages) - 1
             state_dict_keys = list(state_dict.keys())
             for k in state_dict_keys:
@@ -510,7 +543,11 @@ class SwinTransformer(BaseBackbone):
                     state_dict[convert_key] = state_dict[k]
                     del state_dict[k]
         if (version is None
+<<<<<<< HEAD
+            or version < 3) and self.__class__ is SwinTransformer:
+=======
                 or version < 3) and self.__class__ is SwinTransformer:
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             state_dict_keys = list(state_dict.keys())
             for k in state_dict_keys:
                 if 'attn_mask' in k:
@@ -582,8 +619,13 @@ class SwinTransformer(BaseBackbone):
                 L1, nH1 = relative_position_bias_table_pretrained.size()
                 L2, nH2 = relative_position_bias_table_current.size()
                 if L1 != L2:
+<<<<<<< HEAD
+                    src_size = int(L1 ** 0.5)
+                    dst_size = int(L2 ** 0.5)
+=======
                     src_size = int(L1**0.5)
                     dst_size = int(L2**0.5)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                     new_rel_pos_bias = resize_relative_position_bias_table(
                         src_size, dst_size,
                         relative_position_bias_table_pretrained, nH1)
@@ -612,7 +654,11 @@ class SwinTransformer_Mix(SwinTransformer):
                        cross_view=False, BN_shuffle=False, idx_shuffle_BN=None,
                        idx_unshuffle_BN=None, **kwargs):
         """ mixup two feature maps with the pixel-wise mask
+<<<<<<< HEAD
+
+=======
         
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         Args:
             x, mask (tensor): Input x [N,C,H,W] and mixup mask [N, \*, H, W].
             dist_shuffle (bool): Whether to shuffle cross gpus.
@@ -636,7 +682,11 @@ class SwinTransformer_Mix(SwinTransformer):
             x = grad_batch_unshuffle_ddp(x, idx_unshuffle_BN)  # 2N index if cross_view
 
         # shuffle input
+<<<<<<< HEAD
+        if dist_shuffle == True:  # cross gpus shuffle
+=======
         if dist_shuffle==True:  # cross gpus shuffle
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
             assert idx_shuffle_mix is not None
             if cross_view:
                 N = x.size(0) // 2
@@ -700,9 +750,17 @@ class SwinTransformer_Mix(SwinTransformer):
                 out = out.view(-1, *hw_shape,
                                stage.out_channels).permute(0, 3, 1, 2).contiguous()
                 outs.append(out)
+<<<<<<< HEAD
+            if i + 1 == mix_layer:  # stage 1 to 4
+=======
             if i+1 == mix_layer:  # stage 1 to 4
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                 x = x.view(bs, *hw_shape, -1).permute(0, 3, 1, 2).contiguous()
                 x = self._feature_mixup(x, idx_unshuffle_BN=idx_unshuffle, **mix_args)
                 x = x.flatten(2).transpose(1, 2)
 
+<<<<<<< HEAD
         return outs
+=======
+        return outs
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)

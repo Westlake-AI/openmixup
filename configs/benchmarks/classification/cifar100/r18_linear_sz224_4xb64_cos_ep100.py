@@ -10,7 +10,11 @@ model = dict(
     head=dict(num_classes=100))
 
 # optimizer
+<<<<<<< HEAD
+optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.)
+=======
 optimizer = dict(type='SGD', lr=1.0, momentum=0.9, weight_decay=0.)
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
 # learning policy
 lr_config = dict(policy='CosineAnnealing', min_lr=0.)

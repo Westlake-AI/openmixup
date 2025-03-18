@@ -48,10 +48,17 @@ The pre-trained models on ImageNet-21k are used to fine-tune, and therefore don'
 ## Citation
 
 ```
+<<<<<<< HEAD
+@article{liu2021Swin,
+  title={Swin Transformer: Hierarchical Vision Transformer using Shifted Windows},
+  author={Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
+  journal={arXiv preprint arXiv:2103.14030},
+=======
 @inproceedings{liu2021swin,
   title={Swin Transformer: Hierarchical Vision Transformer using Shifted Windows},
   author={Liu, Ze and Lin, Yutong and Cao, Yue and Hu, Han and Wei, Yixuan and Zhang, Zheng and Lin, Stephen and Guo, Baining},
   booktitle={International Conference on Computer Vision (ICCV)},
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
   year={2021}
 }
 ```

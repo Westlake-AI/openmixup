@@ -88,8 +88,11 @@ def soft_mix_cross_entropy(pred,
                            avg_factor=None,
                            eta_weight=None,
                            eps_smooth=1e-3,
+<<<<<<< HEAD
+=======
                            label_smooth_val=0.,
                            num_classes=None,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
                            **kwargs):
     r"""Calculate the Soft Decoupled Mixup CrossEntropy loss using softmax
         The label can be float mixup label (class-wise sum to 1, k-mixup, k>=2).
@@ -112,18 +115,24 @@ def soft_mix_cross_entropy(pred,
         eta_weight (list): Reweight the global loss in mixup cls loss as,
             loss = loss_local + eta_weight[i] * loss_global[i]. Default to None.
         eps_smooth (float): If using label smoothing, we assume eps < lam < 1-eps.
+<<<<<<< HEAD
+=======
         label_smooth_val (float): Whether to support label smoothing. Default to 0.
         num_classes (int, optional): Number of classes for label smoothing.
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 
     Returns:
         torch.Tensor: The calculated loss
     """
+<<<<<<< HEAD
+=======
     if label_smooth_val >= 0.1:  # using label smoothing (the original version)
         assert num_classes is not None
         label_smooth_eps = label_smooth_val / num_classes
         label = label * (1 - label_smooth_val)
         label += label_smooth_eps
         eps_smooth += label_smooth_eps
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     # *** Assume k-mixup in C classes, k >= 2 and k << C ***
     # step 1: remove labels have less than k-hot (mixed between the
     #    same class will result in the original onehot)

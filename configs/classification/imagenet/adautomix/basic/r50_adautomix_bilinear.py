@@ -7,9 +7,15 @@ _base_ = [
 model = dict(
     type='AdAutoMix',
     pretrained=None,
+<<<<<<< HEAD
+    alpha=2.0,
+    mix_samples=3,   # mix samples number
+    is_random=True,
+=======
     alpha=1.0,
     mix_samples=2,
     is_random=False,   # mix samples number
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     momentum=0.999,  # 0.999 to 0.999999
     lam_margin=0.03,  # degenerate to mixup when
     mixup_radio=0.5,
@@ -17,7 +23,11 @@ model = dict(
     debug=True,
     backbone=dict(
         type='ResNet',
+<<<<<<< HEAD
+        depth=34,
+=======
         depth=50,
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         num_stages=4,
         out_indices=(2, 3),  # stage-3 for MixBlock, x-1: stage-x
         style='pytorch'),
@@ -27,7 +37,10 @@ model = dict(
         reduction=2,
         lam_concat=True,
         use_scale=True, unsampling_mode='bilinear',
+<<<<<<< HEAD
+=======
         att_norm_cfg=dict(type='BN'),
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
         scale_factor=16,  # 4 for r18 and rx50; 2 for wrn and 16 for vits
         frozen=False),
     head_one=dict(
@@ -58,7 +71,11 @@ custom_hooks = [
 # optimizer
 optimizer = dict(type='SGD', lr=0.1, momentum=0.9, weight_decay=0.0001,
                 paramwise_options={
+<<<<<<< HEAD
+                    'mix_block': dict(lr=0.1, momentum=0.9, weight_decay=0.0001)},)  # required parawise_option
+=======
                     'mix_block': dict(lr=0.1, momentum=0.9)},)  # required parawise_option
+>>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 # apex
 use_fp16 = False
 optimizer_config = dict(update_interval=1, grad_clip=None)
