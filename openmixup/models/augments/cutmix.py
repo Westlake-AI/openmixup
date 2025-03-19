@@ -104,7 +104,7 @@ def cutmix(img,
         if return_mask:
             img = (img, mask)
 
-        return img, (y_a, y_b, lam), rand_index
+        return img, (y_a, y_b, lam)
 
     # dist mixup with cross gpus shuffle
     else:
