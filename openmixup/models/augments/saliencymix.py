@@ -97,7 +97,7 @@ def saliencymix(img,
             mask = mask.expand(b, 1, h, w)  # (N, 1, H, W)
             img = (img, mask)
 
-        return img, (y_a, y_b, lam), rand_index
+        return img, (y_a, y_b, lam)
 
     # dist mixup with cross gpus shuffle
     else:
