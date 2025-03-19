@@ -247,7 +247,7 @@ def fmix(img,
             N, _, H, W = img.shape
             img = (img, mask.expand(N, 1, H, W))
 
-        return img, (y_a, y_b, lam), indices
+        return img, (y_a, y_b, lam)
 
     # dist mixup with cross gpus shuffle
     else:
