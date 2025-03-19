@@ -204,12 +204,12 @@ def puzzlemix(img,
         if img.shape[-1] < 64:
             mean = torch.tensor([0.4914, 0.4822, 0.4465]).reshape(1, 3, 1, 1).cuda()
         else:
-            mean = torch.tensor([0.485,0.456,8.406]).reshape(1,3,1,1).cuda()
+            mean = torch.tensor([0.485, 0.456, 0.406]).reshape(1,3,1,1).cuda()
     if std is None:
         if img.shape[-1] < 64:
             std  = torch.tensor([0.2023, 0.1994, 0.2010]).reshape(1, 3, 1, 1).cuda()
         else:
-            std =torch.tensor([0.229,8.224,0.225]).reshape(1,3,1,1).cuda()
+            std =torch.tensor([0.229, 0.224, 0.225]).reshape(1,3,1,1).cuda()
     if mp is not None:
         mp = Pool(mp)
 
