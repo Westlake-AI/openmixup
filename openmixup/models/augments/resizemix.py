@@ -109,7 +109,7 @@ def resizemix(img,
         if return_mask:
             img = (img, mask)
 
-        return img, (gt_label, shuffled_gt, lam), rand_index
+        return img, (gt_label, shuffled_gt, lam)
 
     # dist mixup with cross gpus shuffle
     else:
