@@ -3,6 +3,27 @@ import torch
 
 from openmixup.models.utils import batch_shuffle_ddp
 
+def _no_repeat_shuffle_idx(batch_size_this, ignore_failure=False):
+        """ generate no repeat shuffle idx within a gpu """
+        idx_shuffle = torch.randperm(batch_size_this).cuda()
+        idx_original = torch.tensor([i for i in range(batch_size_this)]).cuda()
+        idx_repeat = False
+        for i in range(10):  # try 10 times
+            if (idx_original == idx_shuffle).any() == True:
+                idx_repeat = True
+                idx_shuffle = torch.randperm(batch_size_this).cuda()
+            else:
+                idx_repeat = False
+                break
+        # hit: prob < 1.2e-3
+        if idx_repeat == True and ignore_failure == False:
+            # way 2: repeat prob = 0, but too simple!
+            idx_shift = np.random.randint(1, batch_size_this-1)
+            idx_shuffle = torch.tensor(  # shift the original idx
+                [(i+idx_shift) % batch_size_this for i in range(batch_size_this)]).cuda()
+        return idx_shuffle
+
+
 
 @torch.no_grad()
 def cutmix(img,
@@ -37,8 +58,8 @@ def cutmix(img,
         W = size[2]
         H = size[3]
         cut_rat = np.sqrt(1. - lam)
-        cut_w = int(W * cut_rat)
-        cut_h = int(H * cut_rat)
+        cut_w = np.int(W * cut_rat)
+        cut_h = np.int(H * cut_rat)
 
         # uniform
         cx = np.random.randint(W)
@@ -62,7 +83,7 @@ def cutmix(img,
 
     # normal mixup process
     if not dist_mode:
-        rand_index = torch.randperm(img.size(0)).cuda()
+        rand_index = _no_repeat_shuffle_idx(img.size(0), ignore_failure=True).cuda()
         if len(img.size()) == 4:  # [N, C, H, W]
             img_ = img[rand_index]
         else:
@@ -83,7 +104,7 @@ def cutmix(img,
         if return_mask:
             img = (img, mask)
 
-        return img, (y_a, y_b, lam)
+        return img, (y_a, y_b, lam), rand_index
 
     # dist mixup with cross gpus shuffle
     else:

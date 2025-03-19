@@ -12,23 +12,13 @@ from mmcv.runner import get_dist_info, init_dist, load_checkpoint
 from openmixup.datasets import build_dataloader, build_dataset
 from openmixup.models import build_model
 from openmixup.utils import (get_root_logger, dist_forward_collect, print_log,
-                             setup_multi_processes, nondist_forward_collect, traverse_replace,
-                             fgsm_nondist_forward_collect)
-
+                             setup_multi_processes, nondist_forward_collect, traverse_replace)
 
 def single_gpu_test(model, data_loader):
     model.eval()
     func = lambda **x: model(mode='test', **x)
     results = nondist_forward_collect(func, data_loader,
                                       len(data_loader.dataset))
-    return results
-
-
-def fgsm_test(model, data_loader, head, dataset='cifar'):
-    model.eval()
-    func = lambda **x: model(mode='test', **x)
-    results = fgsm_nondist_forward_collect(func, data_loader,
-                                           len(data_loader.dataset), head, dataset)
     return results
 
 
@@ -44,32 +34,14 @@ def multi_gpu_test(model, data_loader):
 def parse_args():
     parser = argparse.ArgumentParser(
         description='MMDet test (and eval) a model')
-    parser.add_argument('--config', type=str,
-                        default=None,
+    parser.add_argument('--config', type=str, default=None,
                         help='test config file path')
-    parser.add_argument('--checkpoint',type=str,
-                        default=None,
+    parser.add_argument('--checkpoint', type=str, default=None,
                         help='checkpoint file')
-    parser.add_argument(
-        '--keys',
-        type=str,
-        default='fgsm',   # choose calibration or fgsm
-        help='the evaluation mode')
-    parser.add_argument(
-        '--head',
-        type=str,
-        default='head0', # choose head : head0 or acc_mix
-        help='choose head, [acc_mix_k, acc_one_k, acc_mix_q, acc_one_q] for automix, '
-        'samix and adautomix and [head0] for mixups')
-    parser.add_argument(
-        '--dataset',
-        type=str,
-        default='cifar', # choose head : cifar or imagenet
-        help='choose dataset type in [cifar, imagenet] for the normalization')
     parser.add_argument(
         '--work_dir',
         type=str,
-        default='work_dirs/calibration_fgsm',
+        default='work_dirs/courrption',
         help='the dir to save logs and models')
     parser.add_argument(
         '--launcher',
@@ -146,7 +118,7 @@ def main():
 
     # logger
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
-    log_file = osp.join(cfg.work_dir, 'test_{}_{}.log'.format(timestamp, args.keys))
+    log_file = osp.join(cfg.work_dir, 'test_{}_courrption.log'.format(timestamp))
     logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
 
     # build the dataloader
@@ -162,22 +134,18 @@ def main():
     model = build_model(cfg.model)
     load_checkpoint(model, args.checkpoint, map_location='cpu')
 
+    print_log("It`s CIFAR100-C test experiment!", logger=logger)
+
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
-        if args.keys == 'fgsm':
-            print_log("FGSM (Fast Gradient Sign Method) compute adversarial robustness error", logger=logger)
-            outputs = fgsm_test(model, data_loader, args.head, args.dataset)
+        outputs = single_gpu_test(model, data_loader)
 
-            rank, _ = get_dist_info()
-            if rank == 0:
-                for name, val in outputs.items():
-                    dataset.evaluate(
-                        torch.from_numpy(val), name, logger, topk=(1, 5))
-        else:
-            print_log("Calibration evaluation ECE", logger=logger)
-            outputs = single_gpu_test(model, data_loader)
-            result = dataset.ece_score(outputs[args.head], save_name=cfg.work_dir)
-            print_log("ECE score: {:4f}%".format(result * 100), logger=logger)
+    rank, _ = get_dist_info()
+    if rank == 0:
+        for name, val in outputs.items():
+            dataset.evaluate(
+                torch.from_numpy(val), name, logger, topk=(1, 5))
+
 
 
 if __name__ == '__main__':

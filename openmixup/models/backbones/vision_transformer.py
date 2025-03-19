@@ -341,6 +341,7 @@ class VisionTransformer(BaseBackbone):
                  final_norm=True,
                  with_cls_token=True,
                  output_cls_token=True,
+                 with_dis_token=False,
                  interpolate_mode='bicubic',
                  init_values=0.0,
                  patch_cfg=dict(),
@@ -396,6 +397,7 @@ class VisionTransformer(BaseBackbone):
                 f'set output_cls_token to True, but got {with_cls_token}'
         self.with_cls_token = with_cls_token
         self.output_cls_token = output_cls_token
+        self.with_dis_token = with_dis_token
         self.cls_token = nn.Parameter(torch.zeros(1, 1, self.embed_dims))
 
         # Set position embedding
