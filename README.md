@@ -4,7 +4,7 @@
 [![arxiv](https://img.shields.io/badge/arXiv-2209.04851-b31b1b.svg?style=flat)](https://arxiv.org/abs/2209.04851)
 [![docs](https://img.shields.io/badge/docs-latest-%23002FA7)](https://openmixup.readthedocs.io/en/latest/)
 [![license](https://img.shields.io/badge/license-Apache--2.0-%23B7A800)](https://github.com/Westlake-AI/openmixup/blob/main/LICENSE)
-[![open issues](https://img.shields.io/github/issues-raw/Westlake-AI/openmixup?color=%23FF9600)](https://github.com/Westlake-AI/openmixup/issues)
+[![open issues](https://img.shields.io/github/issues-raw/Westlake-AI/openmixup?color=%23009763)](https://github.com/Westlake-AI/openmixup/issues)
 <!-- [![issue resolution](https://img.shields.io/badge/issue%20resolution-1%20d-%23009763)](https://github.com/Westlake-AI/openmixup/issues) -->
 
 [📘Documentation](https://openmixup.readthedocs.io/en/latest/) |
@@ -59,7 +59,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## News and Updates
 
-[2023-12-23] `OpenMixup` v0.2.9 is released, updating more features in mixup augmentations, self-supervised learning, and optimizers.
+[2025-03-19] `OpenMixup` v0.2.10 is released, supporting **PyTorch >= 2.0** and more mixup augmentations and networks.
 
 ## Installation
 
@@ -209,10 +209,13 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
         <li><a href="https://arxiv.org/abs/2111.09833">TransMix</a> (CVPR'2022) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
         <li><a href="https://arxiv.org/abs/2103.13027">AutoMix</a> (ECCV'2022) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/automix">config</a></li>
         <li><a href="https://arxiv.org/abs/2111.15454">SAMix</a> (ArXiv'2021) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/samix">config</a></li>
+        <li><a href="https://arxiv.org/abs/2207.08409">TokenMix</a> (ECCV'2022) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
+        <li><a href="https://arxiv.org/abs/2304.12043">MixPro</a> (ICLR'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li><a href="https://arxiv.org/abs/2203.10761">DecoupleMix</a> (NeurIPS'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple">config</a></li>
-        <li><a href="https://arxiv.org/abs/2212.12977">SMMix</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
+        <li><a href="https://arxiv.org/abs/2212.12977">SMMix</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
+        <li><a href="https://arxiv.org/abs/2210.06455">TLA</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li><a href="https://arxiv.org/abs/2312.11954">AdAutoMix</a> (ICLR'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix">config</a></li>
-        <li><a href="https://arxiv.org/abs/2407.07805">SUMix</a> (ECCV'2024) </li>
+        <li><a href="https://arxiv.org/abs/2407.07805">SUMix</a> (ECCV'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         </ul>
       </td>
   </tbody>

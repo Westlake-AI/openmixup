@@ -73,7 +73,11 @@ def parse_args():
         choices=['none', 'pytorch', 'slurm', 'mpi'],
         default='none',
         help='job launcher')
-    parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument(
+        '--local_rank',
+        help='set local_rank for torch.distributed.launch (torch<2.0.0)',
+        type=int, default=0)
+    parser.add_argument('--local-rank', type=int, default=0)
     parser.add_argument('--port', type=int, default=29500,
         help='port only works when launcher=="slurm"')
     args = parser.parse_args()

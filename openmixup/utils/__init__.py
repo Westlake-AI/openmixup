@@ -8,7 +8,8 @@ from .dist_utils import (allreduce_grads, allreduce_params, all_reduce,
                          get_world_size, get_rank, get_local_size, get_local_rank,
                          is_main_process, master_only, barrier, get_local_group,
                          is_distributed, get_default_group, get_data_device,
-                         get_comm_device, cast_data_device, sync_random_seed)
+                         get_comm_device, cast_data_device, sync_random_seed,
+                         MMDistributedDataParallel)
 from .fp16_utils import LossScaler, auto_fp16, force_fp32, wrap_fp16_model
 from .flops_counter import get_model_complexity_info
 from .logger import get_root_logger, print_log, load_json_log
@@ -27,7 +28,7 @@ __all__ = [
     'get_world_size', 'get_rank', 'get_local_size', 'get_local_rank',
     'is_main_process', 'master_only', 'barrier', 'get_local_group',
     'is_distributed', 'get_default_group', 'get_data_device',
-    'get_comm_device', 'cast_data_device', 'sync_random_seed',
+    'get_comm_device', 'cast_data_device', 'sync_random_seed', 'MMDistributedDataParallel',
     'LossScaler', 'auto_fp16', 'force_fp32', 'wrap_fp16_model',
     'get_model_complexity_info', 'get_root_logger', 'print_log', 'load_json_log',
     'find_latest_checkpoint', 'multi_apply', 'tensor2imgs', 'unmap',

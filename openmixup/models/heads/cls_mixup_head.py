@@ -14,7 +14,7 @@ from ..builder import build_loss
 
 @HEADS.register_module
 class ClsMixupHead(BaseModule):
-    """Mixup Classifier Head, with only one fc layer.
+    """General Mixup Classifier Head, with only one fc layer.
        *** Mixup and multi-label classification are supported ***
 
     Args:
@@ -363,7 +363,8 @@ class ClsMixupHead(BaseModule):
 
 @HEADS.register_module
 class ClsUncertainMixupHead(BaseModule):
-    """Mixup Classifier Head, with only one fc layer.
+    """Mixup Classifier Head for SUMix, with only one fc layer.
+
     Args:
         with_avg_pool (bool): Whether to use GAP before this head.
         loss (dict): Config of classification loss.

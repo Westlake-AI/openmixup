@@ -14,6 +14,7 @@ import torch.multiprocessing as mp
 from torch import distributed as dist
 from torch._utils import (_flatten_dense_tensors, _take_tensors,
                           _unflatten_dense_tensors)
+from mmcv.parallel import MMDistributedDataParallel as _MMDistributedDataParallel
 
 try:
     from mmcv.utils import IS_MLU_AVAILABLE
@@ -21,6 +22,18 @@ except:
     IS_MLU_AVAILABLE = False
 
 _LOCAL_PROCESS_GROUP = None
+
+
+class MMDistributedDataParallel(_MMDistributedDataParallel):
+    """The DDP module that supports DataContainer (Fixed MMCV bug)
+
+    MMDDP has two main differences with PyTorch DDP:
+
+    - It supports a custom type :class:`DataContainer` which allows more
+      flexible control of input data.
+    - It implement two APIs ``train_step()`` and ``val_step()``.
+    """
+    _use_replicated_tensor_module = False  # fix bug in mmcv
 
 
 def _find_free_port():

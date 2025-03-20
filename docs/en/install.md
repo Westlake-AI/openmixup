@@ -14,7 +14,7 @@ In this section we demonstrate how to prepare an environment with PyTorch.
 
 - Linux (Windows is not officially supported)
 - Python 3.6+
-- PyTorch 1.8 or higher
+- PyTorch 1.8 or higher (PyTorch=>2.0.0 is supported)
 - CUDA 10.1 or higher
 - NCCL 2
 - GCC 4.9 or higher
@@ -69,7 +69,7 @@ pip install -v -e .
 # or "python setup.py develop"
 ```
 
-**Step 5.** Install Apex (optional), following the [official instructions](https://github.com/NVIDIA/apex), e.g.
+**Step 5.** Install Apex (optional and not recommend), following the [official instructions](https://github.com/NVIDIA/apex), e.g.
 ```shell
 git clone https://github.com/NVIDIA/apex
 cd apex

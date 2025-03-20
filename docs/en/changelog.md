@@ -1,5 +1,18 @@
 ## Changelog
 
+### v0.2.10 (19/03/2025 till now)
+
+Bump version to V0.2.10, supporting PyTorch=>2.0.0 and new mixup augmentations and backbones.
+
+#### New Features
+
+- Support new mixup augmentation methods. Config files and models & logs were provided and are on updating, including [TokenMix](https://arxiv.org/abs/2207.08409), [MixPro](https://arxiv.org/abs/2304.12043), [TLA](https://arxiv.org/abs/2210.06455), and [SUMix](https://arxiv.org/abs/2407.07805).
+
+### Bug Fixes
+
+- Fix some bugs with PyTorch=>2.0.0, including `AttributeError: 'MMDistributedDataParallel' object has no attribute "_use_replicated_tensor_module"` in `openmixup/api/train.py`, the parser error with `--local-rank` in `tools/train.py`.
+- Remove `tools/single_train.sh` in openmixup. We should only start training with DDP using `dist_train.sh` variants.
+
 ### v0.2.9 (23/12/2023 till now)
 
 Bump version to V0.2.9 with new mixup augmentations and various optimizers.

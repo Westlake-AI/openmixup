@@ -4,14 +4,15 @@ import warnings
 import numpy as np
 import torch
 import torch.distributed as dist
-from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
+from mmcv.parallel import MMDataParallel
 from mmcv.runner import build_runner, DistSamplerSeedHook, get_dist_info
 
 from openmixup.datasets import build_dataloader
 from openmixup.core.optimizers import build_optimizer
 from openmixup.core.hooks import (build_hook, build_addtional_scheduler,
                                   DistOptimizerHook, Fp16OptimizerHook)
-from openmixup.utils import find_latest_checkpoint, get_root_logger, print_log
+from openmixup.utils import (find_latest_checkpoint, get_root_logger, print_log,
+                             MMDistributedDataParallel)
 
 # import fp16 supports
 try:

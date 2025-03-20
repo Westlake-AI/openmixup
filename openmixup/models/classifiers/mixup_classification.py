@@ -150,9 +150,6 @@ class MixUpClassification(BaseModel):
         self.ploter = PlotTensor(apply_inv=True)
         self.init_weights(pretrained=pretrained, pretrained_k=pretrained_k)
 
-        # KL for SMMix
-        self.kl_layer = torch.nn.KLDivLoss(reduction='batchmean').cuda()
-
     def init_weights(self, pretrained=None, pretrained_k=None):
         """Initialize the weights of model.
 
@@ -286,7 +283,7 @@ class MixUpClassification(BaseModel):
         Returns:
             dict[str, Tensor]: A dictionary of loss components.
         """
-        # choose a mixup method
+        ## ------ choose a mixup method ------
         if self.mix_prob is None:
             candidate_list = self.idx_list.copy()
             if 0 <= remove_idx <= len(self.idx_list):
@@ -300,14 +297,14 @@ class MixUpClassification(BaseModel):
             cur_idx = random_state.choice(candidate_list, p=self.mix_prob)
         cur_mode, cur_alpha = self.mix_mode[cur_idx], self.alpha[cur_idx]
 
-        # selecting label mixup methods
+        ## ------ selecting label mixup methods ------
         label_mix_mode = "default"
         return_mask, mask = False, None  # return sample mixup mask in [N, 1, H, W]
         if cur_mode == "transmix":
             label_mix_mode, return_mask = "transmix", True
             cur_mode = self.mix_args["transmix"].get("mix_mode", "cutmix")  # sample mixup mode
 
-        # applying dynamic sample mixup methods
+        ## ------ applying dynamic sample mixup methods ------
         if cur_mode in ["attentivemix", "automix", "puzzlemix", "samix", "snapmix"]:
             if cur_mode in ["attentivemix", "puzzlemix", "snapmix"]:
                 features = self._features(
@@ -382,7 +379,7 @@ class MixUpClassification(BaseModel):
             # x, cls_token, attn = x[-1]
             # x = [[x, cls_token]]
 
-        # applying hand-crafted sample mixup methods
+        ## ------ applying hand-crafted sample mixup methods ------
         elif cur_mode not in ["manifoldmix",]:
             if cur_mode in ["mixup", "cutmix", "saliencymix", "smoothmix",]:
                 img, gt_label = self.static_mode[cur_mode](
@@ -406,7 +403,7 @@ class MixUpClassification(BaseModel):
                 idx_shuffle_mix=rand_index, dist_shuffle=False)
             x = self.backbone(img, mix_args)
 
-        # applying label mixup methods
+        ## ------ applying label mixup methods------
         if label_mix_mode == "transmix":
             assert mask is not None, "TransMix requires pre-defined sample mixup mask"
             y_a, y_b, lam0 = gt_label  # (y_a, y_b, lam): get lam
@@ -419,7 +416,7 @@ class MixUpClassification(BaseModel):
         else:
             pass
 
-        # mixup loss
+        ## ------ mixup loss ------
         pred_mix = self.head(x)
         if cur_mode in ["mixpro", "tla", "smmix"]:
             if cur_mode == "mixpro":
@@ -502,7 +499,8 @@ class MixUpClassification(BaseModel):
             losses = self.head.loss(mixed_pred, gt_label)
             losses['loss'] += self.head.loss(pred_target, gt_label[0])['loss'] + \
                               self.head.loss(pred_scoure, gt_label[1])['loss']
-            losses['loss'] += self.kl_layer(F.log_softmax(pred[0], dim=1), F.softmax(mixed_pred[0], dim=1))
+            losses['loss'] += F.kl_div(F.log_softmax(pred[0], dim=1),
+                                       F.softmax(mixed_pred[0], dim=1), reduction='batchmean')
         else:
             raise ValueError("The current mixup mode is unsupported. Please select a valid mixup method.")
         return losses

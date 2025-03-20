@@ -82,7 +82,11 @@ def parse_args():
         default=0,
         help='id of gpu to use '
         '(only applicable to non-distributed testing)')
-    parser.add_argument('--local_rank', type=int, default=0)
+    parser.add_argument(
+        '--local_rank',
+        help='set local_rank for torch.distributed.launch (torch<2.0.0)',
+        type=int, default=0)
+    parser.add_argument('--local-rank', type=int, default=0)
     parser.add_argument('--port', type=int, default=29500,
         help='port only works when launcher=="slurm"')
     parser.add_argument(

@@ -66,7 +66,7 @@ If you launch with slurm, the command is the same as that on single machine desc
 
 ### Launch multiple jobs on a single machine
 
-If you launch multiple jobs on a single machine, e.g., 2 jobs of 4-GPU training on a machine with 8 GPUs, you need to specify different ports (29500 by default) for each job to avoid communication conflict. No matter how many GPUs you use (e.g., 1-8 GPUs), we recommend you use the distributed training with `torch.distributed.launch` or `torchrun` rather than only using python (we deprecated `single_train.sh`).
+If you launch multiple jobs on a single machine, e.g., 2 jobs of 4-GPU training on a machine with 8 GPUs, you need to specify different ports (29500 by default) for each job to avoid communication conflict. No matter how many GPUs you use (e.g., 1-8 GPUs), we recommend you use the distributed training with `torch.distributed.launch` or `torchrun` rather than only using python (we have removed `single_train.sh`).
 
 If you use `dist_train.sh` to launch training jobs:
 ```shell
