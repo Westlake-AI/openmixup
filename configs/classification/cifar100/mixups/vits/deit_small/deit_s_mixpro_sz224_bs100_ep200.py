@@ -8,13 +8,9 @@ model = dict(
     type='MixUpClassification',
     pretrained=None,
     alpha=[1.0, 1.0],
-    mix_mode=["mixpro", "mixup"],  # using MixPro and Mixup
-<<<<<<< HEAD
+    mix_mode=["mixpro", "cutmix"],  # using MixPro and Mixup
     mix_prob=[0.5, 0.5],
-=======
-    mix_prob=[0.1, 0.9],
     debug=True,
->>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),
         attentivemix=dict(grid_size=32, top_k=None, beta=8),  # AttentiveMix+ in this repo (use pre-trained)
@@ -49,8 +45,6 @@ model = dict(
     ],
 )
 
-<<<<<<< HEAD
-=======
 custom_hooks = [
     dict(type='SAVEHook',
         save_interval=250,  # 20 ep
@@ -58,7 +52,6 @@ custom_hooks = [
     ),
 ]
 
->>>>>>> db2c4ac (update some vit-based mixup methods and fix robustness eval tasks)
 # optimizer
 optimizer = dict(
     type='AdamW',
