@@ -46,8 +46,8 @@ def saliencymix(img,
         W = size[1]
         H = size[2]
         cut_rat = np.sqrt(1. - lam)
-        cut_w = int(W * cut_rat)
-        cut_h = int(H * cut_rat)
+        cut_w = np.int(W * cut_rat)
+        cut_h = np.int(H * cut_rat)
         # force fp32 when convert to numpy
         img = img.type(torch.float32)
 

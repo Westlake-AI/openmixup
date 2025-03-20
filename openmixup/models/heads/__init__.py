@@ -1,6 +1,6 @@
 from .adaptive_mask import AdaptiveMask
 from .cls_head import ClsHead
-from .cls_mixup_head import ClsMixupHead
+from .cls_mixup_head import ClsMixupHead, ClsUncertainMixupHead
 from .cls_mlp_head import (EfficientFormerClsHead, MetaFormerClsHead, LeViTClsHead, StackedLinearClsHead,
                            VanillaNetClsHead)
 from .contrastive_head import ContrastiveHead, HCRHead
@@ -13,13 +13,14 @@ from .pmix_block import PixelMixBlock
 from .reg_head import RegHead
 from .swav_head import MultiPrototypes, SwAVHead
 from .tokenizer_head import BEiTHead, CAEHead
-from .vision_transformer_head import VisionTransformerClsHead
+from .vision_transformer_head import VisionTransformerClsHead, DistillationVisionTransformerClsHead
 
 __all__ = [
-    'A2MIMHead', 'AdaptiveMask', 'BEiTHead', 'CAEHead', 'ClsHead', 'ClsMixupHead', 'ContrastiveHead', 'DINOHead',
+    'A2MIMHead', 'AdaptiveMask', 'BEiTHead', 'CAEHead', 'ClsHead', 'ClsMixupHead', 'ClsUncertainMixupHead'
+    'ContrastiveHead', 'DINOHead',
     'EfficientFormerClsHead', 'HCRHead', 'MetaFormerClsHead', 'LeViTClsHead', 'StackedLinearClsHead', 'VanillaNetClsHead',
     'LatentPredictHead', 'LatentClsHead', 'LatentCrossCorrelationHead',
     'MoCoV3Head', 'MAEPretrainHead', 'MAELinprobeHead', 'MAEFinetuneHead', 'MAELinprobeHead',
     'MultiClsHead', 'MultiPrototypes', 'NormLinearClsHead', 'PixelMixBlock', 'RegHead',
-    'SwAVHead', 'SimMIMHead', 'VisionTransformerClsHead',
+    'SwAVHead', 'SimMIMHead', 'VisionTransformerClsHead', 'DistillationVisionTransformerClsHead',
 ]

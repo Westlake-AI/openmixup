@@ -163,6 +163,27 @@ def sample_and_apply(x, alpha, decay_power, shape, max_soft=0.0, reformulate=Fal
     return x1 + x2, index, lam
 
 
+def _no_repeat_shuffle_idx(batch_size_this, ignore_failure=False):
+        """ generate no repeat shuffle idx within a gpu """
+        idx_shuffle = torch.randperm(batch_size_this).cuda()
+        idx_original = torch.tensor([i for i in range(batch_size_this)]).cuda()
+        idx_repeat = False
+        for i in range(10):  # try 10 times
+            if (idx_original == idx_shuffle).any() == True:
+                idx_repeat = True
+                idx_shuffle = torch.randperm(batch_size_this).cuda()
+            else:
+                idx_repeat = False
+                break
+        # hit: prob < 1.2e-3
+        if idx_repeat == True and ignore_failure == False:
+            # way 2: repeat prob = 0, but too simple!
+            idx_shift = np.random.randint(1, batch_size_this-1)
+            idx_shuffle = torch.tensor(  # shift the original idx
+                [(i+idx_shift) % batch_size_this for i in range(batch_size_this)]).cuda()
+        return idx_shuffle
+
+
 @torch.no_grad()
 def fmix(img,
          gt_label,
@@ -211,7 +232,7 @@ def fmix(img,
 
     # normal mixup process
     if not dist_mode:
-        indices = torch.randperm(img.size(0)).cuda()
+        indices = _no_repeat_shuffle_idx(img.size(0), ignore_failure=True).cuda()
         if len(img.size()) == 4:  # [N, C, H, W]
             img_ = img[indices]
         else:
