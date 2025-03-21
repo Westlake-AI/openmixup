@@ -1,8 +1,6 @@
 import numpy as np
 import torch
-import torch.nn as nn
-import math
-import random
+
 
 @torch.no_grad()
 def tla(img,
@@ -56,7 +54,6 @@ def tla(img,
         bbox_area = (yu - yl) * (xu - xl)
         lam = 1. - bbox_area / float(img_shape[-2] * img_shape[-1])
         return (yl, yu, xl, xu), lam
-
 
     if lam is None:
         lam = np.random.beta(alpha, alpha)

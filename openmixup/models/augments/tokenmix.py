@@ -1,9 +1,8 @@
 import numpy as np
 import torch
-import torch.nn as nn
 import math
 import random
-from torchvision.ops import roi_align
+
 
 @torch.no_grad()
 def tokenmix(img,
@@ -48,7 +47,7 @@ def tokenmix(img,
         width, height = 14, 14
         min_aspect = 0.3
         log_aspect_ratio = (math.log(min_aspect), math.log(1 / min_aspect))
-        mask = np.zeros(shape=(width, height), dtype=np.int)
+        mask = np.zeros(shape=(width, height), dtype=np.int32)
         mask_ratio = 1 - lam
 
         num_masking_patches = min(width * height, int(mask_ratio * width * height) + mask_token_num_start)
@@ -91,7 +90,7 @@ def tokenmix(img,
 
     def generate_mask_random(lam, mask_token_num_start=14):
         width, height = 14, 14
-        mask = np.zeros(shape=(width * height), dtype=np.int)
+        mask = np.zeros(shape=(width * height), dtype=np.int32)
         mask_ratio = 1 - lam
 
         num_masking_patches = min(width * height, int(mask_ratio * width * height) + mask_token_num_start)

@@ -1,13 +1,9 @@
 import torch
 import numpy as np
 import torch
-import torch.nn as nn
-import imp
 import numpy as np
-import os
 import torch.nn.functional as F
-import random
-import copy
+
 
 @torch.no_grad()
 def snapmix(img,
@@ -47,7 +43,7 @@ def snapmix(img,
             raise Exception
 
         cut_rat = np.sqrt(1. - lam)
-        cut_w, cut_h = np.int(W * cut_rat), np.int(H * cut_rat)
+        cut_w, cut_h = int(W * cut_rat), int(H * cut_rat)
 
         if attcen is None:
             # uniform

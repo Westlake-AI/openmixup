@@ -3,6 +3,7 @@ import torch
 
 from openmixup.models.utils import batch_shuffle_ddp
 
+
 def _no_repeat_shuffle_idx(batch_size_this, ignore_failure=False):
         """ generate no repeat shuffle idx within a gpu """
         idx_shuffle = torch.randperm(batch_size_this).cuda()
@@ -22,7 +23,6 @@ def _no_repeat_shuffle_idx(batch_size_this, ignore_failure=False):
             idx_shuffle = torch.tensor(  # shift the original idx
                 [(i+idx_shift) % batch_size_this for i in range(batch_size_this)]).cuda()
         return idx_shuffle
-
 
 
 @torch.no_grad()
@@ -58,8 +58,8 @@ def cutmix(img,
         W = size[2]
         H = size[3]
         cut_rat = np.sqrt(1. - lam)
-        cut_w = np.int(W * cut_rat)
-        cut_h = np.int(H * cut_rat)
+        cut_w = int(W * cut_rat)
+        cut_h = int(H * cut_rat)
 
         # uniform
         cx = np.random.randint(W)

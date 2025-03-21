@@ -1,8 +1,6 @@
-import numpy as np
 import torch
-import torch.nn as nn
 import math
-
+import numpy as np
 from openmixup.models.utils import batch_shuffle_ddp
 
 

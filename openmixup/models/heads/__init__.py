@@ -16,7 +16,7 @@ from .tokenizer_head import BEiTHead, CAEHead
 from .vision_transformer_head import VisionTransformerClsHead, DistillationVisionTransformerClsHead
 
 __all__ = [
-    'A2MIMHead', 'AdaptiveMask', 'BEiTHead', 'CAEHead', 'ClsHead', 'ClsMixupHead', 'ClsUncertainMixupHead'
+    'A2MIMHead', 'AdaptiveMask', 'BEiTHead', 'CAEHead', 'ClsHead', 'ClsMixupHead', 'ClsUncertainMixupHead',
     'ContrastiveHead', 'DINOHead',
     'EfficientFormerClsHead', 'HCRHead', 'MetaFormerClsHead', 'LeViTClsHead', 'StackedLinearClsHead', 'VanillaNetClsHead',
     'LatentPredictHead', 'LatentClsHead', 'LatentCrossCorrelationHead',
