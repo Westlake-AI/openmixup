@@ -3,8 +3,8 @@ einops
 importlib-metadata
 matplotlib
 mmcv-full>=1.4.7,<=1.7.2
-numpy
-opencv-python
+numpy<=1.26.4
+opencv-python-headless
 packaging
 pandas
 scipy
@@ -12,5 +12,5 @@ scikit-learn
 seaborn
 six
 tensorboard
-timm
+timm<=1.0.19
 tqdm

@@ -63,7 +63,7 @@ The main branch works with **PyTorch 1.8** (required by some self-supervised met
 
 ## Installation
 
-OpenMixup is compatible with **Python 3.6/3.7/3.8/3.9** and **PyTorch >= 1.6**. Here are quick installation steps for development:
+OpenMixup is compatible with **Python 3.6/3.7/3.8/3.9** and **PyTorch >= 1.6**. Here are quick installations for installation in the development mode:
 
 ```shell
 conda create -n openmixup python=3.8 pytorch=1.12 cudatoolkit=11.3 torchvision -c pytorch -y
@@ -75,7 +75,22 @@ cd openmixup
 python setup.py develop
 ```
 
-Please refer to [install.md](docs/en/install.md) for more detailed installation and dataset preparation.
+<details>
+  <summary>Installation with PyTorch 2.x requiring different processes.</summary>
+
+  ```bash
+  conda create -n openmixup python=3.9
+  conda activate openmixup
+  pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+  pip install https://download.openmmlab.com/mmcv/dist/cu118/torch2.1.0/mmcv_full-1.7.2-cp39-cp39-manylinux1_x86_64.whl
+  git clone https://github.com/Westlake-AI/openmixup.git
+  cd openmixup
+  pip install -r requirements/runtime.txt
+  python setup.py develop
+  ```
+</details>
+
+Fore more detailed installation and dataset preparation, please refer to [install.md](docs/en/install.md).
 
 ## Getting Started
 

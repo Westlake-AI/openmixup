@@ -13,19 +13,19 @@ In this section we demonstrate how to prepare an environment with PyTorch.
 ## Requirements
 
 - Linux (Windows is not officially supported)
-- Python 3.6+
-- PyTorch 1.8 or higher (PyTorch=>2.0.0 is supported)
+- Python 3.6~3.9 (3.10 or higher are not supported)
+- PyTorch 1.6 or higher (PyTorch=>2.0.0 is supported)
 - CUDA 10.1 or higher
 - NCCL 2
 - GCC 4.9 or higher
-- [mmcv-full](https://github.com/open-mmlab/mmcv) 1.4.7 or higher (use `mmcv` for fast installation)
+- [mmcv-full](https://github.com/open-mmlab/mmcv) 1.4.7~1.7.2 (use `mmcv` for fast installation)
 
 We have tested the following versions of OS and softwares:
 
-- OS: Ubuntu 16.04/18.04 and CentOS 7.2
-- CUDA: 10.0/10.1/11.0/11.2
+- OS: Ubuntu 16.04/18.04/20.04 and CentOS 7.2
+- CUDA: 10.0/10.1/11.x/12.x
 - NCCL: 2.1.15/2.2.13/2.3.7/2.4.2 (PyTorch-1.1 w/ NCCL-2.4.2 has a deadlock bug, see [here](https://github.com/open-mmlab/OpenSelfSup/issues/6))
-- GCC(G++): 4.9/5.3/5.4/7.3/7.4/7.5
+- GCC(G++): 4.9/5.x/7.3/7.4/7.5/11.7
 
 ## Install openmixup
 
@@ -86,6 +86,18 @@ If some errors occur when you install Apex from the source, you can try `python 
 3. If you are installing `cv2` for the first time, `ImportError: libGL.so.1` will occur, which can be solved by `apt install libgl1-mesa-glx`. If you would like to use `opencv-python-headless` instead of `opencv-python`, you can install it before installing MMCV. Refer to [issue #48](https://github.com/Westlake-AI/openmixup/issues/48) for some errors encountered with the version of `cv2`.
 
 4. Some errors with mmcv installation can be solved according to the issue of [MMCV](https://github.com/open-mmlab/mmcv), e.g., using `yapf<=0.40.1` for [issue #10962](https://github.com/open-mmlab/mmdetection/issues/10962).
+
+5. To support the latest PyTorch 2.x versions, we provide an example of full installation instructions, which might be different from PyTorch 1.x setup:
+```bash
+conda create -n openmixup python=3.9
+conda activate openmixup
+pip install torch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 --index-url https://download.pytorch.org/whl/cu118
+pip install https://download.openmmlab.com/mmcv/dist/cu118/torch2.1.0/mmcv_full-1.7.2-cp39-cp39-manylinux1_x86_64.whl
+git clone https://github.com/Westlake-AI/openmixup.git
+cd openmixup
+pip install -r requirements/runtime.txt
+python setup.py develop
+```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 

@@ -5,7 +5,10 @@ import torch.nn as nn
 from mmcv.cnn import build_activation_layer, build_conv_layer, build_norm_layer
 from mmcv.cnn.bricks.transformer import AdaptivePadding
 from mmcv.runner.base_module import BaseModule
-from mmcv.ops import DeformConv2dPack
+try:
+    from mmcv.ops import DeformConv2dPack
+except:
+    DeformConv2dPack = None
 
 from ..helpers import to_2tuple
 
