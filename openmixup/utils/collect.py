@@ -252,26 +252,82 @@ def fgsm_nondist_forward_collect(func, data_loader, length, head, dataset='cifar
         mean, std = [0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.201]
     else:
         mean, std =[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+    mean, std = torch.tensor(mean).view(1, -1, 1, 1), torch.tensor(std).view(1, -1, 1, 1)
 
     criterion = torch.nn.CrossEntropyLoss()
     results = []
     prog_bar = mmcv.ProgressBar(len(data_loader))
     for i, data in enumerate(data_loader):
         img = data['img']
-        input = Variable(img, requires_grad=True)
-        optimizer_input = torch.optim.SGD([input], lr=0.1)
-        data['img'] = input
+        inputs = Variable(img, requires_grad=True)
+        data['img'] = inputs
         output = func(**data)
         loss = criterion(output[head], data['gt_label'])
-        optimizer_input.zero_grad()
         loss.backward()
 
-        sign_data_grad = input.grad.sign()
+        sign_data_grad = inputs.grad.sign()
+        inputs = (inputs * std + mean) + (eps / 255.) * sign_data_grad
+        inputs = torch.clamp(inputs, 0, 1)
+        inputs = (inputs - mean) / std
+        data['img'] = inputs.detach()
 
-        input = input + eps / 255. * sign_data_grad
-        eta = torch.clamp(input - img, min=-eps / 255., max=eps / 255.)
-        input = torch.clamp(img + eta, min=0, max=1).detach()
-        data['img'] = input
+        with torch.no_grad():
+            result = func(**data)
+        results.append(result)
+        prog_bar.update()
+
+    results_all = {}
+    for k in results[0].keys():
+        results_all[k] = np.concatenate(
+            [batch[k].numpy() for batch in results], axis=0)
+        assert results_all[k].shape[0] == length
+    return results_all
+
+
+def pgd_nondist_forward_collect(func, data_loader, length, head, dataset='cifar', random_start=True, targeted=False):
+
+    eps = 8
+    alpha = 2
+    steps = 10
+    if dataset == 'cifar':
+        mean, std = [0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.201]
+    else:
+        mean, std =[0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+    mean, std = torch.tensor(mean).view(1, -1, 1, 1), torch.tensor(std).view(1, -1, 1, 1)
+
+    criterion = torch.nn.CrossEntropyLoss()
+    results = []
+    prog_bar = mmcv.ProgressBar(len(data_loader))
+    for i, data in enumerate(data_loader):
+        img = data['img']
+        inputs = Variable(img.clone().detach(), requires_grad=True)
+
+        if random_start:
+            rand_perturb = torch.rand_like(inputs) * 2 * (eps / 255.) - (eps / 255.)
+            rand_perturb = rand_perturb * std
+            inputs = inputs * std + mean + rand_perturb
+            inputs = torch.clamp(inputs, 0, 1)
+            inputs = ((inputs - mean) / std).detach().requires_grad_(True)
+
+        # PGD iteration
+        for _ in range(steps):
+            data['img'] = inputs
+            output = func(**data)
+            if targeted:
+                loss = -criterion(output[head], data['gt_label'])
+            else:
+                loss = criterion(output[head], data['gt_label']) 
+            loss.backward()
+
+            sign_data_grad = inputs.grad.sign()
+            inputs = (inputs * std + mean) + (alpha / 255.) * (sign_data_grad * std)
+            img = img * std + mean
+
+            inputs = torch.max(torch.min(inputs, (img + (eps/ 255.))), img - (eps / 255.))
+            inputs = torch.clamp(inputs, 0, 1)
+            inputs = (inputs - mean) / std
+            inputs = inputs.detach().requires_grad_(True)
+        data['img'] = inputs.detach()
 
         with torch.no_grad():
             result = func(**data)

@@ -9,7 +9,7 @@ model = dict(
     pretrained=None,
     alpha=[1.0, 1.0],
     mix_mode=["smmix", "mixup"],  # using SMMix and Mixup
-    mix_prob=[0.9, 0.1],
+    mix_prob=[0.8, 0.2],
     debug=True,
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),

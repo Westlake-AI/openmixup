@@ -1,5 +1,5 @@
 _base_ = [
-    '../../../_base_/datasets/cifar100/sz224_swin_bs100.py',
+    '../../../_base_/datasets/cifar100/sz224_randaug_bs100.py',
     '../../../_base_/default_runtime.py',
 ]
 
@@ -44,7 +44,7 @@ model = dict(
 # optimizer
 optimizer = dict(
     type='AdamW',
-    lr=1e-3,
+    lr=5e-4,
     weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999),
     paramwise_options={
         '(bn|ln|gn)(\d+)?.(weight|bias)': dict(weight_decay=0.),
@@ -58,7 +58,7 @@ optimizer = dict(
 update_interval = 1  # total: 1 x bs100 x 1 accumulates = bs100
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)
@@ -66,7 +66,7 @@ optimizer_config = dict(
 # learning policy
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-6,
+    by_epoch=False, min_lr=0.,
     warmup='linear',
     warmup_iters=20, warmup_by_epoch=True,
     warmup_ratio=1e-5,

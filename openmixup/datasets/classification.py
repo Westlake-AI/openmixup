@@ -162,11 +162,12 @@ class ClassificationDataset(BaseDataset):
             plt.figure(figsize=(5, 5))
             sns.set_style("whitegrid", rc={'grid.linestyle': '--',
                                            "axes.edgecolor": '.20', })
-            # sns.set_style("whitegrid")
-            plt.plot(x, x, color='r', linestyle='--', linewidth=1)
-            plt.plot(acc, conf, color='b', linestyle='-', linewidth=1)
+            plt.plot(x, x, color='r', linestyle='--', linewidth=2)
+            plt.plot(acc, conf, color='b', linestyle='-', linewidth=2.5)
+            plt.xticks(fontsize=20)  
+            plt.yticks(fontsize=20)
             legend = plt.legend(title='ECE: {:.1f}%'.format(results * 100), loc='lower right', frameon=False)
-            legend.get_title().set_fontsize(20)
+            legend.get_title().set_fontsize(35)
             plt.savefig(f"{save_name}/ece_score.svg", format='svg', dpi=300)
             plt.show()
 

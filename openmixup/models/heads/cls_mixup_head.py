@@ -9,7 +9,6 @@ from mmcv.runner import BaseModule
 from ..utils import accuracy, accuracy_mixup, accuracy_co_mixup
 from ..registry import HEADS
 from ..builder import build_loss
-# from ..utils.accuracy import accuracy_co_mixup
 
 
 @HEADS.register_module
@@ -129,6 +128,7 @@ class ClsMixupHead(BaseModule):
 
     def forward_head(self, x, post_process=False):
         """" forward cls head with x in a shape of (X, \*) """
+
         if self.with_avg_pool:
             if x.dim() == 3:
                 x = F.adaptive_avg_pool1d(x, 1).view(x.size(0), -1)
@@ -155,6 +155,11 @@ class ClsMixupHead(BaseModule):
         Returns:
             Tensor | list: The inference results.
         """
+        if isinstance(x, list):
+            if len(x[-1]) == 2:  # For SwinTransformer, without attention-maps
+                x, _ = x[-1]
+                x = [x]
+
         assert isinstance(x, (tuple, list)) and len(x) >= 1
         if self.fc is None:
             return x
@@ -360,6 +365,64 @@ class ClsMixupHead(BaseModule):
                 losses['acc_mix'] = accuracy_mixup(cls_score, labels)
         return losses
 
+    def lam_loss(self, cls_score, labels, multi_lam=False, **kwargs):
+            """" cls loss forward
+            
+            Args:
+                cls_score (list): Score should be [tensor].
+                labels (tuple or tensor): Labels should be tensor [N, \*] by default.
+                    If labels as tuple, it's used for CE mixup, (gt_a, gt_b, lambda).
+            """
+            single_label = False
+            losses = dict()
+            assert isinstance(cls_score, (tuple, list)) and len(cls_score) >= 1
+            if len(cls_score) > 1:
+                assert isinstance(labels, torch.Tensor), "Only support one-hot labels."
+                labels = labels.reshape(labels.size(0), -1).repeat(len(cls_score), 1).squeeze()
+                cls_score = torch.cat(cls_score, dim=0)
+            else:
+                cls_score = cls_score[0]
+            
+            # computing loss
+            if not isinstance(labels, tuple):
+                # whether is the single label cls [N,] or multi-label cls [N,C]
+                single_label = \
+                    labels.dim() == 1 or (labels.dim() == 2 and labels.shape[1] == 1)
+                # Notice: we allow the single-label cls using multi-label loss, thus
+                # * For single-label or multi-label cls, loss = loss.sum() / N
+                avg_factor = labels.size(0)
+
+                target = labels.clone()
+                if self.multi_label:
+                    # convert to onehot labels
+                    if single_label:
+                        target = F.one_hot(target, num_classes=self.num_classes)
+                # default onehot cls
+                losses['loss'] = self.criterion(
+                    cls_score, target, avg_factor=avg_factor, **kwargs)
+                # compute accuracy
+                losses['acc'] = accuracy(cls_score, labels)
+            else:
+                # mixup classification
+                y_a, y_b, lam = labels
+                lam = torch.tensor(lam).cuda()
+                if isinstance(lam, torch.Tensor):  # lam is scalar or tensor [N,\*]
+                    lam = lam.view(-1, 1)
+                # whether is the single label cls [N,] or multi-label cls [N,C]
+                single_label = \
+                    y_a.dim() == 1 or (y_a.dim() == 2 and y_a.shape[1] == 1)
+                # Notice: we allow the single-label cls using multi-label loss, thus
+                # * For single-label or multi-label cls, loss = loss.sum() / N
+                avg_factor = y_a.size(0)
+                if not self.multi_label:
+                    losses['loss'] = \
+                        torch.mean(self.criterion(cls_score, y_a, avg_factor=avg_factor, **kwargs) * lam + \
+                        self.criterion(cls_score, y_b, avg_factor=avg_factor, **kwargs) * (1 - lam))
+                # compute accuracy
+                losses['acc'] = accuracy(cls_score, labels[0])
+                if multi_lam is False:
+                    losses['acc_mix'] = accuracy_mixup(cls_score, labels)
+            return losses
 
 @HEADS.register_module
 class ClsUncertainMixupHead(BaseModule):

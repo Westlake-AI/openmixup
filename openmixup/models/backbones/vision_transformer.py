@@ -16,10 +16,13 @@ from mmcv.runner.base_module import BaseModule, ModuleList
 from mmcv.utils.parrots_wrapper import _BatchNorm
 
 from openmixup.utils import get_root_logger, print_log
-from ..utils import MultiheadAttention, MultiheadAttentionWithRPE, to_2tuple, \
+from ..utils import MultiheadAttention, MultiheadAttentionWithRPE, ToMeAttention, to_2tuple, \
                     resize_pos_embed, build_2d_sincos_position_embedding
 from ..builder import BACKBONES
 from .base_backbone import BaseBackbone
+
+# ------ Token Merging ------ #
+from ..utils.merge import bipartite_soft_matching, merge_source_matrix, merge_source_map, merge_wavg
 
 
 class TransformerEncoderLayer(BaseModule):
@@ -607,3 +610,127 @@ class VisionTransformer(BaseBackbone):
                 # trick: eval have effect on BatchNorm only
                 if isinstance(m, (_BatchNorm, nn.SyncBatchNorm)):
                     m.eval()
+
+
+
+class ToMeTransformerEncoderLayer(TransformerEncoderLayer):
+    """Transformer encoder layer with Token Merging (ToMe)."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.attn = ToMeAttention(
+            embed_dims=self.embed_dims,
+            num_heads=self.attn.num_heads,
+            attn_drop=self.attn.attn_drop.p if hasattr(self.attn.attn_drop, "p") else 0.,
+            proj_drop=self.attn.proj_drop.p if hasattr(self.attn.proj_drop, "p") else 0.,
+            qkv_bias=True,
+            attn_scale=False,
+            return_attn=self.return_attn,
+        )
+
+    def forward(self, x):
+        """Add token merging based on cosine similarity metric."""
+        _x, metric = self.attn(self.norm1(x))
+        if self.return_attn:
+            _x, attn = _x
+        x = x + self.drop_path(self.freq_scale(_x))
+
+        # ------ ToMe token merging ------ #
+        r = self._tome_info["r"].pop(0)
+        if r > 0 and not self._tome_info["inference"]:
+            merge, _, current_level_map = bipartite_soft_matching(
+                metric, r,
+                self._tome_info["class_token"],
+                self._tome_info["distill_token"],
+            )
+            if self._tome_info["trace_source"]:
+                if self._tome_info["source_tracking_mode"] == "map":
+                    source_map = self._tome_info["source_map"]
+                    if source_map is None:
+                        b, t, _ = x.shape
+                        source_map = torch.arange(t, device=x.device, dtype=torch.long).expand(b, -1)
+                    self._tome_info["source_map"] = merge_source_map(current_level_map, x, source_map)
+                else:
+                    source_matrix = self._tome_info["source_matrix"]
+                    self._tome_info["source_matrix"] = merge_source_matrix(merge, x, source_matrix)
+            x, self._tome_info["size"] = merge_wavg(merge, x, self._tome_info["size"])
+
+        x = x + self.drop_path(self.ffn(self.norm2(x)))
+
+        if self.return_attn:
+            return x, attn
+        return x
+
+
+@BACKBONES.register_module()
+class ToMeVisionTransformer(VisionTransformer):
+    """Vision Transformer with Token Merging (ToMe).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        _layers = []
+        for layer in self.layers:
+            drop_rate = getattr(layer.ffn.dropout_layer, "drop_prob", 0.0)
+            drop_path_rate = getattr(layer.drop_path, "drop_prob", 0.0)
+
+            _layer = ToMeTransformerEncoderLayer(
+                embed_dims=layer.embed_dims,
+                num_heads=layer.attn.num_heads,
+                feedforward_channels=layer.ffn.feedforward_channels,
+                drop_rate=drop_rate,
+                drop_path_rate=drop_path_rate,
+                qkv_bias=True,
+                return_attn=layer.return_attn,
+            )
+            _layers.append(_layer)
+        self.layers = torch.nn.ModuleList(_layers)
+
+
+    def forward(self, x):
+        B = x.shape[0]
+        x, patch_resolution = self.patch_embed(x)
+        
+        # stole cls_tokens impl from Phil Wang, thanks
+        cls_tokens = self.cls_token.expand(B, -1, -1)
+        x = torch.cat((cls_tokens, x), dim=1)
+        x = x + resize_pos_embed(
+            self.pos_embed,
+            self.patch_resolution,
+            patch_resolution,
+            mode=self.interpolate_mode,
+            num_extra_tokens=self.num_extra_tokens)
+        x = self.drop_after_pos(x)
+
+        if not self.with_cls_token:
+            # Remove class token for transformer encoder input
+            x = x[:, 1:]
+
+        outs = []
+        for i, layer in enumerate(self.layers):
+            x = layer(x)
+            if i in self.out_indices and self.return_attn:
+                x, attn = x
+            if i == len(self.layers) - 1 and self.final_norm:
+                x = self.norm1(x)
+            if i in self.out_indices:
+                B, _, C = x.shape
+                if self.with_cls_token:   # batch size, 14,14 dims
+                    patch_token = x[:, 1:].reshape(B, C, -1).contiguous()
+                    cls_token = x[:, 0].contiguous()
+                else:
+                    patch_token = x.reshape(B, C, -1).contiguous()
+                    cls_token = None
+                if self.output_cls_token and i == len(self.layers) - 1:
+                    out = [patch_token, cls_token]
+                else:
+                    out = patch_token
+                if self.return_attn:
+                    if not isinstance(out, list):
+                        out = [out]
+                    out.append(attn)
+                outs.append(out)
+
+        return outs

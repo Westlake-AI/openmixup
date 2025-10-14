@@ -1,6 +1,7 @@
 from .attention import (BEiTAttention, CrossMultiheadAttention, ChannelMultiheadAttention,
                         FlowAttention, HiLoAttention, MultiheadAttention, MultiheadAttentionWithRPE,
-                        MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, WindowMSAV2)
+                        MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, WindowMSAV2,
+                        ToMeAttention)
 from .channel_shuffle import channel_shuffle
 from .conv_ws import ConvWS2d, conv_ws_2d
 from .drop import DropPath

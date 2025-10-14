@@ -231,6 +231,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
         <li><a href="https://arxiv.org/abs/2210.06455">TLA</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li><a href="https://arxiv.org/abs/2312.11954">AdAutoMix</a> (ICLR'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix">config</a></li>
         <li><a href="https://arxiv.org/abs/2407.07805">SUMix</a> (ECCV'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
+        <li>MergeMix (ArXiv'2025) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mergemix">config</a></li>
         </ul>
       </td>
   </tbody>

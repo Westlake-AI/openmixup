@@ -13,7 +13,7 @@ from openmixup.datasets import build_dataloader, build_dataset
 from openmixup.models import build_model
 from openmixup.utils import (get_root_logger, dist_forward_collect, print_log,
                              setup_multi_processes, nondist_forward_collect, traverse_replace,
-                             fgsm_nondist_forward_collect)
+                             fgsm_nondist_forward_collect, pgd_nondist_forward_collect)
 
 
 def single_gpu_test(model, data_loader):
@@ -24,12 +24,19 @@ def single_gpu_test(model, data_loader):
     return results
 
 
-def fgsm_test(model, data_loader, head, dataset='cifar'):
+def adver_attack_test(model, data_loader, head, dataset='cifar', mode="fgsm"):
     model.eval()
     func = lambda **x: model(mode='test', **x)
-    results = fgsm_nondist_forward_collect(func, data_loader,
-                                           len(data_loader.dataset), head, dataset)
+    if mode == "fgsm":
+        results = fgsm_nondist_forward_collect(func, data_loader,
+                                            len(data_loader.dataset), head, dataset)
+    elif mode == "pgd":
+        results = pgd_nondist_forward_collect(func, data_loader,
+                                            len(data_loader.dataset), head, dataset, random_start=True, targeted=False)
+    else:
+        raise ValueError("Wrong Adversarial Attack method.")
     return results
+
 
 
 def multi_gpu_test(model, data_loader):
@@ -53,8 +60,13 @@ def parse_args():
     parser.add_argument(
         '--keys',
         type=str,
-        default='fgsm',   # choose calibration or fgsm
+        default='fgsm',   # choose calibration or fgsm/pgd
         help='the evaluation mode')
+    parser.add_argument(
+        '--method',
+        type=str,
+        default='vanilla',
+        )
     parser.add_argument(
         '--head',
         type=str,
@@ -69,7 +81,7 @@ def parse_args():
     parser.add_argument(
         '--work_dir',
         type=str,
-        default='work_dirs/calibration_fgsm',
+        default='work_dirs/calibration_adver_attack',
         help='the dir to save logs and models')
     parser.add_argument(
         '--launcher',
@@ -122,10 +134,10 @@ def main():
     # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
         # update configs according to CLI args if args.work_dir is not None
-        cfg.work_dir = args.work_dir
+        cfg.work_dir = args.work_dir + "/" + args.method
     elif cfg.get('work_dir', None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
-        work_type = args.config.split('/')[1]
+        work_type = args.config.split('/')[1] + args.method
         cfg.work_dir = osp.join('./work_dirs', work_type,
                                 osp.splitext(osp.basename(args.config))[0])
     cfg.gpu_ids = [args.gpu_id]
@@ -168,9 +180,12 @@ def main():
 
     if not distributed:
         model = MMDataParallel(model, device_ids=[0])
-        if args.keys == 'fgsm':
-            print_log("FGSM (Fast Gradient Sign Method) compute adversarial robustness error", logger=logger)
-            outputs = fgsm_test(model, data_loader, args.head, args.dataset)
+        if args.keys in ['fgsm', 'pgd']:
+            if args.keys == 'fgsm':
+                print_log("FGSM (Fast Gradient Sign Method) compute adversarial robustness error", logger=logger)
+            else:
+                print_log("PGD (Projected Gradient Descent) compute adversarial robustness error", logger=logger)
+            outputs = adver_attack_test(model, data_loader, args.head, args.dataset, mode=args.keys)
 
             rank, _ = get_dist_info()
             if rank == 0:
