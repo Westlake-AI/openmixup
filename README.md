@@ -216,6 +216,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
         <li><a href="https://arxiv.org/abs/2003.13048">AttentiveMix</a> (ICASSP'2020) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
         <li><a href="https://openaccess.thecvf.com/content_CVPRW_2020/papers/w45/Lee_SmoothMix_A_Simple_Yet_Effective_Data_Augmentation_to_Train_Robust_CVPRW_2020_paper.pdf">SmoothMix</a> (CVPRW'2020) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
         <li><a href="https://arxiv.org/abs/1710.09412">SaliencyMix</a> (ICLR'2021) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
+        <li><a href="https://arxiv.org/abs/1912.02781">AugMix</a> (ICLR'2020) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
         <li><a href="https://arxiv.org/abs/2009.06962">PuzzleMix</a> (ICML'2020) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
         <li><a href="https://arxiv.org/abs/2012.04846">SnapMix</a> (AAAI'2021) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/">config</a></li>
         <li><a href="https://www.sciencedirect.com/science/article/pii/S0031320320303976">GridMix</a> (Pattern Recognition'2021) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/">config</a></li>
@@ -229,6 +230,7 @@ Please run experiments or find results on each config page. Refer to [Mixup Benc
         <li><a href="https://arxiv.org/abs/2203.10761">DecoupleMix</a> (NeurIPS'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mixups/decouple">config</a></li>
         <li><a href="https://arxiv.org/abs/2212.12977">SMMix</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li><a href="https://arxiv.org/abs/2210.06455">TLA</a> (ICCV'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
+        <li><a href="https://arxiv.org/abs/2306.16612">GuidedMixup</a> (AAAI'2023) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li><a href="https://arxiv.org/abs/2312.11954">AdAutoMix</a> (ICLR'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/adautomix">config</a></li>
         <li><a href="https://arxiv.org/abs/2407.07805">SUMix</a> (ECCV'2024) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/cifar100/mixups/vits">config</a></li>
         <li>MergeMix (ArXiv'2025) <a href="https://github.com/Westlake-AI/openmixup/tree/main/configs/classification/imagenet/mergemix">config</a></li>
