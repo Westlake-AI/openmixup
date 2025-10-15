@@ -16,7 +16,7 @@ optimizer = dict(
 # lr scheduler
 lr_config = dict(
     policy='CosineAnnealing',
-    by_epoch=False, min_lr=1e-4,
+    by_epoch=False, min_lr=1e-6,
     warmup='linear',
     warmup_iters=20, warmup_by_epoch=True,  # warmup 20 epochs.
     warmup_ratio=1e-5,

@@ -60,7 +60,7 @@ optimizer = dict(
 update_interval = 1  # total: 1 x bs100 x 1 accumulates = bs100
 
 # fp16
-use_fp16 = False
+use_fp16 = True
 fp16 = dict(type='mmcv', loss_scale='dynamic')
 optimizer_config = dict(
     grad_clip=dict(max_norm=5.0), update_interval=update_interval)

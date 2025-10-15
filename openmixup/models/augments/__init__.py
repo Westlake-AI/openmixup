@@ -14,9 +14,11 @@ from .mixpro import mixpro
 from .tokenmix import tokenmix
 from .smmix import smmix
 from .tla import tla
+from .guidedmix import guidedmix
+from .augmix import augmix
 
 __all__ = [
     'alignmix', 'attentivemix', 'cutmix', 'fmix', 'mixup', 'gridmix',
     'puzzlemix', 'resizemix', 'saliencymix', 'smoothmix', 'transmix',
-    'snapmix', 'mixpro', 'tokenmix', 'smmix', "tla",
+    'snapmix', 'mixpro', 'tokenmix', 'smmix', "tla", "guidedmix", 'augmix',
 ]

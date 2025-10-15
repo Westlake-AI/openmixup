@@ -8,8 +8,8 @@ model = dict(
     type='MixUpClassification',
     pretrained=None,
     alpha=[1.0, 1.0],
-    mix_mode=["mixpro", "cutmix"],  # using MixPro and Mixup
-    mix_prob=[0.5, 0.5],
+    mix_mode=["mixpro", "mixup"],  # using MixPro and Mixup
+    mix_prob=[0.8, 0.2],
     debug=True,
     mix_args=dict(
         alignmix=dict(eps=0.1, max_iter=100),

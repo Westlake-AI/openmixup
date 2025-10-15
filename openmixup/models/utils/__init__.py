@@ -13,6 +13,7 @@ from .layers import channel_shuffle, ConvWS2d, conv_ws_2d, DropPath, InvertedRes
    BEiTAttention, CrossMultiheadAttention, ChannelMultiheadAttention, FlowAttention, HiLoAttention, \
    MultiheadAttention, MultiheadAttentionWithRPE, MultiheadPoolAttention, ShiftWindowMSA, WindowMSA, WindowMSAV2, \
    HybridEmbed, PatchEmbed, DeformablePatchMerging, PatchMerging, \
+   ToMeAttention, \
    build_fourier_pos_embed, build_rotary_pos_embed, build_2d_sincos_position_embedding, \
    ConditionalPositionEncoding, resize_pos_embed, resize_relative_position_bias_table, \
    FourierEmbed, RotaryEmbed, PositionEncodingFourier, \

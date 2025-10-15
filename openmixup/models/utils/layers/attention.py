@@ -26,6 +26,81 @@ if digit_version(torch.__version__) >= digit_version('1.10.0'):
 else:
     torch_meshgrid = torch.meshgrid
 
+class ToMeAttention(BaseModule):
+    def __init__(self,
+                 embed_dims,
+                 num_heads,
+                 input_dims=None,
+                 attn_drop=0.,
+                 proj_drop=0.,
+                 dropout_layer=dict(type='Dropout', drop_prob=0.),
+                 qkv_bias=True,
+                 qk_scale=None,
+                 proj_bias=True,
+                 attn_scale=False,
+                 v_shortcut=False,
+                 return_attn=False,
+                 use_layer_scale=False,
+                 init_cfg=None):
+        super(ToMeAttention, self).__init__(init_cfg=init_cfg)
+
+        self.input_dims = input_dims or embed_dims
+        self.embed_dims = embed_dims
+        self.num_heads = num_heads
+        self.v_shortcut = v_shortcut
+        self.return_attn = return_attn
+
+        self.head_dims = embed_dims // num_heads
+        self.scale = qk_scale or self.head_dims**-0.5
+
+        self.qkv = nn.Linear(self.input_dims, embed_dims * 3, bias=qkv_bias)
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(embed_dims, embed_dims, bias=proj_bias)
+        self.proj_drop = nn.Dropout(proj_drop)
+
+        self.attn_scale = attn_scale
+        if self.attn_scale:
+            self.lamb = nn.Parameter(
+                torch.zeros(num_heads), requires_grad=True)
+
+        self.out_drop = DROPOUT_LAYERS.build(dropout_layer)
+
+        if use_layer_scale:
+            self.gamma1 = LayerScale(embed_dims, data_format='channels_last')
+        else:
+            self.gamma1 = nn.Identity()
+
+    def forward(self, x):
+        B, N, _ = x.shape
+        qkv = self.qkv(x).reshape(B, N, 3, self.num_heads,
+                                  self.head_dims).permute(2, 0, 3, 1, 4)
+        q, k, v = qkv[0], qkv[1], qkv[2]
+
+        attn = (q @ k.transpose(-2, -1)) * self.scale
+        attn = attn.softmax(dim=-1)
+
+        if self.attn_scale:
+            attn_d = torch.ones(
+                attn.shape[-2:], device=attn.device) / N  # [l, l]
+            attn_d = attn_d[None, None, ...]  # [B, N, l, l]
+            attn_h = attn - attn_d  # [B, N, l, l]
+            attn_h = attn_h * (1. + self.lamb[None, :, None, None]
+                               )  # [B, N, l, l]
+            attn = attn_d + attn_h  # [B, N, l, l]
+        if self.return_attn:
+            attn_softmax = attn.detach().clone()
+
+        attn = self.attn_drop(attn)
+
+        x = (attn @ v).transpose(1, 2).reshape(B, N, self.embed_dims)
+        x = self.proj(x)
+        x = self.out_drop(self.gamma1(self.proj_drop(x)))
+
+        if self.v_shortcut:
+            x = v.squeeze(1) + x
+        if self.return_attn:
+            return (x, attn_softmax), k.mean(1)
+        return x, k.mean(1)
 
 class WindowMSA(BaseModule):
     """Window based multi-head self-attention (W-MSA) module with relative
@@ -66,6 +141,7 @@ class WindowMSA(BaseModule):
                  qk_scale=None,
                  attn_drop=0.,
                  proj_drop=0.,
+                 return_attn=False,
                  attn_scale=False,
                  init_cfg=None):
 
@@ -75,6 +151,7 @@ class WindowMSA(BaseModule):
         self.num_heads = num_heads
         head_embed_dims = embed_dims // num_heads
         self.scale = qk_scale or head_embed_dims**-0.5
+        self.return_attn = return_attn
 
         # define a parameter table of relative position bias
         self.relative_position_bias_table = nn.Parameter(
@@ -149,11 +226,17 @@ class WindowMSA(BaseModule):
                                )  # [B, N, l, l]
             attn = attn_d + attn_h  # [B, N, l, l]
 
+        if self.return_attn:
+            attn_softmax = attn.detach().clone()
+
         attn = self.attn_drop(attn)
 
         x = (attn @ v).transpose(1, 2).reshape(B_, N, C)
         x = self.proj(x)
         x = self.proj_drop(x)
+
+        if self.return_attn:
+            return x, attn_softmax
         return x
 
     @staticmethod
@@ -381,6 +464,7 @@ class ShiftWindowMSA(BaseModule):
                  shift_size=0,
                  dropout_layer=dict(type='DropPath', drop_prob=0.),
                  pad_small_map=False,
+                 return_attn=False,
                  window_msa=WindowMSA,
                  input_resolution=None,
                  auto_pad=None,
@@ -397,12 +481,14 @@ class ShiftWindowMSA(BaseModule):
 
         self.shift_size = shift_size
         self.window_size = window_size
+        self.return_attn = return_attn
         assert 0 <= self.shift_size < self.window_size
 
         self.w_msa = window_msa(
             embed_dims=embed_dims,
             num_heads=num_heads,
             window_size=to_2tuple(self.window_size),
+            return_attn=return_attn,
             **kwargs,
         )
 
@@ -456,7 +542,12 @@ class ShiftWindowMSA(BaseModule):
         query_windows = query_windows.view(-1, window_size**2, C)
 
         # W-MSA/SW-MSA (nW*B, window_size*window_size, C)
-        attn_windows = self.w_msa(query_windows, mask=attn_mask)
+        # Attention shape --> 32*batch size, 3, 49, 49
+        if self.return_attn:
+            attn_windows, attn = self.w_msa(query_windows, mask=attn_mask)
+            attn = attn.view(B, -1, window_size ** 2, window_size ** 2)
+        else:
+            attn_windows = self.w_msa(query_windows, mask=attn_mask)
 
         # merge windows
         attn_windows = attn_windows.view(-1, window_size, window_size, C)
@@ -478,6 +569,8 @@ class ShiftWindowMSA(BaseModule):
 
         x = self.drop(x)
 
+        if self.return_attn:
+            return x, attn
         return x
 
     @staticmethod

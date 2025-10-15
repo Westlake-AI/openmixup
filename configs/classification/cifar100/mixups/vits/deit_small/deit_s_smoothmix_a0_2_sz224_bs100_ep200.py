@@ -1,4 +1,4 @@
-_base_ = "../deit_s_mixups_sz224_bs100.py"
+_base_ = "../deit_s_mixups_sz224_bs100_randaug.py"
 
 # model settings
 model = dict(
